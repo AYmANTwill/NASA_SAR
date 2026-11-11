@@ -207,7 +207,12 @@ export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes =
     const map = mapRef.current;
     if (!map || !ready || !bounds) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    map.fitBounds([[bounds[0], bounds[1]], [bounds[2], bounds[3]]], { padding: 40, duration: reduced ? 0 : 700, maxZoom: 11 });
+    // Keep the measured area clear of the legend (bottom, inline-end).
+    const wide = map.getContainer().clientWidth >= 768;
+    const rtl = document.documentElement.dir === "rtl";
+    const side = legend && wide && layers.length > 0 ? 320 : 40;
+    const padding = { top: 40, bottom: 40, left: rtl ? side : 40, right: rtl ? 40 : side };
+    map.fitBounds([[bounds[0], bounds[1]], [bounds[2], bounds[3]]], { padding, duration: reduced ? 0 : 700, maxZoom: 11 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boundsKey, ready]);
 

@@ -7,7 +7,7 @@ import { MeasurementText } from "@/components/science/MeasurementText";
 import { ErrorState, Loading } from "@/components/states";
 import { gradient } from "@/components/map/palettes";
 import { useText } from "@/i18n/useText";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatNumber, niceTicks } from "@/lib/format";
 
 const RadarMap = lazy(() => import("@/components/map/RadarMap"));
 const AXIS = { fontSize: 12, fill: "var(--ink-2)" };
@@ -143,7 +143,7 @@ function ForestChart({ proof }: { proof: LbandProof }) {
               axisLine={{ stroke: "var(--line-strong)" }}
               label={{ value: t("proof.forestAxis"), position: "insideBottom", offset: -12, fill: "var(--ink-2)", fontSize: 12 }}
             />
-            <YAxis domain={[0, 1]} tickFormatter={(v: number) => formatNumber(v, lang, 1)} tick={AXIS} tickLine={false} axisLine={false} width={40} />
+            <YAxis domain={[0, 1]} ticks={niceTicks(0, 1).ticks} tickFormatter={(v: number) => formatNumber(v, lang, 1)} tick={AXIS} tickLine={false} axisLine={false} width={40} />
             <ReferenceLine
               y={proof.usable_threshold}
               stroke="var(--ink)"

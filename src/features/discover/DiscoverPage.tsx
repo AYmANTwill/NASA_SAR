@@ -17,27 +17,32 @@ const RadarMap = lazy(() => import("@/components/map/RadarMap"));
 
 type Sort = "velocity" | "exposure";
 
-export default function DiscoverPage() {
-  const { t } = useText();
-  const query = useDiscoveries("MA");
+function QuickAsk() {
   const navigate = useNavigate();
+  return (
+    <AskBox
+      location={null}
+      onClearLocation={() => undefined}
+      running={false}
+      compact
+      onAsk={(q) => navigate(`/investigate?q=${encodeURIComponent(q)}&auto=1`)}
+      onCancel={() => undefined}
+    />
+  );
+}
 
+export default function DiscoverPage() {
+  const query = useDiscoveries("MA");
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-6">
-      <div className="mb-6 max-w-2xl">
-        <AskBox
-          location={null}
-          onClearLocation={() => undefined}
-          running={false}
-          compact
-          onAsk={(q) => navigate(`/investigate?q=${encodeURIComponent(q)}&auto=1`)}
-          onCancel={() => undefined}
-        />
-      </div>
       {query.isLoading && <Loading />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
+      {query.isError && (
+        <div className="max-w-2xl space-y-6">
+          <ErrorState error={query.error} onRetry={() => void query.refetch()} />
+          <QuickAsk />
+        </div>
+      )}
       {query.data && <DiscoverBody data={query.data} />}
-      {!query.isLoading && !query.data && !query.isError && <p className="sr-only">{t("common.none")}</p>}
     </div>
   );
 }
@@ -95,6 +100,10 @@ function DiscoverBody({ data }: { data: Discoveries }) {
           </p>
           <p className="text-xs text-muted">{t("discover.generated", { date: formatDate(data.generated_at, lang) })}</p>
         </header>
+
+        <div className="max-w-2xl">
+          <QuickAsk />
+        </div>
 
         {data.zones.length > 0 && (
           <div className="flex items-center gap-2 text-sm" role="group" aria-label={t("discover.sortBy")}>
@@ -160,7 +169,7 @@ function ZoneRow({ zone, threshold, extent, href }: { zone: Zone; threshold: num
               </Link>
             </h2>
             <span className="text-sm text-ink-2">{t(`zoneKind.${zone.kind}`)}</span>
-            <span className="ms-auto">
+            <span className="relative z-10 ms-auto">
               <ConfidenceBadge level={zone.confidence} withLabel={false} />
             </span>
           </div>

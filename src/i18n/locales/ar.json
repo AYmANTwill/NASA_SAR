@@ -80,7 +80,13 @@
       "done": "تم",
       "failed": "فشل",
       "skipped": "تم تخطيها"
-    }
+    },
+    "summary_zero": "لا خطوات",
+    "summary_one": "خطوة واحدة في {{seconds}} ث",
+    "summary_two": "خطوتان في {{seconds}} ث",
+    "summary_few": "{{count}} خطوات في {{seconds}} ث",
+    "summary_many": "{{count}} خطوة في {{seconds}} ث",
+    "summary_other": "{{count}} خطوة في {{seconds}} ث"
   },
   "answer": {
     "label": "الإجابة",

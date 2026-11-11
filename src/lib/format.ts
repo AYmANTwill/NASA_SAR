@@ -3,11 +3,11 @@ import type { Lang, Measurement } from "@/api/contract";
 /** Intl locale per UI language. Moroccan Arabic uses Western digits (ar-MA → latn). */
 export const LOCALE: Record<Lang, string> = { fr: "fr-FR", ar: "ar-MA-u-nu-latn", en: "en-GB" };
 
-const FSI = "⁨";
+const LRI = "⁦";
 const PDI = "⁩";
 
-/** Isolates a run of text so digits/signs keep their order inside RTL sentences. */
-export const isolate = (text: string) => FSI + text + PDI;
+/** Isolates a numeric run left-to-right so signs and ± keep their order inside RTL sentences. */
+export const isolate = (text: string) => LRI + text + PDI;
 
 export function formatNumber(value: number, lang: Lang, decimals?: number): string {
   const digits = decimals ?? (Number.isInteger(value) ? 0 : Math.abs(value) < 1 ? 2 : 1);
@@ -42,7 +42,8 @@ export function formatMeasurement(m: Measurement, lang: Lang, unitLabel: string)
   const value = formatNumber(m.value, lang, decimals).replace("-", "−");
   const uncertainty = formatNumber(m.uncertainty, lang, decimals);
   const core = `${value} ± ${uncertainty}`;
-  return { value, uncertainty, unit: unitLabel, text: isolate(unitLabel ? `${core} ${unitLabel}` : core) };
+  // Only the numbers are isolated LTR; the unit follows the sentence direction.
+  return { value, uncertainty, unit: unitLabel, text: unitLabel ? `${isolate(core)} ${unitLabel}` : isolate(core) };
 }
 
 const dateFormats = {
@@ -62,4 +63,17 @@ export function formatDateTime(iso: string, lang: Lang): string {
 
 export function formatCoord(value: number, lang: Lang): string {
   return formatNumber(value, lang, 3);
+}
+
+/** Round axis bounds and evenly spaced ticks (1, 2, 2.5, 5 × 10^n steps). */
+export function niceTicks(lo: number, hi: number, count = 5): { domain: [number, number]; ticks: number[] } {
+  if (!(hi > lo)) hi = lo + 1;
+  const raw = (hi - lo) / count;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((s) => s * mag).find((s) => s >= raw) ?? 10 * mag;
+  const start = Math.floor(lo / step) * step;
+  const end = Math.ceil(hi / step) * step;
+  const ticks: number[] = [];
+  for (let v = start; v <= end + step / 2; v += step) ticks.push(Math.round(v / step) * step);
+  return { domain: [start, end], ticks };
 }

@@ -152,7 +152,7 @@ export function useAsk() {
           const cached = error instanceof OfflineError ? findCachedAnswer(qc, request.question) : null;
           if (!cached) throw error;
           fromCache = true;
-          answer = await replaySteps(cached, upsert, 700, ctrl.signal);
+          answer = await replaySteps(cached, upsert, 550, ctrl.signal);
         }
         qc.setQueryData(keys.answer(answer.id), answer);
         setState((prev) => ({ status: "success", steps: prev.steps, request, answer, fromCache }));

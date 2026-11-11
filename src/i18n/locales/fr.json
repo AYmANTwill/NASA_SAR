@@ -80,7 +80,9 @@
       "done": "Fait",
       "failed": "Échec",
       "skipped": "Ignorée"
-    }
+    },
+    "summary_one": "{{count}} étape en {{seconds}} s",
+    "summary_other": "{{count}} étapes en {{seconds}} s"
   },
   "answer": {
     "label": "Réponse",

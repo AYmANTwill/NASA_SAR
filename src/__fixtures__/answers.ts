@@ -45,6 +45,7 @@ export const panama: Answer = {
       id: "los",
       unit: "cm",
       noise_floor: 1.2,
+      sigma: 1,
       points: series(panamaDates, (i) => (i >= panamaQuake ? 44 : 0), (i) => (i >= panamaQuake ? 3 : 1.1), 1, 0.7),
     },
   ],
@@ -99,7 +100,7 @@ export const venezuela: Answer = {
     { id: "noise_floor", measurement: m(0.9, 0.2, "cm") },
     { id: "masked_fraction", measurement: m(9, 2, "percent") },
   ],
-  series: [{ id: "los", unit: "cm", noise_floor: 0.9, points: series(vzDates, (i) => (vzDates[i] > "2026-06-24" ? 23 : 0), (i) => (vzDates[i] > "2026-06-24" ? 2 : 0.9), 4, 0.5) }],
+  series: [{ id: "los", unit: "cm", noise_floor: 0.9, sigma: 1, points: series(vzDates, (i) => (vzDates[i] > "2026-06-24" ? 23 : 0), (i) => (vzDates[i] > "2026-06-24" ? 2 : 0.9), 4, 0.5) }],
   evidence: [
     { source: "nasa", agreement: "agrees", summary: tpl("evidence.nasa.map"), url: null, retrieved_at: "2026-11-09T10:00:00Z" },
     { source: "usgs", agreement: "agrees", summary: tpl("evidence.usgs.mainshock", { mag: 7.5, date: day("2026-06-24"), count: 6 }), url: null, retrieved_at: "2026-11-09T10:00:00Z" },
@@ -135,7 +136,7 @@ export const alWahda: Answer = {
     { id: "noise_floor", measurement: m(2.8, 0.4, "mm/yr") },
     { id: "masked_fraction", measurement: m(6, 1, "percent") },
   ],
-  series: [{ id: "los", unit: "mm", noise_floor: 2.6, points: series(wahdaDates, () => 0, () => 2.2, 2, 1.1) }],
+  series: [{ id: "los", unit: "mm", noise_floor: 2.6, sigma: 1, points: series(wahdaDates, () => 0, () => 2.2, 2, 1.1) }],
   checks: [
     { id: "noise_floor", status: "pass", measurement: m(2.6, 0.4, "mm"), detail: tpl("check.noise_floor", { noise: m(2.6, 0.4, "mm") }) },
     { id: "coherence_mask", status: "pass", measurement: m(6, 1, "percent"), detail: tpl("check.coherence_mask", { fraction: m(6, 1, "percent"), threshold: 0.3 }) },
@@ -193,8 +194,8 @@ export const rifSlope: Answer = {
     { id: "noise_floor", measurement: m(3.4, 0.5, "mm/yr") },
   ],
   series: [
-    { id: "vertical", unit: "mm", noise_floor: 3.1, points: series(rifDates, (i) => accel(i) * 0.8, (i) => 2.4 + i * 0.15, 5, 0.8) },
-    { id: "east_west", unit: "mm", noise_floor: 3.1, points: series(rifDates, (i) => accel(i) * 0.5, (i) => 2.9 + i * 0.18, 6, 0.9) },
+    { id: "vertical", unit: "mm", noise_floor: 3.1, sigma: 1, points: series(rifDates, (i) => accel(i) * 0.8, (i) => 2.4 + i * 0.15, 5, 0.8) },
+    { id: "east_west", unit: "mm", noise_floor: 3.1, sigma: 1, points: series(rifDates, (i) => accel(i) * 0.5, (i) => 2.9 + i * 0.18, 6, 0.9) },
   ],
   checks: [
     { id: "noise_floor", status: "pass", measurement: m(3.1, 0.5, "mm"), detail: tpl("check.noise_floor", { noise: m(3.1, 0.5, "mm") }) },
@@ -245,7 +246,7 @@ export const gharb: Answer = {
     { id: "soil_moisture", measurement: m(0.36, 0.04, "m3/m3") },
     { id: "soil_moisture_anomaly", measurement: m(0.11, 0.05, "m3/m3") },
   ],
-  series: [{ id: "soil_moisture", unit: "m3/m3", noise_floor: null, points: series(gharbDates, (i) => (i < gharbDates.length - 2 ? 0.2 + i * 0.004 : 0.34 + (i - gharbDates.length + 2) * 0.02), () => 0.04, 9, 0.015) }],
+  series: [{ id: "soil_moisture", unit: "m3/m3", noise_floor: null, sigma: 1, points: series(gharbDates, (i) => (i < gharbDates.length - 2 ? 0.2 + i * 0.004 : 0.34 + (i - gharbDates.length + 2) * 0.02), () => 0.04, 9, 0.015) }],
   checks: [
     { id: "noise_floor", status: "not_applicable", measurement: null, detail: null },
     { id: "coherence_mask", status: "not_applicable", measurement: null, detail: null },

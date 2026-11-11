@@ -2,7 +2,7 @@ import { useId, useMemo, useState } from "react";
 import { Area, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipProps } from "recharts";
 import type { Series } from "@/api/contract";
 import { useText } from "@/i18n/useText";
-import { decimalsFor, formatDate, formatNumber } from "@/lib/format";
+import { decimalsFor, formatDate, formatNumber, niceTicks } from "@/lib/format";
 
 interface Row {
   ts: number;
@@ -17,7 +17,6 @@ interface TimeSeriesChartProps {
   title: string;
   /** Shared y-domain for small multiples so panels compare honestly. */
   domain?: [number, number];
-  sigma?: number;
   height?: number;
 }
 
@@ -27,7 +26,7 @@ const AXIS = { fontSize: 12, fill: "var(--ink-2)" };
  * One series per chart: line = value, band = uncertainty, grey band = noise floor,
  * every dot = a NISAR pass. A data table is always available.
  */
-export function TimeSeriesChart({ series, title, domain, sigma = 1, height = 200 }: TimeSeriesChartProps) {
+export function TimeSeriesChart({ series, title, domain, height = 200 }: TimeSeriesChartProps) {
   const { t, lang, unit } = useText();
   const [showTable, setShowTable] = useState(false);
   const tableId = useId();
@@ -40,13 +39,16 @@ export function TimeSeriesChart({ series, title, domain, sigma = 1, height = 200
   const decimals = decimalsFor(Math.min(...rows.map((r) => r.sigma).filter((s) => s > 0), Infinity), rows[0]?.value ?? 0);
   const fmt = (v: number) => formatNumber(v, lang, Number.isFinite(decimals) ? decimals : 1);
 
-  const yDomain = useMemo<[number, number]>(() => {
-    if (domain) return domain;
+  const y = useMemo(() => {
+    if (domain) return niceTicks(domain[0], domain[1]);
     const lo = Math.min(...rows.map((r) => r.band[0]), -(series.noise_floor ?? 0));
     const hi = Math.max(...rows.map((r) => r.band[1]), series.noise_floor ?? 0);
     const pad = (hi - lo || 1) * 0.12;
-    return [lo - pad, hi + pad];
+    return niceTicks(lo - pad, hi + pad);
   }, [domain, rows, series.noise_floor]);
+  const yDomain = y.domain;
+  const tickDecimals = Math.max(0, ...y.ticks.map((v) => (String(Math.abs(v)).split(".")[1] ?? "").length));
+  const fmtTick = (v: number) => formatNumber(v, lang, Math.min(3, tickDecimals));
 
   return (
     <figure className="space-y-2">
@@ -69,7 +71,7 @@ export function TimeSeriesChart({ series, title, domain, sigma = 1, height = 200
               tickLine={false}
               axisLine={{ stroke: "var(--line-strong)" }}
             />
-            <YAxis domain={yDomain} tickFormatter={fmt} tick={AXIS} tickLine={false} axisLine={false} width={46} allowDecimals />
+            <YAxis domain={yDomain} ticks={y.ticks} tickFormatter={fmtTick} tick={AXIS} tickLine={false} axisLine={false} width={46} allowDecimals />
             {series.noise_floor != null && series.noise_floor > 0 && (
               <ReferenceArea y1={-series.noise_floor} y2={series.noise_floor} fill="var(--noise-band)" fillOpacity={1} stroke="none" ifOverflow="hidden" />
             )}
@@ -95,7 +97,7 @@ export function TimeSeriesChart({ series, title, domain, sigma = 1, height = 200
         </li>
         <li className="flex items-center gap-1.5">
           <span aria-hidden className="inline-block h-2.5 w-4 bg-[var(--uncertainty-band)]" />
-          {t("chart.band", { sigma: formatNumber(sigma, lang) })}
+          {t("chart.band", { sigma: formatNumber(series.sigma, lang) })}
         </li>
         {series.noise_floor != null && series.noise_floor > 0 && (
           <li className="flex items-center gap-1.5">

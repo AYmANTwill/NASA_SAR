@@ -80,7 +80,9 @@
       "done": "Done",
       "failed": "Failed",
       "skipped": "Skipped"
-    }
+    },
+    "summary_one": "{{count}} step in {{seconds}} s",
+    "summary_other": "{{count}} steps in {{seconds}} s"
   },
   "answer": {
     "label": "Answer",

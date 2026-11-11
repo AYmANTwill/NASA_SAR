@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Check, ChevronDown, Loader2, Minus, X, Circle } from "lucide-react";
 import type { AgentStep } from "@/api/contract";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -7,14 +8,36 @@ import { cn } from "@/lib/utils";
 
 const ICON = { pending: Circle, running: Loader2, done: Check, failed: X, skipped: Minus } as const;
 
+/** While the agent runs, every step is shown as it arrives; once done, the list folds into one summary line. */
 export function AgentSteps({ steps, live }: { steps: AgentStep[]; live: boolean }) {
-  const { t } = useText();
+  const { t, lang } = useText();
+  const [open, setOpen] = useState(live);
+  useEffect(() => setOpen(live), [live]);
+  const total = steps.reduce((sum, s) => sum + (s.duration_ms ?? 0), 0);
+  const failed = steps.some((s) => s.status === "failed");
+
   return (
     <section aria-labelledby="steps-title" className="space-y-2">
       <h2 id="steps-title" className="text-sm font-semibold text-ink-2">
-        {t("steps.title")}
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls="steps-list"
+          disabled={live}
+          onClick={() => setOpen((o) => !o)}
+          className="inline-flex w-full items-center gap-2 rounded-sm text-start disabled:cursor-default"
+        >
+          {!live && (failed ? <X className="size-4 text-fail" aria-hidden /> : <Check className="size-4 text-accent" aria-hidden />)}
+          <span>{t("steps.title")}</span>
+          {!live && (
+            <span className="font-normal text-muted">
+              {t("steps.summary", { count: steps.length, seconds: formatNumber(total / 1000, lang, 1) })}
+            </span>
+          )}
+          {!live && <ChevronDown className={cn("ms-auto size-4 transition-transform", open && "rotate-180")} aria-hidden />}
+        </button>
       </h2>
-      <ol className="relative space-y-1" aria-live={live ? "polite" : undefined} aria-relevant="additions text">
+      <ol id="steps-list" hidden={!open} className="relative space-y-1" aria-live={live ? "polite" : undefined} aria-relevant="additions text">
         {steps.map((s, i) => (
           <StepItem key={s.id} step={s} last={i === steps.length - 1} />
         ))}

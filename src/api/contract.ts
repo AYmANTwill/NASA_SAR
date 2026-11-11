@@ -140,6 +140,8 @@ export const Series = z.object({
   id: SeriesId,
   unit: Unit,
   points: z.array(SeriesPoint).min(1),
+  /** lo/hi are value ∓ sigma·σ. */
+  sigma: z.number().positive().default(1),
   /** ± noise floor drawn as a reference band around zero, same unit. */
   noise_floor: z.number().nonnegative().nullable(),
 });
