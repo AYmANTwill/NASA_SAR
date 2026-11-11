@@ -38,12 +38,12 @@ function LangSwitch() {
           type="button"
           lang={l}
           aria-pressed={lang === l}
-          aria-label={t(`lang.${l}`)}
           title={t(`lang.${l}`)}
           onClick={() => void i18n.changeLanguage(l)}
           className={cn("min-w-9 rounded-[3px] px-2 py-1 text-sm font-medium", lang === l ? "bg-ink text-white" : "text-ink-2 hover:bg-surface-2")}
         >
-          {LANG_SHORT[l]}
+          <span>{LANG_SHORT[l]}</span>
+          <span className="sr-only"> {t(`lang.${l}`)}</span>
         </button>
       ))}
     </div>

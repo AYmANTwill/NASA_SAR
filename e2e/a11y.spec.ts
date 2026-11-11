@@ -42,8 +42,9 @@ test("keyboard: skip link, navigation, ask, layer controls, language", async ({ 
     const info = await page.evaluate(() => {
       const el = document.activeElement as HTMLElement | null;
       if (!el || el === document.body) return null;
-      const style = getComputedStyle(el);
-      const visible = style.outlineStyle !== "none" || style.boxShadow !== "none";
+      // The indicator may sit on the element or on a focus-within wrapper (ask box).
+      const shows = (n: Element | null) => !!n && (getComputedStyle(n).outlineStyle !== "none" || getComputedStyle(n).boxShadow !== "none");
+      const visible = shows(el) || shows(el.parentElement) || shows(el.parentElement?.parentElement ?? null);
       return { name: el.getAttribute("aria-label") ?? el.textContent?.trim().slice(0, 40) ?? el.tagName, visible };
     });
     if (info) {
