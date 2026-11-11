@@ -1,0 +1,1379 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "venezuela",
+        "class": "earthquake",
+        "name": "floodExtent 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 0,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -67.74000000000001,
+              10.012
+            ],
+            [
+              -67.632,
+              10.012
+            ],
+            [
+              -67.632,
+              10.120000000000001
+            ],
+            [
+              -67.74000000000001,
+              10.120000000000001
+            ],
+            [
+              -67.74000000000001,
+              10.012
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "venezuela",
+        "class": "earthquake",
+        "name": "floodExtent 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 1,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -66.70176000000001,
+              10.460056
+            ],
+            [
+              -66.59376,
+              10.460056
+            ],
+            [
+              -66.59376,
+              10.568056
+            ],
+            [
+              -66.70176000000001,
+              10.568056
+            ],
+            [
+              -66.70176000000001,
+              10.460056
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "venezuela",
+        "class": "earthquake",
+        "name": "floodExtent 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 2,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -67.34352000000001,
+              10.908112
+            ],
+            [
+              -67.23552000000001,
+              10.908112
+            ],
+            [
+              -67.23552000000001,
+              11.016112
+            ],
+            [
+              -67.34352000000001,
+              11.016112
+            ],
+            [
+              -67.34352000000001,
+              10.908112
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "souss-massa",
+        "class": "waterStress",
+        "name": "floodExtent 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 1,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -9.655,
+              29.7815
+            ],
+            [
+              -9.596499999999999,
+              29.7815
+            ],
+            [
+              -9.596499999999999,
+              29.84
+            ],
+            [
+              -9.655,
+              29.84
+            ],
+            [
+              -9.655,
+              29.7815
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "souss-massa",
+        "class": "waterStress",
+        "name": "floodExtent 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 2,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -9.09262,
+              30.024197
+            ],
+            [
+              -9.03412,
+              30.024197
+            ],
+            [
+              -9.03412,
+              30.082697
+            ],
+            [
+              -9.09262,
+              30.082697
+            ],
+            [
+              -9.09262,
+              30.024197
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "souss-massa",
+        "class": "waterStress",
+        "name": "floodExtent 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 3,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -9.44024,
+              30.266894
+            ],
+            [
+              -9.381739999999999,
+              30.266894
+            ],
+            [
+              -9.381739999999999,
+              30.325394
+            ],
+            [
+              -9.44024,
+              30.325394
+            ],
+            [
+              -9.44024,
+              30.266894
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "bihar",
+        "class": "flood",
+        "name": "floodExtent 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 2,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              84.25999999999999,
+              25.012
+            ],
+            [
+              84.368,
+              25.012
+            ],
+            [
+              84.368,
+              25.12
+            ],
+            [
+              84.25999999999999,
+              25.12
+            ],
+            [
+              84.25999999999999,
+              25.012
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "bihar",
+        "class": "flood",
+        "name": "floodExtent 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 3,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              85.29823999999999,
+              25.460056
+            ],
+            [
+              85.40624,
+              25.460056
+            ],
+            [
+              85.40624,
+              25.568056000000002
+            ],
+            [
+              85.29823999999999,
+              25.568056000000002
+            ],
+            [
+              85.29823999999999,
+              25.460056
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "bihar",
+        "class": "flood",
+        "name": "floodExtent 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 4,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              84.65647999999999,
+              25.908112000000003
+            ],
+            [
+              84.76447999999999,
+              25.908112000000003
+            ],
+            [
+              84.76447999999999,
+              26.016112000000003
+            ],
+            [
+              84.65647999999999,
+              26.016112000000003
+            ],
+            [
+              84.65647999999999,
+              25.908112000000003
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "amazon",
+        "class": "deforestation",
+        "name": "floodExtent 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 3,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -63.84,
+              -10.588
+            ],
+            [
+              -63.732000000000006,
+              -10.588
+            ],
+            [
+              -63.732000000000006,
+              -10.479999999999999
+            ],
+            [
+              -63.84,
+              -10.479999999999999
+            ],
+            [
+              -63.84,
+              -10.588
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "amazon",
+        "class": "deforestation",
+        "name": "floodExtent 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 4,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -62.80176,
+              -10.139944
+            ],
+            [
+              -62.693760000000005,
+              -10.139944
+            ],
+            [
+              -62.693760000000005,
+              -10.031944
+            ],
+            [
+              -62.80176,
+              -10.031944
+            ],
+            [
+              -62.80176,
+              -10.139944
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "amazon",
+        "class": "deforestation",
+        "name": "floodExtent 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 5,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -63.44352,
+              -9.691888
+            ],
+            [
+              -63.33552,
+              -9.691888
+            ],
+            [
+              -63.33552,
+              -9.583888
+            ],
+            [
+              -63.44352,
+              -9.583888
+            ],
+            [
+              -63.44352,
+              -9.691888
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "class": "subsidence",
+        "name": "floodExtent 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 4,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -99.28399999999999,
+              19.3222
+            ],
+            [
+              -99.26419999999999,
+              19.3222
+            ],
+            [
+              -99.26419999999999,
+              19.342
+            ],
+            [
+              -99.28399999999999,
+              19.342
+            ],
+            [
+              -99.28399999999999,
+              19.3222
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "class": "subsidence",
+        "name": "floodExtent 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 5,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -99.093656,
+              19.4043436
+            ],
+            [
+              -99.07385599999999,
+              19.4043436
+            ],
+            [
+              -99.07385599999999,
+              19.4241436
+            ],
+            [
+              -99.093656,
+              19.4241436
+            ],
+            [
+              -99.093656,
+              19.4043436
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "class": "subsidence",
+        "name": "floodExtent 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 6,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -99.21131199999999,
+              19.4864872
+            ],
+            [
+              -99.19151199999999,
+              19.4864872
+            ],
+            [
+              -99.19151199999999,
+              19.5062872
+            ],
+            [
+              -99.21131199999999,
+              19.5062872
+            ],
+            [
+              -99.21131199999999,
+              19.4864872
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "class": "miningExpansion",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.9517999999999995,
+              32.85074
+            ],
+            [
+              -6.947399999999999,
+              32.85074
+            ],
+            [
+              -6.947399999999999,
+              32.85514
+            ],
+            [
+              -6.9517999999999995,
+              32.85514
+            ],
+            [
+              -6.9517999999999995,
+              32.85074
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "class": "miningExpansion",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.9042140000000005,
+              32.8712759
+            ],
+            [
+              -6.899814,
+              32.8712759
+            ],
+            [
+              -6.899814,
+              32.8756759
+            ],
+            [
+              -6.9042140000000005,
+              32.8756759
+            ],
+            [
+              -6.9042140000000005,
+              32.8712759
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "class": "miningExpansion",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.933628,
+              32.8918118
+            ],
+            [
+              -6.929227999999999,
+              32.8918118
+            ],
+            [
+              -6.929227999999999,
+              32.896211799999996
+            ],
+            [
+              -6.933628,
+              32.896211799999996
+            ],
+            [
+              -6.933628,
+              32.8918118
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "gafsa",
+        "class": "miningExpansion",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.738199999999999,
+              34.39074
+            ],
+            [
+              8.7426,
+              34.39074
+            ],
+            [
+              8.7426,
+              34.39514
+            ],
+            [
+              8.738199999999999,
+              34.39514
+            ],
+            [
+              8.738199999999999,
+              34.39074
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "gafsa",
+        "class": "miningExpansion",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.785786,
+              34.4112759
+            ],
+            [
+              8.790186,
+              34.4112759
+            ],
+            [
+              8.790186,
+              34.4156759
+            ],
+            [
+              8.785786,
+              34.4156759
+            ],
+            [
+              8.785786,
+              34.4112759
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "gafsa",
+        "class": "miningExpansion",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.756371999999999,
+              34.4318118
+            ],
+            [
+              8.760772,
+              34.4318118
+            ],
+            [
+              8.760772,
+              34.436211799999995
+            ],
+            [
+              8.756371999999999,
+              34.436211799999995
+            ],
+            [
+              8.756371999999999,
+              34.4318118
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "djebel-onk",
+        "class": "miningExpansion",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              7.958200000000001,
+              34.57074
+            ],
+            [
+              7.962600000000001,
+              34.57074
+            ],
+            [
+              7.962600000000001,
+              34.57514
+            ],
+            [
+              7.958200000000001,
+              34.57514
+            ],
+            [
+              7.958200000000001,
+              34.57074
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "djebel-onk",
+        "class": "miningExpansion",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.005786,
+              34.5912759
+            ],
+            [
+              8.010186000000001,
+              34.5912759
+            ],
+            [
+              8.010186000000001,
+              34.595675899999996
+            ],
+            [
+              8.005786,
+              34.595675899999996
+            ],
+            [
+              8.005786,
+              34.5912759
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "djebel-onk",
+        "class": "miningExpansion",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              7.9763720000000005,
+              34.6118118
+            ],
+            [
+              7.980772000000001,
+              34.6118118
+            ],
+            [
+              7.980772000000001,
+              34.616211799999995
+            ],
+            [
+              7.9763720000000005,
+              34.616211799999995
+            ],
+            [
+              7.9763720000000005,
+              34.6118118
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "class": "tailingsInstability",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -44.12912,
+              -20.126384
+            ],
+            [
+              -44.12816,
+              -20.126384
+            ],
+            [
+              -44.12816,
+              -20.125424000000002
+            ],
+            [
+              -44.12912,
+              -20.125424000000002
+            ],
+            [
+              -44.12912,
+              -20.126384
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "class": "tailingsInstability",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -44.118737599999996,
+              -20.12190344
+            ],
+            [
+              -44.1177776,
+              -20.12190344
+            ],
+            [
+              -44.1177776,
+              -20.12094344
+            ],
+            [
+              -44.118737599999996,
+              -20.12094344
+            ],
+            [
+              -44.118737599999996,
+              -20.12190344
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "class": "tailingsInstability",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -44.125155199999995,
+              -20.11742288
+            ],
+            [
+              -44.124195199999996,
+              -20.11742288
+            ],
+            [
+              -44.124195199999996,
+              -20.11646288
+            ],
+            [
+              -44.125155199999995,
+              -20.11646288
+            ],
+            [
+              -44.125155199999995,
+              -20.11742288
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "class": "tailingsInstability",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.94912,
+              32.853615999999995
+            ],
+            [
+              -6.94816,
+              32.853615999999995
+            ],
+            [
+              -6.94816,
+              32.854575999999994
+            ],
+            [
+              -6.94912,
+              32.854575999999994
+            ],
+            [
+              -6.94912,
+              32.853615999999995
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "class": "tailingsInstability",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.9387376000000005,
+              32.85809656
+            ],
+            [
+              -6.9377776,
+              32.85809656
+            ],
+            [
+              -6.9377776,
+              32.85905656
+            ],
+            [
+              -6.9387376000000005,
+              32.85905656
+            ],
+            [
+              -6.9387376000000005,
+              32.85809656
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "class": "tailingsInstability",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.9451552,
+              32.86257712
+            ],
+            [
+              -6.9441952,
+              32.86257712
+            ],
+            [
+              -6.9441952,
+              32.86353712
+            ],
+            [
+              -6.9451552,
+              32.86353712
+            ],
+            [
+              -6.9451552,
+              32.86257712
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "south-africa",
+        "class": "tailingsInstability",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              27.81088,
+              -26.186384
+            ],
+            [
+              27.81184,
+              -26.186384
+            ],
+            [
+              27.81184,
+              -26.185424
+            ],
+            [
+              27.81088,
+              -26.185424
+            ],
+            [
+              27.81088,
+              -26.186384
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "south-africa",
+        "class": "tailingsInstability",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              27.821262400000002,
+              -26.18190344
+            ],
+            [
+              27.8222224,
+              -26.18190344
+            ],
+            [
+              27.8222224,
+              -26.18094344
+            ],
+            [
+              27.821262400000002,
+              -26.18094344
+            ],
+            [
+              27.821262400000002,
+              -26.18190344
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "south-africa",
+        "class": "tailingsInstability",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              27.8148448,
+              -26.177422879999998
+            ],
+            [
+              27.8158048,
+              -26.177422879999998
+            ],
+            [
+              27.8158048,
+              -26.17646288
+            ],
+            [
+              27.8148448,
+              -26.17646288
+            ],
+            [
+              27.8148448,
+              -26.177422879999998
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mine-rehabilitation",
+        "class": "miningRehabilitation",
+        "name": "floodExtent 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.619,
+              32.4867
+            ],
+            [
+              -6.617,
+              32.4867
+            ],
+            [
+              -6.617,
+              32.4887
+            ],
+            [
+              -6.619,
+              32.4887
+            ],
+            [
+              -6.619,
+              32.4867
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mine-rehabilitation",
+        "class": "miningRehabilitation",
+        "name": "floodExtent 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.59737,
+              32.4960345
+            ],
+            [
+              -6.59537,
+              32.4960345
+            ],
+            [
+              -6.59537,
+              32.4980345
+            ],
+            [
+              -6.59737,
+              32.4980345
+            ],
+            [
+              -6.59737,
+              32.4960345
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mine-rehabilitation",
+        "class": "miningRehabilitation",
+        "name": "floodExtent 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.61074,
+              32.505369
+            ],
+            [
+              -6.60874,
+              32.505369
+            ],
+            [
+              -6.60874,
+              32.507369000000004
+            ],
+            [
+              -6.61074,
+              32.507369000000004
+            ],
+            [
+              -6.61074,
+              32.505369
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

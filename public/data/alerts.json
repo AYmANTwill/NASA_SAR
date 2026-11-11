@@ -1,0 +1,210 @@
+[
+  {
+    "id": "venezuela-0",
+    "caseId": "venezuela",
+    "class": "earthquake",
+    "severity": "high",
+    "confidence": 0.94,
+    "lat": 10.6,
+    "lng": -66.9,
+    "timestamp": "2026-07-25T10:24:00Z",
+    "message": "Coastal earthquakes detected",
+    "messageI18n": {
+      "en": "Coastal earthquakes detected",
+      "fr": "Séismes côtiers : signal détecté"
+    },
+    "simulated": true
+  },
+  {
+    "id": "venezuela-1",
+    "caseId": "venezuela",
+    "class": "earthquake",
+    "severity": "moderate",
+    "confidence": 0.94,
+    "lat": 10.68,
+    "lng": -66.82000000000001,
+    "timestamp": "2026-08-06T10:24:00Z",
+    "message": "Change footprint expanded",
+    "messageI18n": {
+      "en": "Change footprint expanded",
+      "fr": "L’emprise du changement s’étend"
+    },
+    "simulated": true
+  },
+  {
+    "id": "souss-massa-0",
+    "caseId": "souss-massa",
+    "class": "waterStress",
+    "severity": "high",
+    "confidence": 0.89,
+    "lat": 30.1,
+    "lng": -9.2,
+    "timestamp": "2026-06-19T10:24:00Z",
+    "message": "Water under pressure detected",
+    "messageI18n": {
+      "en": "Water under pressure detected",
+      "fr": "L’eau sous pression : signal détecté"
+    },
+    "simulated": true
+  },
+  {
+    "id": "souss-massa-1",
+    "caseId": "souss-massa",
+    "class": "waterStress",
+    "severity": "moderate",
+    "confidence": 0.89,
+    "lat": 30.18,
+    "lng": -9.12,
+    "timestamp": "2026-07-01T10:24:00Z",
+    "message": "Change footprint expanded",
+    "messageI18n": {
+      "en": "Change footprint expanded",
+      "fr": "L’emprise du changement s’étend"
+    },
+    "simulated": true
+  },
+  {
+    "id": "bihar-0",
+    "caseId": "bihar",
+    "class": "flood",
+    "severity": "high",
+    "confidence": 0.96,
+    "lat": 25.6,
+    "lng": 85.1,
+    "timestamp": "2026-09-13T10:24:00Z",
+    "message": "A river beyond its banks detected",
+    "messageI18n": {
+      "en": "A river beyond its banks detected",
+      "fr": "Le fleuve hors de ses rives : signal détecté"
+    },
+    "simulated": true
+  },
+  {
+    "id": "bihar-1",
+    "caseId": "bihar",
+    "class": "flood",
+    "severity": "moderate",
+    "confidence": 0.96,
+    "lat": 25.68,
+    "lng": 85.17999999999999,
+    "timestamp": "2026-09-25T10:24:00Z",
+    "message": "Change footprint expanded",
+    "messageI18n": {
+      "en": "Change footprint expanded",
+      "fr": "L’emprise du changement s’étend"
+    },
+    "simulated": true
+  },
+  {
+    "id": "amazon-0",
+    "caseId": "amazon",
+    "class": "deforestation",
+    "severity": "high",
+    "confidence": 0.92,
+    "lat": -10,
+    "lng": -63,
+    "timestamp": "2026-08-17T10:24:00Z",
+    "message": "The changing forest edge detected",
+    "messageI18n": {
+      "en": "The changing forest edge detected",
+      "fr": "La lisière forestière se transforme : signal détecté"
+    },
+    "simulated": true
+  },
+  {
+    "id": "amazon-1",
+    "caseId": "amazon",
+    "class": "deforestation",
+    "severity": "moderate",
+    "confidence": 0.92,
+    "lat": -9.92,
+    "lng": -62.92,
+    "timestamp": "2026-08-29T10:24:00Z",
+    "message": "Change footprint expanded",
+    "messageI18n": {
+      "en": "Change footprint expanded",
+      "fr": "L’emprise du changement s’étend"
+    },
+    "simulated": true
+  },
+  {
+    "id": "mexico-city-0",
+    "caseId": "mexico-city",
+    "class": "subsidence",
+    "severity": "high",
+    "confidence": 0.97,
+    "lat": 19.43,
+    "lng": -99.13,
+    "timestamp": "2026-05-13T10:24:00Z",
+    "message": "A city slowly sinking detected",
+    "messageI18n": {
+      "en": "A city slowly sinking detected",
+      "fr": "Une ville qui s’affaisse : signal détecté"
+    },
+    "simulated": true
+  },
+  {
+    "id": "mexico-city-1",
+    "caseId": "mexico-city",
+    "class": "subsidence",
+    "severity": "moderate",
+    "confidence": 0.97,
+    "lat": 19.509999999999998,
+    "lng": -99.05,
+    "timestamp": "2026-05-25T10:24:00Z",
+    "message": "Change footprint expanded",
+    "messageI18n": {
+      "en": "Change footprint expanded",
+      "fr": "L’emprise du changement s’étend"
+    },
+    "simulated": true
+  },
+  {
+    "id": "north-africa-mining-context",
+    "caseId": "north-africa-mining",
+    "class": "miningExpansion",
+    "severity": "moderate",
+    "confidence": 0.91,
+    "lat": 32.88,
+    "lng": -6.91,
+    "timestamp": "2026-08-24T10:24:00Z",
+    "message": "The expanding pit · contextual signal",
+    "messageI18n": {
+      "en": "The expanding pit · contextual signal",
+      "fr": "La fosse s’étend · signal contextuel"
+    },
+    "simulated": true
+  },
+  {
+    "id": "tailings-dams-context",
+    "caseId": "tailings-dams",
+    "class": "tailingsInstability",
+    "severity": "moderate",
+    "confidence": 0.91,
+    "lat": -20.12,
+    "lng": -44.12,
+    "timestamp": "2026-08-24T10:24:00Z",
+    "message": "Watching the embankment · contextual signal",
+    "messageI18n": {
+      "en": "Watching the embankment · contextual signal",
+      "fr": "Surveiller la digue · signal contextuel"
+    },
+    "simulated": true
+  },
+  {
+    "id": "mine-rehabilitation-context",
+    "caseId": "mine-rehabilitation",
+    "class": "miningRehabilitation",
+    "severity": "moderate",
+    "confidence": 0.91,
+    "lat": 32.5,
+    "lng": -6.6,
+    "timestamp": "2026-08-24T10:24:00Z",
+    "message": "Life after extraction · contextual signal",
+    "messageI18n": {
+      "en": "Life after extraction · contextual signal",
+      "fr": "La vie après l’extraction · signal contextuel"
+    },
+    "simulated": true
+  }
+]

@@ -1,0 +1,11 @@
+﻿import { ChevronsLeftRight,X } from "lucide-react";
+import { useStore } from "../../store/useStore";
+import type { CaseStudy } from "../../data/types";
+import { formatDate } from "../../lib/format";
+import { useI18n } from "../../lib/i18n";
+import { isMining } from "../../data/layers";
+export default function Compare({current}:{current:CaseStudy}){
+const {compareDate,date,swipe,set,compareKind}=useStore(),{t,locale}=useI18n();
+const hasSentinel=current.availableProducts?.includes("sentinel1"),hasAlos=isMining(current.phenomenon)&&current.availableProducts?.includes("alos2");
+return <div className="compare-ui"><div className="compare-label before glass"><span>{t("BEFORE")} · {t(compareKind==="sentinel1"?"Sentinel-1 · C 5.6 cm":compareKind==="alos2"?"ALOS-2 · L 24 cm":compareKind==="optical"?"NASA GIBS optical":"NISAR · L 24 cm")}</span><select aria-label={t("Comparison source")} value={compareKind} onChange={e=>set({compareKind:e.target.value as typeof compareKind})}><option value="date">{t("SAR product")}</option><option value="optical">{t("NASA GIBS optical")}</option>{hasSentinel&&<option value="sentinel1">{t("Sentinel-1 · C 5.6 cm")}</option>}{hasAlos&&<option value="alos2">{t("ALOS-2 · L 24 cm")}</option>}</select><select aria-label={t("Before date")} value={compareDate} onChange={e=>set({compareDate:Number(e.target.value)})}>{current.dates.map((d,i)=><option key={d} value={i}>{formatDate(d,locale)}</option>)}</select>{["sentinel1","alos2"].includes(compareKind)&&<small>{t("Reference archive")} · {t("SIMULATED")}</small>}</div><div className="compare-label after glass"><span>{t("AFTER")} · {t("NISAR · L 24 cm")}</span><select aria-label={t("After date")} value={date} onChange={e=>set({date:Number(e.target.value)})}>{current.dates.map((d,i)=><option key={d} value={i}>{formatDate(d,locale)}</option>)}</select><button aria-label={t("Close comparison")} onClick={()=>set({compare:false})}><X size={15}/></button></div><div className="swipe-line" style={{left:swipe+"%"}}><span><ChevronsLeftRight size={20}/></span></div><input className="compare-slider" aria-label={t("Before after divider")} type="range" min="5" max="95" value={swipe} onChange={e=>set({swipe:Number(e.target.value)})}/></div>;
+}

@@ -1,0 +1,1605 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 0,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.306,
+          19.3068
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -29.6,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.088464,
+          19.4009248
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -58.4,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.222928,
+          19.495049599999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -85.4,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.005392,
+          19.3427744
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -110,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.139856,
+          19.4368992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -131.5,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.27431999999999,
+          19.531024
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -149.1,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.056784,
+          19.3787488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -162.5,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.191248,
+          19.4728736
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -171.1,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.97371199999999,
+          19.3205984
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -174.9,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.108176,
+          19.4147232
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -173.5,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.24264,
+          19.508848
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -167.2,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.025104,
+          19.3565728
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -156.1,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.159568,
+          19.450697599999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -140.4,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.294032,
+          19.5448224
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -120.8,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.07649599999999,
+          19.3925472
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -97.6,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.21096,
+          19.486672
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -71.6,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.99342399999999,
+          19.3343968
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -43.6,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.127888,
+          19.4285216
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -14.3,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.26235199999999,
+          19.5226464
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 15.5,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.044816,
+          19.3703712
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 44.7,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.17927999999999,
+          19.464496
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 72.7,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.961744,
+          19.3122208
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 98.6,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.09620799999999,
+          19.406345599999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 121.6,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.230672,
+          19.5004704
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 141.2,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.01313599999999,
+          19.3481952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 156.6,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.1476,
+          19.44232
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 167.6,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.28206399999999,
+          19.536444799999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 173.7,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.064528,
+          19.3841696
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 174.8,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.19899199999999,
+          19.4782944
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 170.9,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.981456,
+          19.3260192
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 162,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.11592,
+          19.420144
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 148.5,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.250384,
+          19.5142688
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 130.7,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.032848,
+          19.361993599999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 109.1,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.167312,
+          19.4561184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 84.4,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.30177599999999,
+          19.5502432
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 57.2,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.08424,
+          19.397968
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 28.4,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.21870399999999,
+          19.492092799999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -1.2,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.00116799999999,
+          19.3398176
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -30.8,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.135632,
+          19.4339424
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -59.5,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.270096,
+          19.5280672
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -86.5,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.05256,
+          19.375792
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -111,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.187024,
+          19.4699168
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -132.3,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.969488,
+          19.317641599999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -149.7,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.10395199999999,
+          19.4117664
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -162.9,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.238416,
+          19.5058912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -171.4,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.02087999999999,
+          19.353616
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -174.9,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.155344,
+          19.4477408
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -173.4,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.289808,
+          19.5418656
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -166.9,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.072272,
+          19.3895904
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -155.5,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.20673599999999,
+          19.4837152
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -139.7,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.9892,
+          19.33144
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -119.9,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.12366399999999,
+          19.4255648
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -96.6,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.258128,
+          19.5196896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -70.5,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.040592,
+          19.367414399999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -42.4,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.175056,
+          19.4615392
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -13.1,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.95752,
+          19.309264
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 16.6,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.091984,
+          19.4033888
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 45.9,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.22644799999999,
+          19.4975136
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 73.8,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.008912,
+          19.3452384
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 99.6,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.143376,
+          19.4393632
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 122.5,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.27784,
+          19.533488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 141.9,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.060304,
+          19.3812128
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 157.2,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.194768,
+          19.4753376
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 167.9,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.977232,
+          19.323062399999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 173.8,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.111696,
+          19.4171872
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 174.7,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.24615999999999,
+          19.511312
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 170.6,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.028624,
+          19.3590368
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 161.6,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.163088,
+          19.4531616
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 147.9,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.297552,
+          19.5472864
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 129.9,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.080016,
+          19.3950112
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 108.2,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.21448,
+          19.489136
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 83.3,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.996944,
+          19.3368608
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 56.1,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.131408,
+          19.4309856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 27.3,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.265872,
+          19.5251104
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -2.4,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.04833599999999,
+          19.3728352
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -32,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.1828,
+          19.46696
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -60.6,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.96526399999999,
+          19.3146848
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -87.5,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.099728,
+          19.4088096
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -111.9,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.234192,
+          19.5029344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -133,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.016656,
+          19.3506592
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -150.4,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.15111999999999,
+          19.444784
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -163.3,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.285584,
+          19.538908799999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -171.6,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.06804799999999,
+          19.3866336
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -174.9,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.202512,
+          19.4807584
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -173.2,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.984976,
+          19.3284832
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -166.5,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.11944,
+          19.422608
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -155,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.25390399999999,
+          19.5167328
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -139,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.036368,
+          19.3644576
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -119,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.17083199999999,
+          19.4585824
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -95.6,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.305296,
+          19.5527072
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -69.4,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.08776,
+          19.400432000000002
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -41.3,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.222224,
+          19.494556799999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": -11.9,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.004688,
+          19.3422816
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 17.8,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.139152,
+          19.4364064
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 47,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.27361599999999,
+          19.5305312
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 74.9,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.05608,
+          19.378256
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 100.5,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.19054399999999,
+          19.4723808
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 123.3,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.973008,
+          19.3201056
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 142.6,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.107472,
+          19.4142304
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "velocity_mm_year": 157.7,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.241936,
+          19.5083552
+        ]
+      }
+    }
+  ]
+}

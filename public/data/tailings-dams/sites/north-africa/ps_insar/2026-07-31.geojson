@@ -1,0 +1,1705 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 0,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9496,
+          32.85328
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 12.1,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9377344,
+          32.858414079999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 23.8,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9450688000000005,
+          32.86354816
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 34.8,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9332032,
+          32.855242239999995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 44.8,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.940537600000001,
+          32.86037632
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 53.5,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.947872,
+          32.8655104
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 60.7,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9360064,
+          32.85720448
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 66.1,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9433408000000005,
+          32.86233856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 69.7,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9314752,
+          32.85403264
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 71.2,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.938809600000001,
+          32.85916672
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 70.7,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.946144,
+          32.8643008
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 68.1,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9342784,
+          32.85599488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 63.5,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.941612800000001,
+          32.86112896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 57.2,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9489472,
+          32.86626304
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 49.2,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.937081600000001,
+          32.85795712
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 39.7,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.944416,
+          32.8630912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 29.2,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9325504,
+          32.85478528
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 17.7,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.939884800000001,
+          32.85991936
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 5.8,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9472192,
+          32.86505344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -6.3,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.935353600000001,
+          32.85674752
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -18.2,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.942688,
+          32.8618816
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -29.6,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.930822400000001,
+          32.85357568
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -40.1,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.938156800000001,
+          32.858709759999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -49.5,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9454912,
+          32.86384384
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -57.5,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.933625600000001,
+          32.855537919999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -63.8,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9409600000000005,
+          32.860672
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -68.2,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9482944,
+          32.86580608
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -70.7,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.936428800000001,
+          32.85750016
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -71.2,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9437632,
+          32.86263424
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -69.6,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.931897600000001,
+          32.85432832
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -66,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9392320000000005,
+          32.8594624
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -60.5,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9465664,
+          32.86459648
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -53.2,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.934700800000001,
+          32.85629056
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -44.4,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9420352,
+          32.86142464
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -34.4,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9493696,
+          32.86655872
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -23.3,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.937504000000001,
+          32.8582528
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -11.6,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9448384,
+          32.86338688
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 0.5,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.932972800000001,
+          32.855080959999995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 12.5,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9403072,
+          32.86021504
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 24.2,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9476416,
+          32.86534912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 35.2,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.935776000000001,
+          32.8570432
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 45.2,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9431104,
+          32.86217728
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 53.8,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.931244800000001,
+          32.85387136
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 61,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9385792,
+          32.85900544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 66.3,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9459136,
+          32.86413952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 69.8,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.934048000000001,
+          32.8558336
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 71.2,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9413824,
+          32.86096768
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 70.6,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9487168,
+          32.86610176
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 67.9,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9368512,
+          32.85779584
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 63.3,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9441856,
+          32.86292992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 56.9,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.932320000000001,
+          32.854624
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 48.8,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9396544,
+          32.85975808
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 39.3,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9469888,
+          32.864892160000004
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 28.7,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9351232000000005,
+          32.85658624
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 17.3,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9424576,
+          32.861720319999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 5.3,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.930592000000001,
+          32.8534144
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -6.8,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9379264,
+          32.858548479999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -18.7,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9452608,
+          32.86368256
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -30,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9333952000000005,
+          32.855376639999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -40.5,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9407296,
+          32.86051072
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -49.9,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9480640000000005,
+          32.8656448
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -57.8,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9361984,
+          32.85733888
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -64,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9435328,
+          32.86247296
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -68.4,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.931667200000001,
+          32.85416704
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -70.8,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9390016,
+          32.85930112
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -71.1,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9463360000000005,
+          32.8644352
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -69.5,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9344704,
+          32.85612928
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -65.8,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.941804800000001,
+          32.86126336
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -60.2,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9491392,
+          32.86639744
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -52.9,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9372736,
+          32.85809152
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -44,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.944608000000001,
+          32.8632256
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -33.9,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9327424,
+          32.85491968
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -22.8,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9400768,
+          32.86005376
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -11.1,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9474112,
+          32.86518784
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 1,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9355456,
+          32.85688192
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 13,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.942880000000001,
+          32.862016
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 24.7,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9310144000000005,
+          32.85371008
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 35.6,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.938348800000001,
+          32.85884416
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 45.6,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9456832,
+          32.86397824
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 54.2,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9338176,
+          32.85567232
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 61.2,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.941152000000001,
+          32.8608064
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 66.5,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9484864,
+          32.86594048
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 69.9,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9366208,
+          32.85763456
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 71.2,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9439552,
+          32.86276864
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 70.5,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9320896,
+          32.85446272
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 67.8,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.939424000000001,
+          32.8595968
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 63.1,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9467584,
+          32.86473088
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 56.6,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.934892800000001,
+          32.85642496
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 48.5,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9422272000000005,
+          32.86155904
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 38.9,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9495616,
+          32.86669312
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 28.3,
+        "coherence": 0.82,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.937696000000001,
+          32.858387199999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 16.8,
+        "coherence": 0.835,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9450304,
+          32.86352128
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": 4.8,
+        "coherence": 0.85,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.933164800000001,
+          32.855215359999995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -7.3,
+        "coherence": 0.865,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9404992000000005,
+          32.86034944
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -19.1,
+        "coherence": 0.8799999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9478336,
+          32.86548352
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -30.5,
+        "coherence": 0.8949999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.935968000000001,
+          32.8571776
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -40.9,
+        "coherence": 0.9099999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9433024,
+          32.86231168
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -50.2,
+        "coherence": 0.9249999999999999,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.931436800000001,
+          32.85400576
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -58,
+        "coherence": 0.94,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.938771200000001,
+          32.85913984
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "velocity_mm_year": -64.2,
+        "coherence": 0.955,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9461056,
+          32.86427392
+        ]
+      }
+    }
+  ]
+}

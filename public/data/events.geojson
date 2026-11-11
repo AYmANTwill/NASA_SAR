@@ -1,0 +1,659 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "venezuela",
+        "class": "earthquake",
+        "name": "events 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 0,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.74000000000001,
+          10.012
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "venezuela",
+        "class": "earthquake",
+        "name": "events 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 1,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -66.70176000000001,
+          10.460056
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "venezuela",
+        "class": "earthquake",
+        "name": "events 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 2,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.34352000000001,
+          10.908112
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "souss-massa",
+        "class": "waterStress",
+        "name": "events 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 1,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.655,
+          29.7815
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "souss-massa",
+        "class": "waterStress",
+        "name": "events 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 2,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.09262,
+          30.024197
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "souss-massa",
+        "class": "waterStress",
+        "name": "events 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 3,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.44024,
+          30.266894
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "bihar",
+        "class": "flood",
+        "name": "events 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 2,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84.25999999999999,
+          25.012
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "bihar",
+        "class": "flood",
+        "name": "events 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 3,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.29823999999999,
+          25.460056
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "bihar",
+        "class": "flood",
+        "name": "events 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 4,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84.65647999999999,
+          25.908112000000003
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "amazon",
+        "class": "deforestation",
+        "name": "events 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 3,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -63.84,
+          -10.588
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "amazon",
+        "class": "deforestation",
+        "name": "events 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 4,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -62.80176,
+          -10.139944
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "amazon",
+        "class": "deforestation",
+        "name": "events 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 5,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -63.44352,
+          -9.691888
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "class": "subsidence",
+        "name": "events 1",
+        "magnitude": 7.2,
+        "height": 20,
+        "value": 4,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.28399999999999,
+          19.3222
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "class": "subsidence",
+        "name": "events 2",
+        "magnitude": 7.3500000000000005,
+        "height": 29,
+        "value": 5,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.093656,
+          19.4043436
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mexico-city",
+        "class": "subsidence",
+        "name": "events 3",
+        "magnitude": 7.5,
+        "height": 38,
+        "value": 6,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.21131199999999,
+          19.4864872
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "class": "miningExpansion",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9517999999999995,
+          32.85074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "class": "miningExpansion",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9042140000000005,
+          32.8712759
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "class": "miningExpansion",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.933628,
+          32.8918118
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "gafsa",
+        "class": "miningExpansion",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.738199999999999,
+          34.39074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "gafsa",
+        "class": "miningExpansion",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.785786,
+          34.4112759
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "gafsa",
+        "class": "miningExpansion",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.756371999999999,
+          34.4318118
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "djebel-onk",
+        "class": "miningExpansion",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.958200000000001,
+          34.57074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "djebel-onk",
+        "class": "miningExpansion",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.005786,
+          34.5912759
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "north-africa-mining",
+        "siteId": "djebel-onk",
+        "class": "miningExpansion",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9763720000000005,
+          34.6118118
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "class": "tailingsInstability",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.12912,
+          -20.126384
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "class": "tailingsInstability",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.118737599999996,
+          -20.12190344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "class": "tailingsInstability",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.125155199999995,
+          -20.11742288
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "class": "tailingsInstability",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.94912,
+          32.853615999999995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "class": "tailingsInstability",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9387376000000005,
+          32.85809656
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "north-africa",
+        "class": "tailingsInstability",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.9451552,
+          32.86257712
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "south-africa",
+        "class": "tailingsInstability",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.81088,
+          -26.186384
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "south-africa",
+        "class": "tailingsInstability",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.821262400000002,
+          -26.18190344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "tailings-dams",
+        "siteId": "south-africa",
+        "class": "tailingsInstability",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.8148448,
+          -26.177422879999998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mine-rehabilitation",
+        "class": "miningRehabilitation",
+        "name": "events 0",
+        "height": 10,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.619,
+          32.4867
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mine-rehabilitation",
+        "class": "miningRehabilitation",
+        "name": "events 1",
+        "height": 13,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.59737,
+          32.4960345
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "caseId": "mine-rehabilitation",
+        "class": "miningRehabilitation",
+        "name": "events 2",
+        "height": 16,
+        "simulated": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.61074,
+          32.505369
+        ]
+      }
+    }
+  ]
+}
