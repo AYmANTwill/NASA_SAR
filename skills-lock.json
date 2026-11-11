@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "83485963700bcf11d5bf78118facb301676b69d918fee2e45a95e7f1a2840f6c"
+    },
+    "i18n-date-patterns": {
+      "source": "yonatangross/orchestkit",
+      "sourceType": "github",
+      "skillPath": "plugins/ork/skills/i18n-date-patterns/SKILL.md",
+      "computedHash": "0c16573e88cb048aa7889049e07971a02ae6ad59f220d4bd12951dddf049a655"
+    }
+  }
+}
