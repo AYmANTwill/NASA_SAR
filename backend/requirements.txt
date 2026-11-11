@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+httpx
+requests
+numpy
+scipy
+h5py
+rasterio
+pyproj
+matplotlib
+pillow
+xgboost
+scikit-learn
+joblib
+anthropic

@@ -1,0 +1,16 @@
+# data and outputs (too big for git — share them as zips)
+data/
+cache/
+backend/cache/
+*.zip
+*.h5
+*.tif
+*.npz
+# secrets
+.earthdata_token
+.env
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
