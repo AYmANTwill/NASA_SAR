@@ -492,9 +492,9 @@ def cmd_run(plan, out, part_no, workers, token):
 
 
 TOKEN_FILE = HERE / ".earthdata_token"
-# Earthdata token: leave empty here (this file is public). Set the EARTHDATA_TOKEN environment
-# variable, or let the script ask once and store it in .earthdata_token (git-ignored).
-EARTHDATA_TOKEN = ""
+# Team Earthdata token (Ayman's account, expires January 2027). An EARTHDATA_TOKEN environment
+# variable, if set, takes priority over this one.
+EARTHDATA_TOKEN = "eyJ0eXAiOiJKV1QiLCJvcmlnaW4iOiJFYXJ0aGRhdGEgTG9naW4iLCJzaWciOiJlZGxqd3RwdWJrZXlfb3BzIiwiYWxnIjoiUlMyNTYifQ.eyJ0eXBlIjoiVXNlciIsInVpZCI6InR3aWx6YWIyMDIwIiwic3ViIjoidHdpbHphYjIwMjAiLCJleHAiOjE3OTk2MTI4NTgsImlhdCI6MTc5NDQyODg1OCwiaXNzIjoiaHR0cHM6Ly91cnMuZWFydGhkYXRhLm5hc2EuZ292IiwiaWRlbnRpdHlfcHJvdmlkZXIiOiJlZGxfb3BzIiwiYWNyIjoiZWRsIiwiYXNzdXJhbmNlX2xldmVsIjozfQ.QjUANaG37WwJoPsXQ61bheDQkctuCurTbvgem5z5qKd5Ix6wOXEk5ihJd97qm8Myg2PrIaQ4o1Bb5szmLcV8L4TQZVl-ZkCl89uG91jrBsD_Gp-TNO0-P-6IkshrhBT8heuG_wFQtzFBRQe1VG_-8X0Nhf8lHDY7Gz-1nkm5hnpH1roEYrpL1S5W27d5K37yIHNQIKA18qIBReVxDIG_wz77pNqabNx0aNjSq-Y0Nu1AT5ExyNm3umXoDlsXCmbgIE5Ufvu9uY7geK9-u3jhQxLcyyG4-zsaZTPyamG9LrjKTd3fYVjEecoy3STHbZS-kbAZIZ1Cf8mWjDzA9yDq6A"
 
 
 def get_token():
