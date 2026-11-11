@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createQueryClient, persister } from "@/api/queries";
 import AppShell from "@/components/layout/AppShell";
+import RouteError from "@/components/RouteError";
 import { Loading } from "@/components/states";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -19,7 +20,9 @@ const page = (node: React.ReactNode) => <Suspense fallback={<div className="px-4
 const router = createBrowserRouter([
   {
     element: <AppShell />,
+    errorElement: <RouteError />,
     children: [
+      { errorElement: <RouteError />, children: [
       { index: true, element: page(<DiscoverPage />) },
       { path: "investigate", element: page(<InvestigatePage />) },
       { path: "investigate/:answerId", element: page(<InvestigatePage />) },
@@ -27,6 +30,7 @@ const router = createBrowserRouter([
       { path: "library", element: page(<LibraryPage />) },
       { path: "proof", element: page(<ProofPage />) },
       { path: "*", element: page(<DiscoverPage />) },
+      ] },
     ],
   },
 ]);

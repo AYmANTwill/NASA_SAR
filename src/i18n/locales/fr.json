@@ -35,14 +35,17 @@
     "lower": "Borne basse",
     "upper": "Borne haute",
     "none": "Aucun",
-    "range": "{{from}} à {{to}}"
+    "range": "{{from}} à {{to}}",
+    "reload": "Recharger"
   },
   "errors": {
     "offline": "Pas de connexion, et cette donnée n'est pas en cache.",
     "contract": "La réponse du serveur ne respecte pas le contrat d'API : rien n'est affiché plutôt qu'une valeur douteuse.",
     "api": "Le serveur a refusé la demande.",
     "generic": "Une erreur inattendue est survenue.",
-    "unknownTemplate": "Texte non traduit ({{id}})"
+    "unknownTemplate": "Texte non traduit ({{id}})",
+    "screen": "Cet écran n'a pas pu se charger.",
+    "screenHint": "Une partie de l'application n'a pas été téléchargée, probablement à cause d'une coupure réseau. Rechargez la page."
   },
   "ask": {
     "label": "Votre question",
@@ -277,7 +280,8 @@
     "zones": "Zones détectées",
     "zoomIn": "Zoom avant",
     "zoomOut": "Zoom arrière",
-    "attribution": "Sources de la carte"
+    "attribution": "Sources de la carte",
+    "unavailable": "La carte ne peut pas se charger (connexion coupée pendant le chargement). Les mesures restent lisibles dans le panneau."
   },
   "discover": {
     "title": "Ce que NISAR a trouvé au {{region}}",

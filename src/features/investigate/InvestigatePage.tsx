@@ -1,15 +1,15 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { CloudOff, MessageSquareText } from "lucide-react";
 import type { Answer, Bounds } from "@/api/contract";
 import { useAnswer, useAsk } from "@/api/queries";
 import { ErrorState, Loading } from "@/components/states";
 import { useText } from "@/i18n/useText";
+import { MapSlot } from "@/components/map/MapSlot";
 import { AgentSteps } from "./AgentSteps";
 import { AnswerView } from "./AnswerView";
 import { AskBox } from "./AskBox";
 
-const RadarMap = lazy(() => import("@/components/map/RadarMap"));
 
 function boundsOf(answer: Answer | undefined): Bounds | null {
   if (!answer) return null;
@@ -99,8 +99,7 @@ export default function InvestigatePage() {
       </div>
 
       <div className="relative order-1 h-[46vh] min-h-72 flex-1 lg:order-none lg:h-auto">
-        <Suspense fallback={<div className="absolute inset-0 bg-[#d9e3e9]" />}>
-          <RadarMap
+        <MapSlot
             className="absolute inset-0"
             ariaLabel={t("map.label")}
             bounds={bounds}
@@ -109,7 +108,6 @@ export default function InvestigatePage() {
             picked={picked ?? (mapAnswer ? { lat: mapAnswer.location.lat, lon: mapAnswer.location.lon } : null)}
             onPick={(lat, lon) => setPicked({ lat, lon })}
           />
-        </Suspense>
       </div>
     </div>
   );

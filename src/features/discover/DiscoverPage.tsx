@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Building2, CircleCheckBig, Pickaxe, Route, Waves } from "lucide-react";
 import type { Discoveries, Zone } from "@/api/contract";
@@ -8,12 +8,12 @@ import { MeasurementText } from "@/components/science/MeasurementText";
 import { NoiseRuler } from "@/components/science/NoiseRuler";
 import { EmptyState, ErrorState, Loading } from "@/components/states";
 import { useText } from "@/i18n/useText";
+import { MapSlot } from "@/components/map/MapSlot";
 import { formatDate, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { AskBox } from "@/features/investigate/AskBox";
 import type { MapMarker } from "@/components/map/RadarMap";
 
-const RadarMap = lazy(() => import("@/components/map/RadarMap"));
 
 type Sort = "velocity" | "exposure";
 
@@ -136,9 +136,7 @@ function DiscoverBody({ data }: { data: Discoveries }) {
       </section>
 
       <div className="relative h-[60vh] min-h-80 overflow-hidden rounded-md border border-line sticky-below-chrome">
-        <Suspense fallback={<div className="absolute inset-0 bg-[#d9e3e9]" />}>
-          <RadarMap className="absolute inset-0" ariaLabel={t("map.zones")} bounds={regionBounds} markers={markers} legend={false} />
-        </Suspense>
+        <MapSlot className="absolute inset-0" ariaLabel={t("map.zones")} bounds={regionBounds} markers={markers} legend={false} />
       </div>
     </div>
   );

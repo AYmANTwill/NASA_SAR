@@ -35,14 +35,17 @@
     "lower": "Lower bound",
     "upper": "Upper bound",
     "none": "None",
-    "range": "{{from}} to {{to}}"
+    "range": "{{from}} to {{to}}",
+    "reload": "Reload"
   },
   "errors": {
     "offline": "No connection, and this data is not cached.",
     "contract": "The server response does not match the API contract, so nothing is shown rather than a doubtful value.",
     "api": "The server refused the request.",
     "generic": "An unexpected error occurred.",
-    "unknownTemplate": "Untranslated text ({{id}})"
+    "unknownTemplate": "Untranslated text ({{id}})",
+    "screen": "This screen could not load.",
+    "screenHint": "Part of the application was not downloaded, probably because of a network cut. Reload the page."
   },
   "ask": {
     "label": "Your question",
@@ -277,7 +280,8 @@
     "zones": "Detected zones",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "attribution": "Map sources"
+    "attribution": "Map sources",
+    "unavailable": "The map cannot load (connection lost while loading). Measurements remain readable in the panel."
   },
   "discover": {
     "title": "What NISAR found in {{region}}",

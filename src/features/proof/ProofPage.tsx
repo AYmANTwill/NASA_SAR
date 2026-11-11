@@ -1,4 +1,4 @@
-import { lazy, Suspense, useId, useState } from "react";
+import { useId, useState } from "react";
 import { CartesianGrid, ComposedChart, ErrorBar, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipProps } from "recharts";
 import { ShieldQuestion } from "lucide-react";
 import type { LbandProof, RasterLayer } from "@/api/contract";
@@ -7,9 +7,9 @@ import { MeasurementText } from "@/components/science/MeasurementText";
 import { ErrorState, Loading } from "@/components/states";
 import { gradient } from "@/components/map/palettes";
 import { useText } from "@/i18n/useText";
+import { MapSlot } from "@/components/map/MapSlot";
 import { formatDate, formatNumber, niceTicks } from "@/lib/format";
 
-const RadarMap = lazy(() => import("@/components/map/RadarMap"));
 const AXIS = { fontSize: 12, fill: "var(--ink-2)" };
 
 export default function ProofPage() {
@@ -72,9 +72,7 @@ function SensorMap({ title, layer, mean }: { title: string; layer: RasterLayer; 
         </span>
       </figcaption>
       <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-line">
-        <Suspense fallback={<div className="absolute inset-0 bg-[#d9e3e9]" />}>
-          <RadarMap className="absolute inset-0" ariaLabel={`${title} · ${t("layer.kind.coherence")}`} bounds={layer.bounds} layers={[layer]} legend={false} interactive={false} />
-        </Suspense>
+        <MapSlot className="absolute inset-0" ariaLabel={`${title} · ${t("layer.kind.coherence")}`} bounds={layer.bounds} layers={[layer]} legend={false} interactive={false} />
       </div>
     </figure>
   );

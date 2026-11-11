@@ -15,6 +15,8 @@ export default defineConfig({
       manifest: false,
       devOptions: { enabled: false },
       workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,svg,woff2,json,png}"],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: "/index.html",
