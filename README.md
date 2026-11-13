@@ -98,6 +98,34 @@ NASA_SAR\data\
 The backend reads this folder directly. Several people's downloads merge by copying their `GUNW\` and
 `SME2\` folders into one `data\` (names never collide).
 
+### Morocco plan: `--plan`, `--keep-raw` and two small tools
+The Morocco plan (`docs/claude/MOROCCO_PLAN.md`) uses **tiers** instead of the 5 parts: with
+`--plan`, "part N" means tier N (1 = Al Haouz + soil moisture at the sites, 2 = full chains of the
+frames that cover the sites, 3 = rest of the soil moisture). `plan_nisar.json` is never touched.
+
+```powershell
+# 1. Build the plan (ASF metadata only, nothing is downloaded). --dry-run prints the summary only.
+python tools/make_morocco_plan.py --dry-run
+python tools/make_morocco_plan.py                      # writes plan_morocco.json
+
+# 2. Check it, then download tier 1 keeping the raw .h5 files
+$env:EARTHDATA_TOKEN = "<your token>"
+python download_all.py status --plan plan_morocco.json
+python download_all.py run --plan plan_morocco.json --part 1 --workers 3 --keep-raw --out D:\nisar_data
+
+# 3. Look inside one raw file to check layer names before tier 2
+python tools/list_h5_layers.py D:\nisar_data\GUNW\<name>\<name>.h5 iono tropo tide mask
+```
+- `--keep-raw` keeps each raw `.h5` next to its GeoTIFFs (about 2.3 GB per GUNW). The free-space check
+  adds their size.
+- Morocco GUNW rows also extract extra layers (ionosphere uncertainty, mask, troposphere and
+  solid-earth-tide cubes). **These layer names are not verified on a real file yet.** If one is missing
+  the script warns, writes it to `_extra_layers.json` and `_DONE` (`raw_kept_missing_layers`), and
+  **keeps the raw `.h5` even without `--keep-raw`**. Fix `EXTRA_LAYERS` / `EXTRA_META_KEYWORDS` in
+  `download_all.py` before running tier 2.
+- `tools/list_h5_layers.py <file.h5> [keyword ...]` prints every dataset path with shape and dtype,
+  optionally filtered by keywords (case-insensitive). Read-only, needs only `h5py`.
+
 ### Problems
 | message | fix |
 |---|---|
