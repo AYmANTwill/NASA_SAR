@@ -28,6 +28,8 @@ Plan Maroc (voir docs/claude/MOROCCO_PLAN.md) : les « parties » sont des palie
     python download_all.py run --plan plan_morocco.json --part 1 --keep-raw
   --plan FICHIER : utilise ce plan à la place de plan_nisar.json (jamais modifié).
   --keep-raw     : garde le .h5 brut à côté des GeoTIFF extraits (GUNW/GCOV/GOFF).
+    python download_all.py rebuild-npz [--out D:\\nisar_data] [--dry-run]
+                   : reconstruit radar_geometry.npz (axes + marée) depuis les .h5 bruts gardés, sans rien télécharger.
 """
 from __future__ import annotations
 
@@ -83,11 +85,16 @@ META_KEYWORDS = ["losUnitVector", "incidenceAngle", "elevationAngle"]
 
 # Couches supplémentaires (plan Maroc), extraites seulement pour les lignes du plan qui portent
 # "extra_layers": true ; sans cela l'extraction reste exactement celle d'avant.
-# NOMS NON VÉRIFIÉS sur un vrai fichier (data/GUNW/_structure.json n'existait pas à l'inventaire du
-# 2026-11-12) : ils viennent de la description du produit GUNW. Si un nom est faux, la couche est
-# simplement absente et listée dans _extra_layers.json (« manquantes ») ; garder --keep-raw au début.
+# Noms vérifiés le 2026-11-13 sur un vrai fichier GUNW (data/GUNW/_structure.json + lecture h5py). Si un
+# nom manque dans un fichier, la couche est listée dans _extra_layers.json (« manquantes ») et le .h5
+# brut est gardé même sans --keep-raw.
 EXTRA_LAYERS = {"GUNW": ["ionospherePhaseScreenUncertainty", "mask"]}          # grilles 2D -> GeoTIFF
-EXTRA_META_KEYWORDS = {"GUNW": ["TroposphericPhaseScreen", "solidEarthTide"]}  # cubes -> radar_geometry.npz
+EXTRA_META_KEYWORDS = {"GUNW": ["TroposphericPhaseScreen"]}                    # cubes -> npz, clé longue (inchangé)
+# Sous /science/LSAR/GUNW/metadata/radarGrid/ : axes du cube (hauteur, x, y, projection) et cube de marée
+# terrestre, enregistrés dans radar_geometry.npz sous leur NOM COURT. Seulement avec extra_layers.
+EXTRA_SHORT_META = {"GUNW": ["heightAboveEllipsoid", "xCoordinates", "yCoordinates", "projection",
+                             "slantRangeSolidEarthTidesPhase"]}
+RADAR_GRID = "/metadata/radarGrid/"
 # La cohérence 80 m est déjà extraite (coherenceMagnitude de la grille « unwrapped »).
 
 
@@ -386,19 +393,71 @@ def _write_tif(path, arr, x, y, epsg):
         dst.write(arr, 1)
 
 
+def extra_report(level, seen):
+    """Texte JSON de _extra_layers.json : demandées / trouvées / manquantes."""
+    names, kws, short = _extra_lists(level, True)
+    asked = names + kws + short
+    return json.dumps({"demandees": asked, "trouvees": sorted(seen),
+                       "manquantes": [k for k in asked if k not in seen]}, indent=1)
+
+
+def _extra_lists(level, extra):
+    """(grilles 2D, mots-clés des cubes, noms courts) demandés en plus ; trois listes vides si extra=False."""
+    if not extra:
+        return [], [], []
+    return (EXTRA_LAYERS.get(level, []), EXTRA_META_KEYWORDS.get(level, []), EXTRA_SHORT_META.get(level, []))
+
+
+def _meta_target(name, obj, meta_kw, extra_kw, short):
+    """(clé npz, couches supplémentaires reconnues) si ce dataset va dans radar_geometry.npz, sinon None.
+    Les noms courts ne sont pris que sous .../metadata/radarGrid/ (xCoordinates existe aussi ailleurs)."""
+    if obj.size >= 50_000_000:
+        return None
+    base = name.split("/")[-1]
+    if base in short and RADAR_GRID in "/" + name:
+        return base, [base]
+    if any(k in base for k in meta_kw):
+        return name.replace("/", "__"), [k for k in extra_kw if k in base]
+    return None
+
+
+def scan_geometry(h5, level, extra=False):
+    """Contenu de radar_geometry.npz : ({clé: tableau}, couches supplémentaires trouvées).
+    Utilisé par extract() et par la commande rebuild-npz, pour que les deux donnent la même chose."""
+    import h5py
+    extra_names, extra_kw, short = _extra_lists(level, extra)
+    wanted = LAYERS[level] + extra_names
+    meta_kw = META_KEYWORDS + extra_kw
+    meta, seen = {}, set()
+
+    def visit(name, obj):
+        if not isinstance(obj, h5py.Dataset):
+            return
+        base = name.split("/")[-1]
+        if level == "GUNW" and "wrappedInterferogram" in name and "unwrappedInterferogram" not in name:
+            return
+        if base in wanted and obj.ndim == 2:          # grille 2D : GeoTIFF, pas npz
+            if base in extra_names:
+                seen.add(base)
+            return
+        t = _meta_target(name, obj, meta_kw, extra_kw, short)
+        if t is not None:
+            meta[t[0]] = obj[()]
+            seen.update(t[1])
+
+    h5.visititems(visit)
+    return meta, seen
+
+
 def extract(h5_path: Path, out_dir: Path, level: str, extra: bool = False):
     import h5py
     import numpy as np
-    extra_names = EXTRA_LAYERS.get(level, []) if extra else []
-    extra_kw = EXTRA_META_KEYWORDS.get(level, []) if extra else []
-    wanted = LAYERS[level] + extra_names
-    meta_kw = META_KEYWORDS + extra_kw
-    seen_extra = set()
+    wanted = LAYERS[level] + _extra_lists(level, extra)[0]
     tmp_dir = out_dir.with_name(out_dir.name + ".tmp")
     if tmp_dir.exists():
         shutil.rmtree(tmp_dir)
     tmp_dir.mkdir(parents=True)
-    found, meta = [], {}
+    found = []
     with h5py.File(h5_path, "r") as h5:
         def visit(name, obj):
             if isinstance(obj, h5py.Dataset):
@@ -408,12 +467,8 @@ def extract(h5_path: Path, out_dir: Path, level: str, extra: bool = False):
                     return
                 if base in wanted and obj.ndim == 2:
                     found.append(name)
-                    if base in extra_names:
-                        seen_extra.add(base)
-                elif any(k in base for k in meta_kw) and obj.size < 50_000_000:
-                    meta[name.replace("/", "__")] = obj[()]
-                    seen_extra.update(k for k in extra_kw if k in base)
         h5.visititems(visit)
+        meta, seen_extra = scan_geometry(h5, level, extra)
         if not found:
             raise RuntimeError(f"aucune couche {wanted} dans le fichier")
         for name in found:
@@ -427,10 +482,7 @@ def extract(h5_path: Path, out_dir: Path, level: str, extra: bool = False):
         if meta:
             np.savez_compressed(tmp_dir / "radar_geometry.npz", **meta)
         if extra:                                   # trace : quelles couches supplémentaires existent vraiment
-            asked = extra_names + extra_kw
-            (tmp_dir / "_extra_layers.json").write_text(json.dumps(
-                {"demandees": asked, "trouvees": sorted(seen_extra),
-                 "manquantes": [k for k in asked if k not in seen_extra]}, indent=1))
+            (tmp_dir / "_extra_layers.json").write_text(extra_report(level, seen_extra))
         inv = out_dir.parent / "_structure.json"
         if not inv.exists():
             items = []
@@ -509,6 +561,86 @@ def human(b):
 def short(name):
     p = parse_name(name)
     return f"{name.split('_')[3]} T{p['track']:03d} F{p['frame']:03d} {p['ref_ts'][:8]}→{p['sec_ts'][:8]}"
+
+
+def rebuild_npz(out: Path, dry_run: bool = False):
+    """Reconstruit radar_geometry.npz, _extra_layers.json et _DONE de chaque produit GUNW dont le .h5 brut
+    est gardé (--keep-raw ou filet de sécurité). Aucun téléchargement ; le .h5 brut n'est jamais supprimé
+    ni modifié. Ne touche pas aux dossiers sans _DONE (téléchargement en cours) ni sans .h5 brut.
+    Renvoie une liste de dicts {name, status, ajoutes, manquantes}."""
+    import h5py
+    import numpy as np
+    results = []
+    base = out / "GUNW"
+    if not base.is_dir():
+        return results
+    for folder in sorted(p for p in base.iterdir() if p.is_dir() and not p.name.endswith(".tmp")):
+        res = {"name": folder.name, "ajoutes": [], "manquantes": []}
+        results.append(res)
+        raw, done_f, npz = folder / (folder.name + ".h5"), folder / "_DONE", folder / "radar_geometry.npz"
+        if not done_f.exists():
+            res["status"] = "ignoré : pas de _DONE"
+            continue
+        if not raw.exists():
+            res["status"] = "ignoré : pas de .h5 brut"
+            continue
+        tmp = npz.with_name("radar_geometry.tmp")
+        try:
+            with h5py.File(raw, "r") as h5:
+                meta, seen = scan_geometry(h5, "GUNW", True)
+            asked = sum(_extra_lists("GUNW", True), [])
+            missing = [k for k in asked if k not in seen]
+            res["manquantes"] = missing
+            have = set()
+            if npz.exists():
+                with np.load(npz) as z:
+                    have = set(z.files)
+            res["ajoutes"] = sorted(set(meta) - have)
+            report = extra_report("GUNW", seen)
+            rep_f = folder / "_extra_layers.json"
+            report_changed = not rep_f.exists() or rep_f.read_text() != report
+            done = json.loads(done_f.read_text())
+            done_changed = bool(done.get("raw_kept_missing_layers")) != bool(missing) or not done.get("raw")
+            if not (res["ajoutes"] or report_changed or done_changed):
+                res["status"] = "à jour"
+                continue
+            if dry_run:
+                res["status"] = "à reconstruire (dry-run, rien écrit)"
+                continue
+            if res["ajoutes"] and meta:
+                with open(tmp, "wb") as f:                 # np.savez ajouterait « .npz » à un nom de fichier
+                    np.savez_compressed(f, **meta)
+                os.replace(tmp, npz)
+            rep_f.write_text(report)
+            done["raw"] = True
+            if missing:
+                done["raw_kept_missing_layers"] = missing
+            else:
+                done.pop("raw_kept_missing_layers", None)
+            done["kept_bytes"] = sum(f.stat().st_size for f in folder.iterdir() if f.is_file() and f.name != "_DONE")
+            if res["ajoutes"]:
+                done["npz_rebuilt_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            done_f.write_text(json.dumps(done))
+            res["status"] = "reconstruit" if res["ajoutes"] else "rapport mis à jour"
+        except Exception as e:
+            tmp.unlink(missing_ok=True)
+            res["status"] = f"erreur : {e}"
+    return results
+
+
+def cmd_rebuild_npz(out: Path, dry_run=False):
+    if not (out / "GUNW").is_dir():
+        print(f"Pas de dossier GUNW dans {out}")
+        return 1
+    res = rebuild_npz(out, dry_run)
+    for r in res:
+        extra = (f" · ajoutés : {', '.join(r['ajoutes'])}" if r["ajoutes"] else "") + \
+                (f" · MANQUANTES : {', '.join(r['manquantes'])}" if r["manquantes"] else "")
+        print(f"{r['status']:<38} {r['name'][:60]}…{extra}")
+    n_err = sum(r["status"].startswith("erreur") for r in res)
+    print(f"{len(res)} dossier(s) · reconstruits : {sum(r['status'] == 'reconstruit' for r in res)} · erreurs : {n_err}"
+          + (" · (dry-run : rien n'a été écrit)" if dry_run else ""))
+    return 1 if n_err else 0
 
 
 def plan_parts(plan):
@@ -692,7 +824,7 @@ def get_token():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("action", nargs="?", choices=["run", "status", "build-plan"])
+    ap.add_argument("action", nargs="?", choices=["run", "status", "build-plan", "rebuild-npz"])
     ap.add_argument("--part", type=int, choices=range(1, N_PARTS + 1))
     ap.add_argument("--workers", type=int, default=5)
     ap.add_argument("--out", default=str(HERE / "data"),
@@ -702,6 +834,8 @@ def main():
                          "les « parties » sont alors les paliers du plan")
     ap.add_argument("--keep-raw", action="store_true",
                     help="garde le .h5 brut à côté des GeoTIFF extraits (GUNW/GCOV/GOFF)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="avec rebuild-npz : montre ce qui serait reconstruit sans rien écrire")
     a = ap.parse_args()
 
     if a.action is None:            # lancé sans argument (bouton Run de VS Code, double-clic)
@@ -721,6 +855,8 @@ def main():
             rs = [r for r in plan["files"] if r["part"] == p]
             print(f"partie {p}: {len(rs)} fichiers, {human(sum(r['size'] for r in rs))}")
         return
+    if a.action == "rebuild-npz":                   # hors ligne : relit les .h5 bruts gardés, rien à télécharger
+        sys.exit(cmd_rebuild_npz(Path(a.out), a.dry_run))
     plan = load_plan(a.plan)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

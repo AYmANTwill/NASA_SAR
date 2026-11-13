@@ -243,10 +243,14 @@ def make_gunw_h5(path, with_tide=True):
         g.create_group("wrappedInterferogram/HH")["coherenceMagnitude"] = np.ones((16, 16), "float32")
         m = f.create_group("science/LSAR/GUNW/metadata/radarGrid")
         m["losUnitVectorX"] = np.ones((4, 4), "float32")
+        m["xCoordinates"] = np.linspace(0, 3, 4)          # radarGrid axes (NOT the 8-pixel grid axes above)
+        m["yCoordinates"] = np.linspace(3, 0, 4)
+        m["heightAboveEllipsoid"] = np.array([-500.0, 0.0])
+        m["projection"] = np.uint32(32629)
         m["hydrostaticTroposphericPhaseScreen"] = np.ones((2, 4, 4), "float32")
         m["wetTroposphericPhaseScreen"] = np.ones((2, 4, 4), "float32")
         if with_tide:
-            m["solidEarthTidePhase"] = np.ones((2, 4, 4), "float32")
+            m["slantRangeSolidEarthTidesPhase"] = np.full((2, 4, 4), -5.5, "float64")
 
 
 h5a = tmp / "gunw_a.h5"
@@ -266,12 +270,12 @@ check("extract extra: ionosphere uncertainty + mask as GeoTIFF, troposphere and 
       (d2 / "unwrappedInterferogram_HH_ionospherePhaseScreenUncertainty.tif").exists()
       and (d2 / "unwrappedInterferogram_HH_mask.tif").exists()
       and any("hydrostaticTroposphericPhaseScreen" in k for k in npz2) and any("wetTroposphericPhaseScreen" in k for k in npz2)
-      and any("solidEarthTidePhase" in k for k in npz2) and rep2["manquantes"] == [], rep2)
+      and "slantRangeSolidEarthTidesPhase" in npz2 and rep2["manquantes"] == [], rep2)
 h5b = tmp / "gunw_b.h5"
 make_gunw_h5(h5b, with_tide=False)
 da.extract(h5b, tmp / "x3" / "GUNW" / "p3", "GUNW", extra=True)
 check("extract extra: a requested layer absent from the file is reported, not silently ignored",
-      da.extra_missing(tmp / "x3" / "GUNW" / "p3") == ["solidEarthTide"], da.extra_missing(tmp / "x3" / "GUNW" / "p3"))
+      da.extra_missing(tmp / "x3" / "GUNW" / "p3") == ["slantRangeSolidEarthTidesPhase"], da.extra_missing(tmp / "x3" / "GUNW" / "p3"))
 
 row = fake("GUNW", 44, 17, "A", "20260929", "20261011")
 row["extra_layers"] = True
@@ -307,13 +311,13 @@ check("finish without --keep-raw: raw removed, extra layers off (row has no extr
 row3 = fake("GUNW", 44, 17, "A", "20260905", "20260917")
 row3["extra_layers"] = True
 part3 = tmp / "_tmp" / "c.h5.part"
-shutil.copy(h5b, part3)                                  # h5b has no solidEarthTidePhase
+shutil.copy(h5b, part3)                                  # h5b has no slantRangeSolidEarthTidesPhase
 fin3 = tmp / "x5" / "GUNW" / row3["name"]
 k3 = da.finish(row3, part3, fin3, fin3 / "_DONE")        # no --keep-raw
 raw3 = fin3 / (row3["name"] + ".h5")
 done3 = json.loads((fin3 / "_DONE").read_text())
 check("safety net: missing extra layer -> raw .h5 kept WITHOUT --keep-raw, _DONE lists the missing name",
-      raw3.exists() and not part3.exists() and done3.get("raw_kept_missing_layers") == ["solidEarthTide"]
+      raw3.exists() and not part3.exists() and done3.get("raw_kept_missing_layers") == ["slantRangeSolidEarthTidesPhase"]
       and done3.get("raw") is True and k3 > raw3.stat().st_size, done3)
 check("safety net: the warning names the missing layer and the kept raw file",
       "solidEarthTide" in da.missing_warning(["solidEarthTide"], raw3) and raw3.name in da.missing_warning(["solidEarthTide"], raw3)
@@ -421,7 +425,95 @@ nofile = subprocess.run([sys.executable, str(ROOT.parent / "tools" / "list_h5_la
 check("list_h5_layers: case-insensitive keyword filter prints path, shape, dtype; no keyword lists everything; bad file fails",
       lst.returncode == 0 and len(lst.stdout.strip().splitlines()) == 3 and "shape=(2, 4, 4)" in lst.stdout
       and "dtype=float32" in lst.stdout and "mask" not in lst.stdout.lower()
-      and len(allp.stdout.strip().splitlines()) == 14 and nofile.returncode == 1, (len(lst.stdout.splitlines()), len(allp.stdout.splitlines())))
+      and len(allp.stdout.strip().splitlines()) == 18 and nofile.returncode == 1, (len(lst.stdout.splitlines()), len(allp.stdout.splitlines())))
+
+# --- radar_geometry.npz: axes + tide cube under short names, six old keys unchanged -------------------
+LONG = "science__LSAR__GUNW__metadata__radarGrid__"
+with np.load(d2 / "radar_geometry.npz") as z2:
+    keys2 = set(z2.files)
+    x_shape, proj, tide = z2["xCoordinates"].shape, int(z2["projection"]), z2["slantRangeSolidEarthTidesPhase"]
+check("npz (extra): the 3 long keys unchanged + 4 axes and the tide cube under short names, nothing else",
+      keys2 == {LONG + "losUnitVectorX", LONG + "hydrostaticTroposphericPhaseScreen", LONG + "wetTroposphericPhaseScreen",
+                "heightAboveEllipsoid", "xCoordinates", "yCoordinates", "projection", "slantRangeSolidEarthTidesPhase"}, sorted(keys2))
+check("npz (extra): axes come from radarGrid (4 values), not from the 8-pixel grid; projection and tide values intact",
+      x_shape == (4,) and proj == 32629 and tide.shape == (2, 4, 4) and float(tide[0, 0, 0]) == -5.5)
+check("_extra_layers.json: the tide cube and the axes are reported found, nothing missing",
+      {"slantRangeSolidEarthTidesPhase", "xCoordinates", "heightAboveEllipsoid"} <= set(rep2["trouvees"])
+      and "solidEarthTide" not in rep2["demandees"] and rep2["manquantes"] == [], rep2)
+# default extraction (no extra layers) must select exactly what the old rule selected
+legacy = {}
+with h5py.File(h5a, "r") as hh:
+    def _legacy(name, obj):
+        base = name.split("/")[-1]
+        if (isinstance(obj, h5py.Dataset) and not ("wrappedInterferogram" in name and "unwrappedInterferogram" not in name)
+                and not (base in da.LAYERS["GUNW"] and obj.ndim == 2)
+                and any(k in base for k in da.META_KEYWORDS) and obj.size < 50_000_000):
+            legacy[name.replace("/", "__")] = obj[()]
+    hh.visititems(_legacy)
+    now, _seen = da.scan_geometry(hh, "GUNW", False)
+check("npz (default, no extra): same keys and values as the legacy selection rule (default extraction unchanged)",
+      set(now) == set(legacy) and all(np.array_equal(now[k], legacy[k]) for k in now) and _seen == set(), sorted(now))
+
+# --- rebuild-npz: from kept raw files, offline, nothing deleted ---------------------------------------
+rb_root = tmp / "rb"
+rows_rb = []
+for i, (ref, sec) in enumerate([("20260101", "20260113"), ("20260113", "20260125")]):
+    r_ = fake("GUNW", 44, 17, "A", ref, sec)
+    r_["extra_layers"] = True
+    pt = tmp / "_tmp" / f"rb{i}.h5.part"
+    shutil.copy(h5a, pt)
+    da.finish(r_, pt, rb_root / "GUNW" / r_["name"], rb_root / "GUNW" / r_["name"] / "_DONE", keep_raw=True)
+    rows_rb.append(r_)
+f1_ = rb_root / "GUNW" / rows_rb[0]["name"]
+f2_ = rb_root / "GUNW" / rows_rb[1]["name"]
+with np.load(f1_ / "radar_geometry.npz") as z_:                      # downgrade folder 1 to the OLD state on disk
+    old_long = {k: z_[k] for k in z_.files if k.startswith(LONG) and k.endswith(("losUnitVectorX", "PhaseScreen"))}
+np.savez_compressed(str(f1_ / "radar_geometry.npz")[:-4], **old_long)
+(f1_ / "_extra_layers.json").write_text(json.dumps({"demandees": ["solidEarthTide"], "trouvees": [], "manquantes": ["solidEarthTide"]}))
+(f1_ / "_DONE").write_text(json.dumps({"kept_bytes": 1, "at": "x", "raw": True, "raw_kept_missing_layers": ["solidEarthTide"]}))
+raw_f1 = f1_ / (rows_rb[0]["name"] + ".h5")
+raw_sha = hashlib.sha256(raw_f1.read_bytes()).hexdigest()
+npz_before = (f1_ / "radar_geometry.npz").read_bytes()
+no_raw = rb_root / "GUNW" / "NISAR_noraw"
+no_raw.mkdir()
+(no_raw / "_DONE").write_text("{}")
+not_done = rb_root / "GUNW" / "NISAR_notdone"
+not_done.mkdir()
+(not_done / (not_done.name + ".h5")).write_bytes(b"x")
+broken = rb_root / "GUNW" / "NISAR_broken"
+broken.mkdir()
+(broken / "_DONE").write_text("{}")
+(broken / "NISAR_broken.h5").write_bytes(b"not an hdf5 file")
+(broken / "radar_geometry.npz").write_bytes(b"keep me")
+dry = {r["name"]: r for r in da.rebuild_npz(rb_root, dry_run=True)}
+check("rebuild-npz --dry-run: reports what would change and writes nothing",
+      "dry-run" in dry[rows_rb[0]["name"]]["status"] and (f1_ / "radar_geometry.npz").read_bytes() == npz_before
+      and "slantRangeSolidEarthTidesPhase" in dry[rows_rb[0]["name"]]["ajoutes"]
+      and json.loads((f1_ / "_DONE").read_text()).get("raw_kept_missing_layers") == ["solidEarthTide"])
+real = {r["name"]: r for r in da.rebuild_npz(rb_root)}
+with np.load(f1_ / "radar_geometry.npz") as z_:
+    rebuilt = {k: z_[k] for k in z_.files}
+done_rb = json.loads((f1_ / "_DONE").read_text())
+rep_rb = json.loads((f1_ / "_extra_layers.json").read_text())
+check("rebuild-npz: old keys kept with identical values, axes + tide cube added, report and _DONE corrected",
+      real[rows_rb[0]["name"]]["status"] == "reconstruit" and set(rebuilt) == keys2
+      and all(np.array_equal(rebuilt[k], v) for k, v in old_long.items())
+      and rep_rb["manquantes"] == [] and "raw_kept_missing_layers" not in done_rb and done_rb["raw"] is True
+      and "npz_rebuilt_at" in done_rb, sorted(set(rebuilt) ^ keys2))
+check("rebuild-npz: the raw .h5 is untouched (same bytes); no temp file left behind",
+      raw_f1.exists() and hashlib.sha256(raw_f1.read_bytes()).hexdigest() == raw_sha
+      and not list(f1_.glob("*.tmp")) and not (f1_ / "radar_geometry.tmp").exists())
+check("rebuild-npz: a product that is already up to date is left alone; second run is a no-op",
+      real[rows_rb[1]["name"]]["status"] == "à jour"
+      and {r["status"] for r in da.rebuild_npz(rb_root) if r["name"] in (rows_rb[0]["name"], rows_rb[1]["name"])} == {"à jour"})
+check("rebuild-npz: folders without raw .h5 or without _DONE are skipped; an unreadable raw file is an error and its npz is kept",
+      real["NISAR_noraw"]["status"].startswith("ignoré") and real["NISAR_notdone"]["status"].startswith("ignoré")
+      and real["NISAR_broken"]["status"].startswith("erreur") and (broken / "radar_geometry.npz").read_bytes() == b"keep me"
+      and (broken / "NISAR_broken.h5").exists())
+cli = subprocess.run([sys.executable, str(ROOT.parent / "download_all.py"), "rebuild-npz", "--out", str(rb_root), "--dry-run"],
+                     capture_output=True, text=True)
+check("download_all rebuild-npz CLI: runs offline without a token or a plan; exit code 1 only because of the broken test folder",
+      cli.returncode == 1 and "dry-run" in cli.stdout and "erreur" in cli.stdout and "reconstruits" in cli.stdout, cli.stdout[-200:])
 
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)

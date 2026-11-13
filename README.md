@@ -118,11 +118,16 @@ python tools/list_h5_layers.py D:\nisar_data\GUNW\<name>\<name>.h5 iono tropo ti
 ```
 - `--keep-raw` keeps each raw `.h5` next to its GeoTIFFs (about 2.3 GB per GUNW). The free-space check
   adds their size.
-- Morocco GUNW rows also extract extra layers (ionosphere uncertainty, mask, troposphere and
-  solid-earth-tide cubes). **These layer names are not verified on a real file yet.** If one is missing
-  the script warns, writes it to `_extra_layers.json` and `_DONE` (`raw_kept_missing_layers`), and
-  **keeps the raw `.h5` even without `--keep-raw`**. Fix `EXTRA_LAYERS` / `EXTRA_META_KEYWORDS` in
-  `download_all.py` before running tier 2.
+- Morocco GUNW rows also extract extra layers: ionosphere uncertainty and mask (GeoTIFF), and in
+  `radar_geometry.npz` the troposphere cubes, the solid-earth-tide cube `slantRangeSolidEarthTidesPhase`
+  and the cube axes `heightAboveEllipsoid`, `xCoordinates`, `yCoordinates`, `projection` (short names; the
+  older keys keep their long `science__LSAR__...` names). The names were checked on a real file on
+  2026-11-13. If one is ever missing the script warns, writes it to `_extra_layers.json` and `_DONE`
+  (`raw_kept_missing_layers`), and **keeps the raw `.h5` even without `--keep-raw`**.
+- `python download_all.py rebuild-npz [--out D:\nisar_data] [--dry-run]` rebuilds `radar_geometry.npz`,
+  `_extra_layers.json` and `_DONE` from the raw `.h5` files you kept. Offline, no token; it never deletes
+  or edits a raw file, skips folders without `_DONE` or without a raw `.h5`, and does nothing to products
+  that are already up to date. Run it with `--dry-run` first.
 - `tools/list_h5_layers.py <file.h5> [keyword ...]` prints every dataset path with shape and dtype,
   optionally filtered by keywords (case-insensitive). Read-only, needs only `h5py`.
 
