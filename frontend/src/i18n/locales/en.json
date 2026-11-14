@@ -513,6 +513,7 @@
     "answers": "Agent answers",
     "enlarge": "Enlarge the figure: {{title}}",
     "imageMissing": "Image not available yet.",
+    "baselineHelp": "Reference: the no-event baseline. Here, “agree” means “not different from no change”.",
     "notMeasuredYet": "not measured yet",
     "afterHours_one": "{{count}} hour later",
     "afterHours_other": "{{count}} hours later"

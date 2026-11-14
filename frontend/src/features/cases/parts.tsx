@@ -52,3 +52,18 @@ export function AgreementBadge({ value }: { value: CaseAgreement }) {
     </span>
   );
 }
+
+/**
+ * A reference can be the no-event baseline (random circles, same scene) instead of an independent measurement.
+ * No contract field marks it: the source name says it (agreed convention, any of these words).
+ */
+const BASELINE = /baseline|ligne de base|no[- ]event|sans [ée]v[ée]nement/i;
+export function isBaselineSource(source: { name: string } | null): boolean {
+  return !!source && BASELINE.test(source.name);
+}
+
+/** Help under the badge when the reference is the no-event baseline: "agree" means "not different from no change". */
+export function BaselineHelp() {
+  const { t } = useText();
+  return <p className="mt-1 max-w-56 text-xs leading-snug text-pretty text-ink-2">{t("cases.baselineHelp")}</p>;
+}

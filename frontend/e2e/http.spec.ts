@@ -163,7 +163,16 @@ const negativeCase = {
   status: "final",
   title: { fr: "Cas de test : aucun changement net", en: "Test case: no net change", ar: "حالة اختبار: لا تغيّر صافٍ" },
   headline: { template: "test.headline", params: {}, text: { fr: "Test : aucun changement net au-dessus de la dispersion de référence.", en: "Test: no net change above the reference spread.", ar: "اختبار: لا تغيّر صافٍ فوق التشتت المرجعي." } },
-  findings: [],
+  findings: [
+    {
+      id: "test-baseline",
+      label: { fr: "Test comparé à la ligne de base sans événement", en: "Test compared with the no-event baseline", ar: "اختبار مقارنة بخط الأساس دون حدث" },
+      nisar: { value: 0.1, uncertainty: 0.2, unit: "km2", sigma: 1 },
+      reference: { value: 0, uncertainty: 0.3, unit: "km2", sigma: 1 },
+      reference_source: { name: "Test no-event baseline", url: "https://example.org/" },
+      agreement: "agree",
+    },
+  ],
   exposure: null,
   figures: [
     { id: "before-after", kind: "image", title: { fr: "Test avant / après", en: "Test before / after", ar: "اختبار قبل / بعد" }, url: "/__fixtures__/rasters/alwahda-velocity.png", caption: { template: "test.cap", params: {}, text: { fr: "Légende de test.", en: "Test caption.", ar: "تعليق اختباري." } } },
@@ -184,6 +193,8 @@ for (const width of [390, 1280]) {
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(page.locator(".text-fail, .border-fail, .bg-fail")).toHaveCount(0);
     await expect(page.getByRole("note")).toHaveCount(0);
+    // Against the no-event baseline, "agree" is explained as "not different from no change".
+    await expect(page.getByRole("table")).toContainText("هنا، «اتفاق» يعني «لا يختلف عن غياب التغيّر».");
     // Every limit is visible and nothing overflows, in RTL, on a phone too.
     const limits = page.getByRole("region", { name: "ما لا يستطيع الرادار قوله هنا" }).getByRole("listitem");
     await expect(limits).toHaveCount(5);
