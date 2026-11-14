@@ -11,7 +11,8 @@ import numpy as np
 import raster
 from catalog import Product
 from recipes import corrections as corrections_mod
-from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, SIGN_BASIS, WAVELENGTH_M
+from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, SIGN_BASIS
+from recipes.wavelength import wavelength_m
 from uncertainty import robust_sigma
 
 REF_DISTANCE_M = 25_000      # reference area = pixels farther than this from the point
@@ -33,11 +34,13 @@ def los_cm_full(p: Product, corrections: tuple | None = None, signs: tuple = ())
 @lru_cache(maxsize=8)
 def _los_cm(p: Product, names: tuple, signs: tuple):
     phase, prof = raster.read(p.files["phase"])
-    phase, report = corrections_mod.apply(p, phase, prof, names, WAVELENGTH_M, dict(signs))
+    wl, wl_source = wavelength_m(p)
+    phase, report = corrections_mod.apply(p, phase, prof, names, wl, dict(signs))
+    report["wavelength"] = {"value_m": wl, "source": wl_source}
     notes = ["ionospheric correction applied"] if report.get("iono", {}).get("applied") else []
     notes += [f"{n} correction applied" for n in ("tropo", "tide") if report.get(n, {}).get("applied")]
     coh = raster.read(p.files["coherence"])[0] if "coherence" in p.files else np.ones_like(phase)
-    disp = LOS_SIGN * (-WAVELENGTH_M / (4 * np.pi)) * phase * 100.0
+    disp = LOS_SIGN * (-wl / (4 * np.pi)) * phase * 100.0
     bad = ~np.isfinite(disp) | (coh < COHERENCE_MIN)
     if "conncomp" in p.files:
         cc, _ = raster.read(p.files["conncomp"])
