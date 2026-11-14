@@ -8,6 +8,8 @@
     "dev:api": "vite",
     "build": "tsc --noEmit && vite build",
     "build:demo": "tsc --noEmit && vite build --mode fixtures --outDir dist-demo",
+    "export:cases": "node scripts/export-cases.mjs",
+    "build:demo:release": "node scripts/check-demo-cases.mjs && npm run build:demo",
     "preview": "vite preview --host 127.0.0.1 --port 4174 --strictPort",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
