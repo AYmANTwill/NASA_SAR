@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useText } from "@/i18n/useText";
 import { formatDate } from "@/lib/format";
 import { BackToCases, KIND_ICON, localized } from "./CasesPage";
-import { AgreementBadge, DraftBanner } from "./parts";
+import { AgreementBadge, DraftBanner, PendingAgreementBadge } from "./parts";
 
 const DAY = 86_400_000;
 const dayOf = (at: string) => Date.parse(at.length === 10 ? at + "T00:00:00Z" : at);
@@ -193,7 +193,7 @@ function Findings({ c }: { c: CaseStudy }) {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2"><AgreementBadge value={f.agreement} /></td>
+                  <td className="px-3 py-2">{f.nisar.uncertainty > 0 ? <AgreementBadge value={f.agreement} /> : <PendingAgreementBadge />}</td>
                 </tr>
               ))}
             </tbody>

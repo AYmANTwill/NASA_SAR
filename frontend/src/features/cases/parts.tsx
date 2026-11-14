@@ -31,6 +31,17 @@ const AGREEMENT = {
   no_reference: { icon: CircleMinus, cls: "border-line-strong text-ink-2" },
 } as const;
 
+/** Neutral badge when the NISAR value is not measured yet: no agreement is shown for a placeholder. */
+export function PendingAgreementBadge() {
+  const { t } = useText();
+  return (
+    <span className="inline-flex items-center rounded-sm border border-line-strong bg-surface px-2 py-0.5 text-xs text-ink-2" title={t("cases.notMeasuredYet")}>
+      <span aria-hidden>—</span>
+      <span className="sr-only">{t("cases.notMeasuredYet")}</span>
+    </span>
+  );
+}
+
 export function AgreementBadge({ value }: { value: CaseAgreement }) {
   const { t } = useText();
   const { icon: Icon, cls } = AGREEMENT[value];
