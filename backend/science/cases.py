@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ValidationError
 
-from science import case_layers, usgs
+from science import case_layers, iono_chart, usgs
 from science.case_models import CaseStudy, Figure, Finding, TemplatedText
 from science.case_store import CASES_DIR, FIGURE_NAME
 
@@ -159,12 +159,52 @@ def exposure_part(case_id: str) -> tuple[dict | None, list]:
     return data["exposure"], []
 
 
+SIGN_DECISIONS = {"+1": 1, "-1": -1, "undecided": 0}
+NO_SIGN_CHECK = {"fr": "Signe de la ligne de visée non testé contre le modèle de faille finie de l'USGS.",
+                 "en": "Line-of-sight sign not tested against the USGS finite-fault model.",
+                 "ar": "لم يتم اختبار إشارة خط النظر مقابل نموذج الصدع المحدود لـ USGS."}
+
+
+def sign_part(sign: dict | None) -> tuple[list, list]:
+    """(limits, placeholders) from the 'sign_check' of panama_fault (science.sign_decision.decide).
+
+    The verdict is reported as a limit with the numbers of the run. A decided sign opposite to the sign the run
+    used means the findings were computed with the wrong sign: the case stays a draft."""
+    if sign is None:
+        return [_limit(NO_SIGN_CHECK)], []
+    decision = sign.get("decision")
+    if decision not in SIGN_DECISIONS:
+        raise CaseInputError(f"sign_check.decision must be one of {sorted(SIGN_DECISIONS)}, got {decision!r}")
+    try:
+        ffm, inv, used = sign["ffm"], sign["inversion"], float(sign["los_sign_env"])
+        n_pos, n_neg, n = ffm["n_k_positive_3sigma"], ffm["n_k_negative_3sigma"], ffm["n_tracks"]
+        vr_p, vr_m = float(inv["variance_reduction_plus1"]), float(inv["variance_reduction_minus1"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise CaseInputError(f"sign_check: missing or invalid key ({exc})") from exc
+    facts = (f"k > 0 at 3σ on {n_pos}/{n} tracks, k < 0 on {n_neg}/{n}; "
+             f"variance reduction {vr_p:.2f} (+1) vs {vr_m:.2f} (−1)")
+    if decision == "undecided":
+        return [_limit({"fr": f"Signe de la ligne de visée non tranché par les données ({facts}) ; "
+                              "convention documentée de NISAR utilisée.",
+                        "en": f"Line-of-sight sign not settled by the data ({facts}); "
+                              "the documented NISAR convention is used.",
+                        "ar": f"لم تحسم البيانات إشارة خط النظر ({facts})؛ استُخدم الاصطلاح الموثق لـ NISAR."})], []
+    limits = [_limit({"fr": f"Signe de la ligne de visée testé : {decision} ({facts}).",
+                      "en": f"Line-of-sight sign tested: {decision} ({facts}).",
+                      "ar": f"تم اختبار إشارة خط النظر: {decision} ({facts})."})]
+    if SIGN_DECISIONS[decision] * used < 0:
+        return limits, [f"LOS sign: the data say {decision} but the run used {used:+g}; "
+                        f"rerun panama_fault with NISAR_LOS_SIGN={SIGN_DECISIONS[decision]}"]
+    return limits, []
+
+
 def fault_part(case_id: str) -> tuple[list, list, list, list]:
     """(findings, figures, limits, placeholders) from science.panama_fault's output."""
     data = _read(out_dir() / f"{case_id}.json")
     if data is None:
         return [], [], [], [f"fault inversion: cases/out/{case_id}.json not available"]
-    limits = [_limit(l3) for l3 in data.get("limits", [])]
+    sign_limits, sign_missing = sign_part(data.get("sign_check"))
+    limits = [_limit(l3) for l3 in data.get("limits", [])] + sign_limits
     figures = []
     for f in data.get("figures", []):
         figures.append({"id": f["id"], "kind": f.get("kind", "image"), "url": copy_figure(case_id, out_dir() / f["path"]),
@@ -179,8 +219,8 @@ def fault_part(case_id: str) -> tuple[list, list, list, list]:
         limits.append(_limit({"fr": f"Magnitude non estimée : l'inversion n'est pas stable ({reasons}).",
                               "en": f"Magnitude not estimated: the inversion is not stable ({reasons}).",
                               "ar": f"لم يتم تقدير القدر: الانعكاس غير مستقر ({reasons})."}))
-        return [], figures, limits, ["fault inversion not stable: magnitude not estimated"]
-    return data["findings"], figures, limits, []
+        return [], figures, limits, ["fault inversion not stable: magnitude not estimated"] + sign_missing
+    return data["findings"], figures, limits, sign_missing
 
 
 def _rms_measure(n: int, rms: float) -> dict:
@@ -329,6 +369,55 @@ def build_flood(case_id: str, results: Path, offline: bool) -> dict:
     return finalize(base, parts, missing + m1 + m3 + m5)
 
 
+IONO_CHART = "iono_noise_pairs.png"
+
+
+def iono_chart_part(results: Path) -> tuple[list, list]:
+    """(figures, limits): the before / after noise chart of the NISAR pairs from Anass's
+    results/noise_with_without_iono_*.csv (a final file is preferred to a preliminary one). No file: nothing."""
+    files = sorted(results.glob("noise_with_without_iono_*.csv"))
+    files = [f for f in files if "preliminary" not in f.stem] or files
+    if not files:
+        log.info("ionosphere-gps: no results/noise_with_without_iono_*.csv, no noise chart")
+        return [], []
+    src = files[-1]
+    try:
+        rows = iono_chart.read(src)
+        st = iono_chart.summary(rows)
+    except iono_chart.NoiseCsvError as exc:
+        raise CaseInputError(f"{src}: {exc}") from exc
+    iono_chart.render(rows, fig_dir() / "ionosphere-gps" / IONO_CHART)
+    n, k, m, left = st["n_pairs"], st["n_lower_after"], st["n_plus_higher"], st["n_left_out"]
+    raw, after = st["median_raw_cm"], st["median_after_cm"]
+    out_fr = f" {left} paire(s) écartée(s) (écart brut nul)." if left else ""
+    out_en = f" {left} pair(s) left out (zero raw spread)." if left else ""
+    out_ar = f" استُبعد {left} زوج (تشتت خام معدوم)." if left else ""
+    caption = _tt("backend.iono_chart_caption",
+                  f"Écart de la phase déroulée sur la scène, {n} paires NISAR : médiane {raw} cm brute, {after} cm après "
+                  f"correction ionosphérique ; plus faible sur {k}/{n} paires. Avec le signe opposé, l'écart augmente "
+                  f"sur {m}/{n} paires (contrôle du signe).{out_fr} Source : {src.name}.",
+                  f"Spread of the unwrapped phase over the frame, {n} NISAR pairs: median {raw} cm raw, {after} cm after "
+                  f"the ionospheric correction; lower on {k}/{n} pairs. With the opposite sign the spread rises on "
+                  f"{m}/{n} pairs (sign check).{out_en} Source: {src.name}.",
+                  f"تشتت الطور المفكوك على المشهد، {n} أزواج NISAR: الوسيط {raw} سم خام و{after} سم بعد التصحيح "
+                  f"الأيونوسفيري؛ أقل في {k}/{n} أزواج. مع الإشارة المعاكسة يزداد التشتت في {m}/{n} أزواج "
+                  f"(فحص الإشارة).{out_ar} المصدر: {src.name}.",
+                  {"n_pairs": n, "n_lower": k, "n_plus_higher": m, "n_left_out": left,
+                   "median_raw": {"value": raw, "uncertainty": 0, "unit": "cm", "sigma": 1},
+                   "median_after": {"value": after, "uncertainty": 0, "unit": "cm", "sigma": 1}})
+    fig = {"id": "iono_noise_pairs", "kind": "chart", "url": f"/api/cases/ionosphere-gps/figures/{IONO_CHART}",
+           "title": {"fr": "Bruit des paires avant / après la correction ionosphérique",
+                     "en": "Noise of the pairs before / after the ionospheric correction",
+                     "ar": "ضوضاء الأزواج قبل التصحيح الأيونوسفيري وبعده"},
+           "caption": caption}
+    limits = []
+    if "preliminary" in src.stem:
+        limits.append(_limit({"fr": f"Graphique du bruit issu d'un calcul préliminaire ({src.name}).",
+                              "en": f"Noise chart from a preliminary run ({src.name}).",
+                              "ar": f"مخطط الضوضاء من حساب أولي ({src.name})."}))
+    return [fig], limits
+
+
 def build_iono(results: Path, offline: bool) -> dict:
     base = _base("ionosphere-gps")
     g = gps_part(results)
@@ -352,8 +441,10 @@ def build_iono(results: Path, offline: bool) -> dict:
     method = _limit({"fr": "Écart quadratique groupé sur toutes les stations ; incertitude = RMS/√(2n).",
                      "en": "RMS pooled over all stations; uncertainty = RMS/√(2n).",
                      "ar": "جذر متوسط المربعات مجمّع على كل المحطات؛ الشك = RMS/√(2n)."})
-    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"]], "location": loc, "date": date,
-             "headline": headline("ionosphere-gps", g["findings"]), "figures": maps, "timeline": tl or None}
+    chart, chart_limits = iono_chart_part(results)
+    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"], *chart_limits], "location": loc,
+             "date": date, "headline": headline("ionosphere-gps", g["findings"]), "figures": maps + chart,
+             "timeline": tl or None}
     return finalize(base, parts, missing + m1 + m4 + m5)
 
 
