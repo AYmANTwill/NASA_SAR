@@ -10,23 +10,32 @@ import numpy as np
 
 import raster
 from catalog import Product
-from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, WAVELENGTH_M
+from recipes import corrections as corrections_mod
+from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, SIGN_BASIS, WAVELENGTH_M
 from uncertainty import robust_sigma
 
 REF_DISTANCE_M = 25_000      # reference area = pixels farther than this from the point
 REF_SAME_COMPONENT_MIN = 0.9  # share of reference pixels that must be in the point's connected component
 
 
+def los_cm(p: Product, corrections: tuple | None = None, signs: tuple = ()):
+    """Displacement map in cm (not yet referenced), coherence map, profile, notes.
+    corrections: names from recipes/corrections.py (None = the NISAR_CORRECTIONS setting, default "iono")."""
+    return los_cm_full(p, corrections, signs)[:4]
+
+
+def los_cm_full(p: Product, corrections: tuple | None = None, signs: tuple = ()):
+    """Like los_cm, plus the per-correction report {name: {applied, reason, convention, units, ...}}."""
+    names = corrections_mod.active() if corrections is None else tuple(corrections)
+    return _los_cm(p, names, tuple(signs))
+
+
 @lru_cache(maxsize=8)
-def los_cm(p: Product):
-    """Displacement map in cm (not yet referenced), coherence map, profile, notes."""
+def _los_cm(p: Product, names: tuple, signs: tuple):
     phase, prof = raster.read(p.files["phase"])
-    notes = []
-    if "iono" in p.files:
-        iono, _ = raster.read(p.files["iono"])
-        if iono.shape == phase.shape:
-            phase = phase - np.nan_to_num(iono)
-            notes.append("ionospheric correction applied")
+    phase, report = corrections_mod.apply(p, phase, prof, names, WAVELENGTH_M, dict(signs))
+    notes = ["ionospheric correction applied"] if report.get("iono", {}).get("applied") else []
+    notes += [f"{n} correction applied" for n in ("tropo", "tide") if report.get(n, {}).get("applied")]
     coh = raster.read(p.files["coherence"])[0] if "coherence" in p.files else np.ones_like(phase)
     disp = LOS_SIGN * (-WAVELENGTH_M / (4 * np.pi)) * phase * 100.0
     bad = ~np.isfinite(disp) | (coh < COHERENCE_MIN)
@@ -35,7 +44,7 @@ def los_cm(p: Product):
         if cc.shape == disp.shape:
             bad |= cc == 0
     disp = np.where(bad, np.nan, disp).astype("float32")
-    return disp, coh, prof, tuple(notes)
+    return disp, coh, prof, tuple(notes), report
 
 
 @lru_cache(maxsize=8)
@@ -68,11 +77,15 @@ def _reference_component(p: Product, d, prof, lat: float, lon: float) -> dict:
     return out
 
 
-def referenced(p: Product, lat: float, lon: float):
-    disp, coh, prof, notes = los_cm(p)
+def reference_mask(disp, prof, lat: float, lon: float):
+    """The stable reference area: valid pixels farther than REF_DISTANCE_M from the point (whole scene if too few)."""
     far = raster.distance_mask(prof, lat, lon, REF_DISTANCE_M) & np.isfinite(disp)
-    if far.sum() < 500:                              # small frame: use the whole scene
-        far = np.isfinite(disp)
+    return far if far.sum() >= 500 else np.isfinite(disp)
+
+
+def referenced(p: Product, lat: float, lon: float, corrections: tuple | None = None, signs: tuple = ()):
+    disp, coh, prof, notes = los_cm(p, corrections, signs)
+    far = reference_mask(disp, prof, lat, lon)
     ref = float(np.nanmedian(disp[far])) if far.any() else 0.0
     d = disp - ref
     sigma = robust_sigma(d[far])
@@ -81,6 +94,8 @@ def referenced(p: Product, lat: float, lon: float):
 
 def analyze(p: Product, lat: float, lon: float, make_layer: bool = True) -> dict:
     d, coh, prof, sigma, notes = referenced(p, lat, lon)
+    names = corrections_mod.active()
+    report = los_cm_full(p, names)[4]
     w = raster.window(d, prof, lat, lon, POINT_RADIUS_M)
     wc = raster.window(coh, prof, lat, lon, POINT_RADIUS_M)
     big = raster.window(d, prof, lat, lon, 10_000)
@@ -96,6 +111,10 @@ def analyze(p: Product, lat: float, lon: float, make_layer: bool = True) -> dict
         "profile": raster.profile_line(d, prof, lat, lon),
         "notes": list(notes),
         "iono_applied": "ionospheric correction applied" in notes,
+        "corrections_requested": list(names),
+        "corrections_applied": [n for n in names if report.get(n, {}).get("applied")],
+        "corrections": report,
+        "sign_basis": SIGN_BASIS,
         "meaning": "positive = ground moved toward the satellite" if LOS_SIGN > 0 else
                    "positive = ground moved away from the satellite",
     }

@@ -15,16 +15,17 @@ import events
 if __name__ == "__main__":
     ps = catalog.refresh()
     print(f"{len(ps)} products in the catalog")
-    for ev in events.EVENTS:
+    for ev in events.EVENTS + events.VALIDATION_EVENTS:      # validation events: outside Morocco
         t = time.time()
         r = events.compute(ev)
         print(f"- {ev['id']:<16} {r.get('confidence','?'):<7} {r.get('alert_level','?'):<7} "
               f"{time.time()-t:5.1f}s  {(r.get('verdict') or '')[:110]}")
-    if not config.DISCOVERIES_ENABLED:
+    if not discoveries.is_enabled():
         print("discoveries: disabled (" + config.DISCOVERIES_OFF_REASON + ")")
     else:
         d = discoveries.scan(with_exposure="--no-exposure" not in sys.argv)
-        print(f"discoveries: {len(d['zones'])} unvalidated candidate zones over {d['n_geometries']} geometries")
+        print(f"discoveries ({d['mode']} mode): {len(d['zones'])} unvalidated candidate zones over "
+              f"{d['n_geometries']} geometries")
         for z in d["zones"][:10]:
             print(f"  #{z['rank']:<2} {z['lat']:.4f},{z['lon']:.4f}  {z['mean']:+.1f} {z['unit']}  "
                   f"{z['area_km2']} km²  fringes {z['fringes']}  {z['confidence']}  {z['alert_level']}")

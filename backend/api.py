@@ -24,6 +24,11 @@ app = FastAPI(title="NISAR Pulse API", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 (CACHE_DIR / "layers").mkdir(parents=True, exist_ok=True)
 app.mount("/layers", StaticFiles(directory=CACHE_DIR / "layers"), name="layers")
+# Frontend adapter (houssam-bough/nasa-the-sar-front-end contract): every route under /api, layers too.
+import api_v2  # noqa: E402
+
+app.include_router(api_v2.router)
+app.mount("/api/layers", StaticFiles(directory=CACHE_DIR / "layers"), name="api_layers")
 FORCE_MOCK = os.environ.get("NISAR_MOCK", "0") == "1"
 
 
@@ -99,8 +104,8 @@ def ask(body: Ask, mock_: bool = Query(False, alias="mock")):
 
 
 @app.get("/events")
-def list_events():
-    return events.listing()
+def list_events(include_validation: bool = False):
+    return events.listing(include_validation)
 
 
 @app.get("/events/{eid}")
@@ -117,7 +122,7 @@ def get_event(eid: str, refresh: bool = False, mock_: bool = Query(False, alias=
 def get_discoveries(refresh: bool = False, exposure: bool = True, mock_: bool = Query(False, alias="mock")):
     if use_mock(mock_):
         return mock.DISCOVERIES
-    if not config.DISCOVERIES_ENABLED:            # off by default: an empty list and the reason, never the old cache
+    if not discoveries.is_enabled():              # off by default: an empty list and the reason, never the old cache
         return discoveries.disabled()
     return discoveries.scan(with_exposure=exposure) if refresh else discoveries.cached()
 

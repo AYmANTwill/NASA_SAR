@@ -12,6 +12,7 @@ import time
 import numpy as np
 
 import catalog
+import quality
 import evidence
 import config as _cfg
 from config import ANTHROPIC_API_KEY, GAZETTEER, LLM_MODEL, MIN_RATE_DAYS, SM_UNCERTAINTY
@@ -142,10 +143,16 @@ def find_event_date(q: str) -> str | None:
 # Running the recipes
 # ---------------------------------------------------------------------------
 class Steps(list):
+    rejected: list = []
+
     def run(self, name, fn, *a, **k):
         t = time.time()
         try:
             out = fn(*a, **k)
+            if isinstance(out, dict) and out.get("status") == "unavailable":     # an evidence source that failed
+                self.append({"step": name, "ok": False, "error": out.get("summary") or "unavailable",
+                             "ms": int((time.time() - t) * 1000)})
+                return out
             self.append({"step": name, "ok": True, "ms": int((time.time() - t) * 1000)})
             return out
         except Exception as e:
@@ -166,7 +173,21 @@ def _one_per_direction(ps):
 
 
 def run_sudden(lat, lon, event, precision, steps):
-    ps = catalog.find(lat, lon, "GUNW")
+    out, used = _run_sudden(lat, lon, event, precision, steps)
+    return {**out, "rejected_pairs": steps.rejected}, used
+
+
+def _quality_split(ps, steps):
+    """Drops the pairs rejected by the quality filter (flat phase, median coherence < 0.15) and records them."""
+    good, rejected = quality.split(ps)
+    steps.rejected = rejected
+    if rejected:
+        steps.append({"step": f"{len(rejected)} pair(s) rejected by the quality filter", "ok": True, "ms": 0})
+    return good
+
+
+def _run_sudden(lat, lon, event, precision, steps):
+    ps = _quality_split(catalog.find(lat, lon, "GUNW"), steps)
     steps.append({"step": f"found {len(ps)} interferograms covering the point", "ok": bool(ps), "ms": 0})
     if not event:
         return {"error": "a sudden-event question needs the event: name it or give its date (YYYY-MM-DD)"}, ps
@@ -195,7 +216,11 @@ def run_sudden(lat, lon, event, precision, steps):
     out.update(value_cm=main["los_cm"], noise_cm=main["noise_cm"], coherence=main["coherence"],
                masked=main["masked_fraction_10km"], date_before=min(r["date_before"] for r in res),
                date_after=max(r["date_after"] for r in res), event_day=event[:8], event_precision=precision,
-               sign_verified=_cfg.LOS_SIGN_VERIFIED, troposphere_corrected=False,
+               sign_verified=_cfg.LOS_SIGN_VERIFIED, sign_basis=_cfg.SIGN_BASIS,
+               troposphere_corrected="tropo" in main.get("corrections_applied", []),
+               tide_corrected="tide" in main.get("corrections_applied", []),
+               corrections_requested=main.get("corrections_requested", []),
+               corrections_applied=main.get("corrections_applied", []), corrections=main.get("corrections", {}),
                iono_screen="subtracted" if main.get("iono_applied") else "not applied",
                reference_same_component=main.get("reference_same_component"),
                reference_share_in_point_component=main.get("reference_share_in_point_component"))
@@ -203,7 +228,14 @@ def run_sudden(lat, lon, event, precision, steps):
 
 
 def run_slow(lat, lon, steps):
-    ps = catalog.find(lat, lon, "GUNW")
+    out, used = _run_slow(lat, lon, steps)
+    if out is not None:
+        out = {**out, "rejected_pairs": steps.rejected}
+    return out, used
+
+
+def _run_slow(lat, lon, steps):
+    ps = _quality_split(catalog.find(lat, lon, "GUNW"), steps)
     steps.append({"step": f"found {len(ps)} interferograms covering the point", "ok": bool(ps), "ms": 0})
     if not ps:
         return None, []
@@ -225,7 +257,10 @@ def run_slow(lat, lon, steps):
                min_rate_days=main.get("min_rate_days", MIN_RATE_DAYS), crid=main["crid"], maturity=main["maturity"],
                chain_connected=main["chain_connected"], n_components=main["n_components"],
                unmeasured_dates=main["unmeasured_dates"], acceleration=main.get("acceleration_mm_yr2"),
-               sign_verified=_cfg.LOS_SIGN_VERIFIED, troposphere_corrected=False, iono_screen=main["iono_screen"],
+               sign_verified=_cfg.LOS_SIGN_VERIFIED, sign_basis=_cfg.SIGN_BASIS,
+               troposphere_corrected=main.get("troposphere_corrected", False),
+               tide_corrected=main.get("tide_corrected", False), corrections_requested=main.get("corrections_requested", []),
+               corrections_applied=main.get("corrections_applied", []), iono_screen=main["iono_screen"],
                reference_same_component=main["reference_same_component"],
                n_pairs_reference_other_component=main["n_pairs_reference_other_component"],
                crosses_data_gap=main["crosses_data_gap"], n_pairs_across_gap=main["n_pairs_across_gap"],
@@ -369,7 +404,11 @@ def _motion_reasons(f, qtype):
     iono = f.get("iono_screen")
     why.append("ionosphere: " + ("the product's phase screen is subtracted, not validated" if iono == "subtracted" else
                                  "screen subtracted on only some pairs, not validated" if iono == "partly subtracted" else
-                                 "not corrected") + "; troposphere: not corrected")
+                                 "not corrected") + "; troposphere: " +
+               ("the product's weather-model screen is subtracted, not validated" if f.get("troposphere_corrected")
+                else "not corrected"))
+    if f.get("tide_corrected"):
+        why.append("solid-earth tide: the product's screen is subtracted, not validated")
     if f.get("reference_same_component") is False:
         cap = True
         why.append("the reference area is not in the point's connected component: the unwrapping can differ by whole fringes")
@@ -489,9 +528,35 @@ _CORR = {
 }
 
 
+_TROPO_DONE = {   # replaces the troposphere clause when NISAR_CORRECTIONS includes tropo and it was applied
+    "fr": ("Ionosphère : {iono} ; troposphère : écran du modèle météo du produit soustrait (non validé).",
+           {"subtracted": "écran du produit soustrait (non validé)", "not applied": "non corrigée",
+            "partly subtracted": "écran du produit soustrait sur une partie des paires seulement (non validé)"}),
+    "en": ("Ionosphere: {iono}; troposphere: the product's weather-model screen is subtracted (not validated).",
+           {"subtracted": "the product's screen is subtracted (not validated)", "not applied": "not corrected",
+            "partly subtracted": "the product's screen is subtracted on only some pairs (not validated)"}),
+    "ar": ("الأيونوسفير: {iono}؛ التروبوسفير: خُصمت شاشة نموذج الطقس للمنتج (دون تحقق).",
+           {"subtracted": "خُصمت شاشة المنتج (دون تحقق)", "not applied": "غير مصحَّح",
+            "partly subtracted": "خُصمت شاشة المنتج على بعض الأزواج فقط (دون تحقق)"}),
+}
+_TIDE_DONE = {"fr": " Marée terrestre : écran du produit soustrait (non validé).",
+              "en": " Solid-earth tide: the product's screen is subtracted (not validated).",
+              "ar": " المد الأرضي: خُصمت شاشة المنتج (دون تحقق)."}
+
+
+def _corr_sentence(f, lang):
+    iono = f.get("iono_screen") or "not applied"
+    if f.get("troposphere_corrected"):
+        tpl, words = _TROPO_DONE[lang]
+        s = tpl.format(iono=words.get(iono, words["not applied"]))
+    else:
+        s = _CORR[lang].get(iono, _CORR[lang]["not applied"])
+    return s + (_TIDE_DONE[lang] if f.get("tide_corrected") else "")
+
+
 def _motion_tail(f, lang, slow):
     """Ionosphere/troposphere, data gap and reference component: said in every signed line-of-sight answer."""
-    s = " " + _CORR[lang].get(f.get("iono_screen") or "not applied", _CORR[lang]["not applied"])
+    s = " " + _corr_sentence(f, lang)
     if slow and f.get("crosses_data_gap"):
         a, b = _dt(f["data_gap_start"], lang), _dt(f["data_gap_end"], lang)
         k = f["n_pairs_across_gap"]

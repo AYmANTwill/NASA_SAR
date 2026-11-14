@@ -39,7 +39,8 @@ def parse_name(name: str) -> dict:
 # layer key -> file-name suffix written by download_all.py, per product level
 LAYER_FILES = {
     "GUNW": {"phase": "unwrappedPhase.tif", "coherence": "coherenceMagnitude.tif",
-             "conncomp": "connectedComponents.tif", "iono": "ionospherePhaseScreen.tif"},
+             "conncomp": "connectedComponents.tif", "iono": "ionospherePhaseScreen.tif",
+             "iono_unc": "ionospherePhaseScreenUncertainty.tif"},
     "GCOV": {"hh": "HHHH.tif", "hv": "HVHV.tif", "vv": "VVVV.tif"},
     "GOFF": {"along": "alongTrackOffset.tif", "range": "slantRangeOffset.tif",
              "peak": "correlationSurfacePeak.tif"},
