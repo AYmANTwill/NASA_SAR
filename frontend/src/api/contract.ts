@@ -417,11 +417,19 @@ export const Health = z.object({ status: z.literal("ok"), version: z.string(), d
 export type Health = z.infer<typeof Health>;
 
 // ---------------------------------------------------------------- case studies
-// Copy of the contract announced for docs/CASE_CONTRACT.md (frozen 14 Nov 16:00); that file wins.
+// docs/CASE_CONTRACT.md (frozen 14 Nov 2026, 16:00), from tools/frontend_contract/case_contract.ts.
+// Differences: CaseMeasurement is Measurement (Unit has Mw, people, count, deg), and dates accept
+// a calendar date or an ISO UTC date-time.
 
 /** A label given by the backend in the three languages. */
-export const Localized = z.object({ fr: z.string(), en: z.string(), ar: z.string() });
+export const Localized = z.object({ fr: z.string().min(1), en: z.string().min(1), ar: z.string().min(1) });
 export type Localized = z.infer<typeof Localized>;
+
+const caseDate = z.union([isoDate, isoDateTime]);
+const Source = z.object({ name: z.string().min(1), url: z.string().url() });
+
+export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps"]);
+export type CaseId = z.infer<typeof CaseId>;
 
 export const CaseKind = z.enum(["earthquake", "flood", "method"]);
 export type CaseKind = z.infer<typeof CaseKind>;
@@ -429,54 +437,80 @@ export type CaseKind = z.infer<typeof CaseKind>;
 export const CaseStatus = z.enum(["draft", "final"]);
 export type CaseStatus = z.infer<typeof CaseStatus>;
 
-export const CaseSummary = z.object({
-  id: z.string(),
-  kind: CaseKind,
-  title: z.union([Localized, z.string()]),
-  date: isoDate,
-  status: CaseStatus,
-  thumbnail_url: z.string().nullable(),
-});
-export type CaseSummary = z.infer<typeof CaseSummary>;
-
 export const CaseAgreement = z.enum(["agree", "partial", "disagree", "no_reference"]);
 export type CaseAgreement = z.infer<typeof CaseAgreement>;
 
-export const Finding = z.object({
-  id: z.string(),
-  label: Localized,
-  nisar: Measurement,
-  reference: Measurement.nullable(),
-  reference_source: z.object({ name: z.string(), url: z.string().url().nullable() }).nullable(),
-  agreement: CaseAgreement,
-});
+/**
+ * The backend's 2σ/4σ rule, used only to VALIDATE a response (a mismatch is a contract error).
+ * The interface always displays the agreement sent by the API.
+ */
+export function caseAgreement(n: Measurement, r: Measurement | null): CaseAgreement {
+  if (r === null) return "no_reference";
+  const d = Math.abs(n.value - r.value);
+  const s = Math.hypot(n.uncertainty / n.sigma, r.uncertainty / r.sigma);
+  if (s === 0) return d === 0 ? "agree" : "disagree";
+  return d <= 2 * s ? "agree" : d <= 4 * s ? "partial" : "disagree";
+}
+
+export const Finding = z
+  .object({
+    id: z.string().min(1),
+    label: Localized,
+    nisar: Measurement,
+    reference: Measurement.nullable(),
+    reference_source: Source.nullable(),
+    agreement: CaseAgreement,
+  })
+  .superRefine((f, ctx) => {
+    if ((f.reference === null) !== (f.reference_source === null))
+      ctx.addIssue({ code: "custom", message: "reference and reference_source go together" });
+    if (f.reference && f.reference.unit !== f.nisar.unit) ctx.addIssue({ code: "custom", message: "nisar and reference units differ" });
+    else if (f.agreement !== caseAgreement(f.nisar, f.reference))
+      ctx.addIssue({ code: "custom", message: `agreement ${f.agreement} does not follow the 2σ/4σ rule` });
+  });
 export type Finding = z.infer<typeof Finding>;
 
 export const Figure = z.object({
-  id: z.string(),
+  id: z.string().min(1),
   kind: z.enum(["map", "chart", "image"]),
   title: Localized,
-  url: z.string().nullable(),
+  url: z.string().min(1),
   caption: TemplatedText,
   layer: RasterLayer.optional(),
 });
 export type Figure = z.infer<typeof Figure>;
 
+export const CaseExposure = z.object({
+  people: Measurement.extend({ unit: z.literal("people") }),
+  buildings: Measurement.extend({ unit: z.literal("count") }),
+  area_km2: Measurement.extend({ unit: z.literal("km2") }),
+  source: Source,
+});
+export type CaseExposure = z.infer<typeof CaseExposure>;
+
 export const CaseStudy = z.object({
-  id: z.string(),
+  id: CaseId,
   kind: CaseKind,
   status: CaseStatus,
   title: Localized,
-  date: isoDate,
+  date: caseDate,
   location: z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180), bbox: Bounds, place: Localized }),
   headline: TemplatedText,
   findings: z.array(Finding),
   figures: z.array(Figure),
-  exposure: z
-    .object({ people: Measurement.nullable(), buildings: Measurement.nullable(), area_km2: Measurement.nullable(), source: z.string() })
-    .nullable(),
-  timeline: z.array(z.object({ label: Localized, at: z.union([isoDate, isoDateTime]) })),
+  exposure: CaseExposure.nullable(),
+  timeline: z.array(z.object({ label: Localized, at: caseDate })),
   answer_ids: z.array(z.string()),
-  limits: z.array(TemplatedText).min(1, "a case always states what the radar cannot say"),
+  limits: z.array(TemplatedText).min(1, "every case must state its limits"),
 });
 export type CaseStudy = z.infer<typeof CaseStudy>;
+
+export const CaseSummary = z.object({
+  id: CaseId,
+  kind: CaseKind,
+  title: Localized,
+  date: caseDate,
+  status: CaseStatus,
+  thumbnail_url: z.string().nullable(),
+});
+export type CaseSummary = z.infer<typeof CaseSummary>;

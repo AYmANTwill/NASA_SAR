@@ -570,6 +570,7 @@
     "notMeasured": "غير مقيس",
     "figures": "الأشكال",
     "openAnswer": "فتح في المحقّق",
-    "answers": "أجوبة الوكيل"
+    "answers": "أجوبة الوكيل",
+    "notMeasuredYet": "لم يُقَس بعد"
   }
 }
