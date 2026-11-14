@@ -2,6 +2,7 @@
 Usage (from backend/):  python tests/test_science.py"""
 import copy
 import json
+from dataclasses import replace
 import os
 import sys
 import tempfile
@@ -310,6 +311,15 @@ check("sign decision: left-lateral data in the +1 convention -> '+1' with all th
       dec["decision"] == "+1" and all(dec["criteria_plus1"].values()) and dec["ffm"]["n_k_positive_3sigma"] >= 3,
       (dec["criteria_plus1"], dec["inversion"]))
 dec_m = sign_decision.decide(sign_decision.flipped(sd_tracks), usgs_planes, lat0, lon0, starts=FAST)
+check("sign decision: the (a)(b)(c) verdicts are saved, (a) decides",
+      dec["decided_by"] == "a_finite_fault" and dec["verdicts"]["a_finite_fault"] == "+1"
+      and set(dec["verdicts"]) == {"a_finite_fault", "b_variance_reduction", "c_left_lateral_plane"}, dec["verdicts"])
+weak_fit = [replace(f, variance_reduction=0.824) for f in [sign_decision.fit_plane(sd_tracks, pl, FAST) for pl in usgs_planes]]
+weak_fit_m = [replace(f, variance_reduction=0.818) for f in [sign_decision.fit_plane(sign_decision.flipped(sd_tracks), pl, FAST)
+                                                             for pl in usgs_planes]]
+dec_w = sign_decision.decide(sd_tracks, usgs_planes, lat0, lon0, fits_plus=weak_fit, fits_minus=weak_fit_m, starts=FAST)
+check("sign decision: VR +1 0.824 vs -1 0.818 -> (b) inconclusive, (a) still decides +1",
+      dec_w["verdicts"]["b_variance_reduction"] == "inconclusive" and dec_w["decision"] == "+1", dec_w["verdicts"])
 check("sign decision: the same data with the opposite sign -> '-1'", dec_m["decision"] == "-1", dec_m["criteria_minus1"])
 noise_tracks = [Track(t.name, t.east, t.north, rng.normal(0, 1.0, t.los.size), t.vec) for t in sd_tracks]
 check("sign decision: noise -> 'undecided'",
@@ -685,6 +695,49 @@ try:
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", False)
 except cs.CaseInputError:
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", True)
+
+# --- panama_fault: track ids with the mode, excluded frames, no 0.0 for a missing sigma -------------------------
+from science import panama_fault as pf  # noqa: E402
+
+p2000 = SimpleNamespace(id="GUNW_T141_F085_20260927_20261009", track=141, frame=85,
+                        name="NISAR_L2_PR_GUNW_030_141_D_085_031_2000_SH_20260927T235308_20260927T235330_20261009T235308_"
+                             "20261009T235330_P05023_N_F_J_001")
+p4000 = SimpleNamespace(**{**vars(p2000), "name": p2000.name.replace("_031_2000_", "_031_4000_")})
+check("panama_fault: the 20 / 40 MHz variants of one pair get distinct track ids (mode in the id)",
+      pf.track_id(p2000) == "GUNW_T141_F085_20260927_20261009_2000" and pf.track_id(p4000).endswith("_4000"))
+check("panama_fault: --exclude-frame parses TRACK/FRAME and refuses anything else",
+      pf.parse_frame("141/85") == (141, 85) and raises(lambda: pf.parse_frame("141-85"), Exception))
+_orig = (pf.catalog.find, pf.catalog.straddling, pf.track_from_product)
+pf.catalog.find = lambda lat, lon, level: [p2000, p4000, SimpleNamespace(**{**vars(p2000), "frame": 84, "id": "F84",
+                                                                                "name": "x"})]
+pf.catalog.straddling = lambda ps, origin: ps
+pf.track_from_product = lambda p, lat0, lon0, n: Track(pf.track_id(p), np.zeros(3), np.zeros(3), np.zeros(3),
+                                                         np.zeros((3, 3)))
+ex_tracks, ex_ids, _ = pf.coseismic_tracks(SimpleNamespace(lat=7.6, lon=-80.8, time_ms=1791568566000), 10, noise=False,
+                                           exclude=((141, 85),))
+pf.catalog.find, pf.catalog.straddling, pf.track_from_product = _orig
+check("panama_fault: an excluded track/frame is out of the inversion and of the sign test (same track list)",
+      ex_ids == ["F84"] and [t.name for t in ex_tracks] == ["F84"], ex_ids)
+check("panama_fault: a missing or zero sigma gives no Measurement (never 0.0)",
+      pf._m({"value": 30.0, "sigma": None}, "km") is None and pf._m({"value": 30.0, "sigma": 0.0}, "km") is None
+      and pf._m({"value": 30.0, "sigma": 2.0}, "km")["uncertainty"] == 2.0)
+best_nc = {"params": {"length_km": {"value": 50.0, "sigma": 4.0}, "slip_m": {"value": 2.0, "sigma": None},
+                      "top_depth_km": {"value": 1.0, "sigma": 0.5}}, "mw": {"value": 7.6, "sigma": 0.05}}
+f_ok, f_nc = pf.findings_from(best_nc, parse(usgs_fixture))
+check("panama_fault: a parameter without sigma is left out of the findings and listed in not_computed",
+      [f["id"] for f in f_ok] == ["mw", "length", "top_depth"] and [x["id"] for x in f_nc] == ["slip"], (f_ok, f_nc))
+
+import noise_report  # noqa: E402
+
+nr_rows = [{"id": "P1", "sigma_cm": {k: 1.0 for k in noise_report.SETS}, "reasons": {},
+            "really_applied": ["iono"], "skipped_product_flag": ["tropo"]},
+           {"id": "P2", "sigma_cm": {k: 1.0 for k in noise_report.SETS}, "reasons": {},
+            "really_applied": [], "skipped_product_flag": []}]
+nr_md = noise_report.markdown({"summary": {}, "recommended_setting": "iono", "products": nr_rows,
+                               "created": "x", "data_dir": "x", "n_products": 2})
+check("noise_report: per pair, the corrections really applied and those skipped on the product flag, plus a warning",
+      "| really applied | skipped (product flag) |" in nr_md and "| iono | tropo |" in nr_md
+      and "| none | — |" in nr_md and "on 1 of 2 products a correction was skipped" in nr_md, nr_md[-600:])
 
 # --- api_v2: Houssam's notes (frontend/docs/API_CONTRACT.md, "What I noticed") ------------------------------
 import api_v2  # noqa: E402

@@ -42,6 +42,7 @@ def product_noise(p, displacement) -> dict:
     lat, lon = (p.bbox[1] + p.bbox[3]) / 2, (p.bbox[0] + p.bbox[2]) / 2
     row = {"id": p.id, "direction": p.direction, "span_days": p.span_days, "point": [round(lat, 4), round(lon, 4)],
            "sigma_cm": {}, "applied": {}, "reasons": {}, "details": {}, "sigma_cm_opposite_sign": {}}
+    really, skipped = set(), set()
     for label, names in SETS.items():
         sigma = displacement.referenced(p, lat, lon, names)[3]
         rep = displacement.los_cm_full(p, names)[4]
@@ -53,10 +54,17 @@ def product_noise(p, displacement) -> dict:
                 "applied", "kept_raw", "reason", "frame_sigma_raw_rad", "frame_sigma_subtracted_rad",
                 "uncertainty_layer", "uncertainty_max_rad", "uncertainty_masked_fraction")}
         for n in names:
+            if rep.get(n, {}).get("applied"):
+                really.add(n)
+            if rep.get(n, {}).get("already_applied_flag"):
+                skipped.add(n)
             row["reasons"].setdefault(n, rep.get(n, {}).get("reason"))
             for k in ("units", "height_source", "attributes_from", "already_applied_flag", "description"):
                 if rep.get(n, {}).get(k) is not None:
                     row["details"].setdefault(n, {})[k] = rep[n][k]
+    # what recipes/corrections.apply really did to this pair, and what it skipped because already_applied() read
+    # a product flag (the geocoding flags were misread as phase corrections before Anass's fix)
+    row["really_applied"], row["skipped_product_flag"] = sorted(really), sorted(skipped)
     for n in SIGN_TESTS:
         if row["applied"].get(n):
             row["sigma_cm_opposite_sign"][n] = _r(displacement.referenced(p, lat, lon, (n,), ((n, -1),))[3])
@@ -128,13 +136,24 @@ def markdown(rep: dict) -> str:
                     f"not applied ({d.get('reason')})" if d else "—")
         lines.append(f"| {r['id']} | {decision} | {d.get('frame_sigma_raw_rad', '—')} | "
                      f"{d.get('frame_sigma_subtracted_rad', '—')} | {d.get('uncertainty_masked_fraction', '—')} |")
+    flagged = [r for r in rep["products"] if r.get("skipped_product_flag")]
     lines += ["", f"**Recommended setting:** `NISAR_CORRECTIONS={rep['recommended_setting']}` "
-                  "(current default: `iono`). Corrections that do not lower the noise stay off.", "",
-              "## Per product", "", "| product | " + " | ".join(SETS) + " | not applied because |",
-              "|---|" + "---|" * (len(SETS) + 1)]
+                  "(current default: `iono`). Corrections that do not lower the noise stay off."]
+    if flagged:
+        lines += ["", f"**Warning:** on {len(flagged)} of {len(rep['products'])} products a correction was skipped "
+                      "because the product flag says it is already applied (`already_applied` in "
+                      "recipes/corrections.py). The recommendation only counts the products where the correction "
+                      "was really applied; check the column below before trusting it."]
+    lines += ["",
+              "## Per product", "",
+              "| product | " + " | ".join(SETS) + " | really applied | skipped (product flag) | not applied because |",
+              "|---|" + "---|" * (len(SETS) + 3)]
     for r in rep["products"]:
         why = "; ".join(f"{n}: {w}" for n, w in r["reasons"].items() if w and w != "applied")
-        lines.append(f"| {r['id']} | " + " | ".join(str(r["sigma_cm"][k]) for k in SETS) + f" | {why} |")
+        really = ", ".join(r.get("really_applied") or []) or "none"
+        skipped = ", ".join(r.get("skipped_product_flag") or []) or "—"
+        lines.append(f"| {r['id']} | " + " | ".join(str(r["sigma_cm"][k]) for k in SETS)
+                     + f" | {really} | {skipped} | {why} |")
     return "\n".join(lines) + "\n"
 
 

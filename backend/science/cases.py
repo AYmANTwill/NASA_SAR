@@ -222,6 +222,17 @@ def fault_part(case_id: str) -> tuple[list, list, list, list]:
                               "en": f"Magnitude not estimated: the inversion is not stable ({reasons}).",
                               "ar": f"لم يتم تقدير القدر: الانعكاس غير مستقر ({reasons})."}))
         return [], figures, limits, ["fault inversion not stable: magnitude not estimated"] + sign_missing
+    for nc in data.get("not_computed", []):           # values without an uncertainty: said, never shown as 0
+        lab = nc.get("label") or {}
+        why = nc.get("reason", "not computed")
+        limits.append(_limit({"fr": f"{lab.get('fr', nc['id'])} : non calculé ({why}).",
+                              "en": f"{lab.get('en', nc['id'])}: not computed ({why}).",
+                              "ar": f"{lab.get('ar', nc['id'])}: لم يُحسب ({why})."}))
+    if not any(f.get("id") == "mw" for f in data["findings"]):
+        why = next((nc.get("reason") for nc in data.get("not_computed", []) if nc.get("id") == "mw"), "not computed")
+        limits.append(_limit({"fr": f"Magnitude non estimée : {why}.", "en": f"Magnitude not estimated: {why}.",
+                              "ar": f"لم يتم تقدير القدر: {why}."}))
+        sign_missing = sign_missing + [f"magnitude not estimated: {why}"]
     return data["findings"], figures, limits, sign_missing
 
 
