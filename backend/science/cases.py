@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ValidationError
 
-from science import case_layers, usgs
+from science import case_layers, iono_chart, usgs
 from science.case_models import CaseStudy, Figure, Finding, TemplatedText
 from science.case_store import CASES_DIR, FIGURE_NAME
 
@@ -369,6 +369,55 @@ def build_flood(case_id: str, results: Path, offline: bool) -> dict:
     return finalize(base, parts, missing + m1 + m3 + m5)
 
 
+IONO_CHART = "iono_noise_pairs.png"
+
+
+def iono_chart_part(results: Path) -> tuple[list, list]:
+    """(figures, limits): the before / after noise chart of the NISAR pairs from Anass's
+    results/noise_with_without_iono_*.csv (a final file is preferred to a preliminary one). No file: nothing."""
+    files = sorted(results.glob("noise_with_without_iono_*.csv"))
+    files = [f for f in files if "preliminary" not in f.stem] or files
+    if not files:
+        log.info("ionosphere-gps: no results/noise_with_without_iono_*.csv, no noise chart")
+        return [], []
+    src = files[-1]
+    try:
+        rows = iono_chart.read(src)
+        st = iono_chart.summary(rows)
+    except iono_chart.NoiseCsvError as exc:
+        raise CaseInputError(f"{src}: {exc}") from exc
+    iono_chart.render(rows, fig_dir() / "ionosphere-gps" / IONO_CHART)
+    n, k, m, left = st["n_pairs"], st["n_lower_after"], st["n_plus_higher"], st["n_left_out"]
+    raw, after = st["median_raw_cm"], st["median_after_cm"]
+    out_fr = f" {left} paire(s) écartée(s) (écart brut nul)." if left else ""
+    out_en = f" {left} pair(s) left out (zero raw spread)." if left else ""
+    out_ar = f" استُبعد {left} زوج (تشتت خام معدوم)." if left else ""
+    caption = _tt("backend.iono_chart_caption",
+                  f"Écart de la phase déroulée sur la scène, {n} paires NISAR : médiane {raw} cm brute, {after} cm après "
+                  f"correction ionosphérique ; plus faible sur {k}/{n} paires. Avec le signe opposé, l'écart augmente "
+                  f"sur {m}/{n} paires (contrôle du signe).{out_fr} Source : {src.name}.",
+                  f"Spread of the unwrapped phase over the frame, {n} NISAR pairs: median {raw} cm raw, {after} cm after "
+                  f"the ionospheric correction; lower on {k}/{n} pairs. With the opposite sign the spread rises on "
+                  f"{m}/{n} pairs (sign check).{out_en} Source: {src.name}.",
+                  f"تشتت الطور المفكوك على المشهد، {n} أزواج NISAR: الوسيط {raw} سم خام و{after} سم بعد التصحيح "
+                  f"الأيونوسفيري؛ أقل في {k}/{n} أزواج. مع الإشارة المعاكسة يزداد التشتت في {m}/{n} أزواج "
+                  f"(فحص الإشارة).{out_ar} المصدر: {src.name}.",
+                  {"n_pairs": n, "n_lower": k, "n_plus_higher": m, "n_left_out": left,
+                   "median_raw": {"value": raw, "uncertainty": 0, "unit": "cm", "sigma": 1},
+                   "median_after": {"value": after, "uncertainty": 0, "unit": "cm", "sigma": 1}})
+    fig = {"id": "iono_noise_pairs", "kind": "chart", "url": f"/api/cases/ionosphere-gps/figures/{IONO_CHART}",
+           "title": {"fr": "Bruit des paires avant / après la correction ionosphérique",
+                     "en": "Noise of the pairs before / after the ionospheric correction",
+                     "ar": "ضوضاء الأزواج قبل التصحيح الأيونوسفيري وبعده"},
+           "caption": caption}
+    limits = []
+    if "preliminary" in src.stem:
+        limits.append(_limit({"fr": f"Graphique du bruit issu d'un calcul préliminaire ({src.name}).",
+                              "en": f"Noise chart from a preliminary run ({src.name}).",
+                              "ar": f"مخطط الضوضاء من حساب أولي ({src.name})."}))
+    return [fig], limits
+
+
 def build_iono(results: Path, offline: bool) -> dict:
     base = _base("ionosphere-gps")
     g = gps_part(results)
@@ -392,8 +441,10 @@ def build_iono(results: Path, offline: bool) -> dict:
     method = _limit({"fr": "Écart quadratique groupé sur toutes les stations ; incertitude = RMS/√(2n).",
                      "en": "RMS pooled over all stations; uncertainty = RMS/√(2n).",
                      "ar": "جذر متوسط المربعات مجمّع على كل المحطات؛ الشك = RMS/√(2n)."})
-    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"]], "location": loc, "date": date,
-             "headline": headline("ionosphere-gps", g["findings"]), "figures": maps, "timeline": tl or None}
+    chart, chart_limits = iono_chart_part(results)
+    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"], *chart_limits], "location": loc,
+             "date": date, "headline": headline("ionosphere-gps", g["findings"]), "figures": maps + chart,
+             "timeline": tl or None}
     return finalize(base, parts, missing + m1 + m4 + m5)
 
 

@@ -571,6 +571,30 @@ check("cases: ionosphere-gps location around the stations, date = latest NISAR a
       abs(iono["location"]["lat"] - 35.89) < 1e-6 and iono["date"] == "2026-10-17T00:00:00Z"
       and any(f.get("layer") for f in iono["figures"]) and len(iono["timeline"]) == 3, iono["placeholders"])
 
+noise_csv = ("track,frame,direction,ref,sec,sigma_raw_cm,sigma_minus_iono_cm,sigma_plus_iono_cm,iono_median_rad,"
+             "iono_p5_p95_rad,valid_px\n"
+             "10,20,A,20261001,20261013,8.0,2.0,15.0,-3.0,-4.0/-2.0,1000\n"
+             "10,20,A,20260901,20260913,4.0,3.0,6.0,2.0,1.0/3.0,1000\n"
+             "30,40,D,20261002,20261014,3.0,3.5,2.5,0.5,0.1/0.9,1000\n"
+             "30,40,D,20260902,20260914,0.0,5.0,6.0,1.0,0.5/1.5,1000\n")       # synthetic; the last row has no raw spread
+(res_dir / "noise_with_without_iono_preliminary.csv").write_text(noise_csv, encoding="utf-8")
+iono_c = cs.build_iono(res_dir, offline=True)
+chart = next((f for f in iono_c["figures"] if f["id"] == "iono_noise_pairs"), None)
+cap = chart["caption"]["text"]["en"] if chart else ""
+check("cases: ionosphere noise chart from the CSV: median 4.0 -> 3.0 cm, lower on 2/3, opposite sign higher on 2/3, "
+      "zero-raw row left out, PNG served",
+      chart is not None and chart["kind"] == "chart" and "median 4.0 cm raw, 3.0 cm after" in cap
+      and "lower on 2/3" in cap and "rises on 2/3" in cap and "1 pair(s) left out" in cap
+      and case_store.figure_path("ionosphere-gps", "iono_noise_pairs.png", work) is not None
+      and iono_c["status"] == "final", cap)
+check("cases: a preliminary noise CSV adds a limit naming the file",
+      any("preliminary run (noise_with_without_iono_preliminary.csv)" in x["text"]["en"] for x in iono_c["limits"]))
+(res_dir / "noise_with_without_iono_preliminary.csv").write_text("track,frame\n1,2\n", encoding="utf-8")
+check("cases: a noise CSV without the documented columns stops the build",
+      raises(lambda: cs.build_iono(res_dir, offline=True), cs.CaseInputError))
+(res_dir / "noise_with_without_iono_preliminary.csv").write_text(noise_csv, encoding="utf-8")
+iono = iono_c
+
 if os.environ.get("NISAR_CASE_DUMP"):          # final cases for tools/frontend_contract/validate.ts
     dump_dir = Path(os.environ["NISAR_CASE_DUMP"])
     dump_dir.mkdir(parents=True, exist_ok=True)

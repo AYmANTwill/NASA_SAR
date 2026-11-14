@@ -89,7 +89,7 @@ Exposure units are fixed: `people` is in `people`, `buildings` in `count`, `area
 | panama-2026 | `backend/cases/out/panama-2026.json` + `_fit.png` (`python -m science.panama_fault`); `backend/cases/out/panama-2026_exposure.json` (`python -m science.exposure_run --case panama-2026 --event us6000u18k --iso3 PAN`); USGS event; co-seismic pairs in the catalog |
 | venezuela-2026 | `results/venezuela-2026/findings.json` (UCSD comparison); `--venezuela-event <USGS id>`; exposure via `exposure_run --event <id> --iso3 VEN` |
 | haouz-flood-2026 | `results/haouz-flood-2026/findings.json` with `date`, `timeline`, `bbox`; `results/haouz-flood-2026/flood_mask.tif` (1 = flooded, 0 = dry) for `exposure_run --flood-mask … --iso3 MAR` |
-| ionosphere-gps | `results/gps/gps_none/gps_*.json` and `results/gps/gps_iono/gps_*.json` (`validate_gps.py` without / with the ionospheric correction) |
+| ionosphere-gps | `results/gps/gps_none/gps_*.json` and `results/gps/gps_iono/gps_*.json` (`validate_gps.py` without / with the ionospheric correction); optional `results/noise_with_without_iono_*.csv` (one row per pair: `track,frame,direction,ref,sec,sigma_raw_cm,sigma_minus_iono_cm,sigma_plus_iono_cm,…,valid_px`) for the before / after noise chart, a final file preferred to a `preliminary` one |
 
 `results/<id>/findings.json`, written by Anass:
 
