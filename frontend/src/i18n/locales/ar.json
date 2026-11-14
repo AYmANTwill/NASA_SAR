@@ -571,6 +571,12 @@
     "figures": "الأشكال",
     "openAnswer": "فتح في المحقّق",
     "answers": "أجوبة الوكيل",
-    "notMeasuredYet": "لم يُقَس بعد"
+    "notMeasuredYet": "لم يُقَس بعد",
+    "afterHours_zero": "بعد {{count}} ساعة",
+    "afterHours_one": "بعد ساعة واحدة",
+    "afterHours_two": "بعد ساعتين",
+    "afterHours_few": "بعد {{count}} ساعات",
+    "afterHours_many": "بعد {{count}} ساعة",
+    "afterHours_other": "بعد {{count}} ساعة"
   }
 }

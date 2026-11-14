@@ -55,7 +55,8 @@ function CaseBody({ c }: { c: CaseStudy }) {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         {/* 3. Map */}
-        <section aria-label={t("cases.map")} className="relative h-[52vh] min-h-72 overflow-hidden rounded-md border border-line">
+        <section aria-label={t("cases.map")} className="space-y-2">
+        <div className="relative h-[52vh] min-h-72 overflow-hidden rounded-md border border-line">
           <MapSlot
             className="absolute inset-0"
             ariaLabel={`${t("cases.map")} · ${localized(c.location.place, lang)}`}
@@ -64,6 +65,14 @@ function CaseBody({ c }: { c: CaseStudy }) {
             markers={layers.length ? [] : markers}
             motion={layers.length ? { kind: "pass", key: c.id, direction: "ascending" } : null}
           />
+        </div>
+          {c.figures
+            .filter((f) => f.kind === "map")
+            .map((f) => (
+              <p key={f.id} className="text-sm text-ink-2">
+                <span className="font-medium text-ink">{localized(f.title, lang)}</span> · {text(f.caption)}
+              </p>
+            ))}
         </section>
 
         <div className="space-y-6">
@@ -133,7 +142,11 @@ function Timeline({ items }: { items: CaseStudy["timeline"] }) {
       <h2 id="case-timeline" className="font-semibold">{t("cases.timeline")}</h2>
       <ol className="case-timeline relative grid gap-4 sm:grid-flow-col sm:auto-cols-fr">
         {sorted.map((item, i) => {
-          const days = i > 0 ? Math.round((dayOf(item.at) - dayOf(sorted[i - 1].at)) / DAY) : null;
+          const ms = i > 0 ? dayOf(item.at) - dayOf(sorted[i - 1].at) : null;
+          // Under two days, the interval is told in hours (only when both ends carry a time of day).
+          const timed = i > 0 && item.at.length > 10 && sorted[i - 1].at.length > 10;
+          const hours = ms != null && timed && ms < 2 * DAY ? Math.round(ms / 3_600_000) : null;
+          const days = ms != null ? Math.round(ms / DAY) : null;
           return (
             <li key={item.at + i} className="case-step relative flex gap-3 sm:flex-col sm:gap-2" style={{ animationDelay: `${i * 220}ms` }}>
               <span aria-hidden className="relative z-10 mt-1 size-3 shrink-0 rounded-full border-2 border-accent bg-surface sm:mt-0" />
@@ -141,7 +154,7 @@ function Timeline({ items }: { items: CaseStudy["timeline"] }) {
                 <p className="font-medium">{localized(item.label, lang)}</p>
                 <p className="text-sm text-ink-2">
                   <time dateTime={item.at}>{item.at.length === 10 ? formatDate(item.at, lang) : formatDate(item.at.slice(0, 10), lang)}</time>
-                  {days != null && <> · {days === 0 ? t("cases.sameDay") : t("cases.after", { count: days })}</>}
+                  {hours != null ? <> · {t("cases.afterHours", { count: hours })}</> : days != null && <> · {days === 0 ? t("cases.sameDay") : t("cases.after", { count: days })}</>}
                 </p>
               </div>
             </li>

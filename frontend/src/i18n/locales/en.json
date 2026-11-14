@@ -511,6 +511,8 @@
     "figures": "Figures",
     "openAnswer": "Open in the investigator",
     "answers": "Agent answers",
-    "notMeasuredYet": "not measured yet"
+    "notMeasuredYet": "not measured yet",
+    "afterHours_one": "{{count}} hour later",
+    "afterHours_other": "{{count}} hours later"
   }
 }

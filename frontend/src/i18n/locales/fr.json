@@ -512,6 +512,8 @@
     "figures": "Figures",
     "openAnswer": "Ouvrir dans l’enquêteur",
     "answers": "Réponses de l’agent",
-    "notMeasuredYet": "pas encore mesuré"
+    "notMeasuredYet": "pas encore mesuré",
+    "afterHours_one": "{{count}} heure plus tard",
+    "afterHours_other": "{{count}} heures plus tard"
   }
 }

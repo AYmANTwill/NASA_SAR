@@ -8,6 +8,7 @@
 import type { Answer, CaseStudy, CaseSummary, Localized, TemplatedText } from "@/api/contract";
 import { panama, venezuela } from "./answers";
 import { recordedAnswers } from "./backend";
+import exported from "./cases-export";
 
 const metric = (a: Answer, id: string) => a.metrics.find((x) => x.id === id)?.measurement;
 const prose = (key: string, fr: string, en: string, ar: string): TemplatedText => ({ template: `backend.case.${key}`, params: {}, text: { fr, en, ar } });
@@ -105,6 +106,11 @@ const ionoCase: CaseStudy = {
   limits: [prose("iono.limit", "Tant que la validation GPS n'est pas terminée, aucune valeur n'est affichée.", "Until the GPS validation is finished, no value is shown.", "لن تُعرض أي قيمة قبل انتهاء التحقق بـ GPS.")],
 };
 
-export const caseStudies: CaseStudy[] = [panamaCase, venezuelaCase, haouzCase, ionoCase];
+const drafts: CaseStudy[] = [panamaCase, venezuelaCase, haouzCase, ionoCase];
 
-export const caseSummaries: CaseSummary[] = caseStudies.map((c) => ({ id: c.id, kind: c.kind, title: c.title, date: c.date, status: c.status, thumbnail_url: null }));
+/** The cases exported from the real API (scripts/export-cases.mjs) win over the local drafts. */
+export const caseStudies: CaseStudy[] = exported ? (exported.studies as CaseStudy[]) : drafts;
+
+export const caseSummaries: CaseSummary[] = exported
+  ? (exported.summaries as CaseSummary[])
+  : drafts.map((c) => ({ id: c.id, kind: c.kind, title: c.title, date: c.date, status: c.status, thumbnail_url: null }));
