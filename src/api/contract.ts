@@ -85,6 +85,7 @@ export const Recipe = z.enum([
   "deforestation",
   "soil_moisture",
   "large_displacement",
+  "surface_change",
 ]);
 export type Recipe = z.infer<typeof Recipe>;
 

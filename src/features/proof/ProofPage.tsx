@@ -4,11 +4,12 @@ import { ShieldQuestion } from "lucide-react";
 import type { LbandProof, RasterLayer } from "@/api/contract";
 import { useLbandProof } from "@/api/queries";
 import { MeasurementText } from "@/components/science/MeasurementText";
-import { ErrorState, Loading } from "@/components/states";
+import { ErrorState, InfoState, isApiCode, Loading } from "@/components/states";
 import { gradient } from "@/components/map/palettes";
 import { useText } from "@/i18n/useText";
 import { MapSlot } from "@/components/map/MapSlot";
 import { formatDate, formatNumber, niceTicks } from "@/lib/format";
+import { BandExplainer } from "./BandExplainer";
 
 const AXIS = { fontSize: 12, fill: "var(--ink-2)" };
 
@@ -22,7 +23,13 @@ export default function ProofPage() {
         <p className="text-ink-2">{t("proof.intro")}</p>
       </header>
       {query.isLoading && <Loading />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
+      {query.isError && isApiCode(query.error, "not_available") && (
+        <InfoState title={t("proof.notAvailableTitle")}>
+          <p>{t("proof.notAvailableWhy")}</p>
+        </InfoState>
+      )}
+      {query.isError && !isApiCode(query.error, "not_available") && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
+      <BandExplainer />
       {query.data && <ProofBody proof={query.data} />}
     </div>
   );

@@ -50,9 +50,25 @@ describe("template catalog", () => {
   for (const [name, locale] of [["fr", fr], ["ar", ar], ["en", en]] as const) {
     it(`${name} translates every template used by the fixtures`, () => {
       const tpl = Object.keys(locale.tpl).map((k) => k.replace(PLURAL, ""));
-      expect([...used].filter((id) => !tpl.includes(id))).toEqual([]);
+      // backend.* templates carry their own prose in the three languages (checked below).
+      expect([...used].filter((id) => !id.startsWith("backend.") && !tpl.includes(id))).toEqual([]);
     });
   }
+  it("backend.* prose is provided in fr, ar and en", () => {
+    const missing: string[] = [];
+    const visit = (v: unknown): void => {
+      if (Array.isArray(v)) return v.forEach(visit);
+      if (!v || typeof v !== "object") return;
+      const o = v as { template?: unknown; text?: Record<string, unknown> };
+      if (typeof o.template === "string" && o.template.startsWith("backend.")) {
+        for (const l of ["fr", "ar", "en"]) if (!o.text?.[l]) missing.push(`${o.template}:${l}`);
+      }
+      Object.values(o).forEach(visit);
+    };
+    visit(fx.fixtureAnswers);
+    visit(fx.library);
+    expect(missing).toEqual([]);
+  });
   it("translations never hard-code a measured number (only {{placeholders}})", () => {
     for (const locale of [fr, ar, en]) {
       for (const [id, text] of Object.entries(locale.tpl as Record<string, string>)) {

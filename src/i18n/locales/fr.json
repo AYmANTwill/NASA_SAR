@@ -10,7 +10,8 @@
     "investigate": "Enquête",
     "watch": "Veille",
     "library": "Bibliothèque",
-    "proof": "Bande L / bande C"
+    "proof": "Bande L / bande C",
+    "soon": "bientôt"
   },
   "lang": {
     "label": "Langue",
@@ -21,7 +22,7 @@
   "status": {
     "offline": "Hors ligne : réponses servies depuis le cache",
     "offlineShort": "Hors ligne",
-    "fixtures": "Données de test : ces valeurs ne sont pas des mesures NISAR. Le backend n'est pas encore branché.",
+    "fixtures": "Mode démo hors ligne : données de test synthétiques, sauf les réponses marquées « réponse réelle enregistrée ».",
     "fixturesShort": "Données de test"
   },
   "common": {
@@ -85,7 +86,8 @@
       "skipped": "Ignorée"
     },
     "summary_one": "{{count}} étape en {{seconds}} s",
-    "summary_other": "{{count}} étapes en {{seconds}} s"
+    "summary_other": "{{count}} étapes en {{seconds}} s",
+    "elapsed": "{{value}} s écoulées"
   },
   "answer": {
     "label": "Réponse",
@@ -131,7 +133,8 @@
     "watchNext": "Prochain passage NISAR le {{date}}",
     "watchPreview": "Message envoyé à chaque changement de niveau",
     "watchOpen": "Voir la veille",
-    "notFound": "Cette réponse n'existe pas ou n'est plus disponible."
+    "notFound": "Cette réponse n'existe pas ou n'est plus disponible.",
+    "recorded": "Réponse réelle enregistrée : calculée par notre backend sur des produits NISAR le {{date}}, rejouée hors ligne. Les images radar ne sont pas incluses dans cet enregistrement."
   },
   "confidence": {
     "high": "Élevée",
@@ -226,7 +229,8 @@
     "flood": "Inondation",
     "deforestation": "Déforestation",
     "soil_moisture": "Humidité du sol",
-    "large_displacement": "Grand déplacement"
+    "large_displacement": "Grand déplacement",
+    "surface_change": "Changement de surface"
   },
   "unit": {
     "mm": "mm",
@@ -299,7 +303,12 @@
     "empty": "Aucune zone ne dépasse {{factor}} fois le bruit sur la période : le sol est stable dans le bruit partout où NISAR a regardé.",
     "rank": "Rang {{rank}}",
     "velocity": "Vitesse",
-    "ruler": "Vitesse et incertitude par rapport au seuil de bruit"
+    "ruler": "Vitesse et incertitude par rapport au seuil de bruit",
+    "disabledTitle": "La détection automatique est désactivée pour l’instant",
+    "disabledWhy": "Les zones candidates restent cachées tant qu’une seconde géométrie de visée ne les confirme pas : mieux vaut ne rien montrer qu’une fausse alerte.",
+    "lookedTitle": "Ce que NISAR a regardé",
+    "lookedIntro": "Les événements déjà analysés, chacun avec sa réponse complète et ses limites.",
+    "openAnswer": "Voir la réponse"
   },
   "zoneKind": {
     "dam": "Barrage",
@@ -340,7 +349,8 @@
     "fromLevel": "Avant : {{level}}",
     "bilingual": "Notification envoyée en français et en arabe",
     "openAnswer": "Voir la réponse",
-    "created": "Veille activée"
+    "created": "Veille activée",
+    "orbit": "Orbite : {{elapsed}} jours écoulés sur les {{cycle}} qui séparent les deux passages"
   },
   "library": {
     "title": "Bibliothèque mondiale",
@@ -372,7 +382,16 @@
     "pixels_other": "{{count, number}} pixels",
     "forestSource": "Couvert forestier : {{source}}",
     "bin": "{{min}} à {{max}} %",
-    "pixelsHeader": "Pixels"
+    "pixelsHeader": "Pixels",
+    "notAvailableTitle": "Comparaison pas encore calculée",
+    "notAvailableWhy": "Le serveur n’a pas encore de données Sentinel-1 sur ces versants : la comparaison mesurée apparaîtra ici dès qu’elle sera calculée.",
+    "why": {
+      "title": "Pourquoi la bande L voit sous la forêt",
+      "body": "Longueurs d’onde à l’échelle : l’onde courte rebondit sur le feuillage, l’onde longue le traverse et revient du sol. Schéma, pas une mesure.",
+      "alt": "Schéma : l’onde de Sentinel-1 rebondit sur les feuilles, l’onde de NISAR traverse la canopée et revient du sol.",
+      "c": "Bande C (Sentinel-1), λ = {{lambda}} cm : renvoyée par les feuilles et les branches.",
+      "l": "Bande L (NISAR), λ = {{lambda}} cm : traverse la canopée et revient du sol, qui reste cohérent d’un passage à l’autre."
+    }
   },
   "term": {
     "recipe.sudden_motion": "mouvement brusque",

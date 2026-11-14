@@ -40,4 +40,9 @@ describe("niceTicks", () => {
     const steps = new Set(ticks.slice(1).map((v, i) => +(v - ticks[i]).toFixed(6)));
     expect(steps.size).toBe(1);
   });
+  it("does not print ± 0 when no uncertainty is provided", () => {
+    const f = formatMeasurement({ value: 37.9, uncertainty: 0, unit: "mm", sigma: 1 }, "fr", "mm");
+    expect(f.text).not.toContain("±");
+    expect(f.text).toContain("37,9");
+  });
 });

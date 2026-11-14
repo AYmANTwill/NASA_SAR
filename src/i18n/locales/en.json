@@ -10,7 +10,8 @@
     "investigate": "Investigate",
     "watch": "Watch",
     "library": "Library",
-    "proof": "L-band / C-band"
+    "proof": "L-band / C-band",
+    "soon": "soon"
   },
   "lang": {
     "label": "Language",
@@ -21,7 +22,7 @@
   "status": {
     "offline": "Offline: answers served from cache",
     "offlineShort": "Offline",
-    "fixtures": "Test data: these values are not NISAR measurements. The backend is not connected yet.",
+    "fixtures": "Offline demo mode: synthetic test data, except answers marked “recorded real answer”.",
     "fixturesShort": "Test data"
   },
   "common": {
@@ -85,7 +86,8 @@
       "skipped": "Skipped"
     },
     "summary_one": "{{count}} step in {{seconds}} s",
-    "summary_other": "{{count}} steps in {{seconds}} s"
+    "summary_other": "{{count}} steps in {{seconds}} s",
+    "elapsed": "{{value}} s elapsed"
   },
   "answer": {
     "label": "Answer",
@@ -131,7 +133,8 @@
     "watchNext": "Next NISAR pass on {{date}}",
     "watchPreview": "Message sent whenever the level changes",
     "watchOpen": "Open watch",
-    "notFound": "This answer does not exist or is no longer available."
+    "notFound": "This answer does not exist or is no longer available.",
+    "recorded": "Recorded real answer: computed by our backend on NISAR products on {{date}}, replayed offline. The radar images are not included in this recording."
   },
   "confidence": {
     "high": "High",
@@ -226,7 +229,8 @@
     "flood": "Flood",
     "deforestation": "Deforestation",
     "soil_moisture": "Soil moisture",
-    "large_displacement": "Large displacement"
+    "large_displacement": "Large displacement",
+    "surface_change": "Surface change"
   },
   "unit": {
     "mm": "mm",
@@ -299,7 +303,12 @@
     "empty": "No area exceeds {{factor}} times the noise over the period: the ground is stable within noise wherever NISAR looked.",
     "rank": "Rank {{rank}}",
     "velocity": "Velocity",
-    "ruler": "Velocity and uncertainty against the noise threshold"
+    "ruler": "Velocity and uncertainty against the noise threshold",
+    "disabledTitle": "Automatic discovery is switched off for now",
+    "disabledWhy": "Candidate zones stay hidden until a second viewing geometry confirms them: showing nothing beats a false alarm.",
+    "lookedTitle": "What NISAR has looked at",
+    "lookedIntro": "Events already analysed, each with its full answer and its limits.",
+    "openAnswer": "See the answer"
   },
   "zoneKind": {
     "dam": "Dam",
@@ -340,7 +349,8 @@
     "fromLevel": "Before: {{level}}",
     "bilingual": "Notification sent in French and Arabic",
     "openAnswer": "Open answer",
-    "created": "Watch active"
+    "created": "Watch active",
+    "orbit": "Orbit: {{elapsed}} of the {{cycle}} days between the two passes have elapsed"
   },
   "library": {
     "title": "World library",
@@ -372,7 +382,16 @@
     "pixels_other": "{{count, number}} pixels",
     "forestSource": "Forest cover: {{source}}",
     "bin": "{{min}} to {{max}} %",
-    "pixelsHeader": "Pixels"
+    "pixelsHeader": "Pixels",
+    "notAvailableTitle": "Comparison not computed yet",
+    "notAvailableWhy": "The server has no Sentinel-1 data on these slopes yet: the measured comparison will appear here once it is computed.",
+    "why": {
+      "title": "Why L-band sees under the forest",
+      "body": "Wavelengths to scale: the short wave bounces off the foliage, the long wave passes through and returns from the ground. A diagram, not a measurement.",
+      "alt": "Diagram: the Sentinel-1 wave bounces off the leaves; the NISAR wave crosses the canopy and returns from the ground.",
+      "c": "C-band (Sentinel-1), λ = {{lambda}} cm: sent back by leaves and branches.",
+      "l": "L-band (NISAR), λ = {{lambda}} cm: crosses the canopy and returns from the ground, which stays coherent from one pass to the next."
+    }
   },
   "term": {
     "recipe.sudden_motion": "sudden motion",

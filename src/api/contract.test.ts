@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import * as fx from "@/__fixtures__";
-import { Answer, DemoBundle, Discoveries, LbandProof, LibraryEvent, Watch, WatchNotification } from "./contract";
+import { Answer, ApiErrorBody, DemoBundle, Discoveries, LbandProof, LibraryEvent, Watch, WatchNotification } from "./contract";
+import { recordedRaw } from "@/__fixtures__/backend";
 import { matchDemoQuestion, normalizeQuestion } from "./match";
 import { parseBlock } from "./sse";
 
@@ -50,6 +51,17 @@ describe("demo question matching", () => {
   });
   it("does not invent a match for an unrelated question", () => {
     expect(matchDemoQuestion(fx.demoBundle, "Quel temps fera-t-il demain à Paris ?")).toBeNull();
+  });
+});
+
+describe("real backend recordings (14/11)", () => {
+  it.each(recordedRaw.map((r) => [(r as { id: string }).id, r]))("raw %s passes the contract as recorded", (_, raw) => {
+    const parsed = Answer.safeParse(raw);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+  it("discoveries_disabled and not_available bodies parse as API errors", () => {
+    const body = { code: "discoveries_disabled", message: { template: "backend.error.discoveries_disabled", params: {}, text: { fr: "x", en: "x", ar: "x" } } };
+    expect(ApiErrorBody.safeParse(body).success).toBe(true);
   });
 });
 

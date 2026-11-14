@@ -25,8 +25,8 @@ export async function createFixtureClient(): Promise<ApiClient> {
         await latency();
         throw new ApiError("no_fixture", { template: "error.no_fixture", params: {} }, 404);
       }
-      // Cached answers replay in under a second; "live" ones keep a realistic pace.
-      return replaySteps({ ...answer, lang: req.lang }, onStep, answer.cached ? 400 : 3200, signal);
+      // Cached answers are staged by the step pacer (useAsk); "live" ones keep a realistic pace.
+      return replaySteps({ ...answer, lang: req.lang }, onStep, answer.cached ? 0 : 3200, signal);
     },
     async answer(id) {
       await latency();

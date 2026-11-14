@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CircleAlert, CloudOff, FileWarning, Loader2 } from "lucide-react";
+import { CircleAlert, CloudOff, FileWarning, Info, Loader2 } from "lucide-react";
 import { ApiError, ContractError, OfflineError } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { useText } from "@/i18n/useText";
@@ -46,4 +46,22 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
 
 export function EmptyState({ children, icon }: { children: ReactNode; icon?: ReactNode }) {
   return <div className="flex items-start gap-3 rounded-md border border-dashed border-line-strong bg-surface p-5 text-ink-2">{icon}{children}</div>;
+}
+
+/** True when the backend answered with this explicit error code (e.g. a feature that is switched off). */
+export function isApiCode(error: unknown, code: string): error is ApiError {
+  return error instanceof ApiError && error.code === code;
+}
+
+/** A neutral, expected state (feature off, not computed yet): informs, never alarms, offers no retry. */
+export function InfoState({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <div role="status" className="flex items-start gap-3 rounded-md border border-line-strong bg-accent-soft p-4">
+      <Info className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
+      <div className="space-y-1.5">
+        <p className="font-semibold">{title}</p>
+        {children && <div className="space-y-1.5 text-ink-2">{children}</div>}
+      </div>
+    </div>
+  );
 }

@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CloudOff, MessageSquareText } from "lucide-react";
+import { CloudOff, Database, MessageSquareText } from "lucide-react";
+import { API_MODE } from "@/api";
+import { formatDate } from "@/lib/format";
 import type { Answer, Bounds } from "@/api/contract";
 import { useAnswer, useAsk } from "@/api/queries";
 import { ErrorState, Loading } from "@/components/states";
 import { useText } from "@/i18n/useText";
 import { MapSlot } from "@/components/map/MapSlot";
+import type { MapMotion } from "@/components/map/RadarMap";
 import { AgentSteps } from "./AgentSteps";
 import { AnswerView } from "./AnswerView";
 import { AskBox } from "./AskBox";
@@ -45,9 +48,13 @@ export default function InvestigatePage() {
 
   // Zone links pass ?q=…&auto=1 to start immediately.
   useEffect(() => {
+    // Deferred so StrictMode's simulated unmount (which aborts the request) cancels the timer instead.
     if (initialQuestion && search.get("auto") === "1" && !autoAsked.current) {
-      autoAsked.current = true;
-      void run(initialQuestion);
+      const timer = setTimeout(() => {
+        autoAsked.current = true;
+        void run(initialQuestion);
+      }, 0);
+      return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -59,6 +66,13 @@ export default function InvestigatePage() {
 
   const mapAnswer = answer;
   const bounds = useMemo(() => boundsOf(mapAnswer), [mapAnswer]);
+  // While the agent works, passes sweep over the point; a new answer is revealed by one pass in its flight direction.
+  const motion: MapMotion =
+    state.status === "running"
+      ? { kind: "scan", key: state.request.question }
+      : mapAnswer
+        ? { kind: "pass", key: mapAnswer.id, direction: mapAnswer.tracks[0]?.direction ?? "ascending" }
+        : null;
 
   return (
     <div className="flex flex-1 flex-col fill-below-chrome lg:flex-row lg:overflow-hidden">
@@ -88,6 +102,13 @@ export default function InvestigatePage() {
           </p>
         )}
 
+        {answer && API_MODE === "fixtures" && answer.id.startsWith("event-") && (
+          <p role="note" className="flex items-start gap-2 rounded-sm border border-line-strong bg-accent-soft px-3 py-2 text-sm text-ink">
+            <Database className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
+            {t("answer.recorded", { date: formatDate(answer.created_at, lang) })}
+          </p>
+        )}
+
         {steps.length > 0 && <AgentSteps steps={steps} live={state.status === "running"} />}
         {state.status === "running" && steps.length === 0 && <Loading label={t("ask.running")} />}
 
@@ -107,6 +128,7 @@ export default function InvestigatePage() {
             earthquakes={mapAnswer?.earthquakes ?? []}
             picked={picked ?? (mapAnswer ? { lat: mapAnswer.location.lat, lon: mapAnswer.location.lon } : null)}
             onPick={(lat, lon) => setPicked({ lat, lon })}
+            motion={motion}
           />
       </div>
     </div>

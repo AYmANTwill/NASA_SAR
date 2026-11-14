@@ -1,9 +1,15 @@
-/** SYNTHETIC fixtures for UI development. Not NISAR measurements. */
+/**
+ * Fixtures for UI development and the offline demo.
+ * - ./answers, ./build: SYNTHETIC data, not NISAR measurements.
+ * - ./backend: REAL answers recorded from the team's backend (see its header).
+ */
 import type { DemoBundle, Discoveries, LbandProof, LibraryEvent, Watch, WatchNotification } from "@/api/contract";
-import { alWahda, fixtureAnswers, gharb, panama, rifSlope, venezuela } from "./answers";
+import { alWahda, fixtureAnswers as syntheticAnswers, gharb, panama, rifSlope, venezuela } from "./answers";
+import { recordedAnswers, recordedDemoEntries } from "./backend";
+import recordedLibrary from "./backend/library";
 import { day, m, term, tpl } from "./build";
 
-export { fixtureAnswers };
+export const fixtureAnswers = [...syntheticAnswers, ...recordedAnswers];
 
 export const discoveries: Discoveries = {
   region: "MA",
@@ -31,6 +37,8 @@ export const initialNotifications: WatchNotification[] = [
 ];
 
 export const library: LibraryEvent[] = [
+  // Real, recorded from the backend (only events whose answer was recorded).
+  ...(recordedLibrary as unknown as LibraryEvent[]).filter((e) => recordedAnswers.some((a) => a.id === e.answer_id)),
   {
     id: "lib-panama", kind: "earthquake", date: "2026-10-09", location: panama.location, magnitude: { value: 7.7, type: "Mww" }, answer_id: panama.id,
     reference: { source: "usgs", agreement: "agrees", summary: tpl("library.usgs", { mag: 7.7, date: day("2026-10-09") }), url: null, comparison: null },
@@ -73,5 +81,6 @@ export const demoBundle: DemoBundle = {
     { answer_id: alWahda.id, questions: [{ text: alWahda.question, lang: "fr" }, { text: "Le barrage se déforme-t-il depuis juin ?", lang: "fr" }, { text: "Is the Al Wahda dam deforming since June?", lang: "en" }, { text: "هل يتشوه سد الوحدة منذ يونيو؟", lang: "ar" }] },
     { answer_id: rifSlope.id, questions: [{ text: rifSlope.question, lang: "fr" }, { text: "Is this slope above the village sliding?", lang: "en" }, { text: "هل ينزلق هذا المنحدر فوق القرية؟", lang: "ar" }] },
     { answer_id: gharb.id, questions: [{ text: gharb.question, lang: "fr" }, { text: "Are my fields in the Gharb saturated?", lang: "en" }, { text: "هل حقولي في الغرب مشبعة بالماء؟", lang: "ar" }] },
+    ...recordedDemoEntries,
   ],
 };

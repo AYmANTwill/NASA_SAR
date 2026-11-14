@@ -41,7 +41,9 @@ export function formatMeasurement(m: Measurement, lang: Lang, unitLabel: string)
   const decimals = decimalsFor(m.uncertainty, m.value);
   const value = formatNumber(m.value, lang, decimals).replace("-", "−");
   const uncertainty = formatNumber(m.uncertainty, lang, decimals);
-  const core = `${value} ± ${uncertainty}`;
+  // An uncertainty of exactly 0 means "not provided" (e.g. a rain total from a weather archive):
+  // showing "± 0" would claim a perfect measurement, so only the value is shown.
+  const core = m.uncertainty > 0 ? `${value} ± ${uncertainty}` : value;
   // Only the numbers are isolated LTR; the unit follows the sentence direction.
   return { value, uncertainty, unit: unitLabel, text: unitLabel ? `${isolate(core)} ${unitLabel}` : isolate(core) };
 }

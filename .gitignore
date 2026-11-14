@@ -7,3 +7,4 @@ test-results/
 playwright-report/
 *.pdf
 dist-demo
+.playwright-mcp/

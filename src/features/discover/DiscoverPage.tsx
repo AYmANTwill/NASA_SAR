@@ -1,21 +1,36 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Building2, CircleCheckBig, Pickaxe, Route, Waves } from "lucide-react";
-import type { Discoveries, Zone } from "@/api/contract";
-import { useDiscoveries } from "@/api/queries";
+import type { Discoveries, LibraryEvent, Zone } from "@/api/contract";
+import { useDiscoveries, useLibrary } from "@/api/queries";
 import { ConfidenceBadge } from "@/components/science/badges";
 import { MeasurementText } from "@/components/science/MeasurementText";
 import { NoiseRuler } from "@/components/science/NoiseRuler";
-import { EmptyState, ErrorState, Loading } from "@/components/states";
+import { EmptyState, ErrorState, InfoState, isApiCode, Loading } from "@/components/states";
 import { useText } from "@/i18n/useText";
 import { MapSlot } from "@/components/map/MapSlot";
 import { formatDate, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { AskBox } from "@/features/investigate/AskBox";
-import type { MapMarker } from "@/components/map/RadarMap";
+import type { MapMarker, MapMotion } from "@/components/map/RadarMap";
+import type { ApiError } from "@/api/client";
 
 
 type Sort = "velocity" | "exposure";
+
+/** The home-page orbit pass plays once per session. */
+function useIntroOnce(): MapMotion {
+  const [motion] = useState<MapMotion>(() => {
+    try {
+      if (sessionStorage.getItem("nisar-intro-seen")) return null;
+      sessionStorage.setItem("nisar-intro-seen", "1");
+    } catch {
+      /* storage unavailable: play it */
+    }
+    return { kind: "intro", key: "home" };
+  });
+  return motion;
+}
 
 function QuickAsk() {
   const navigate = useNavigate();
@@ -36,7 +51,8 @@ export default function DiscoverPage() {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-6">
       {query.isLoading && <Loading />}
-      {query.isError && (
+      {query.isError && isApiCode(query.error, "discoveries_disabled") && <DiscoveriesOff message={query.error.body} />}
+      {query.isError && !isApiCode(query.error, "discoveries_disabled") && (
         <div className="max-w-2xl space-y-6">
           <ErrorState error={query.error} onRetry={() => void query.refetch()} />
           <QuickAsk />
@@ -47,10 +63,93 @@ export default function DiscoverPage() {
   );
 }
 
+/**
+ * Discoveries are switched off by the backend (503 discoveries_disabled, the default):
+ * an expected state, not an error. The home page shows what NISAR has already looked at.
+ */
+function DiscoveriesOff({ message }: { message: ApiError["body"] }) {
+  const { t, text, lang, place } = useText();
+  const navigate = useNavigate();
+  const library = useLibrary();
+  const intro = useIntroOnce();
+  const events = useMemo(() => [...(library.data ?? [])].sort((a, b) => b.date.localeCompare(a.date)), [library.data]);
+  const hrefFor = (e: LibraryEvent) => (e.answer_id ? `/investigate/${encodeURIComponent(e.answer_id)}` : "/library");
+
+  const markers: MapMarker[] = useMemo(
+    () =>
+      events.map((e, i) => ({
+        id: e.id,
+        lat: e.location.lat,
+        lon: e.location.lon,
+        label: formatNumber(i + 1, lang),
+        title: `${place(e.location)} · ${formatDate(e.date, lang)}`,
+        onSelect: () => navigate(hrefFor(e)),
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [events, lang],
+  );
+
+  const bounds: [number, number, number, number] | undefined = useMemo(() => {
+    if (!events.length) return undefined;
+    const lons = events.map((e) => e.location.lon), lats = events.map((e) => e.location.lat);
+    return [Math.min(...lons) - 1.5, Math.min(...lats) - 1.2, Math.max(...lons) + 1.5, Math.max(...lats) + 1.2];
+  }, [events]);
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <section aria-labelledby="looked-title" className="space-y-5">
+        <header className="space-y-1.5">
+          <h1 id="looked-title" className="text-2xl font-semibold text-balance sm:text-3xl">
+            {t("discover.lookedTitle")}
+          </h1>
+          <p className="max-w-2xl text-ink-2">{t("discover.lookedIntro")}</p>
+        </header>
+        <div className="max-w-2xl">
+          <QuickAsk />
+        </div>
+        <div className="max-w-2xl">
+          <InfoState title={t("discover.disabledTitle")}>
+            {message && <p>{text(message)}</p>}
+            <p>{t("discover.disabledWhy")}</p>
+          </InfoState>
+        </div>
+        {library.isLoading && <Loading />}
+        {library.isError && <ErrorState error={library.error} onRetry={() => void library.refetch()} />}
+        {events.length > 0 && (
+          <ol aria-label={t("discover.lookedTitle")} className="space-y-3">
+            {events.map((e, i) => (
+              <li key={e.id} className="relative flex items-start gap-3 rounded-md border border-line bg-surface p-4 focus-within:border-accent hover:border-line-strong">
+                <span className="num grid size-8 shrink-0 place-items-center rounded-full border-2 border-accent text-sm font-semibold text-accent" aria-hidden>
+                  {formatNumber(i + 1, lang)}
+                </span>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <h2 className="font-semibold">
+                    <Link to={hrefFor(e)} className="after:absolute after:inset-0 focus-visible:outline-none">
+                      {place(e.location)}
+                    </Link>
+                  </h2>
+                  <p className="text-sm text-ink-2">
+                    {t(`library.kind.${e.kind}`)} · <time dateTime={e.date}>{formatDate(e.date, lang)}</time>
+                  </p>
+                  <p className="text-sm">{text(e.reference.summary)}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+      <div className="relative h-[60vh] min-h-80 overflow-hidden rounded-md border border-line sticky-below-chrome">
+        <MapSlot className="absolute inset-0" ariaLabel={t("discover.lookedTitle")} bounds={bounds} markers={markers} legend={false} motion={intro} />
+      </div>
+    </div>
+  );
+}
+
 function DiscoverBody({ data }: { data: Discoveries }) {
   const { t, lang, measurement, place } = useText();
   const navigate = useNavigate();
   const [sort, setSort] = useState<Sort>("velocity");
+  const intro = useIntroOnce();
   const threshold = data.noise_floor.value * data.threshold_factor;
 
   const zones = useMemo(() => {
@@ -136,7 +235,7 @@ function DiscoverBody({ data }: { data: Discoveries }) {
       </section>
 
       <div className="relative h-[60vh] min-h-80 overflow-hidden rounded-md border border-line sticky-below-chrome">
-        <MapSlot className="absolute inset-0" ariaLabel={t("map.zones")} bounds={regionBounds} markers={markers} legend={false} />
+        <MapSlot className="absolute inset-0" ariaLabel={t("map.zones")} bounds={regionBounds} markers={markers} legend={false} motion={intro} />
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getClient, OfflineError } from "./index";
+import { ApiError, ContractError, getClient, OfflineError } from "./index";
 import type { AgentStep, Answer, AskRequest, DemoBundle } from "./contract";
 import { matchDemoQuestion } from "./match";
 import { replaySteps } from "./replay";
+import { createPacer } from "@/motion/director";
+import { STAGE } from "@/motion/motion";
 
 export const keys = {
   answer: (id: string) => ["answer", id] as const,
@@ -23,7 +25,8 @@ export function createQueryClient() {
         staleTime: 5 * 60_000,
         gcTime: 7 * 24 * 3_600_000, // keep for offline demo
         networkMode: "offlineFirst",
-        retry: (count, error) => !(error instanceof OfflineError) && count < 2,
+        // An explicit answer from the server (feature off, not computed, bad contract) is not retried.
+        retry: (count, error) => !(error instanceof OfflineError || error instanceof ApiError || error instanceof ContractError) && count < 2,
         refetchOnWindowFocus: false,
       },
       mutations: { networkMode: "always" },
@@ -142,18 +145,22 @@ export function useAsk() {
       const ctrl = new AbortController();
       controller.current = ctrl;
       setState({ status: "running", steps: [], request });
+      // Steps are always staged: fast (precomputed) answers are spaced so the reasoning can be followed.
+      const pacer = createPacer(upsert, STAGE.stepGap, ctrl.signal);
       try {
         let answer: Answer;
         let fromCache = false;
         try {
           if (typeof navigator !== "undefined" && navigator.onLine === false) throw new OfflineError("/ask");
-          answer = await (await getClient()).ask(request, upsert, ctrl.signal);
+          answer = await (await getClient()).ask(request, pacer.push, ctrl.signal);
         } catch (error) {
           const cached = error instanceof OfflineError ? findCachedAnswer(qc, request.question) : null;
           if (!cached) throw error;
           fromCache = true;
-          answer = await replaySteps(cached, upsert, 400, ctrl.signal);
+          answer = await replaySteps(cached, pacer.push, 0, ctrl.signal);
         }
+        await pacer.drained();
+        if (ctrl.signal.aborted) return null;
         qc.setQueryData(keys.answer(answer.id), answer);
         setState((prev) => ({ status: "success", steps: prev.steps, request, answer, fromCache }));
         return answer;

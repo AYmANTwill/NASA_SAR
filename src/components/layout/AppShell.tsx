@@ -13,7 +13,7 @@ const NAV = [
   { to: "/investigate", key: "investigate", end: false },
   { to: "/watch", key: "watch", end: false },
   { to: "/library", key: "library", end: false },
-  { to: "/proof", key: "proof", end: false },
+  { to: "/proof", key: "proof", end: false, soon: true },
 ] as const;
 
 const LANG_SHORT: Record<Lang, string> = { fr: "FR", ar: "ع", en: "EN" };
@@ -99,6 +99,9 @@ export default function AppShell() {
                     }
                   >
                     {t(`nav.${item.key}`)}
+                    {"soon" in item && API_MODE === "http" && (
+                      <span className="ms-1.5 rounded-sm border border-line-strong px-1 py-px text-[0.6875rem] font-normal text-ink-2">{t("nav.soon")}</span>
+                    )}
                   </NavLink>
                 </li>
               ))}
