@@ -56,7 +56,7 @@ export function TimeSeriesChart({ series, title, domain, height = 200 }: TimeSer
         <span className="font-medium">{title}</span>
         <span className="text-xs text-muted">{t("chart.axis", { label: t(`series.${series.id}`), unit: u })}</span>
       </figcaption>
-      <div dir="ltr" style={{ height }} aria-hidden={showTable ? true : undefined}>
+      <div dir="ltr" className="chart-draw" style={{ height }} aria-hidden={showTable ? true : undefined}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={rows} margin={{ top: 6, right: 8, bottom: 0, left: 0 }} accessibilityLayer>
             <CartesianGrid vertical={false} stroke="var(--line)" strokeDasharray="0" />

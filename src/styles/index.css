@@ -173,3 +173,104 @@
     height: calc(100dvh - var(--header-h, 3.75rem) - 3rem);
   }
 }
+
+/* ---------------------------------------------------------------- motion
+ * Every movement shows a physical step. All of it is removed by
+ * prefers-reduced-motion (base layer rule above).
+ */
+
+/* A map marker the radar beam has just crossed answers with an echo.
+ * (No transform: MapLibre positions markers with it.) */
+@keyframes marker-echo {
+  0% { box-shadow: 0 0 0 0 rgb(13 88 115 / 0.6); background-color: var(--accent); color: #fff; }
+  60% { background-color: var(--accent); color: #fff; }
+  100% { box-shadow: 0 0 0 16px rgb(13 88 115 / 0); }
+}
+.marker-echo {
+  animation: marker-echo 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Agent steps arrive one by one; the running step shows a beam sweeping. */
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+.step-in {
+  animation: step-in 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes step-scan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+.step-scan::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: step-scan 1.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+:dir(rtl) .step-scan::after {
+  animation-direction: reverse;
+}
+
+/* Noise ruler: the measurement settles from zero onto its value, the uncertainty opens around it. */
+@keyframes ruler-dot {
+  from { left: 50%; }
+}
+@keyframes ruler-whisker {
+  from { left: 50%; width: 0; }
+}
+@keyframes ruler-band {
+  from { transform: scaleX(0); opacity: 0; }
+}
+@keyframes ruler-clear {
+  0% { box-shadow: 0 0 0 0 rgb(13 88 115 / 0.5); }
+  100% { box-shadow: 0 0 0 8px rgb(13 88 115 / 0); }
+}
+.ruler-band { animation: ruler-band 500ms ease-out both; transform-origin: 50% 50%; }
+.ruler-whisker { animation: ruler-whisker var(--ruler-ms, 900ms) cubic-bezier(0.2, 0.7, 0.2, 1) 250ms both; }
+.ruler-dot { animation: ruler-dot var(--ruler-ms, 900ms) cubic-bezier(0.2, 0.7, 0.2, 1) 250ms both; }
+.ruler-dot.is-clear { animation: ruler-dot var(--ruler-ms, 900ms) cubic-bezier(0.2, 0.7, 0.2, 1) 250ms both, ruler-clear 700ms ease-out 1150ms 2; }
+
+/* Time series: drawn pass after pass, left to right, with the beam front ahead of it. */
+@keyframes chart-draw {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.chart-draw {
+  animation: chart-draw var(--chart-ms, 1500ms) cubic-bezier(0.3, 0, 0.4, 1) 200ms both;
+}
+
+/* L-band / C-band explainer: a wave packet travels down, scatters, and returns. */
+@keyframes wave-travel {
+  from { stroke-dashoffset: 16; }
+  to { stroke-dashoffset: -100; }
+}
+.wave-packet {
+  stroke-dasharray: 16 200;
+  animation: wave-travel 2.6s linear infinite;
+}
+.wave-packet-l { animation-delay: 0.4s; }
+@keyframes wave-hit {
+  0%, 50% { r: 4; opacity: 0; }
+  57% { opacity: 1; }
+  80% { r: 16; opacity: 0; }
+  100% { r: 16; opacity: 0; }
+}
+.wave-hit { animation: wave-hit 2.6s ease-out infinite; }
+.wave-hit-l { animation-delay: 0.4s; }
+@media (prefers-reduced-motion: reduce) {
+  .wave-packet { stroke-dasharray: none; opacity: 0.9; }
+  .wave-hit { opacity: 1; }
+}
+
+/* Orbit clock (watch): the satellite flies from the last pass to today. */
+@keyframes orbit-fly {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(var(--orbit-angle)); }
+}
+@keyframes orbit-arc {
+  from { stroke-dasharray: 0 999; }
+}
+.orbit-sat { transform: rotate(var(--orbit-angle)); animation: orbit-fly 1.6s cubic-bezier(0.3, 0, 0.2, 1) 0.2s both; }
+.orbit-arc { animation: orbit-arc 1.6s cubic-bezier(0.3, 0, 0.2, 1) 0.2s both; }

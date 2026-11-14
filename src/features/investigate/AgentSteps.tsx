@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Minus, X, Circle } from "lucide-react";
 import type { AgentStep } from "@/api/contract";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -7,6 +7,23 @@ import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const ICON = { pending: Circle, running: Loader2, done: Check, failed: X, skipped: Minus } as const;
+
+/** Real wall-clock time since the agent started (not a progress estimate). */
+function Elapsed() {
+  const { t, lang } = useText();
+  const start = useRef(performance.now());
+  const [ms, setMs] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setMs(performance.now() - start.current), 100);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <span className="ms-auto flex items-center gap-1.5 font-normal text-muted" aria-hidden>
+      <span className="running-dot inline-block size-1.5 rounded-full bg-accent" />
+      <bdi className="num">{t("steps.elapsed", { value: formatNumber(ms / 1000, lang, 1) })}</bdi>
+    </span>
+  );
+}
 
 /** While the agent runs, every step is shown as it arrives; once done, the list folds into one summary line. */
 export function AgentSteps({ steps, live }: { steps: AgentStep[]; live: boolean }) {
@@ -34,6 +51,7 @@ export function AgentSteps({ steps, live }: { steps: AgentStep[]; live: boolean 
               {t("steps.summary", { count: steps.length, seconds: formatNumber(total / 1000, lang, 1) })}
             </span>
           )}
+          {live && <Elapsed />}
           {!live && <ChevronDown className={cn("ms-auto size-4 transition-transform", open && "rotate-180")} aria-hidden />}
         </button>
       </h2>
@@ -51,7 +69,7 @@ function StepItem({ step, last }: { step: AgentStep; last: boolean }) {
   const Icon = ICON[step.status];
   const params = Object.entries(step.params);
   return (
-    <li className="relative flex gap-3 ps-0">
+    <li className="step-in relative flex gap-3 ps-0">
       <div className="flex flex-col items-center">
         <span
           className={cn(
@@ -79,6 +97,7 @@ function StepItem({ step, last }: { step: AgentStep; last: boolean }) {
             )}
           </span>
         </div>
+        {step.status === "running" && <span aria-hidden className="step-scan mt-1 block h-0.5 w-full overflow-hidden rounded-full bg-line" />}
         {step.summary && <p className="text-sm text-ink-2">{text(step.summary)}</p>}
         {step.error && <p className="text-sm text-fail">{text(step.error)}</p>}
         {params.length > 0 && (

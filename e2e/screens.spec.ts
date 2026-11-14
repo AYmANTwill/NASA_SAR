@@ -9,6 +9,8 @@ const ROUTES: [string, string][] = [
   ["investigate-panama", "/investigate/fx-panama-2026-10-09"],
   ["answer-alwahda", "/investigate/fx-alwahda-since-june"],
   ["answer-zone1", "/investigate/fx-zone-rif-slope"],
+  ["answer-alwahda-real", "/investigate/event-al-wahda-surroundings"],
+  ["answer-haouz-real", "/investigate/event-haouz-flood-2026-10-10"],
   ["watch", "/watch"],
   ["library", "/library"],
   ["proof", "/proof"],
@@ -17,6 +19,8 @@ const WIDTHS = [375, 768, 1280, 1920];
 const LANGS = ["fr", "ar", "en"];
 
 test.skip(!process.env.SCREENSHOTS, "set SCREENSHOTS=1 to regenerate docs/screenshots");
+// Reference images show the end state of every animation (deterministic).
+test.use({ reducedMotion: "reduce" });
 
 for (const width of WIDTHS) {
   for (const lang of LANGS) {

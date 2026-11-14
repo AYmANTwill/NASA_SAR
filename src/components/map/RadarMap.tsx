@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import maplibregl, { type GeoJSONSource, type Map as MlMap } from "maplibre-gl";
+import maplibregl, { type CanvasSource, type GeoJSONSource, type Map as MlMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Bounds, Earthquake, RasterLayer } from "@/api/contract";
 import { useOnline } from "@/api/queries";
@@ -7,6 +7,21 @@ import { useText } from "@/i18n/useText";
 import { cn } from "@/lib/utils";
 import { buildStyle, labelField, LABEL_LAYERS } from "./basemap";
 import { Legend, type LayerState } from "./Legend";
+import { drawReveal, loadRaster, type RevealRaster } from "@/motion/rasterReveal";
+import { alongOf, drawEcho, drawPass, passCovering, type PassGeometry, type PassStyle, type Pt } from "@/motion/swath";
+import { prefersReducedMotion, STAGE, type PassDirection } from "@/motion/motion";
+
+/**
+ * Staging drawn over the map:
+ * - scan: the agent is working; passes sweep over the point being investigated, in a loop;
+ * - pass: a new answer; one pass in the acquisition's flight direction reveals the rasters;
+ * - intro: one pass over the whole view; each marker echoes as the beam crosses it.
+ */
+export type MapMotion =
+  | { kind: "scan"; key: string }
+  | { kind: "pass"; key: string; direction: PassDirection }
+  | { kind: "intro"; key: string }
+  | null;
 
 export interface MapMarker {
   id: string;
@@ -30,11 +45,15 @@ export interface RadarMapProps {
   className?: string;
   /** Fixed view for small static figures (no pan/zoom). */
   interactive?: boolean;
+  motion?: MapMotion;
 }
 
 const EQ_SOURCE = "earthquakes";
 
-export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes = [], markers = [], picked, onPick, legend = true, className, interactive = true }: RadarMapProps) {
+/** MapLibre's CanvasSource reports type "image" (it extends ImageSource): detect it by its playback API. */
+const isCanvasSource = (src: unknown): src is CanvasSource => !!src && typeof (src as CanvasSource).play === "function";
+
+export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes = [], markers = [], picked, onPick, legend = true, className, interactive = true, motion = null }: RadarMapProps) {
   const { t, lang } = useText();
   const online = useOnline();
   const container = useRef<HTMLDivElement>(null);
@@ -46,6 +65,13 @@ export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes =
   const [showQuakes, setShowQuakes] = useState(true);
   const onPickRef = useRef(onPick);
   onPickRef.current = onPick;
+  const overlay = useRef<HTMLCanvasElement>(null);
+  const rasters = useRef(new Map<string, RevealRaster>());
+  const markerEls = useRef<{ el: HTMLElement; lon: number; lat: number }[]>([]);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  /** Raster ids that still wait for their reveal pass. */
+  const pendingReveal = useRef(new Set<string>());
 
   // Create the map once.
   useEffect(() => {
@@ -115,7 +141,7 @@ export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layerKey]);
 
-  // Sync raster layers.
+  // Sync raster layers. Each PNG is drawn into a canvas source so a pass can reveal it.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -126,22 +152,195 @@ export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes =
         if (map.getSource(layer.id)) map.removeSource(layer.id);
       }
     }
+    for (const id of [...rasters.current.keys()]) if (!wanted.has(id)) rasters.current.delete(id);
     const beforeId = map.getLayer("borders") ? "borders" : undefined;
-    // Add in reverse so the first layer ends on top.
-    for (const l of [...layers].reverse()) {
+    const reorder = () => {
+      // The first layer ends on top.
+      for (const l of [...layers].reverse()) if (map.getLayer("r-" + l.id)) map.moveLayer("r-" + l.id, beforeId);
+    };
+    const applyState = (l: RasterLayer) => {
       const id = "r-" + l.id;
+      const st = stateRef.current[l.id];
+      if (!st || !map.getLayer(id)) return;
+      map.setPaintProperty(id, "raster-opacity", st.opacity);
+      map.setLayoutProperty(id, "visibility", st.visible ? "visible" : "none");
+    };
+    for (const l of layers) {
+      const id = "r-" + l.id;
+      if (rasters.current.has(id)) {
+        applyState(l);
+        continue;
+      }
       const [w, s, e, n] = l.bounds;
-      if (!map.getSource(id)) {
-        map.addSource(id, { type: "image", url: l.url, coordinates: [[w, n], [e, n], [e, s], [w, s]] });
-        map.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.85, "raster-fade-duration": 0 } }, beforeId);
-      }
-      const st = state[l.id];
-      if (st) {
-        map.setPaintProperty(id, "raster-opacity", st.opacity);
-        map.setLayoutProperty(id, "visibility", st.visible ? "visible" : "none");
-      }
+      const coordinates: [[number, number], [number, number], [number, number], [number, number]] = [[w, n], [e, n], [e, s], [w, s]];
+      const r = loadRaster(l.url);
+      rasters.current.set(id, r);
+      if (motion?.kind === "pass" && !prefersReducedMotion()) pendingReveal.current.add(id);
+      void r.loaded.then((ok) => {
+        const m = mapRef.current;
+        if (!m || m.getSource(id) || rasters.current.get(id) !== r) return;
+        if (ok) {
+          drawReveal(r, null, pendingReveal.current.has(id) ? 0 : 1);
+          m.addSource(id, { type: "canvas", canvas: r.canvas, coordinates, animate: false });
+        } else {
+          // The image could not be read into a canvas (e.g. cross-origin without CORS): show it as is.
+          pendingReveal.current.delete(id);
+          m.addSource(id, { type: "image", url: l.url, coordinates });
+        }
+        m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.85, "raster-fade-duration": 0 } }, beforeId);
+        reorder();
+        applyState(l);
+      });
     }
+    reorder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layers, ready, state]);
+
+  // Staging over the map (scan while the agent works, pass on a new answer, intro on the home map).
+  const motionKey = motion ? `${motion.kind}:${motion.key}` : "";
+  useEffect(() => {
+    const map = mapRef.current;
+    const canvas = overlay.current;
+    if (!map || !ready || !canvas || !motion) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const reduced = prefersReducedMotion();
+    const pendingSet = pendingReveal.current;
+    const rasterMap = rasters.current;
+    const css = getComputedStyle(document.documentElement);
+    const triplet = (hex: string, fallback: string) => {
+      const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim());
+      return m ? `${parseInt(m[1], 16)} ${parseInt(m[2], 16)} ${parseInt(m[3], 16)}` : fallback;
+    };
+    const style: PassStyle = { ink: triplet(css.getPropertyValue("--ink"), "20 33 43"), accent: triplet(css.getPropertyValue("--accent"), "13 88 115") };
+    let raf = 0;
+    let cancelled = false;
+    const size = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const { clientWidth: w, clientHeight: h } = canvas;
+      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { w, h };
+    };
+    const clear = () => {
+      const { w, h } = size();
+      ctx.clearRect(0, 0, w, h);
+    };
+    const project = (lon: number, lat: number): Pt => {
+      const p = map.project([lon, lat]);
+      return { x: p.x, y: p.y };
+    };
+    const runPass = (g: PassGeometry, duration: number, onFrame?: (t: number, front: number, now: number) => void) =>
+      new Promise<void>((resolve) => {
+        const start = performance.now();
+        const tick = (now: number) => {
+          if (cancelled) return resolve();
+          const t = Math.min(1, (now - start) / duration);
+          clear();
+          const fade = t > 0.85 ? (1 - t) / 0.15 : t < 0.08 ? t / 0.08 : 1;
+          const front = drawPass(ctx, g, t, style, now, fade);
+          onFrame?.(t, front, now);
+          if (t < 1) raf = requestAnimationFrame(tick);
+          else {
+            clear();
+            resolve();
+          }
+        };
+        raf = requestAnimationFrame(tick);
+      });
+    const afterCamera = () =>
+      new Promise<void>((resolve) => {
+        if (!map.isMoving()) return resolve();
+        map.once("moveend", () => resolve());
+      });
+    const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
+
+    void (async () => {
+      if (motion.kind === "scan") {
+        if (reduced) return;
+        const dirs: PassDirection[] = ["ascending", "descending"];
+        for (let i = 0; !cancelled; i++) {
+          const { w, h } = size();
+          const focus = picked ? [project(picked.lon, picked.lat)] : [];
+          await runPass(passCovering(dirs[i % 2], w, h, focus), 2200);
+        }
+        return;
+      }
+
+      if (motion.kind === "pass") {
+        const ids = layers.map((l) => "r-" + l.id);
+        await Promise.all(ids.map((id) => rasters.current.get(id)?.loaded));
+        // Wait for the load handlers to create the sources, then for the camera to settle on the answer.
+        for (let i = 0; i < 120 && !cancelled && ids.some((id) => pendingReveal.current.has(id) && !map.getSource(id)); i++) await nextFrame();
+        await nextFrame();
+        await afterCamera();
+        if (cancelled) return;
+        const pending = ids.filter((id) => pendingReveal.current.has(id));
+        const targets = pending.filter((id) => isCanvasSource(map.getSource(id)));
+        const sources = targets.map((id) => map.getSource(id) as CanvasSource);
+        const reveal = (t: number) => pending.forEach((id) => { const r = rasters.current.get(id); if (r) drawReveal(r, motion.direction, t); });
+        const finish = () => {
+          reveal(1);
+          sources.forEach((src) => src.play());
+          void nextFrame().then(nextFrame).then(() => sources.forEach((src) => src.pause()));
+          pending.forEach((id) => pendingReveal.current.delete(id));
+        };
+        if (reduced || !targets.length) return finish();
+        // The pass spans the top raster's footprint, so the beam front matches the reveal line.
+        const top = layers.find((l) => targets.includes("r-" + l.id)) ?? layers[0];
+        const [w0, s0, e0, n0] = top.bounds;
+        const corners = [project(w0, n0), project(e0, n0), project(e0, s0), project(w0, s0)];
+        const { w, h } = size();
+        const g = passCovering(motion.direction, w, h, corners);
+        const along = corners.map((c) => alongOf(g, c));
+        g.along = [Math.min(...along), Math.max(...along)];
+        sources.forEach((src) => src.play());
+        await runPass(g, STAGE.reveal, (t) => reveal(t));
+        return finish();
+      }
+
+      // intro
+      if (reduced) return;
+      await afterCamera();
+      await nextFrame();
+      if (cancelled) return;
+      const pts = markerEls.current.map((m) => ({ ...m, p: project(m.lon, m.lat) }));
+      const { w, h } = size();
+      const g = passCovering("descending", w, h, pts.map((m) => m.p));
+      const crossed = new Map<number, number>();
+      await runPass(g, STAGE.intro, (_t, front, now) => {
+        pts.forEach((m, i) => {
+          if (!crossed.has(i) && alongOf(g, m.p) <= front) {
+            crossed.set(i, now);
+            m.el.classList.add("marker-echo");
+          }
+          const at = crossed.get(i);
+          if (at != null) drawEcho(ctx, m.p, now - at, style);
+        });
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      clear();
+      // An interrupted reveal never leaves a raster hidden: show it whole.
+      for (const id of pendingSet) {
+        const r = rasterMap.get(id);
+        const src = mapRef.current?.getSource(id) as CanvasSource | undefined;
+        if (r) drawReveal(r, null, 1);
+        if (isCanvasSource(src)) {
+          src.play();
+          requestAnimationFrame(() => requestAnimationFrame(() => src.pause()));
+        }
+      }
+      pendingSet.clear();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [motionKey, ready]);
 
   // Earthquakes overlay.
   useEffect(() => {
@@ -184,9 +383,13 @@ export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes =
         e.stopPropagation();
         mk.onSelect?.();
       });
-      return new maplibregl.Marker({ element: el }).setLngLat([mk.lon, mk.lat]).addTo(map);
+      return { marker: new maplibregl.Marker({ element: el }).setLngLat([mk.lon, mk.lat]).addTo(map), el, mk };
     });
-    return () => created.forEach((m) => m.remove());
+    markerEls.current = created.map(({ el, mk }) => ({ el, lon: mk.lon, lat: mk.lat }));
+    return () => {
+      created.forEach(({ marker }) => marker.remove());
+      markerEls.current = [];
+    };
   }, [markers, ready]);
 
   // Picked point.
@@ -222,6 +425,7 @@ export default function RadarMap({ ariaLabel, bounds, layers = [], earthquakes =
     <div className={cn("relative isolate overflow-hidden bg-[#d9e3e9]", className)}>
       {/* Inline position: maplibre-gl.css forces .maplibregl-map to position:relative. */}
       <div ref={container} style={{ position: "absolute", inset: 0 }} role="region" aria-label={ariaLabel} />
+      <canvas ref={overlay} aria-hidden className="pointer-events-none absolute inset-0 z-[1] size-full" />
       {failed && <p className="absolute inset-0 grid place-items-center p-6 text-center text-sm text-ink-2">{t("map.noWebgl")}</p>}
       {startedOffline && !failed && (
         <p className="absolute start-2 top-2 rounded-sm bg-white/90 px-2 py-1 text-xs text-ink-2 shadow-sm">{t("map.offlineBase")}</p>

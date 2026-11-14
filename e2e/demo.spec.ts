@@ -3,7 +3,7 @@
  * Run before going on stage:  npm run e2e:demo
  */
 import { expect, test } from "@playwright/test";
-import { DEMO, waitForMap, watchConsole } from "./helpers";
+import { DEMO, STAGE_MAX_MS, waitForMap, watchConsole } from "./helpers";
 
 test("demo path: Panama → discoveries → Al Wahda → watch → L/C proof → live SME2", async ({ page }, info) => {
   const errors = watchConsole(page);
@@ -33,7 +33,7 @@ test("demo path: Panama → discoveries → Al Wahda → watch → L/C proof →
     await expect(page.locator("#steps-list li").first()).toBeVisible();
     await expect(page.locator("#verdict")).toBeVisible();
     timings["panama_answer_ms"] = Date.now() - start;
-    expect(timings["panama_answer_ms"], "precomputed answer must come out in under a second").toBeLessThan(1_000);
+    expect(timings["panama_answer_ms"], "staged precomputed answer stays under four seconds").toBeLessThan(STAGE_MAX_MS);
     await expect(page.getByRole("checkbox", { name: /Déplacement/ })).toBeChecked();
     await expect(page.getByRole("checkbox", { name: /Perte de cohérence/ })).toBeVisible();
     await expect(page.getByRole("checkbox", { name: /Séismes USGS/ })).toBeChecked();
@@ -57,7 +57,7 @@ test("demo path: Panama → discoveries → Al Wahda → watch → L/C proof →
     await nav.getByRole("link", { name: "Enquête", exact: true }).click();
     const ms = await ask(DEMO.alWahda.fr);
     timings["alwahda_answer_ms"] = ms;
-    expect(ms, "precomputed answer must come out in under a second").toBeLessThan(1_000);
+    expect(ms, "staged precomputed answer stays under four seconds").toBeLessThan(STAGE_MAX_MS);
     await expect(page.getByText("Stable dans le bruit").first()).toBeVisible();
     await expect(page.getByText(/Incertitude \(±/).first()).toBeVisible();
   });

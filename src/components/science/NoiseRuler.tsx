@@ -28,11 +28,11 @@ export function NoiseRuler({ m, threshold, extent, label }: NoiseRulerProps) {
   return (
     <div dir="ltr" role="img" aria-label={desc} className="relative h-4 w-full">
       <div className="absolute inset-x-[2%] top-1/2 h-px bg-line-strong" />
-      <div className="absolute inset-y-0.5 bg-[var(--noise-band)]" style={{ left: pos(-threshold) + "%", width: pos(threshold) - pos(-threshold) + "%" }} />
+      <div className="ruler-band absolute inset-y-0.5 bg-[var(--noise-band)]" style={{ left: pos(-threshold) + "%", width: pos(threshold) - pos(-threshold) + "%" }} />
       <div className="absolute inset-y-0 left-1/2 w-px bg-muted" />
-      <div className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-ink" style={{ left: lo + "%", width: Math.max(0.5, hi - lo) + "%" }} />
+      <div className="ruler-whisker absolute top-1/2 h-0.5 -translate-y-1/2 bg-ink" style={{ left: lo + "%", width: Math.max(0.5, hi - lo) + "%" }} />
       <div
-        className={"absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink " + (clears ? "bg-accent" : "bg-surface")}
+        className={"ruler-dot absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink " + (clears ? "is-clear bg-accent" : "bg-surface")}
         style={{ left: pos(m.value) + "%" }}
       />
     </div>

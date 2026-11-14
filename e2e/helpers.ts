@@ -20,3 +20,6 @@ export const DEMO = {
   alWahda: { fr: "Le barrage se déforme-t-il depuis juin ?" },
   gharb: { fr: "Mes champs du Gharb sont-ils saturés ?" },
 };
+
+/** Answers are always staged (steps, then the pass that reveals the rasters); the whole sequence stays under four seconds. */
+export const STAGE_MAX_MS = 4_000;

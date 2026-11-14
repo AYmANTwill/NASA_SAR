@@ -7,6 +7,7 @@ import { ConfidenceBadge, LevelBadge } from "@/components/science/badges";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState, Loading } from "@/components/states";
 import { useText } from "@/i18n/useText";
+import { OrbitClock } from "./OrbitClock";
 import { daysUntil } from "@/lib/dates";
 import { formatDate, formatDateTime } from "@/lib/format";
 
@@ -84,6 +85,8 @@ function WatchCard({ watch }: { watch: Watch }) {
         <LevelBadge level={watch.level} />
       </div>
       <p className="text-sm text-ink-2">{t(`level.desc.${watch.level ?? "none"}`)}</p>
+      <div className="flex items-center gap-4">
+      {watch.last_pass && <OrbitClock lastPass={watch.last_pass} nextPass={watch.next_pass} />}
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
         <dt className="text-ink-2">{t("watch.nextPass")}</dt>
         <dd>
@@ -103,6 +106,7 @@ function WatchCard({ watch }: { watch: Watch }) {
           </>
         )}
       </dl>
+      </div>
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
         {watch.answer_id && (
           <Button asChild variant="outline" size="sm">
