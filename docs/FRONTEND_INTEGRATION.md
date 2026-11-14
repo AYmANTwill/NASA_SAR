@@ -1,22 +1,36 @@
 # Running the interface with the real backend
 
-The interface lives in its own repo: https://github.com/houssam-bough/nasa-the-sar-front-end
-It validates every response with its own contract (`src/api/contract.ts`). The backend serves that
-contract under `/api` (`backend/api_v2.py`), next to the original routes, which are unchanged.
+The interface is in `frontend/` of this repo. It was imported with its full history from
+https://github.com/houssam-bough/nasa-the-sar-front-end (`git subtree`), and that repo is no longer where work
+happens.
+
+The frontend validates every response with its own contract (`frontend/src/api/contract.ts`). The backend serves
+that contract under `/api` (`backend/api_v2.py`), next to the original routes, which are unchanged.
 All 77 responses produced on synthetic data match the frontend schemas (see `tools/frontend_contract/`),
 and the three demo questions were checked in the real interface in Chrome.
 
-## Start both (two terminals)
+## Start both (two terminals, from the repo root)
 ```
-# 1. backend, from NASA_SAR\backend
-python -m uvicorn api:app --port 8000
+# 1. backend on 127.0.0.1:8000
+cd backend
+python -m uvicorn api:app --host 127.0.0.1 --port 8000
 
-# 2. frontend, from the frontend repo
-npm install
-npm run dev:api          # Vite proxies /api to http://127.0.0.1:8000
+# 2. frontend
+cd frontend
+npm ci                   # first time, or after package-lock.json changes
+npm run dev:api          # Vite proxies /api to http://127.0.0.1:8000 (VITE_API_PROXY overrides it)
 ```
-Open the address Vite prints (http://127.0.0.1:5173). Offline demo: set `NISAR_OFFLINE=1` before
-starting the backend, and run `python precompute.py` first so the event answers are cached.
+Open the address Vite prints (http://127.0.0.1:5173).
+- `npm run dev` (fixtures mode) runs the interface on synthetic data without the backend. A "test data" banner is
+  shown.
+- Offline demo: set `NISAR_OFFLINE=1` before starting the backend, and run `python precompute.py` first so the
+  event answers are cached.
+
+## Frontend checks (from `frontend/`)
+```
+npm run typecheck        # tsc --noEmit
+npm test                 # vitest
+```
 
 ## What the adapter does
 | frontend route | served from |
