@@ -77,9 +77,10 @@ def same3(template: str, s: str) -> dict:
 
 
 def meas(value, uncertainty, unit: str, sigma: float = 1) -> dict | None:
+    """A Measurement, or None when the value or its uncertainty is unknown: no measurement without its σ."""
     try:
         v = float(value)
-        u = abs(float(uncertainty)) if uncertainty is not None else 0.0
+        u = abs(float(uncertainty))
     except (TypeError, ValueError):
         return None
     if v != v or u != u:              # NaN
@@ -87,8 +88,46 @@ def meas(value, uncertainty, unit: str, sigma: float = 1) -> dict | None:
     return {"value": round(v, 6), "uncertainty": round(u, 6), "unit": unit, "sigma": sigma}
 
 
+def value_only(value, unit: str) -> dict | None:
+    """A quantity that has no σ of its own: a noise floor (it is a σ), an exact pixel count, or an external
+    reference given without one. uncertainty 0 = "not applicable"; the frontend then prints the value alone."""
+    return meas(value, 0, unit)
+
+
 def _fid(products_ids):
     return [p for p in (catalog.by_id(i) for i in products_ids) if p]
+
+
+PRODUCT_ID = re.compile(r"_T(\d{3})_F(\d{3})_(\d{8})_(\d{8})$")      # catalog.Product.id
+FACT_DATES = ("date_before", "date_after", "pre_date_before", "pre_date_after", "first_date", "last_date",
+              "latest_date")
+
+
+def _fact_rows(f: dict) -> list[dict]:
+    """The facts and the per-geometry results they carry (pairs, time series, damage geometries)."""
+    rows = [f]
+    for key in ("pairs", "series", "geometries"):
+        rows += [r for r in (f.get(key) or []) if isinstance(r, dict)]
+    return rows
+
+
+def geometry_from_facts(f: dict, product_ids: list[str]) -> tuple[list[dict], list[str]]:
+    """(tracks, acquisition dates) when the products are not in the local catalog (recorded answers, demo
+    machine): from the track / frame / direction / dates the recipes put in the facts, and the dates in the ids."""
+    tracks, seen, dates = [], set(), set()
+    for r in _fact_rows(f):
+        if r.get("direction") in ("ascending", "descending") and isinstance(r.get("track"), int):
+            frame = r.get("frame") if isinstance(r.get("frame"), int) else None
+            if (r["track"], frame) not in seen:
+                seen.add((r["track"], frame))
+                tracks.append({"number": r["track"], "direction": r["direction"], "frame": frame})
+        dates |= {iso(r.get(k)) for k in FACT_DATES}
+        dates |= {iso(pt.get("date")) for pt in (r.get("series") or []) if isinstance(pt, dict)}
+    for pid in product_ids:
+        m = PRODUCT_ID.search(str(pid))
+        if m:
+            dates |= {iso(m.group(3)), iso(m.group(4))}
+    return tracks, sorted(d for d in dates if d)
 
 
 def api_error(code: str, status: int, fr: str, en: str, ar: str) -> JSONResponse:
@@ -131,27 +170,23 @@ def _metrics(qtype: str, f: dict) -> list[dict]:
     if qtype == "sudden_motion":
         add("los_displacement_max", meas(f.get("value_cm"), f.get("noise_cm"), "cm"))
         dec = f.get("decomposition_cm") or {}
-        if dec:
-            u = (f.get("noise_cm") or 0) * 1.5      # propagated through the 2x2 asc/desc system (approximate)
-            add("vertical_displacement", meas(dec.get("up"), u, "cm"))
-            add("east_west_displacement", meas(dec.get("east"), u, "cm"))
-        add("noise_floor", meas(f.get("noise_cm"), 0, "cm"))
+        add("vertical_displacement", meas(dec.get("up"), dec.get("sigma_up"), "cm"))      # σ from decompose.combine
+        add("east_west_displacement", meas(dec.get("east"), dec.get("sigma_east"), "cm"))
+        add("noise_floor", value_only(f.get("noise_cm"), "cm"))
     elif qtype == "slow_motion":
         if f.get("velocity_mm_yr") is not None:
-            add("velocity", meas(f["velocity_mm_yr"], f.get("velocity_sigma") or 0, "mm/yr"))
+            add("velocity", meas(f["velocity_mm_yr"], f.get("velocity_sigma"), "mm/yr"))
             dec = f.get("decomposition_mm_yr") or {}
-            if dec:
-                u = (f.get("velocity_sigma") or 0) * 1.5
-                add("vertical_velocity", meas(dec.get("up"), u, "mm/yr"))
-                add("east_west_velocity", meas(dec.get("east"), u, "mm/yr"))
+            add("vertical_velocity", meas(dec.get("up"), dec.get("sigma_up"), "mm/yr"))
+            add("east_west_velocity", meas(dec.get("east"), dec.get("sigma_east"), "mm/yr"))
             if f.get("acceleration") is not None:
-                add("acceleration", meas(f["acceleration"], f.get("acceleration_sigma") or 0, "mm/yr2"))
+                add("acceleration", meas(f["acceleration"], f.get("acceleration_sigma"), "mm/yr2"))
         else:                                       # under 12 months: cumulative change only, never a rate
             add("los_displacement_max", meas(f.get("total_mm"), f.get("noise_mm"), "mm"))
-        add("noise_floor", meas(f.get("noise_mm"), 0, "mm"))
+        add("noise_floor", value_only(f.get("noise_mm"), "mm"))
     elif qtype == "surface_change":
         rng = f.get("changed_km2_range") or []
-        u = (rng[1] - rng[0]) / 2 if len(rng) == 2 and None not in rng else 0
+        u = (rng[1] - rng[0]) / 2 if len(rng) == 2 and None not in rng else None   # no range: no metric
         add("coherence_loss_area", meas(f.get("changed_km2_5km"), u, "km2"))
     elif qtype == "soil_moisture":
         add("soil_moisture", meas(f.get("latest_m3m3"), f.get("uncertainty_m3m3"), "m3/m3"))
@@ -193,11 +228,11 @@ def _checks(qtype: str, f: dict) -> list[dict]:
     noise = f.get("noise_cm") if qtype == "sudden_motion" else f.get("noise_mm") if qtype == "slow_motion" else None
     unit = "cm" if qtype == "sudden_motion" else "mm"
     if phase and noise is not None:
-        x = meas(noise, 0, unit)
+        x = value_only(noise, unit)
         checks.append({"id": "noise_floor", "status": "pass", "measurement": x,
                        "detail": tt("check.noise_floor", {"noise": x})})
     elif qtype == "soil_moisture" and f.get("uncertainty_m3m3") is not None:
-        x = meas(f["uncertainty_m3m3"], 0, "m3/m3")
+        x = value_only(f["uncertainty_m3m3"], "m3/m3")
         checks.append({"id": "noise_floor", "status": "warn" if f.get("within_uncertainty") else "pass",
                        "measurement": x, "detail": tt("check.noise_floor", {"noise": x})})
     else:
@@ -205,7 +240,7 @@ def _checks(qtype: str, f: dict) -> list[dict]:
     # coherence mask
     masked = f.get("masked") if qtype == "sudden_motion" else (1 - f["coverage_5km"]) if f.get("coverage_5km") is not None else None
     if masked is not None:
-        pct = meas(100 * masked, 0, "percent")
+        pct = value_only(100 * masked, "percent")
         checks.append({"id": "coherence_mask", "status": "pass" if masked < 0.3 else "warn" if masked < 0.6 else "fail",
                        "measurement": pct, "detail": tt("check.coherence_mask", {"fraction": pct, "threshold": 0.3})})
     else:
@@ -248,8 +283,9 @@ def _evidence(ev_list: list[dict]) -> tuple[list[dict], list[dict]]:
         summary = e.get("summary") or ""
         url = None
         if status == "unavailable":
-            s = tt("backend.evidence.unavailable", {}, f"Source indisponible : {summary}",
-                   f"Source unavailable: {summary}", f"المصدر غير متاح: {summary}")
+            name = e.get("source")                 # proper noun; the error detail stays in English only
+            s = tt("backend.evidence.unavailable", {}, f"Source indisponible : {name}.",
+                   f"Source unavailable: {summary}", f"المصدر غير متاح: {name}.")
         elif src == "usgs":
             items = e.get("items") or []
             if items:
@@ -267,7 +303,7 @@ def _evidence(ev_list: list[dict]) -> tuple[list[dict], list[dict]]:
             else:
                 s = tt("evidence.usgs.none", {"radius": 150})
         elif src == "open_meteo" and e.get("total_mm") is not None:
-            s = tt("evidence.open_meteo.rain", {"rain": meas(e["total_mm"], 0, "mm"), "days": len(e.get("items") or [])})
+            s = tt("evidence.open_meteo.rain", {"rain": value_only(e["total_mm"], "mm"), "days": len(e.get("items") or [])})
         else:
             s = same3(f"backend.evidence.{src}", summary)
         out.append({"source": src, "agreement": status, "summary": s, "url": url, "retrieved_at": now_iso()})
@@ -290,6 +326,8 @@ def _layers(layers: list[dict], period: dict | None) -> list[dict]:
         if not lay or not lay.get("url"):
             continue
         name = lay["url"].split("/")[-1]
+        if not (CACHE_DIR / "layers" / name).is_file():     # served from there; never list a 404
+            continue
         kind, unit, pal = next(((k, u, p) for pre, k, u, p in LAYER_KIND if name.startswith(pre)),
                                ("displacement", "cm", "diverging_displacement"))
         (s, w), (n, e) = lay["bounds"]
@@ -385,6 +423,8 @@ def to_answer(resp: dict, aid: str, question: str, lang: str, name_i18n: dict | 
             seen.add((p.track, p.frame))
             tracks.append({"number": p.track, "direction": p.direction, "frame": p.frame})
     acq = sorted({d for p in used for d in (iso(p.ref), iso(p.sec)) if d})
+    if not used and ok:                       # products not in the local catalog: what the facts say
+        tracks, acq = geometry_from_facts(f, resp.get("data_used") or [])
     period = {"start": acq[0], "end": acq[-1]} if acq else {"start": date.today().isoformat(), "end": date.today().isoformat()}
     place = resp.get("place") or {}
     v = _verdicts(qtype, f, ok)

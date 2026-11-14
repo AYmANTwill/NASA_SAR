@@ -596,6 +596,47 @@ try:
 except cs.CaseInputError:
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", True)
 
+# --- api_v2: Houssam's notes (frontend/docs/API_CONTRACT.md, "What I noticed") ------------------------------
+import api_v2  # noqa: E402
+
+check("api_v2: no Measurement without its uncertainty; a σ / exact count is value_only (uncertainty 0)",
+      api_v2.meas(1.0, None, "cm") is None and api_v2.meas(1.0, 0.2, "cm")["uncertainty"] == 0.2
+      and api_v2.value_only(0.4, "cm") == {"value": 0.4, "uncertainty": 0.0, "unit": "cm", "sigma": 1})
+mets = {m["id"] for m in api_v2._metrics("slow_motion", {"velocity_mm_yr": 3.0, "velocity_sigma": None,
+                                                         "decomposition_mm_yr": {"up": 1.0, "east": 2.0}})}
+mets2 = {m["id"]: m["measurement"] for m in api_v2._metrics("sudden_motion", {
+    "value_cm": 10.0, "noise_cm": 0.5, "decomposition_cm": {"up": -3.0, "east": 4.0, "sigma_up": 0.7, "sigma_east": 0.9}})}
+check("api_v2: velocity / vertical / east-west only with a σ that was computed (no hand factor)",
+      "velocity" not in mets and "vertical_velocity" not in mets
+      and mets2["vertical_displacement"]["uncertainty"] == 0.7 and mets2["east_west_displacement"]["uncertainty"] == 0.9)
+check("api_v2: coherence-loss area without its range is not reported",
+      api_v2._metrics("surface_change", {"changed_km2_5km": 2.0}) == []
+      and api_v2._metrics("surface_change", {"changed_km2_5km": 2.0, "changed_km2_range": [1.0, 3.0]})[0]
+      ["measurement"]["uncertainty"] == 1.0)
+(CACHE_DIR / "layers").mkdir(parents=True, exist_ok=True)
+(CACHE_DIR / "layers" / "disp_ok.png").write_bytes(bytes([0x89]) + b"PNG" + bytes([13, 10, 26, 10]))
+lays = api_v2._layers([{"url": "/layers/disp_ok.png", "bounds": [[7, -81], [8, -80]], "vmin": -1, "vmax": 1},
+                       {"url": "/layers/disp_gone.png", "bounds": [[7, -81], [8, -80]], "vmin": -1, "vmax": 1}], None)
+check("api_v2: a layer whose PNG is not on disk is omitted", [x["id"] for x in lays] == ["disp_ok"], lays)
+ev_un, _ = api_v2._evidence([{"source": "OpenStreetMap", "status": "unavailable",
+                              "summary": "OpenStreetMap unreachable (Read timed out)"}])
+txt = ev_un[0]["summary"]["text"]
+check("api_v2: an unavailable source keeps the English error out of the FR / AR prose",
+      "unreachable" not in txt["fr"] and "unreachable" not in txt["ar"] and "unreachable" in txt["en"], txt)
+facts_sm = {"value_cm": 12.0, "noise_cm": 0.5, "date_before": "20261005", "date_after": "20261017",
+            "pairs": [{"product": "GUNW_T004_F012_20261005_20261017", "track": 4, "frame": 12, "direction": "ascending",
+                       "date_before": "20261005", "date_after": "20261017"},
+                      {"product": "GUNW_T141_F070_20260927_20261009", "track": 141, "frame": 70,
+                       "direction": "descending", "date_before": "20260927", "date_after": "20261009"}]}
+ans = api_v2.to_answer({"type": "sudden_motion", "facts": facts_sm, "place": {},
+                        "data_used": ["GUNW_T004_F012_20261005_20261017", "GUNW_T141_F070_20260927_20261009"]},
+                       "a-test", "q", "fr")
+check("api_v2: products absent from the local catalog -> tracks, acquisitions and period from the facts and ids",
+      ans["tracks"] == [{"number": 4, "direction": "ascending", "frame": 12},
+                        {"number": 141, "direction": "descending", "frame": 70}]
+      and ans["acquisitions"] == ["2026-09-27", "2026-10-05", "2026-10-09", "2026-10-17"]
+      and ans["period"] == {"start": "2026-09-27", "end": "2026-10-17"}, (ans["tracks"], ans["acquisitions"]))
+
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
 sys.exit(0 if passed == len(results) else 1)
