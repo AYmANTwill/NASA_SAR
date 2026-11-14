@@ -43,7 +43,7 @@ export function isKnownError(error: unknown): error is KnownError {
  * Error codes that describe a state of the service, not a failure: the
  * interface shows them as information (DESIGN.md, PLAN.md section 3).
  */
-export const INFORMATION_CODES: ReadonlySet<string> = new Set(["discoveries_disabled", "not_available"]);
+export const INFORMATION_CODES: ReadonlySet<string> = new Set(["discoveries_disabled", "not_available", "not_in_demo", "read_only"]);
 
 /** Validates a response; on mismatch, throws a ContractError and nothing of the data is used. */
 export function parseWith<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, data: unknown, endpoint: string): T {

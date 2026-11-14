@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useDemo } from "@/demo/DemoContext";
 import { LANGS, LANG_NAMES, pathInLang, type Lang } from "@/i18n";
+import { formatDate } from "@/i18n/format";
 import "./AppShell.css";
 
 const SECTIONS = [
@@ -33,6 +35,7 @@ export function AppShell({ lang }: { lang: Lang }) {
   const { t } = useTranslation();
   const { pathname, search, hash } = useLocation();
   const online = useOnline();
+  const demo = useDemo();
 
   return (
     <>
@@ -74,7 +77,12 @@ export function AppShell({ lang }: { lang: Lang }) {
           </ul>
         </nav>
       </header>
-      {!online && (
+      {demo && (
+        <p className={`shell-demo shell-demo-${demo.kind}`} role="note">
+          {t(`demo.banner.${demo.kind}`, { date: formatDate(demo.generatedAt, lang) })}
+        </p>
+      )}
+      {!online && !demo && (
         <p className="shell-offline" role="status">
           {t("shell.offline")}
         </p>

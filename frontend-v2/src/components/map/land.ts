@@ -8,10 +8,10 @@ let cache: Promise<Ring[]> | null = null;
 
 /**
  * Natural Earth land (1:50m, from world-atlas), bundled so the map works
- * offline. Loaded on first use, as its own chunk.
+ * offline. Loaded on first use, from the same chunk as the map's basemap.
  */
 export function loadLand(): Promise<Ring[]> {
-  cache ??= import("world-atlas/land-50m.json").then((module) => {
+  cache ??= import("world-atlas/countries-50m.json").then((module) => {
     const topo = (module.default ?? module) as unknown as Topology<{ land: GeometryCollection }>;
     const land = feature(topo, topo.objects.land);
     const rings: Ring[] = [];

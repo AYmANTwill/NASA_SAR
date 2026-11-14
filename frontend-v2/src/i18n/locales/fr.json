@@ -342,5 +342,11 @@
     "demoNote": "Pour montrer à quoi ressemble une alerte. Le message porte la mention SIMULATION dans les trois langues ; ce n’est pas une mesure.",
     "demoLevel": "Niveau simulé",
     "demoRun": "Simuler"
+  },
+  "demo": {
+    "banner": {
+      "demo": "Démo hors ligne : réponses du serveur NISAR Pulse enregistrées le {{date}}.",
+      "rehearsal": "RÉPÉTITION, pas pour le jury : cette version hors ligne contient des cas brouillons (enregistrée le {{date}})."
+    }
   }
 }

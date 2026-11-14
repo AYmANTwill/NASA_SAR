@@ -342,5 +342,11 @@
     "demoNote": "To show what an alert looks like. The message says SIMULATION in all three languages; it is not a measurement.",
     "demoLevel": "Simulated level",
     "demoRun": "Simulate"
+  },
+  "demo": {
+    "banner": {
+      "demo": "Offline demo: answers from the NISAR Pulse server, recorded on {{date}}.",
+      "rehearsal": "REHEARSAL, not for the jury: this offline build contains draft cases (recorded on {{date}})."
+    }
   }
 }

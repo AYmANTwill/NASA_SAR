@@ -20,7 +20,9 @@
     "check.unwrapping.ok": "Aucun saut de phase détecté entre composantes connexes.",
     "check.ionosphere.applied": "La correction ionosphérique fournie avec le produit a été appliquée.",
     "check.coherence_mask": "{{fraction}} des pixels sont sous le seuil de cohérence ({{threshold}}) et sont masqués.",
-    "check.noise_floor": "Dispersion mesurée sur une zone de référence stable : {{noise}}."
+    "check.noise_floor": "Dispersion mesurée sur une zone de référence stable : {{noise}}.",
+    "demo.not_in_demo": "Pas disponible dans la démo hors ligne : seules les questions et pages enregistrées depuis le serveur le sont. Posez une des questions de démonstration.",
+    "demo.read_only": "La démo hors ligne ne modifie rien : les surveillances se créent avec le serveur en ligne."
   },
   "term": {
     "recipe.sudden_motion": "mouvement brusque du sol",

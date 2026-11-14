@@ -123,3 +123,19 @@
     margin-inline: calc(-1 * var(--space-3));
   }
 }
+
+/* Offline demo: always says where the answers come from and when they were recorded. */
+.shell-demo {
+  max-inline-size: none;
+  margin: 0;
+  padding: var(--space-2) var(--gutter);
+  border-block-end: 1px solid var(--ink);
+  background: var(--sheet);
+  font-size: var(--step--1);
+  font-weight: 500;
+}
+
+.shell-demo-rehearsal {
+  background: repeating-linear-gradient(-45deg, var(--sheet) 0 8px, var(--hatch) 8px 11px), var(--sheet);
+  font-weight: 700;
+}

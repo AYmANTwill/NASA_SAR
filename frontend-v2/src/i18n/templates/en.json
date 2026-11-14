@@ -20,7 +20,9 @@
     "check.unwrapping.ok": "No phase jump detected between connected components.",
     "check.ionosphere.applied": "The ionospheric correction shipped with the product was applied.",
     "check.coherence_mask": "{{fraction}} of pixels fall below the coherence threshold ({{threshold}}) and are masked.",
-    "check.noise_floor": "Spread measured over a stable reference area: {{noise}}."
+    "check.noise_floor": "Spread measured over a stable reference area: {{noise}}.",
+    "demo.not_in_demo": "Not available in the offline demo: only the questions and pages recorded from the server are. Ask one of the demonstration questions.",
+    "demo.read_only": "The offline demo changes nothing: watches are created with the server online."
   },
   "term": {
     "recipe.sudden_motion": "sudden ground motion",

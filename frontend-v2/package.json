@@ -11,7 +11,12 @@
     "lint": "eslint .",
     "test": "vitest run",
     "e2e": "playwright test",
+    "e2e:demo": "playwright test --config playwright.demo.config.ts",
     "sync:contract": "node scripts/sync-contract.mjs",
+    "snapshot": "vite-node scripts/snapshot.ts",
+    "build:demo": "vite-node scripts/check-demo.ts && tsc --noEmit && vite build --mode demo",
+    "build:rehearsal": "vite-node scripts/check-demo.ts -- --allow-drafts && tsc --noEmit && vite build --mode rehearsal",
+    "preview:demo": "vite preview --mode demo --outDir dist-demo --host 127.0.0.1 --port 4311 --strictPort",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
@@ -47,6 +52,7 @@
     "typescript": "5.7.3",
     "typescript-eslint": "8.72.2",
     "vite": "6.4.6",
+    "vite-node": "3.2.4",
     "vitest": "3.2.7"
   }
 }
