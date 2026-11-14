@@ -174,7 +174,10 @@ function Findings({ c }: { c: CaseStudy }) {
               {c.findings.map((f) => (
                 <tr key={f.id} className="border-t border-line align-top">
                   <th scope="row" className="px-3 py-2 text-start font-medium">{localized(f.label, lang)}</th>
-                  <td className="px-3 py-2"><MeasurementText m={f.nisar} /></td>
+                  <td className="px-3 py-2">
+                    {/* A NISAR value without uncertainty is a draft placeholder (a final case requires one): never shown as a measurement. */}
+                    {f.nisar.uncertainty > 0 ? <MeasurementText m={f.nisar} /> : <span className="text-ink-2">{t("cases.notMeasuredYet")}</span>}
+                  </td>
                   <td className="px-3 py-2">
                     {f.reference ? <MeasurementText m={f.reference} /> : <span className="text-ink-2">{t("cases.notMeasured")}</span>}
                     {f.reference_source && (
@@ -219,7 +222,12 @@ function Exposure({ exposure }: { exposure: NonNullable<CaseStudy["exposure"]> }
           </div>
         ))}
       </dl>
-      <p className="text-xs text-ink-2">{t("cases.exposureSource", { source: exposure.source })}</p>
+      <p className="text-xs text-ink-2">
+        <a href={exposure.source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 underline underline-offset-2 hover:text-ink">
+          {t("cases.exposureSource", { source: exposure.source.name })}
+          <ExternalLink className="size-3" aria-hidden />
+        </a>
+      </p>
     </section>
   );
 }

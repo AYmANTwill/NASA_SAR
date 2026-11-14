@@ -511,6 +511,7 @@
     "notMeasured": "pas mesuré",
     "figures": "Figures",
     "openAnswer": "Ouvrir dans l’enquêteur",
-    "answers": "Réponses de l’agent"
+    "answers": "Réponses de l’agent",
+    "notMeasuredYet": "pas encore mesuré"
   }
 }

@@ -510,6 +510,7 @@
     "notMeasured": "not measured",
     "figures": "Figures",
     "openAnswer": "Open in the investigator",
-    "answers": "Agent answers"
+    "answers": "Agent answers",
+    "notMeasuredYet": "not measured yet"
   }
 }
