@@ -26,3 +26,33 @@ publication apart to draw them on separate rows.
 
 - **Ask:** `kind: "event" | "acquisition" | "publication"` on each item.
 - **Until then:** all items are drawn on one row with their labels.
+
+## 4. English inside French and Arabic texts (answers)
+
+Seen on live `/api/ask` and `/api/answers/*` (backend with no NISAR data on this machine):
+
+- `verdict.text.fr` / `.ar` end with an English sentence from the agent, for example
+  "… ne permet encore de répondre ici. needs an earlier pair and a pair of the same length on the same track …".
+- Step summaries sent as `backend.step` carry the same English text in all three languages
+  ("found 0 interferograms covering the point"), and the failed step's `error` is "failed" in all three.
+
+- **Ask:** the reason in the page language (or a template id with parameters, like `step.search_scenes`, which the
+  interface already renders in FR/EN/AR).
+- **Until then:** the interface shows the backend's text as it is; it does not translate or hide it.
+
+## 5. Answer period when no data was used
+
+An answer with no NISAR product (`acquisitions: []`, `tracks: []`) has `period: {start: <today>, end: <today>}`.
+Shown as is, it reads as "measured today".
+
+- **Ask:** `period: null` when nothing was measured (the contract would need `period` nullable), or the period
+  actually searched.
+- **Until then:** the period is shown as sent, next to "Acquisitions: none".
+
+## 6. Alert level is not in the contract
+
+The answers carry `x_alert_level`, which the contract's `Answer` does not have (zod drops unknown keys), so the
+interface cannot show it. Watches have `level`, answers do not.
+
+- **Ask (contract change, Ayman + Houssam):** add `alert_level: "yellow" | "orange" | "red" | null` to `Answer`.
+- **Until then:** no alert level is shown on an answer; the interface never derives one.

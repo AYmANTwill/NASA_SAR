@@ -17,7 +17,9 @@ export const LANGS = ["fr", "en", "ar"] as const;
 
 /** Waits until MapLibre has drawn everything (RadarMap sets data-idle on its "idle" event). */
 export async function waitForMap(page: Page): Promise<void> {
-  await expect(page.locator('.radar-map-canvas[data-idle="true"]')).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator('.radar-map-canvas[data-idle="true"]').first()).toBeVisible({ timeout: 20_000 });
+  // Every map on the page, not just the first one.
+  await expect(page.locator('.radar-map-canvas:not([data-idle="true"])')).toHaveCount(0, { timeout: 20_000 });
 }
 
 /**

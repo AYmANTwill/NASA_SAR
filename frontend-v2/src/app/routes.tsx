@@ -4,6 +4,8 @@ import { Link, Navigate, useParams, useRoutes, type RouteObject } from "react-ro
 import { applyDocumentLang, i18nFor, isLang, preferredLang, type Lang } from "@/i18n";
 import { CasesPage } from "@/features/cases/CasesPage";
 import { CaseView } from "@/features/cases/CaseView";
+import { AnswerPage } from "@/features/investigate/AnswerPage";
+import { AskPage } from "@/features/investigate/AskPage";
 import { StatusPage } from "@/features/status/StatusPage";
 import { AppShell } from "./AppShell";
 import { useDocumentTitle } from "./useDocumentTitle";
@@ -67,7 +69,8 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <LangGate><CasesPage /></LangGate> },
       { path: "cases/:id", element: <LangGate><CaseView /></LangGate> },
-      { path: "ask", element: <LangGate><Pending titleKey="nav.ask" /></LangGate> },
+      { path: "ask", element: <LangGate><AskPage /></LangGate> },
+      { path: "answers/:id", element: <LangGate><AnswerPage /></LangGate> },
       { path: "library", element: <LangGate><Pending titleKey="nav.library" /></LangGate> },
       { path: "watches", element: <LangGate><Pending titleKey="nav.watches" /></LangGate> },
       { path: "status", element: <LangGate><StatusPage /></LangGate> },

@@ -163,5 +163,145 @@
     "soil_moisture": "Humidité du sol",
     "backscatter_change": "Changement de rétrodiffusion",
     "offset": "Décalage"
+  },
+  "ask": {
+    "lede": "Posez une question sur un lieu. NISAR Pulse cherche les passages du radar, mesure, compare à des sources indépendantes et dit ce qu’il ne peut pas savoir.",
+    "label": "Votre question",
+    "placeholder": "Par exemple : le sol a-t-il bougé à Asni après la crue du 10 octobre ?",
+    "submit": "Enquêter",
+    "running": "Enquête en cours…",
+    "noPoint": "Aucun point choisi : nommez un lieu connu, ou cliquez sur la carte.",
+    "pointChosen": "Point choisi :",
+    "clearPoint": "Retirer le point",
+    "examples": "Questions de démonstration",
+    "mapLabel": "Carte pour choisir un point",
+    "mapHelp": "Cliquez sur la carte pour choisir un point (ou placez le focus sur la carte, centrez-la avec les flèches et appuyez sur Entrée).",
+    "result": "Résultat de l’enquête"
+  },
+  "answer": {
+    "title": "Réponse",
+    "back": "Poser une autre question",
+    "steps": "Comment j’ai trouvé",
+    "thePoint": "le point choisi",
+    "confidence": "Confiance : {{level}}",
+    "stableInNoise": "Stable dans le bruit de mesure",
+    "metrics": "Mesures",
+    "series": "Évolution dans le temps",
+    "indication": "Indication (pas une prévision)",
+    "checks": "Contrôles de qualité",
+    "checksNone": "Aucun contrôle effectué",
+    "evidence": "Preuves indépendantes",
+    "evidenceNone": "Aucune source indépendante consultée",
+    "openSource": "Voir la source",
+    "earthquakes": "Séismes catalogués",
+    "data": "Données utilisées",
+    "product": "Produit",
+    "acquisitions": "Acquisitions",
+    "tracks": "Traces",
+    "track": "trace {{number}}, {{direction}}",
+    "none": "aucune",
+    "nextPass": "Prochain passage NISAR",
+    "permalink": "Adresse de cette réponse",
+    "cached": "(réponse précalculée)",
+    "noRaster": "Pas de carte radar dans cette réponse : seul le point étudié est tracé."
+  },
+  "steps": {
+    "ms": "ms"
+  },
+  "stepKind": {
+    "classify": "Comprendre la question",
+    "select_recipe": "Choisir la méthode",
+    "search_scenes": "Chercher les passages NISAR",
+    "download": "Télécharger",
+    "compute": "Calculer",
+    "uncertainty_checks": "Contrôler l’incertitude",
+    "cross_evidence": "Croiser avec d’autres sources",
+    "verdict": "Rédiger le verdict",
+    "cache": "Réponse précalculée"
+  },
+  "stepStatus": {
+    "pending": "en attente",
+    "running": "en cours",
+    "done": "terminé",
+    "failed": "échec",
+    "skipped": "ignoré"
+  },
+  "confidenceLevel": {
+    "high": "élevée",
+    "medium": "moyenne",
+    "low": "faible"
+  },
+  "productStatus": {
+    "provisional": "produit provisoire",
+    "validated": "produit validé"
+  },
+  "metric": {
+    "los_displacement_max": "Déplacement maximal en ligne de visée",
+    "velocity": "Vitesse",
+    "vertical_velocity": "Vitesse verticale",
+    "east_west_velocity": "Vitesse est-ouest",
+    "acceleration": "Accélération",
+    "vertical_displacement": "Déplacement vertical",
+    "east_west_displacement": "Déplacement est-ouest",
+    "coherence_loss_area": "Surface de perte de cohérence",
+    "flooded_area": "Surface inondée",
+    "flood_duration": "Durée de l’inondation",
+    "forest_loss": "Perte de forêt",
+    "soil_moisture": "Humidité du sol",
+    "soil_moisture_anomaly": "Anomalie d’humidité du sol",
+    "offset_max": "Décalage maximal",
+    "masked_fraction": "Part masquée",
+    "noise_floor": "Niveau de bruit"
+  },
+  "check": {
+    "noise_floor": "Niveau de bruit",
+    "coherence_mask": "Masque de cohérence",
+    "ionosphere": "Ionosphère",
+    "unwrapping": "Déroulement de phase"
+  },
+  "checkStatus": {
+    "pass": "réussi",
+    "warn": "attention",
+    "fail": "échec",
+    "not_applicable": "sans objet"
+  },
+  "source": {
+    "usgs": "USGS",
+    "open_meteo": "Open-Meteo (ERA5)",
+    "firms": "NASA FIRMS",
+    "copernicus_gfm": "Copernicus GFM",
+    "osm": "OpenStreetMap",
+    "sentinel1": "Sentinel-1",
+    "sentinel2": "Sentinel-2",
+    "nasa": "NASA",
+    "gdacs": "GDACS"
+  },
+  "evidenceAgreement": {
+    "agrees": "concorde",
+    "disagrees": "contredit",
+    "inconclusive": "ne tranche pas",
+    "unavailable": "indisponible"
+  },
+  "quakeRole": {
+    "mainshock": "choc principal",
+    "aftershock": "réplique"
+  },
+  "direction": {
+    "ascending": "ascendante",
+    "descending": "descendante"
+  },
+  "seriesId": {
+    "los": "Déplacement en ligne de visée",
+    "vertical": "Déplacement vertical",
+    "east_west": "Déplacement est-ouest",
+    "soil_moisture": "Humidité du sol",
+    "backscatter": "Rétrodiffusion",
+    "coherence": "Cohérence"
+  },
+  "series": {
+    "table": "Voir les valeurs",
+    "date": "Date",
+    "value": "Valeur",
+    "range": "Intervalle (±{{sigma}} σ)"
   }
 }

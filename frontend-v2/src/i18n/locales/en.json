@@ -163,5 +163,145 @@
     "soil_moisture": "Soil moisture",
     "backscatter_change": "Backscatter change",
     "offset": "Offset"
+  },
+  "ask": {
+    "lede": "Ask a question about a place. NISAR Pulse finds the radar passes, measures, compares with independent sources and says what it cannot know.",
+    "label": "Your question",
+    "placeholder": "For example: did the ground move at Asni after the flood of 10 October?",
+    "submit": "Investigate",
+    "running": "Investigating…",
+    "noPoint": "No point chosen: name a known place, or click on the map.",
+    "pointChosen": "Point chosen:",
+    "clearPoint": "Remove the point",
+    "examples": "Demonstration questions",
+    "mapLabel": "Map to choose a point",
+    "mapHelp": "Click on the map to choose a point (or focus the map, centre it with the arrow keys and press Enter).",
+    "result": "Result of the investigation"
+  },
+  "answer": {
+    "title": "Answer",
+    "back": "Ask another question",
+    "steps": "How I found this",
+    "thePoint": "the chosen point",
+    "confidence": "Confidence: {{level}}",
+    "stableInNoise": "Stable within measurement noise",
+    "metrics": "Measurements",
+    "series": "Change over time",
+    "indication": "Indication (not a forecast)",
+    "checks": "Quality checks",
+    "checksNone": "No check run",
+    "evidence": "Independent evidence",
+    "evidenceNone": "No independent source consulted",
+    "openSource": "Open the source",
+    "earthquakes": "Catalogued earthquakes",
+    "data": "Data used",
+    "product": "Product",
+    "acquisitions": "Acquisitions",
+    "tracks": "Tracks",
+    "track": "track {{number}}, {{direction}}",
+    "none": "none",
+    "nextPass": "Next NISAR pass",
+    "permalink": "Address of this answer",
+    "cached": "(precomputed answer)",
+    "noRaster": "No radar map in this answer: only the point studied is drawn."
+  },
+  "steps": {
+    "ms": "ms"
+  },
+  "stepKind": {
+    "classify": "Understand the question",
+    "select_recipe": "Choose the method",
+    "search_scenes": "Find the NISAR passes",
+    "download": "Download",
+    "compute": "Compute",
+    "uncertainty_checks": "Check the uncertainty",
+    "cross_evidence": "Cross-check with other sources",
+    "verdict": "Write the verdict",
+    "cache": "Precomputed answer"
+  },
+  "stepStatus": {
+    "pending": "waiting",
+    "running": "running",
+    "done": "done",
+    "failed": "failed",
+    "skipped": "skipped"
+  },
+  "confidenceLevel": {
+    "high": "high",
+    "medium": "medium",
+    "low": "low"
+  },
+  "productStatus": {
+    "provisional": "provisional product",
+    "validated": "validated product"
+  },
+  "metric": {
+    "los_displacement_max": "Peak line-of-sight displacement",
+    "velocity": "Velocity",
+    "vertical_velocity": "Vertical velocity",
+    "east_west_velocity": "East–west velocity",
+    "acceleration": "Acceleration",
+    "vertical_displacement": "Vertical displacement",
+    "east_west_displacement": "East–west displacement",
+    "coherence_loss_area": "Coherence-loss area",
+    "flooded_area": "Flooded area",
+    "flood_duration": "Flood duration",
+    "forest_loss": "Forest loss",
+    "soil_moisture": "Soil moisture",
+    "soil_moisture_anomaly": "Soil-moisture anomaly",
+    "offset_max": "Peak offset",
+    "masked_fraction": "Masked share",
+    "noise_floor": "Noise floor"
+  },
+  "check": {
+    "noise_floor": "Noise floor",
+    "coherence_mask": "Coherence mask",
+    "ionosphere": "Ionosphere",
+    "unwrapping": "Phase unwrapping"
+  },
+  "checkStatus": {
+    "pass": "passed",
+    "warn": "warning",
+    "fail": "failed",
+    "not_applicable": "not applicable"
+  },
+  "source": {
+    "usgs": "USGS",
+    "open_meteo": "Open-Meteo (ERA5)",
+    "firms": "NASA FIRMS",
+    "copernicus_gfm": "Copernicus GFM",
+    "osm": "OpenStreetMap",
+    "sentinel1": "Sentinel-1",
+    "sentinel2": "Sentinel-2",
+    "nasa": "NASA",
+    "gdacs": "GDACS"
+  },
+  "evidenceAgreement": {
+    "agrees": "agrees",
+    "disagrees": "disagrees",
+    "inconclusive": "inconclusive",
+    "unavailable": "unavailable"
+  },
+  "quakeRole": {
+    "mainshock": "mainshock",
+    "aftershock": "aftershock"
+  },
+  "direction": {
+    "ascending": "ascending",
+    "descending": "descending"
+  },
+  "seriesId": {
+    "los": "Line-of-sight displacement",
+    "vertical": "Vertical displacement",
+    "east_west": "East–west displacement",
+    "soil_moisture": "Soil moisture",
+    "backscatter": "Backscatter",
+    "coherence": "Coherence"
+  },
+  "series": {
+    "table": "Show the values",
+    "date": "Date",
+    "value": "Value",
+    "range": "Range (±{{sigma}} σ)"
   }
 }

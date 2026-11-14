@@ -4,6 +4,9 @@ import { LANGS, type Lang } from "@/api/contract";
 import ar from "./locales/ar.json";
 import en from "./locales/en.json";
 import fr from "./locales/fr.json";
+import tplAr from "./templates/ar.json";
+import tplEn from "./templates/en.json";
+import tplFr from "./templates/fr.json";
 
 export { LANGS, type Lang };
 
@@ -46,7 +49,14 @@ export function pathInLang(pathname: string, lang: Lang): string {
 }
 
 void i18n.use(initReactI18next).init({
-  resources: { fr: { translation: fr }, en: { translation: en }, ar: { translation: ar } },
+  // "tpl" and "term" hold the API's template ids (keys with dots, read with keySeparator: false).
+  resources: {
+    fr: { translation: fr, ...tplFr },
+    en: { translation: en, ...tplEn },
+    ar: { translation: ar, ...tplAr },
+  },
+  ns: ["translation", "tpl", "term"],
+  defaultNS: "translation",
   lng: DEFAULT_LANG,
   fallbackLng: false,
   supportedLngs: [...LANGS],

@@ -14,6 +14,10 @@ export interface RadarMapProps {
   /** The raster shown, exactly as the API sent it (PNG + bounds), or none. */
   layer: RasterLayer | null;
   label: string;
+  /** When set, a click (or Enter on the focused map, at its centre) picks a point. */
+  onPick?: (point: { lat: number; lon: number }) => void;
+  /** Whether to draw the study-area rectangle (off for a world view). */
+  showArea?: boolean;
 }
 
 const RASTER_OPACITY = 0.88;
@@ -47,10 +51,12 @@ function areaFeature(b: Bounds): GeoJSON.Feature {
  * canonical palette, placed at its bounds). North up and left to right in
  * every language. Keyboard: arrows pan, + / - zoom (MapLibre).
  */
-export default function RadarMap({ frame, point, layer, label }: RadarMapProps) {
+export default function RadarMap({ frame, point, layer, label, onPick, showArea = true }: RadarMapProps) {
   const { t } = useText();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
+  const pick = useRef(onPick);
+  pick.current = onPick;
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<"webgl" | "image" | null>(null);
 
@@ -86,8 +92,15 @@ export default function RadarMap({ frame, point, layer, label }: RadarMapProps) 
         m.on("error", (event) => {
           if ((event as { sourceId?: string }).sourceId === "radar") setFailure("image");
         });
+        m.on("click", (event) => pick.current?.({ lat: event.lngLat.lat, lon: event.lngLat.lng }));
+        m.getCanvas().addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" || !pick.current) return;
+          const centre = m.getCenter();
+          pick.current({ lat: centre.lat, lon: centre.lng });
+        });
+        if (onPick) m.getCanvas().style.cursor = "crosshair";
         m.once("style.load", () => {
-          m.addSource("area", { type: "geojson", data: areaFeature(frame) });
+          m.addSource("area", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
           m.addLayer({ id: "area", type: "line", source: "area", paint: { "line-color": "#151a1e", "line-width": 1.5 } });
           m.addSource("point", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
           m.addLayer({
@@ -117,7 +130,7 @@ export default function RadarMap({ frame, point, layer, label }: RadarMapProps) 
   useEffect(() => {
     const m = map.current;
     if (!m || !ready) return;
-    (m.getSource("area") as GeoJSONSource).setData(areaFeature(frame));
+    (m.getSource("area") as GeoJSONSource).setData(showArea ? areaFeature(frame) : { type: "FeatureCollection", features: [] });
     (m.getSource("point") as GeoJSONSource).setData({
       type: "FeatureCollection",
       features: point ? [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [point.lon, point.lat] } }] : [],
@@ -127,7 +140,7 @@ export default function RadarMap({ frame, point, layer, label }: RadarMapProps) 
       m.fitBounds(toLngLat(frame), { padding: 32, duration: reducedMotion() ? 0 : 900 });
     }
     framed.current = key;
-  }, [frame, point, ready]);
+  }, [frame, point, ready, showArea]);
 
   // The radar raster.
   useEffect(() => {

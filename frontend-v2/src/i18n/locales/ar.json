@@ -163,5 +163,145 @@
     "soil_moisture": "رطوبة التربة",
     "backscatter_change": "تغيّر التشتت الخلفي",
     "offset": "الإزاحة الكبيرة"
+  },
+  "ask": {
+    "lede": "اطرح سؤالًا عن مكان. يبحث NISAR Pulse عن مرورات الرادار، ويقيس، ويقارن بمصادر مستقلة، ويقول ما لا يمكنه معرفته.",
+    "label": "سؤالك",
+    "placeholder": "مثلًا: هل تحرّكت الأرض في أسني بعد فيضان 10 أكتوبر؟",
+    "submit": "ابدأ التحقيق",
+    "running": "التحقيق جارٍ…",
+    "noPoint": "لم تُختر نقطة: اذكر مكانًا معروفًا، أو انقر على الخريطة.",
+    "pointChosen": "النقطة المختارة:",
+    "clearPoint": "إزالة النقطة",
+    "examples": "أسئلة العرض التوضيحي",
+    "mapLabel": "خريطة لاختيار نقطة",
+    "mapHelp": "انقر على الخريطة لاختيار نقطة (أو ضع التركيز على الخريطة، ووسّطها بالأسهم، ثم اضغط Enter).",
+    "result": "نتيجة التحقيق"
+  },
+  "answer": {
+    "title": "الإجابة",
+    "back": "اطرح سؤالًا آخر",
+    "steps": "كيف توصّلت إلى ذلك",
+    "thePoint": "النقطة المختارة",
+    "confidence": "الثقة: {{level}}",
+    "stableInNoise": "مستقر ضمن ضجيج القياس",
+    "metrics": "القياسات",
+    "series": "التطوّر عبر الزمن",
+    "indication": "مؤشّر (وليس تنبؤًا)",
+    "checks": "فحوص الجودة",
+    "checksNone": "لم يُجرَ أي فحص",
+    "evidence": "أدلة مستقلة",
+    "evidenceNone": "لم يُرجع إلى أي مصدر مستقل",
+    "openSource": "فتح المصدر",
+    "earthquakes": "الزلازل المفهرسة",
+    "data": "البيانات المستخدمة",
+    "product": "المنتج",
+    "acquisitions": "عمليات الالتقاط",
+    "tracks": "المسارات",
+    "track": "المسار {{number}}، {{direction}}",
+    "none": "لا شيء",
+    "nextPass": "مرور NISAR التالي",
+    "permalink": "عنوان هذه الإجابة",
+    "cached": "(إجابة محسوبة مسبقًا)",
+    "noRaster": "لا توجد خريطة رادار في هذه الإجابة: تُرسم فقط النقطة المدروسة."
+  },
+  "steps": {
+    "ms": "مللي ثانية"
+  },
+  "stepKind": {
+    "classify": "فهم السؤال",
+    "select_recipe": "اختيار الطريقة",
+    "search_scenes": "البحث عن مرورات NISAR",
+    "download": "التنزيل",
+    "compute": "الحساب",
+    "uncertainty_checks": "فحص عدم اليقين",
+    "cross_evidence": "المقارنة بمصادر أخرى",
+    "verdict": "صياغة الحكم",
+    "cache": "إجابة محسوبة مسبقًا"
+  },
+  "stepStatus": {
+    "pending": "في الانتظار",
+    "running": "جارٍ",
+    "done": "تمّ",
+    "failed": "فشل",
+    "skipped": "تمّ تخطّيه"
+  },
+  "confidenceLevel": {
+    "high": "عالية",
+    "medium": "متوسطة",
+    "low": "منخفضة"
+  },
+  "productStatus": {
+    "provisional": "منتج مؤقت",
+    "validated": "منتج مُعتمد"
+  },
+  "metric": {
+    "los_displacement_max": "أقصى إزاحة على خط النظر",
+    "velocity": "السرعة",
+    "vertical_velocity": "السرعة الرأسية",
+    "east_west_velocity": "السرعة شرق-غرب",
+    "acceleration": "التسارع",
+    "vertical_displacement": "الإزاحة الرأسية",
+    "east_west_displacement": "الإزاحة شرق-غرب",
+    "coherence_loss_area": "مساحة فقدان الترابط",
+    "flooded_area": "المساحة المغمورة",
+    "flood_duration": "مدة الفيضان",
+    "forest_loss": "فقدان الغابات",
+    "soil_moisture": "رطوبة التربة",
+    "soil_moisture_anomaly": "شذوذ رطوبة التربة",
+    "offset_max": "أقصى إزاحة كبيرة",
+    "masked_fraction": "الحصة المقنّعة",
+    "noise_floor": "مستوى الضجيج"
+  },
+  "check": {
+    "noise_floor": "مستوى الضجيج",
+    "coherence_mask": "قناع الترابط",
+    "ionosphere": "الأيونوسفير",
+    "unwrapping": "فكّ الطور"
+  },
+  "checkStatus": {
+    "pass": "ناجح",
+    "warn": "تنبيه",
+    "fail": "فاشل",
+    "not_applicable": "غير منطبق"
+  },
+  "source": {
+    "usgs": "USGS",
+    "open_meteo": "Open-Meteo (ERA5)",
+    "firms": "NASA FIRMS",
+    "copernicus_gfm": "Copernicus GFM",
+    "osm": "OpenStreetMap",
+    "sentinel1": "Sentinel-1",
+    "sentinel2": "Sentinel-2",
+    "nasa": "NASA",
+    "gdacs": "GDACS"
+  },
+  "evidenceAgreement": {
+    "agrees": "متوافق",
+    "disagrees": "يناقض",
+    "inconclusive": "غير حاسم",
+    "unavailable": "غير متاح"
+  },
+  "quakeRole": {
+    "mainshock": "الصدمة الرئيسية",
+    "aftershock": "هزة ارتدادية"
+  },
+  "direction": {
+    "ascending": "صاعد",
+    "descending": "هابط"
+  },
+  "seriesId": {
+    "los": "الإزاحة على خط النظر",
+    "vertical": "الإزاحة الرأسية",
+    "east_west": "الإزاحة شرق-غرب",
+    "soil_moisture": "رطوبة التربة",
+    "backscatter": "التشتت الخلفي",
+    "coherence": "الترابط"
+  },
+  "series": {
+    "table": "عرض القيم",
+    "date": "التاريخ",
+    "value": "القيمة",
+    "range": "المجال (±{{sigma}} σ)"
   }
 }

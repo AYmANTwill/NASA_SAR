@@ -1,0 +1,38 @@
+{
+  "tpl": {
+    "step.verdict": "Verdict rédigé à partir d’un modèle fixe ; ses chiffres viennent du calcul",
+    "step.search_scenes_one": "{{count}} produit NISAR trouvé, du {{start}} au {{end}}",
+    "step.search_scenes_other": "{{count}} produits NISAR trouvés, du {{start}} au {{end}}",
+    "step.compute.decompose": "Orbites ascendante et descendante combinées en mouvement vertical et est-ouest",
+    "step.classify": "Question comprise comme : {{recipe}}",
+    "step.cache": "Réponse précalculée trouvée",
+    "notify.watch_created": "Surveillance active sur {{place}}. Prochain passage NISAR le {{next_pass}} : vous serez prévenu si le niveau change.",
+    "limit.soil_depth": "SME2 décrit les premiers centimètres du sol, pas la nappe ni la saturation en profondeur.",
+    "limit.short_history": "Les produits calibrés commencent le {{since}} : un cycle saisonnier ne se distingue pas encore d’une tendance.",
+    "limit.north_south": "Le mouvement nord-sud est presque invisible pour un radar en orbite polaire.",
+    "limit.los_only": "Une seule géométrie de visée : le mouvement vertical et le mouvement est-ouest ne sont pas séparés.",
+    "limit.no_prediction": "Le radar dit ce qui a bougé et de combien, pas ce qui va se passer.",
+    "library.usgs": "Catalogue USGS : séisme M{{mag}} le {{date}}.",
+    "evidence.usgs.none": "Aucun séisme catalogué à moins de {{radius}} km sur la période.",
+    "evidence.usgs.mainshock_one": "Séisme M{{mag}} le {{date}} et {{count}} réplique dans la zone.",
+    "evidence.usgs.mainshock_other": "Séisme M{{mag}} le {{date}} et {{count}} répliques dans la zone.",
+    "evidence.open_meteo.rain": "{{rain}} de pluie sur les {{days}} jours avant le dernier passage.",
+    "check.unwrapping.ok": "Aucun saut de phase détecté entre composantes connexes.",
+    "check.ionosphere.applied": "La correction ionosphérique fournie avec le produit a été appliquée.",
+    "check.coherence_mask": "{{fraction}} des pixels sont sous le seuil de cohérence ({{threshold}}) et sont masqués.",
+    "check.noise_floor": "Dispersion mesurée sur une zone de référence stable : {{noise}}."
+  },
+  "term": {
+    "recipe.sudden_motion": "mouvement brusque du sol",
+    "recipe.slow_motion": "mouvement lent du sol",
+    "recipe.damage": "changement de surface",
+    "recipe.surface_change": "changement de surface",
+    "recipe.flood": "inondation",
+    "recipe.deforestation": "perte de forêt",
+    "recipe.soil_moisture": "humidité du sol",
+    "recipe.large_displacement": "grand déplacement",
+    "level.yellow": "jaune",
+    "level.orange": "orange",
+    "level.red": "rouge"
+  }
+}
