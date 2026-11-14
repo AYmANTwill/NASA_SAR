@@ -71,6 +71,13 @@ check("the 4 fixtures load and validate", [c.id for c in cases] == list(case_sto
 check("all fixtures are drafts with their placeholders listed",
       all(c.status == "draft" and c.placeholders for c in cases))
 base = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
+_lab = {"fr": "x", "en": "x", "ar": "x"}
+base["findings"] = [      # synthetic findings for the contract tests below (the fixtures no longer hold any)
+    {"id": "mw", "label": _lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "Mw", "sigma": 1},
+     "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
+     "reference_source": {"name": "USGS", "url": "https://earthquake.usgs.gov/"}, "agreement": "disagree"},
+    {"id": "length", "label": _lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "km", "sigma": 1},
+     "reference": None, "reference_source": None, "agreement": "no_reference"}]
 
 # ---------------------------------------------------------------- the contract refuses broken cases
 final_with_placeholders = {**base, "status": "final"}
@@ -125,8 +132,9 @@ check("GET /api/cases lists the 4 cases in order",
 check("summaries have exactly the contract keys",
       all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url"} for s in r.json()))
 r = c.get("/api/cases/panama-2026")
-check("GET /api/cases/panama-2026 returns the case",
-      r.status_code == 200 and r.json()["findings"][0]["reference"]["value"] == 7.7, r.text[:300])
+check("GET /api/cases/panama-2026 returns the draft case: no placeholder value, what is missing is in limits",
+      r.status_code == 200 and r.json()["id"] == "panama-2026" and r.json()["findings"] == []
+      and "not computed yet" in r.json()["limits"][0]["text"]["en"], r.text[:300])
 r = c.get("/api/cases/nope")
 check("unknown case: 404 with an ApiErrorBody", r.status_code == 404 and r.json()["code"] == "case_not_found")
 
@@ -612,7 +620,65 @@ check("cases: a flood case without date / products / map / exposure stays a draf
       flood["status"] == "draft" and any("'date'" in p for p in flood["placeholders"])
       and any("'products'" in p for p in flood["placeholders"])
       and "figures: no map with a layer" in flood["placeholders"]
-      and any("exposure" in p for p in flood["placeholders"]), flood["placeholders"])
+      and flood["exposure"] is None, flood["placeholders"])
+check("haouz: no flooded surface: the flooded_area / km2 finding is dropped, no exposure, title is not a flood map",
+      all(f["nisar"]["unit"] != "km2" and f["id"] != "flooded_area" for f in flood["findings"])
+      and flood["exposure"] is None and "Candidate surface-change area" in flood["title"]["en"]
+      and "Flooded area" not in json.dumps(flood), [f["id"] for f in flood["findings"]])
+(res_dir / "events").mkdir()
+(res_dir / "events" / "haouz-flood-2026-10-10.json").write_text(json.dumps({"facts": {
+    "excess_over_frame": 0.119, "excess_margin": 0.11, "null_false_alarm": 0.01, "excess_level": "borderline",
+    "event_day": "20261010", "date_before": "20261003", "date_after": "20261015", "crid": "P05023",
+    "maturity": "provisional", "co_pair": "GUNW_T044_F017_20261003_20261015"}}), encoding="utf-8")
+(res_dir / "events" / "haouz-soil-moisture.json").write_text(json.dumps({"facts": {
+    "anomaly_m3m3": -0.027, "uncertainty_m3m3": 0.028, "latest_date": "20261018"}}), encoding="utf-8")
+bs_finding = {"id": "backscatter_change", "label": {"fr": "b", "en": "b", "ar": "b"},
+              "nisar": {"value": 0.4, "uncertainty": 0.5, "unit": "dB", "sigma": 1}, "reference": None,
+              "reference_source": None, "agreement": "no_reference"}
+(res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [
+    json.loads(json.dumps(bs_finding)), {"id": "flooded_area", "label": {"fr": "a", "en": "a", "ar": "a"},
+     "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
+     "reference_source": None, "agreement": "no_reference"}], "limits": []}), encoding="utf-8")
+hz = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+hz_by = {f["id"]: f["nisar"] for f in hz["findings"]}
+hz_lim = " | ".join(x["text"]["en"] for x in hz["limits"])
+check("haouz: three indicators with their σ (coherence σ = 0.11 / z(0.99) = 0.047, backscatter dB, soil m3/m3)",
+      set(hz_by) == {"coherence_loss_excess", "backscatter_change", "soil_moisture_anomaly"}
+      and hz_by["coherence_loss_excess"] == {"value": 0.119, "uncertainty": 0.047, "unit": "coherence", "sigma": 1}
+      and hz_by["backscatter_change"]["unit"] == "dB" and hz_by["soil_moisture_anomaly"]["uncertainty"] == 0.028, hz_by)
+check("haouz: headline 'Candidate surface-change area: no clear change' (borderline coherence, |x| <= 2σ elsewhere)",
+      hz["headline"]["text"]["en"].startswith("Candidate surface-change area: no clear change"), hz["headline"])
+check("haouz: limits say why it is not a flood map (same passes, not independent, 5 days after, no km2, σ method)",
+      "not independent" in hz_lim and "not a flood map" in hz_lim and "5 days after the event (2026-10-10)" in hz_lim
+      and "Gaussian assumption" in hz_lim, hz_lim)
+check("every case: 'Provisional NISAR products (CRID P05023)' limit taken from the product CRIDs",
+      "Provisional NISAR products (CRID P05023)" in hz_lim, hz_lim)
+(res_dir / "events" / "haouz-flood-2026-10-10.json").write_text(json.dumps({"facts": {
+    "excess_over_frame": 0.3, "excess_margin": 0.11, "null_false_alarm": 0.01, "excess_level": "strong"}}),
+    encoding="utf-8")
+hz2 = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+check("haouz: a 'strong' coherence excess turns the headline into a clear change on that indicator",
+      "clear change in Coherence-loss excess" in hz2["headline"]["text"]["en"], hz2["headline"])
+
+# --- no 0.0 for a missing value ---------------------------------------------------------------------------------
+kept, nc_lim, nc_ph = cs.split_computed([mw_finding, {**mw_finding, "id": "slip",
+                                                      "nisar": {"value": 0, "uncertainty": 0, "unit": "m", "sigma": 1}}])
+check("no 0.0: a finding without its uncertainty is left out, said in limits and listed as missing",
+      [f["id"] for f in kept] == ["mw"] and "not computed" in nc_lim[0]["text"]["en"] and nc_ph == ["findings[slip]: not computed"])
+(work / "out" / "panama-2026.json").unlink()
+pan0 = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("no 0.0: Panama without a fault inversion has no Mw finding, never '0 vs 7.7 disagree', and says why",
+      pan0["findings"] == [] and pan0["status"] == "draft"
+      and any(x["text"]["en"].startswith("Magnitude not estimated: cases/out/panama-2026.json not available")
+              for x in pan0["limits"]), [f["id"] for f in pan0["findings"]])
+fixture_pan = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
+check("no 0.0: the served draft fixtures hold no placeholder value (no finding with uncertainty 0)",
+      all(f["nisar"]["uncertainty"] > 0 for cid in ("panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps")
+          for f in json.loads((case_store.CASES_DIR / f"{cid}.json").read_text(encoding="utf-8"))["findings"]))
+from science import provenance  # noqa: E402
+wl = provenance.wavelength_limits([SimpleNamespace(id="X", folder=tmp / "no_such_folder")])
+check("wavelength: a product without centerFrequency gets the 'λ = 0.2384 m from the config' limit",
+      len(wl) == 1 and "1 of 1 product(s) have no centerFrequency" in wl[0]["text"]["en"] and "0.2384" in wl[0]["text"]["en"], wl)
 (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [{"id": "x"}]}), encoding="utf-8")
 try:
     cs.build_flood("haouz-flood-2026", res_dir, offline=True)
