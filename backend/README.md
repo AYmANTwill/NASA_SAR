@@ -2,7 +2,7 @@
 
 Every feature of the app, working: questions in FR/EN/AR, 7 analysis recipes, uncertainty and
 confidence, independent evidence, automatic discovery, event library, watch + alerts, change
-classifier (ML), map layers, and an HTTP API for the interface. 30/30 end-to-end checks pass on
+classifier (ML), map layers, and an HTTP API for the interface. 196/196 end-to-end checks pass on
 synthetic NISAR-shaped data (`python tests/test_all.py`).
 
 ## Folder layout
@@ -26,7 +26,7 @@ python -m pip install -r requirements.txt
 ```
 python tests\test_all.py
 ```
-Expect `30/30 checks passed`. It builds synthetic data in a temp folder; your real data is untouched.
+Expect `196/196 checks passed`. It builds synthetic data in a temp folder; your real data is untouched.
 
 **3. Start the API (works even with no data: mock answers)**
 ```
@@ -44,8 +44,10 @@ the real products and mock mode turns off by itself.
 
 **5. Calibrate on the first real files (15 minutes, important)**
 - Layer names were checked on real part-1 files (11 Nov 2026): they match.
-- Sign check: open `/events/panama-2026` and compare the displacement map with NASA's / USGS's published
-  map of the 9 October earthquake. If the colours are reversed, set `NISAR_LOS_SIGN=-1` and recompute.
+- Sign check: `python sign_check.py --data D:\nisar_validation` renders the Panama co-seismic maps and links the USGS
+  mechanism (strike-slip: opposite lobes, not an uplift). The documented convention (ARIA-tools, MintPy prep_nisar) gives
+  `NISAR_LOS_SIGN=1`; a human sets `NISAR_LOS_SIGN_VERIFIED=1` after the check, then recomputes. See the main README,
+  section "Validation", for every real-data command and its output.
 - Soil moisture reads `science/LSAR/SME2/grids/soilMoisture` (checked on real files).
 
 ## Optional keys (environment variables)
@@ -57,6 +59,11 @@ the real products and mock mode turns off by itself.
 | `NISAR_MOCK=1` | force fake answers (interface development) | — |
 | `NISAR_LOS_SIGN_VERIFIED=1` | say that the LOS sign was checked on real data (STATUS H4). While unset, every signed line-of-sight answer says "sign unverified", has confidence low and no alert | after the Panama check |
 | `NISAR_DISCOVERIES_ENABLED=1` | turn the automatic discoveries back on. Off by default: the zones were not physical. `/discoveries` then returns an empty list and the reason | — |
+| `NISAR_DISCOVERIES_MODE=consistent` | the SAFE discoveries mode: a zone must be in >= 3 independent pairs of one geometry, same sign, not concentrated in one pair (see `discoveries.py`). Off when unset | — |
+| `NISAR_CORRECTIONS` | phase corrections: `iono` (default, the previous behaviour), any of `iono,tropo,tide`, or `none`. Turn on only what `noise_report.py` recommends | — |
+| `NISAR_DEM` / `NISAR_CORRECTION_HEIGHT_M` | terrain height for the troposphere/tide cubes: `glo30` (public Copernicus tiles, default when online), a local DEM path, or `none` (then the constant, default 0 m) | — |
+| `NISAR_IONO_UNC_MAX_RAD` | ionosphere pixels whose screen uncertainty is above this are masked (default 1.0 rad) | — |
+| `NISAR_FLAT_PHASE_SIGMA_RAD` / `NISAR_MIN_PAIR_COHERENCE` | pair quality filter: flat phase below 0.001 rad, median coherence below 0.15 = rejected and listed | — |
 
 PowerShell: `$env:FIRMS_MAP_KEY="..."` before `uvicorn`.
 
@@ -80,6 +87,11 @@ PowerShell: `$env:FIRMS_MAP_KEY="..."` before `uvicorn`.
 | `ml_classifier.py` / `train_classifier.py` | change classifier (XGBoost) |
 | `catalog.py` | index of downloaded products |
 | `mock.py` | fake answers for the interface |
+| `recipes/corrections.py` | optional ionosphere / troposphere / solid-earth-tide corrections (`NISAR_CORRECTIONS`) |
+| `quality.py` | pair quality filter (flat phase, median coherence < 0.15) |
+| `noise_report.py` | noise floor per correction set → `results_out/noise_report.{json,md}` |
+| `validate_gps.py` | NISAR vs NGL GNSS stations → `results_out/gps_<STA>.{json,md,png}` |
+| `sign_check.py` | helper for the line-of-sight sign decision → `results_out/sign_check.{md,png}` |
 
 ## Data each feature needs
 | feature | works with the pilot (part 1)? |

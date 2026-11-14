@@ -1385,6 +1385,23 @@ check("mock discoveries: consistent-mode shape (mode, rules, per-zone pair count
       _mock.DISCOVERIES["mode"] == "consistent" and _mock.DISCOVERIES["rules"]["min_independent_pairs"] == 3
       and all(z["n_pairs_detected"] >= 3 and z["same_sign"] and z["confidence"] == "low" and z["alert_level"] == "yellow"
               for z in _mock.DISCOVERIES["zones"]))
+
+# --- 6. docs: README validation commands, MOROCCO_PLAN link, contract for every new field ------------------------
+readme = (ROOT.parent / "README.md").read_text(encoding="utf-8")
+contract3 = (ROOT.parent / "docs" / "API_CONTRACT.md").read_text(encoding="utf-8")
+check("README: a Validation section lists noise_report, validate_gps, sign_check, the plan_validation download and "
+      "precompute with their output paths; the MOROCCO_PLAN.md link resolves",
+      "## Validation" in readme and all(k in readme for k in (
+          "python noise_report.py", "python validate_gps.py", "python sign_check.py", "--plan plan_validation.json --part 1",
+          "python precompute.py", "results_out\\noise_report.json", "results_out\\gps_RABT.json", "results_out\\sign_check.md",
+          "results_out\\gps_stations.json"))
+      and "docs/claude/MOROCCO_PLAN.md" in readme and (ROOT.parent / "docs" / "claude" / "MOROCCO_PLAN.md").exists())
+check("API contract: validation event, correction facts, sign basis, pair quality, discoveries mode documented "
+      "(older keys still there)",
+      all(k in contract3 for k in ("include_validation", "kind", "us6000u18k", "corrections_requested", "corrections_applied",
+                                   "tide_corrected", "kept_raw", "uncertainty_masked_fraction", "sign_basis", "rejected_pairs",
+                                   "NISAR_DISCOVERIES_MODE", "n_pairs_detected", "max_single_pair_share", "ok: false"))
+      and all(k in contract3 for k in ("surface_change", "crid", "maturity", "event_time", "iono_screen", "unvalidated candidate")))
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 
