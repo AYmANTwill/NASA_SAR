@@ -227,6 +227,98 @@ check("block means: masked blocks dropped, about n_target points kept, centres a
       (vals.size, rows.min()))
 check("block means: an all-masked raster gives no point", block_means(np.full((10, 10), np.nan))[2].size == 0)
 
+# ---------------------------------------------------------------- exposure (offline: synthetic rasters, cached OSM)
+import hashlib  # noqa: E402
+
+import rasterio  # noqa: E402
+from rasterio.transform import from_origin  # noqa: E402
+
+from science import exposure as ex  # noqa: E402
+from science.case_models import Exposure  # noqa: E402
+
+ex.AUX_DIR = tmp / "aux"
+# 100 m UTM grid (zone 17N) near the Panama epicentre, 60 x 60 pixels; zone = a 20 x 20 pixel square (4 km2)
+utm_grid = ex.Grid(from_origin(500_000, 850_000, 100, 100), "EPSG:32617", (60, 60))
+square = np.zeros((60, 60), bool)
+square[20:40, 20:40] = True
+check("exposure: area of 400 pixels of 100 m = 4 km2", abs(ex.area_km2(square, utm_grid) - 4.0) < 1e-9)
+geo_grid = ex.Grid(from_origin(-81.0, 8.0, 0.01, 0.01), "EPSG:4326", (10, 10))
+expected_geo = 100 * (0.01 * 111.32) * (0.01 * 110.574) * np.mean(np.cos(np.radians(8.0 - 0.005 - 0.01 * np.arange(10))))
+check("exposure: area on a geographic grid uses cos(latitude)",
+      abs(ex.area_km2(np.ones((10, 10), bool), geo_grid) - expected_geo) < 1e-6)
+
+pop_path = tmp / "pop.tif"
+pop_tf = from_origin(-81.0, 8.0, 0.001, 0.001)                        # ~110 m cells, 10 people each
+with rasterio.open(pop_path, "w", driver="GTiff", width=1000, height=1000, count=1, dtype="float32",
+                   crs="EPSG:4326", transform=pop_tf, nodata=-99999) as dst:
+    dst.write(np.full((1, 1000, 1000), 10.0, dtype="float32"))
+pop = ex.PopSource(pop_path, "synthetic population", "https://example.org/pop")
+cell_km2 = (0.001 * 111.32 * np.cos(np.radians(7.7))) * (0.001 * 110.574)
+people = ex.people_in(square, utm_grid, pop)
+check("exposure: people = sum of the population cells inside the zone (counts not resampled)",
+      abs(people - 10 * 4.0 / cell_km2) / (10 * 4.0 / cell_km2) < 0.05, (people, 10 * 4.0 / cell_km2))
+check("exposure: an empty zone has nobody", ex.people_in(np.zeros((60, 60), bool), utm_grid, pop) == 0)
+
+from pyproj import Transformer  # noqa: E402
+
+to_ll = Transformer.from_crs("EPSG:32617", 4326, always_xy=True)
+inside = [to_ll.transform(500_000 + 100 * c + 50, 850_000 - 100 * r - 50) for r, c in ((25, 25), (30, 35), (39, 20))]
+outside = [to_ll.transform(500_000 + 100 * c + 50, 850_000 - 100 * r - 50) for r, c in ((5, 5), (45, 30))]
+pts = np.array(inside + outside)
+check("exposure: buildings counted only when their centroid is in the zone", ex.buildings_in(square, utm_grid, pts) == 3)
+
+disp = np.zeros((60, 60))
+disp[10:50, 10:50] = 9.0
+disp[20:40, 20:40] = 12.0
+central, variants = ex.quake_masks(disp, noise_cm=2.5)
+check("exposure: earthquake zone |LOS| > 10 cm, variants at 10 ∓ σ are nested",
+      central.sum() == 400 and variants[0].sum() == 1600 and variants[1].sum() == 0
+      and (variants[0] >= central).all() and (central >= variants[1]).all())
+res = ex.exposure(central, variants, utm_grid, pop, pts)
+check("exposure: uncertainty = largest departure of the ±σ zones, range contains the value",
+      res["area_km2"]["value"] == 4.0 and res["area_km2"]["uncertainty"] == 12.0
+      and res["area_km2"]["range"] == [0.0, 16.0] and res["buildings"]["value"] == 3, res["area_km2"])
+fm, fv = ex.flood_masks(square)
+check("exposure: flood variants are the mask eroded and dilated by one pixel",
+      fv[0].sum() == 18 * 18 and fv[1].sum() == 22 * 22 - 4 and (fv[1] >= fm).all() and (fm >= fv[0]).all())
+case_exp = ex.to_case_exposure(res, pop, "2026-11-14")
+try:
+    Exposure.model_validate(case_exp)
+    check("exposure: output is a valid CaseStudy.exposure (people / count / km2, source {name, url})", True)
+except ValidationError as exc:
+    check("exposure: output is a valid CaseStudy.exposure (people / count / km2, source {name, url})", False, exc)
+try:
+    ex.quake_masks(disp, float("nan"))
+    check("exposure: an invalid noise sigma is refused", False)
+except ex.ExposureError:
+    check("exposure: an invalid noise sigma is refused", True)
+
+# OSM: tiles are read from the cache; offline without a cache -> ExposureError
+lon_c, lat_c = to_ll.transform(500_000 + 3000, 850_000 - 3000)
+ti, tj = int(np.floor(lat_c / ex.OSM_TILE_DEG)), int(np.floor(lon_c / ex.OSM_TILE_DEG))
+s_, w_ = ti * ex.OSM_TILE_DEG, tj * ex.OSM_TILE_DEG
+key = hashlib.sha1(f"{s_:.4f},{w_:.4f},{s_ + ex.OSM_TILE_DEG:.4f},{w_ + ex.OSM_TILE_DEG:.4f}".encode()).hexdigest()[:16]
+(ex.AUX_DIR / "osm").mkdir(parents=True, exist_ok=True)
+(ex.AUX_DIR / "osm" / f"buildings_{key}.json").write_text(
+    json.dumps({"bbox": [s_, w_, 0, 0], "fetched": "2026-11-14", "centroids": [list(p) for p in inside]}),
+    encoding="utf-8")
+small = np.zeros((60, 60), bool)
+small[25:35, 25:35] = True
+got, date = ex.osm_buildings(small, utm_grid)
+check("exposure: OSM buildings come from the cached 0.25° tile, with its fetch date",
+      got.shape == (3, 2) and date == "2026-11-14", (got.shape, date))
+far_grid = ex.Grid(from_origin(200_000, 1_500_000, 100, 100), "EPSG:32617", (60, 60))
+try:
+    ex.osm_buildings(square, far_grid)
+    check("exposure: an uncached OSM tile offline raises ExposureError", False)
+except ex.ExposureError:
+    check("exposure: an uncached OSM tile offline raises ExposureError", True)
+try:
+    ex.population_source("ZZZ")
+    check("exposure: no population raster offline raises ExposureError", False)
+except ex.ExposureError:
+    check("exposure: no population raster offline raises ExposureError", True)
+
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
 sys.exit(0 if passed == len(results) else 1)
