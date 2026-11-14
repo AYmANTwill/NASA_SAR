@@ -96,14 +96,26 @@ Exposure units are fixed: `people` is in `people`, `buildings` in `count`, `area
 ```
 {
   "findings": [Finding, ...],                  // exactly the Finding of this contract, agreement computed by the rule
-  "figures":  [{ "id", "kind": "map"|"chart"|"image", "title": {fr,en,ar}, "file": "name.png", "caption": TemplatedText }],
+  "figures":  [
+    { "id", "kind": "image"|"chart", "title": {fr,en,ar}, "file": "name.png", "caption": TemplatedText },
+    { "id", "title": {fr,en,ar}, "caption": TemplatedText, "raster": "name.tif",      // a map: rendered by cases.py
+      "layer": { "kind", "unit", "palette", "min", "max", "period"?: {start,end}, "source"?, "sign_convention"? } }
+  ],
   "limits":   [{fr,en,ar}, ...],
-  "date": ISO UTC, "timeline": [{label:{fr,en,ar}, at: ISO UTC}], "bbox": [w,s,e,n]   // flood case
+  "products": ["<catalog product id>", ...],   // the NISAR products used: their acquisition times + ASF dates make the timeline
+  "date": ISO UTC, "bbox"?: [w,s,e,n]          // event date (flood case); bbox defaults to the products' extent
 }
 ```
 
-- Figure files sit next to `findings.json`. They are copied to `backend/cases/figures/<id>/` and served at
-  `GET /api/cases/{id}/figures/{file}`.
+- Every case needs at least one **map** (a figure with a `layer`) and a **full timeline**: the event, every NISAR
+  acquisition time of the products (from their names), and each product's ASF publication date (`processingDate`).
+  Without them the case stays a draft.
+- Earthquake maps (the LOS displacement of each co-seismic pair) and the ionosphere map are rendered by `cases.py`
+  itself.
+- Map layers use the frontend palettes (`backend/palettes.json`) and the kinds and units of `RasterLayer`. A flood
+  map should be a backscatter-change raster (`kind: "backscatter_change"`, `unit: "dB"`), not the 0/1 mask.
+- Figure files and rasters sit next to `findings.json`. The PNGs are copied or rendered into
+  `backend/cases/figures/<id>/` and served at `GET /api/cases/{id}/figures/{file}`.
 - A file that breaks this format stops the build with an error. It is never patched silently.
 
 ## Checking

@@ -361,8 +361,33 @@ cs.CASES_DIR = work
 (CACHE_DIR / "asf").mkdir(parents=True, exist_ok=True)
 (CACHE_DIR / "asf" / "GUNW_TEST.json").write_text(json.dumps({"processingDate": "2026-10-13T08:00:00Z"}),
                                                   encoding="utf-8")
-cs._coseismic_pairs = lambda eid: [SimpleNamespace(sec="20261012T110301", name="GUNW_TEST",
-                                                   bbox=(-81.6, 6.9, -80.0, 8.4))] if eid else []
+(CACHE_DIR / "asf" / "GUNW_TEST2.json").write_text(json.dumps({"processingDate": "2026-10-10T02:00:00Z"}),
+                                                   encoding="utf-8")
+fake_pairs = [SimpleNamespace(id="GUNW_TEST", name="GUNW_TEST", track=4, direction="ascending",
+                              ref="20260930T110250", sec="20261012T110301", bbox=(-81.6, 6.9, -80.0, 8.4)),
+              SimpleNamespace(id="GUNW_TEST2", name="GUNW_TEST2", track=141, direction="descending",
+                              ref="20260927T231500", sec="20261009T231520", bbox=(-81.2, 7.1, -79.8, 8.6))]
+cs._coseismic_pairs = lambda eid: fake_pairs if eid else []
+fake_by_id = {p.id: p for p in fake_pairs}
+cs._catalog_products = lambda ids: ([fake_by_id[i] for i in ids if i in fake_by_id],
+                                    [f"product {i} not in the catalog" for i in ids if i not in fake_by_id])
+
+from science import case_layers  # noqa: E402
+
+map_arr = np.linspace(-5, 5, 400, dtype="float32").reshape(20, 20)
+map_prof = {"transform": from_origin(-81.0, 8.0, 0.05, 0.05), "crs": "EPSG:4326"}
+
+
+def fake_displacement_figure(case_id, p, lat, lon, fdir):
+    """The real map_figure / render_png on a synthetic raster (no GUNW on the test machine)."""
+    return case_layers.map_figure(
+        case_id, map_arr, map_prof, fig_dir=fdir, fig_id=f"los_T{p.track}", kind="displacement", unit="cm",
+        palette="diverging_displacement", vmin=-5.0, vmax=5.0, title={"fr": "m", "en": "m", "ar": "m"},
+        caption={"template": "x", "params": {}}, source=p.id, period={"start": "2026-09-30", "end": "2026-10-12"},
+        sign_convention="positive_toward_satellite")
+
+
+case_layers.displacement_figure = fake_displacement_figure
 mw_finding = {"id": "mw", "label": {"fr": "Mw", "en": "Mw", "ar": "Mw"},
               "nisar": {"value": 7.62, "uncertainty": 0.08, "unit": "Mw", "sigma": 1},
               "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
@@ -375,12 +400,21 @@ fault_out = {"stable": True, "findings": [mw_finding], "limits": [{"fr": "l", "e
 pan = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
 check("cases: Panama with fault, exposure, USGS and ASF inputs becomes FINAL with no placeholder",
       pan["status"] == "final" and pan["placeholders"] == [], pan["placeholders"])
-check("cases: Panama timeline = USGS origin, first NISAR acquisition, ASF publication; date from USGS",
-      [t["at"] for t in pan["timeline"]] == ["2026-10-09T17:56:06Z", "2026-10-12T11:03:01Z", "2026-10-13T08:00:00Z"]
-      and pan["date"] == "2026-10-09T17:56:06Z", pan["timeline"])
-check("cases: headline numbers come from the Mw finding; figure copied and served under /api/cases",
+check("cases: full timeline, sorted: USGS origin, every NISAR acquisition time of the pairs, ASF publication dates",
+      [t["at"] for t in pan["timeline"]] == ["2026-09-27T23:15:00Z", "2026-09-30T11:02:50Z", "2026-10-09T17:56:06Z",
+                                              "2026-10-09T23:15:20Z", "2026-10-10T02:00:00Z", "2026-10-12T11:03:01Z",
+                                              "2026-10-13T08:00:00Z"]
+      and pan["date"] == "2026-10-09T17:56:06Z", [t["at"] for t in pan["timeline"]])
+maps = [f for f in pan["figures"] if f.get("layer")]
+lay = maps[0]["layer"] if maps else {}
+check("cases: one map figure with a RasterLayer per co-seismic pair (PNG rendered with the frontend palette, served)",
+      len(maps) == 2 and maps[0]["kind"] == "map" and lay["palette"] == "diverging_displacement"
+      and lay["unit"] == "cm" and lay["sign_convention"] == "positive_toward_satellite"
+      and np.allclose(lay["bounds"], [-81.0, 7.0, -80.0, 8.0], atol=0.02)
+      and case_store.figure_path("panama-2026", lay["url"].rsplit("/", 1)[1], work) is not None, lay)
+check("cases: headline numbers come from the Mw finding; the fit figure is copied and served under /api/cases",
       "7.62 ± 0.08" in pan["headline"]["text"]["en"]
-      and pan["figures"][0]["url"] == "/api/cases/panama-2026/figures/panama-2026_fit.png"
+      and any(f["url"] == "/api/cases/panama-2026/figures/panama-2026_fit.png" for f in pan["figures"])
       and case_store.figure_path("panama-2026", "panama-2026_fit.png", work) is not None)
 check("cases: unsafe figure names are refused (traversal, other case, unknown extension)",
       case_store.figure_path("panama-2026", "../panama-2026.json", work) is None
@@ -398,17 +432,24 @@ res_dir = tmp / "results"
 for label, offset in (("none", 6.0), ("iono", 1.0)):
     d = res_dir / "gps" / f"gps_{label}"
     d.mkdir(parents=True)
-    gps_pairs = [{"gps_los_mm": g, "nisar_los_mm": g + (offset if i % 2 else -offset), "date_after": f"202610{10 + i}"}
-                 for i, g in enumerate([1.0, 5.0, -3.0, 8.0, 2.0, -1.0, 4.0, 0.0])]
+    gps_pairs = [{"gps_los_mm": g, "nisar_los_mm": g + (offset if i % 2 else -offset), "date_after": f"202610{10 + i}",
+                  "product": "GUNW_TEST"} for i, g in enumerate([1.0, 5.0, -3.0, 8.0, 2.0, -1.0, 4.0, 0.0])]
     (d / "gps_CEU1.json").write_text(json.dumps({"station": {"station": "CEU1", "lat": 35.89, "lon": -5.31},
                                                  "pairs": gps_pairs}), encoding="utf-8")
-iono = cs.build_iono(res_dir)
+iono = cs.build_iono(res_dir, offline=True)
 by = {f["id"]: f["nisar"] for f in iono["findings"]}
 check("cases: ionosphere-gps RMS before/after from the GPS reports, uncertainty RMS/sqrt(2n), FINAL",
       iono["status"] == "final" and by["rms_before"]["value"] == 6.0 and by["rms_after"]["value"] == 1.0
       and abs(by["rms_before"]["uncertainty"] - 6.0 / 4.0) < 0.01, (iono["placeholders"], by))
-check("cases: ionosphere-gps location around the stations, date = latest NISAR acquisition",
-      abs(iono["location"]["lat"] - 35.89) < 1e-6 and iono["date"] == "2026-10-17T00:00:00Z", iono["date"])
+check("cases: ionosphere-gps location around the stations, date = latest NISAR acquisition, map + timeline of its pairs",
+      abs(iono["location"]["lat"] - 35.89) < 1e-6 and iono["date"] == "2026-10-17T00:00:00Z"
+      and any(f.get("layer") for f in iono["figures"]) and len(iono["timeline"]) == 3, iono["placeholders"])
+
+if os.environ.get("NISAR_CASE_DUMP"):          # final cases for tools/frontend_contract/validate.ts
+    dump_dir = Path(os.environ["NISAR_CASE_DUMP"])
+    dump_dir.mkdir(parents=True, exist_ok=True)
+    for name, built in (("panama-final", pan), ("ionosphere-final", iono)):
+        (dump_dir / f"case__{name}.json").write_text(json.dumps(built, ensure_ascii=False), encoding="utf-8")
 
 (res_dir / "haouz-flood-2026").mkdir()
 (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [
@@ -416,13 +457,15 @@ check("cases: ionosphere-gps location around the stations, date = latest NISAR a
      "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
      "reference_source": None, "agreement": "no_reference"}], "limits": [{"fr": "l", "en": "l", "ar": "l"}]}),
     encoding="utf-8")
-flood = cs.build_flood("haouz-flood-2026", res_dir)
-check("cases: a flood case missing date / timeline / bbox / exposure stays a draft and says what is missing",
+flood = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+check("cases: a flood case without date / products / map / exposure stays a draft and says what is missing",
       flood["status"] == "draft" and any("'date'" in p for p in flood["placeholders"])
+      and any("'products'" in p for p in flood["placeholders"])
+      and "figures: no map with a layer" in flood["placeholders"]
       and any("exposure" in p for p in flood["placeholders"]), flood["placeholders"])
 (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [{"id": "x"}]}), encoding="utf-8")
 try:
-    cs.build_flood("haouz-flood-2026", res_dir)
+    cs.build_flood("haouz-flood-2026", res_dir, offline=True)
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", False)
 except cs.CaseInputError:
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", True)
