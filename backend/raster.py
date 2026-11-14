@@ -118,6 +118,26 @@ def profile_line(arr: np.ndarray, prof: dict, lat: float, lon: float, half_km: f
             for cc in range(c0, c1, step)]
 
 
+# The frontend's canonical palettes (palettes.json, copied from its src/design/palettes.json): the PNG pixels
+# must use exactly these stops so its legends match. Each matplotlib name used by the recipes maps to one.
+_CANONICAL = {"RdBu_r": "diverging_displacement", "coolwarm": "diverging_displacement",
+              "inferno": "sequential_coherence_loss", "YlGnBu": "sequential_moisture",
+              "magma": "sequential_coherence", "YlOrRd_r": "sequential_coherence_loss"}
+
+
+def _colormap(cmap: str):
+    from matplotlib import colormaps
+    from matplotlib.colors import LinearSegmentedColormap
+    import json as _json
+    from pathlib import Path as _P
+    f = _P(__file__).with_name("palettes.json")
+    if cmap in _CANONICAL and f.exists():
+        stops = _json.loads(f.read_text(encoding="utf-8")).get(_CANONICAL[cmap])
+        if stops:
+            return LinearSegmentedColormap.from_list(_CANONICAL[cmap], stops)
+    return colormaps[cmap]
+
+
 def render_png(arr: np.ndarray, prof: dict, name: str, cmap: str, vmin: float, vmax: float,
                max_px: int = 1600) -> dict:
     """Reprojects to EPSG:4326, colours with a matplotlib colormap, NaN transparent.
@@ -138,7 +158,7 @@ def render_png(arr: np.ndarray, prof: dict, name: str, cmap: str, vmin: float, v
     reproject(arr, dst, src_transform=prof["transform"], src_crs=prof["crs"], dst_transform=dst_t,
               dst_crs="EPSG:4326", resampling=Resampling.bilinear, src_nodata=np.nan, dst_nodata=np.nan)
     norm = np.clip((dst - vmin) / (vmax - vmin + 1e-12), 0, 1)
-    rgba = (colormaps[cmap](norm) * 255).astype("uint8")
+    rgba = (_colormap(cmap)(norm) * 255).astype("uint8")
     rgba[..., 3] = np.where(np.isfinite(dst), 210, 0)
     out = CACHE_DIR / "layers" / f"{name}.png"
     out.parent.mkdir(parents=True, exist_ok=True)

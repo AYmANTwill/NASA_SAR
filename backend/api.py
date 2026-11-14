@@ -24,6 +24,11 @@ app = FastAPI(title="NISAR Pulse API", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 (CACHE_DIR / "layers").mkdir(parents=True, exist_ok=True)
 app.mount("/layers", StaticFiles(directory=CACHE_DIR / "layers"), name="layers")
+# Frontend adapter (houssam-bough/nasa-the-sar-front-end contract): every route under /api, layers too.
+import api_v2  # noqa: E402
+
+app.include_router(api_v2.router)
+app.mount("/api/layers", StaticFiles(directory=CACHE_DIR / "layers"), name="api_layers")
 FORCE_MOCK = os.environ.get("NISAR_MOCK", "0") == "1"
 
 
