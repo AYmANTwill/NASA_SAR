@@ -1,0 +1,286 @@
+{
+ "coverage": {
+  "Asni|044_A_017|full 2005|21 Sep": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Asni|044_A_017|full 2005|3 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Asni|044_A_017|full 2005|15 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Asni|023_D_073|full 2005|1 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Asni|023_D_073|full 2005|13 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Asni|044_A_017|partial 4005|21 Sep": {
+   "valid_fraction": 0.94,
+   "in_footprint": true
+  },
+  "Asni|044_A_017|partial 4005|15 Oct": {
+   "valid_fraction": 0.453,
+   "in_footprint": true
+  },
+  "Asni|023_D_073|partial 4005|1 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Asni|023_D_073|partial 4005|13 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Imlil|044_A_017|full 2005|21 Sep": {
+   "valid_fraction": 0.998,
+   "in_footprint": true
+  },
+  "Imlil|044_A_017|full 2005|3 Oct": {
+   "valid_fraction": 0.998,
+   "in_footprint": true
+  },
+  "Imlil|044_A_017|full 2005|15 Oct": {
+   "valid_fraction": 0.998,
+   "in_footprint": true
+  },
+  "Imlil|023_D_073|full 2005|1 Oct": {
+   "valid_fraction": 0.996,
+   "in_footprint": true
+  },
+  "Imlil|023_D_073|full 2005|13 Oct": {
+   "valid_fraction": 0.996,
+   "in_footprint": true
+  },
+  "Imlil|044_A_017|partial 4005|21 Sep": {
+   "valid_fraction": 0.0,
+   "in_footprint": true
+  },
+  "Imlil|044_A_017|partial 4005|15 Oct": {
+   "valid_fraction": 0.0,
+   "in_footprint": true
+  },
+  "Imlil|023_D_073|partial 4005|1 Oct": {
+   "valid_fraction": 0.994,
+   "in_footprint": true
+  },
+  "Imlil|023_D_073|partial 4005|13 Oct": {
+   "valid_fraction": 0.994,
+   "in_footprint": true
+  },
+  "Moulay Brahim|044_A_017|full 2005|21 Sep": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|044_A_017|full 2005|3 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|044_A_017|full 2005|15 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|023_D_073|full 2005|1 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|023_D_073|full 2005|13 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|044_A_017|partial 4005|21 Sep": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|044_A_017|partial 4005|15 Oct": {
+   "valid_fraction": 0.856,
+   "in_footprint": true
+  },
+  "Moulay Brahim|023_D_073|partial 4005|1 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  },
+  "Moulay Brahim|023_D_073|partial 4005|13 Oct": {
+   "valid_fraction": 1.0,
+   "in_footprint": true
+  }
+ },
+ "sites": {
+  "Asni": {
+   "HHHH": {
+    "mean_21 Sep": 0.1612,
+    "valid_21 Sep": 1.0,
+    "mean_3 Oct": 0.15758,
+    "valid_3 Oct": 1.0,
+    "mean_15 Oct": 0.20445,
+    "valid_15 Oct": 1.0,
+    "baseline_db": -0.099,
+    "storm_db": 1.131,
+    "storm_percentile_in_baseline_null": 97.7,
+    "storm_outside_2.5_97.5": true,
+    "baseline_percentile_in_baseline_null": 48.0
+   },
+   "HVHV": {
+    "mean_21 Sep": 0.03415,
+    "valid_21 Sep": 1.0,
+    "mean_3 Oct": 0.03397,
+    "valid_3 Oct": 1.0,
+    "mean_15 Oct": 0.03981,
+    "valid_15 Oct": 1.0,
+    "baseline_db": -0.024,
+    "storm_db": 0.69,
+    "storm_percentile_in_baseline_null": 96.9,
+    "storm_outside_2.5_97.5": false,
+    "baseline_percentile_in_baseline_null": 38.2
+   },
+   "T23D73_no_baseline": {
+    "HHHH": {
+     "mean_1Oct": 0.16246,
+     "mean_13Oct": 0.23591,
+     "valid": [
+      1.0,
+      1.0
+     ],
+     "db_1Oct_to_13Oct": 1.62
+    },
+    "HVHV": {
+     "mean_1Oct": 0.03337,
+     "mean_13Oct": 0.04246,
+     "valid": [
+      1.0,
+      1.0
+     ],
+     "db_1Oct_to_13Oct": 1.046
+    }
+   },
+   "verdict_44_17": "no clear change",
+   "mixed_HH_HV": true,
+   "verdict_23_73": "not usable"
+  },
+  "Imlil": {
+   "HHHH": {
+    "mean_21 Sep": 0.34114,
+    "valid_21 Sep": 0.998,
+    "mean_3 Oct": 0.31889,
+    "valid_3 Oct": 0.998,
+    "mean_15 Oct": 0.31774,
+    "valid_15 Oct": 0.998,
+    "baseline_db": -0.293,
+    "storm_db": -0.016,
+    "storm_percentile_in_baseline_null": 76.6,
+    "storm_outside_2.5_97.5": false,
+    "baseline_percentile_in_baseline_null": 24.1
+   },
+   "HVHV": {
+    "mean_21 Sep": 0.05917,
+    "valid_21 Sep": 0.998,
+    "mean_3 Oct": 0.05657,
+    "valid_3 Oct": 0.998,
+    "mean_15 Oct": 0.05675,
+    "valid_15 Oct": 0.998,
+    "baseline_db": -0.195,
+    "storm_db": 0.014,
+    "storm_percentile_in_baseline_null": 47.0,
+    "storm_outside_2.5_97.5": false,
+    "baseline_percentile_in_baseline_null": 19.5
+   },
+   "T23D73_no_baseline": {
+    "HHHH": {
+     "mean_1Oct": 0.31635,
+     "mean_13Oct": 0.35324,
+     "valid": [
+      0.996,
+      0.996
+     ],
+     "db_1Oct_to_13Oct": 0.479
+    },
+    "HVHV": {
+     "mean_1Oct": 0.05462,
+     "mean_13Oct": 0.06105,
+     "valid": [
+      0.996,
+      0.996
+     ],
+     "db_1Oct_to_13Oct": 0.483
+    }
+   },
+   "verdict_44_17": "no clear change",
+   "mixed_HH_HV": false,
+   "verdict_23_73": "not usable"
+  },
+  "Moulay Brahim": {
+   "HHHH": {
+    "mean_21 Sep": 0.15533,
+    "valid_21 Sep": 1.0,
+    "mean_3 Oct": 0.15136,
+    "valid_3 Oct": 1.0,
+    "mean_15 Oct": 0.19566,
+    "valid_15 Oct": 1.0,
+    "baseline_db": -0.112,
+    "storm_db": 1.115,
+    "storm_percentile_in_baseline_null": 97.7,
+    "storm_outside_2.5_97.5": true,
+    "baseline_percentile_in_baseline_null": 44.1
+   },
+   "HVHV": {
+    "mean_21 Sep": 0.03079,
+    "valid_21 Sep": 1.0,
+    "mean_3 Oct": 0.03047,
+    "valid_3 Oct": 1.0,
+    "mean_15 Oct": 0.03629,
+    "valid_15 Oct": 1.0,
+    "baseline_db": -0.045,
+    "storm_db": 0.759,
+    "storm_percentile_in_baseline_null": 97.2,
+    "storm_outside_2.5_97.5": false,
+    "baseline_percentile_in_baseline_null": 33.6
+   },
+   "T23D73_no_baseline": {
+    "HHHH": {
+     "mean_1Oct": 0.15705,
+     "mean_13Oct": 0.22408,
+     "valid": [
+      1.0,
+      1.0
+     ],
+     "db_1Oct_to_13Oct": 1.544
+    },
+    "HVHV": {
+     "mean_1Oct": 0.03242,
+     "mean_13Oct": 0.04127,
+     "valid": [
+      1.0,
+      1.0
+     ],
+     "db_1Oct_to_13Oct": 1.048
+    }
+   },
+   "verdict_44_17": "no clear change",
+   "mixed_HH_HV": true,
+   "verdict_23_73": "not usable"
+  }
+ },
+ "null": {
+  "n_circles": 2000,
+  "tries": 4092,
+  "rule": "circle fully inside frame, >=95% valid positive pixels on 21 Sep, 3 Oct, 15 Oct, both polarisations; seed 20261114",
+  "HHHH": {
+   "baseline_median_db": -0.094,
+   "baseline_p2_5": -1.139,
+   "baseline_p97_5": 1.066,
+   "baseline_sd_db": 0.469,
+   "storm_interval_median_db": 0.088
+  },
+  "HVHV": {
+   "baseline_median_db": 0.028,
+   "baseline_p2_5": -0.992,
+   "baseline_p97_5": 0.803,
+   "baseline_sd_db": 0.372,
+   "storm_interval_median_db": -0.027
+  }
+ }
+}
