@@ -20,6 +20,7 @@ bounds; science/panama_fault.py states this in the limits.
 from __future__ import annotations
 
 import math
+import time
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -79,47 +80,66 @@ def mw_sigma_from_cov(theta: np.ndarray, cov: np.ndarray | None) -> float | None
 
 
 # ---------------------------------------------------------------- forward model
-def predict(theta: np.ndarray, tracks: list[Track], plane: Plane) -> list[np.ndarray]:
-    along, across, length, width, top, slip = theta[:6]
+def fault_los(theta6: np.ndarray, tracks: list[Track], plane: Plane) -> list[np.ndarray]:
+    """LOS (cm) of the fault alone on each track, no ramp."""
+    along, across, length, width, top, slip = theta6[:6]
     phi = math.radians(plane.strike)
     x0 = along * math.sin(phi) + across * math.cos(phi)        # across = horizontal dip direction
     y0 = along * math.cos(phi) - across * math.sin(phi)
     out = []
-    for i, t in enumerate(tracks):
+    for t in tracks:
         ue, un, uu = fault_enu(t.east, t.north, x0=x0, y0=y0, strike_deg=plane.strike, dip_deg=plane.dip,
                                rake_deg=plane.rake, top_depth=top, length=length, width=width, slip=slip)
-        a, b, c = theta[6 + 3 * i: 9 + 3 * i]
-        los = 100.0 * (ue * t.vec[:, 0] + un * t.vec[:, 1] + uu * t.vec[:, 2])
-        out.append(los + a + b * t.east + c * t.north)
+        out.append(100.0 * (ue * t.vec[:, 0] + un * t.vec[:, 1] + uu * t.vec[:, 2]))
     return out
 
 
-def _residuals(theta, tracks, plane):
-    return np.concatenate([p - t.los for p, t in zip(predict(theta, tracks, plane), tracks)])
+def predict(theta: np.ndarray, tracks: list[Track], plane: Plane) -> list[np.ndarray]:
+    """Fault LOS + the ramp a + b·east + c·north of each track (theta[6 + 3i: 9 + 3i])."""
+    return [m + theta[6 + 3 * i] + theta[7 + 3 * i] * t.east + theta[8 + 3 * i] * t.north
+            for i, (t, m) in enumerate(zip(tracks, fault_los(theta, tracks, plane)))]
 
 
-def _bounds(n_tracks: int) -> tuple[np.ndarray, np.ndarray]:
-    return (np.concatenate([LOWER, np.tile(-RAMP_BOUND, n_tracks)]),
-            np.concatenate([UPPER, np.tile(RAMP_BOUND, n_tracks)]))
+def _ramp_operators(tracks: list[Track]) -> list[tuple[np.ndarray, np.ndarray]]:
+    """(G, pinv(G)) with G = [1, east, north] for each track."""
+    ops = []
+    for t in tracks:
+        G = np.column_stack([np.ones_like(t.east), t.east, t.north])
+        ops.append((G, np.linalg.pinv(G)))
+    return ops
 
 
-def _solve(theta0, tracks, plane):
-    lo, hi = _bounds(len(tracks))
-    return least_squares(_residuals, np.clip(theta0, lo, hi), bounds=(lo, hi), x_scale="jac", args=(tracks, plane),
-                         max_nfev=400)
+def _residuals6(theta6, tracks, plane, ops):
+    """Variable projection: the per-track ramps are solved linearly for each fault model."""
+    out = []
+    for (G, Gp), t, m in zip(ops, tracks, fault_los(theta6, tracks, plane)):
+        r = t.los - m
+        out.append(G @ (Gp @ r) - r)
+    return np.concatenate(out)
+
+
+def _ramps(theta6, tracks, plane) -> np.ndarray:
+    ops = _ramp_operators(tracks)
+    return np.concatenate([Gp @ (t.los - m) for (_, Gp), t, m in zip(ops, tracks, fault_los(theta6, tracks, plane))])
+
+
+def _solve(theta6_0, tracks, plane):
+    ops = _ramp_operators(tracks)
+    return least_squares(_residuals6, np.clip(theta6_0[:6], LOWER, UPPER), bounds=(LOWER, UPPER), x_scale="jac",
+                         args=(tracks, plane, ops), max_nfev=400)
 
 
 # ---------------------------------------------------------------- fit + uncertainty
-def fit_plane(tracks: list[Track], plane: Plane) -> PlaneFit:
-    """Multi-start least squares for one nodal plane; covariance from the Jacobian scaled by residual variance."""
+def fit_plane(tracks: list[Track], plane: Plane, starts=STARTS) -> PlaneFit:
+    """Multi-start least squares for one nodal plane; covariance of the 6 fault parameters from the Jacobian
+    (ramps projected out) scaled by the residual variance."""
     best = None
-    for length, width, top in STARTS:
-        theta0 = np.concatenate([[0.0, 0.0, length, width, top, 1.0], np.zeros(3 * len(tracks))])
-        res = _solve(theta0, tracks, plane)
+    for length, width, top in starts:
+        res = _solve(np.array([0.0, 0.0, length, width, top, 1.0]), tracks, plane)
         if best is None or res.cost < best.cost:
             best = res
     r = best.fun
-    n, p = r.size, best.x.size
+    n, p = r.size, 6 + 3 * len(tracks)
     data = np.concatenate([t.los - np.median(t.los) for t in tracks])
     vr = 1.0 - float(r @ r) / float(data @ data) if data @ data > 0 else 0.0
     s2 = float(r @ r) / max(n - p, 1)
@@ -127,10 +147,10 @@ def fit_plane(tracks: list[Track], plane: Plane) -> PlaneFit:
         cov = np.linalg.inv(best.jac.T @ best.jac) * s2
     except np.linalg.LinAlgError:
         cov = None
-    lo, hi = _bounds(len(tracks))
-    span = hi[:6] - lo[:6]
-    at_bound = [FAULT_NAMES[i] for i in range(6) if min(best.x[i] - lo[i], hi[i] - best.x[i]) < 0.01 * span[i]]
-    return PlaneFit(plane, best.x, math.sqrt(float(r @ r) / n), vr, cov, at_bound)
+    span = UPPER - LOWER
+    at_bound = [FAULT_NAMES[i] for i in range(6) if min(best.x[i] - LOWER[i], UPPER[i] - best.x[i]) < 0.01 * span[i]]
+    theta = np.concatenate([best.x, _ramps(best.x, tracks, plane)])
+    return PlaneFit(plane, theta, math.sqrt(float(r @ r) / n), vr, cov, at_bound)
 
 
 def bootstrap(fit: PlaneFit, tracks: list[Track], n_runs: int = N_BOOT, seed: int = 0) -> PlaneFit:
@@ -142,7 +162,7 @@ def bootstrap(fit: PlaneFit, tracks: list[Track], n_runs: int = N_BOOT, seed: in
         for t in tracks:
             k = rng.integers(0, t.los.size, t.los.size)
             sample.append(Track(t.name, t.east[k], t.north[k], t.los[k], t.vec[k]))
-        res = _solve(fit.theta, sample, fit.plane)
+        res = _solve(fit.theta[:6], sample, fit.plane)
         if res.success:
             params.append(res.x[:6])
         else:
@@ -164,7 +184,7 @@ def summarize(fit: PlaneFit) -> dict:
     boot = fit.boot if fit.boot is not None else np.zeros((0, 6))
     sd_boot = boot.std(axis=0, ddof=1) if len(boot) > 1 else np.full(6, np.nan)
     boot_mw = np.array([moment_mw(b[2], b[3], b[5])[1] for b in boot])
-    mw_cov = mw_sigma_from_cov(th, fit.cov)
+    mw_cov = mw_sigma_from_cov(th[:6], fit.cov)
     mw_boot = float(boot_mw.std(ddof=1)) if boot_mw.size > 1 else None
     sig = [s for s in (mw_cov, mw_boot) if s is not None and math.isfinite(s)]
     params = {}
@@ -209,8 +229,17 @@ def invert(tracks: list[Track], planes: tuple[Plane, ...], n_boot: int = N_BOOT,
     """Fits and bootstraps every plane, keeps the lower RMS. Returns (JSON-ready summary, the fits)."""
     if not tracks:
         raise ValueError("no track to invert")
-    fits = [bootstrap(fit_plane(tracks, p), tracks, n_boot, seed) for p in planes]
-    summaries = [{**summarize(f), "variance_reduction_per_track": per_track_vr(f, tracks)} for f in fits]
+    fits, timing = [], []
+    for p in planes:
+        t0 = time.perf_counter()
+        fit = fit_plane(tracks, p)
+        t1 = time.perf_counter()
+        fits.append(bootstrap(fit, tracks, n_boot, seed))
+        t2 = time.perf_counter()
+        timing.append({"fit_s": round(t1 - t0, 2), "bootstrap_s": round(t2 - t1, 2),
+                       "per_bootstrap_run_s": round((t2 - t1) / n_boot, 3) if n_boot else None})
+    summaries = [{**summarize(f), "variance_reduction_per_track": per_track_vr(f, tracks), "timing": tm}
+                 for f, tm in zip(fits, timing)]
     best = int(np.argmin([s["rms_cm"] for s in summaries]))
     reasons = stability(summaries[best], n_boot)
     result = {"planes": summaries, "best_plane": best, "stable": not reasons, "unstable_reasons": reasons,

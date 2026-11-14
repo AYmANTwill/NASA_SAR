@@ -241,6 +241,45 @@ top_c = model[0][np.argmin(np.hypot(ff_tracks[0].east - (-80.769 - lon0) * 111.3
 check("FFM forward model: centre given as the surface projection of the fault-plane centre, non-zero signal there",
       abs(top_c) > 1.0, top_c)
 
+from science.panama_fault import largest_component  # noqa: E402
+
+dmap = np.ones((10, 10))
+ccmap = np.ones((10, 10))
+ccmap[:, 7:] = 2                    # a smaller component, offset by one fringe in the data
+dmap[:, 7:] += 11.9
+ccmap[0, 0] = 0                     # unwrapping failed there
+kept, note = largest_component(dmap, ccmap)
+check("largest connected component: the smaller component and label 0 are dropped, the note says so",
+      np.isfinite(kept[:, :7]).sum() == 69 and not np.isfinite(kept[:, 7:]).any() and "1 other" in note, note)
+check("largest connected component: no layer -> data unchanged and the limitation is noted",
+      largest_component(dmap, None)[0] is dmap and "not handled" in largest_component(dmap, None)[1])
+
+from science import sign_decision  # noqa: E402
+
+usgs_planes = (Plane(25.21, 74.77, -155.3), Plane(288.32, 66.22, -16.68))
+FAST = [(30.0, 15.0, 1.0), (80.0, 25.0, 8.0)]   # two starts instead of six, to keep the tests fast
+vecs = {"A1": [-0.62, -0.11, 0.78], "A2": [-0.55, -0.10, 0.83], "D1": [0.62, -0.11, 0.78], "D2": [0.55, -0.10, 0.83]}
+sd_tracks = [Track(n, rng.uniform(-70, 70, 250), rng.uniform(-70, 70, 250), np.zeros(250), np.tile(v, (250, 1)))
+             for n, v in vecs.items()]
+# fault placed where the USGS finite-fault model is (top-edge centre ~16 km SSW of the epicentre), left-lateral plane
+theta_ll = np.concatenate([[-0.05, -15.8, 55, 33.6, 0.5, 3.0], np.zeros(12)])
+sd_tracks = [Track(t.name, t.east, t.north, p + rng.normal(0, 1.0, p.size), t.vec)
+             for t, p in zip(sd_tracks, predict(theta_ll, sd_tracks, usgs_planes[1]))]
+dec = sign_decision.decide(sd_tracks, usgs_planes, lat0, lon0, starts=FAST)
+check("sign decision: left-lateral data in the +1 convention -> '+1' with all three criteria met",
+      dec["decision"] == "+1" and all(dec["criteria_plus1"].values()) and dec["ffm"]["n_k_positive_3sigma"] >= 3,
+      (dec["criteria_plus1"], dec["inversion"]))
+dec_m = sign_decision.decide(sign_decision.flipped(sd_tracks), usgs_planes, lat0, lon0, starts=FAST)
+check("sign decision: the same data with the opposite sign -> '-1'", dec_m["decision"] == "-1", dec_m["criteria_minus1"])
+noise_tracks = [Track(t.name, t.east, t.north, rng.normal(0, 1.0, t.los.size), t.vec) for t in sd_tracks]
+check("sign decision: noise -> 'undecided'",
+      sign_decision.decide(noise_tracks, usgs_planes, lat0, lon0, starts=FAST)["decision"] == "undecided")
+check("sign decision JSON: k, σ, k/σ and verdict per track, the rule text, both criteria sets",
+      all({"k", "sigma_k", "k_over_sigma", "verdict"} <= set(v) for v in dec["ffm"]["per_track"].values())
+      and "288/66/-17" in dec["rule"] and json.dumps(dec))
+check("sign decision: fewer than 3 tracks can never accept a sign",
+      sign_decision.decide(sd_tracks[:2], usgs_planes, lat0, lon0, starts=FAST)["decision"] == "undecided")
+
 from science.panama_fault import block_means  # noqa: E402
 
 grid = np.arange(100 * 80, dtype=float).reshape(100, 80)

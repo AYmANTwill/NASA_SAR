@@ -15,6 +15,8 @@ import argparse
 import json
 import logging
 import math
+import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,9 +24,10 @@ import numpy as np
 from pyproj import Transformer
 
 import catalog
+import raster
 from config import LOS_SIGN
 from recipes import decompose, displacement
-from science import ffm_sign, usgs
+from science import ffm_sign, sign_decision, usgs
 from science.case_models import Finding, Measurement, agreement
 from science.invert_fault import N_BOOT, Track, invert, predict
 
@@ -66,9 +69,29 @@ def block_means(values: np.ndarray, n_target: int = N_TARGET) -> tuple[np.ndarra
     return rows * b + b / 2.0, cols * b + b / 2.0, mean[keep]
 
 
+def largest_component(disp: np.ndarray, cc: np.ndarray | None) -> tuple[np.ndarray, str]:
+    """Keeps only the connected component with the most valid pixels: 2π jumps between components would not be
+    absorbed by the per-track ramp. Returns (masked displacement, note)."""
+    if cc is None:
+        return disp, "no connected-component layer: unwrapping jumps between components are not handled"
+    if cc.shape != disp.shape:
+        return disp, f"connected-component layer shape {cc.shape} != {disp.shape}: not used"
+    valid = np.isfinite(disp) & np.isfinite(cc) & (cc > 0)
+    if not valid.any():
+        return np.full_like(disp, np.nan), "no valid pixel in any connected component"
+    labels, counts = np.unique(cc[valid], return_counts=True)
+    main = labels[np.argmax(counts)]
+    kept = float(counts.max() / counts.sum())
+    return (np.where(valid & (cc == main), disp, np.nan),
+            f"largest connected component kept (label {int(main)}, {kept:.0%} of the valid pixels, "
+            f"{len(labels) - 1} other component(s) dropped)")
+
+
 def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) -> Track | None:
     disp, coh, prof, notes, report = displacement.los_cm_full(p, corrections=("iono",))
     disp = np.where(coh >= COH_MIN, disp, np.nan)
+    cc = raster.read(p.files["conncomp"])[0] if "conncomp" in p.files else None
+    disp, cc_note = largest_component(disp, cc)
     rows, cols, vals = block_means(disp, n_target)
     if vals.size == 0:
         log.warning("%s: no valid pixel after masking", p.id)
@@ -77,7 +100,7 @@ def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) ->
     lon, lat = Transformer.from_crs(prof["crs"], 4326, always_xy=True).transform(x, y)
     east, north = local_km(lat, lon, lat0, lon0)
     vec, vec_source = decompose.los_vector(p)
-    track_notes = list(notes) + [f"LOS vector: track mean ({vec_source})"]
+    track_notes = list(notes) + [f"LOS vector: track mean ({vec_source})", cc_note]
     if not report.get("iono", {}).get("applied"):
         track_notes.append(f"ionospheric correction NOT applied: {report.get('iono', {}).get('reason', 'unknown')}")
     return Track(p.id, east, north, vals, np.tile(vec, (vals.size, 1)), tuple(track_notes))
@@ -165,8 +188,11 @@ def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_D
     """ffm: finite-fault model for the independent sign test (USGS model by default for us6000u18k)."""
     if ffm is None and event_id == "us6000u18k":
         ffm = ffm_sign.USGS_FFM_PANAMA
+    timing = {}
+    t0 = time.perf_counter()
     ev = usgs.event(event_id)
     tracks, pair_ids = coseismic_tracks(ev, n_target)
+    timing["load_tracks_s"] = round(time.perf_counter() - t0, 2)
     base = {"case": case_id, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
             "event": {"id": ev.id, "url": ev.url, "lat": ev.lat, "lon": ev.lon, "depth_km": ev.depth_km,
                       "time_utc": datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc).isoformat(),
@@ -178,13 +204,27 @@ def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_D
         out = {**base, "stable": False, "unstable_reasons": ["no co-seismic GUNW pair with valid pixels"],
                "findings": [], "figures": [], "limits": limits}
     else:
-        sign = ffm_sign.sign_check(tracks, ev.lat, ev.lon, LOS_SIGN, ffm) if ffm else None
+        t0 = time.perf_counter()
         result, fits = invert(tracks, ev.planes, n_boot)
+        timing["inversion_s"] = round(time.perf_counter() - t0, 2)
         best = result["planes"][result["best_plane"]]
+        sign = None
+        if ffm:
+            t0 = time.perf_counter()
+            plus = tracks if LOS_SIGN > 0 else sign_decision.flipped(tracks)
+            sign = sign_decision.decide(plus, ev.planes, ev.lat, ev.lon, ffm,
+                                        fits_plus=fits if LOS_SIGN > 0 else None,
+                                        fits_minus=fits if LOS_SIGN < 0 else None)
+            sign = {"case": case_id, "event": ev.id, "los_sign_env": LOS_SIGN, "pairs": pair_ids, **sign}
+            out_dir.mkdir(parents=True, exist_ok=True)
+            (out_dir / f"{case_id}_sign.json").write_text(json.dumps(sign, ensure_ascii=False, indent=1),
+                                                          encoding="utf-8")
+            timing["sign_decision_s"] = round(time.perf_counter() - t0, 2)
         fig_path = out_dir / f"{case_id}_fit.png"
         figure(tracks, fits, result["best_plane"], fig_path)
         out = {**base, **result, "sign_check": sign, "findings": findings_from(best, ev) if result["stable"] else [],
                "figures": [{"id": "fault_fit", "path": fig_path.name, "kind": "image"}], "limits": limits}
+    out["timing"] = timing
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{case_id}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     return out
@@ -200,6 +240,7 @@ def main() -> None:
     ap.add_argument("--ffm-top-depth", type=float, default=0.0, help="top depth (km) of the USGS finite-fault model")
     a = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")     # Windows consoles default to cp1252
     ffm = None
     if a.event == "us6000u18k":
         from dataclasses import replace
@@ -210,10 +251,28 @@ def main() -> None:
     if out.get("planes"):
         print("variance reduction per track:", json.dumps(
             out["planes"][out["best_plane"]]["variance_reduction_per_track"], indent=1))
-    if out.get("sign_check"):
-        print("USGS finite-fault sign test:", out["sign_check"]["overall"])
-        for name, v in out["sign_check"]["per_track"].items():
-            print(f"  {name}: k = {v['k']:.3g} ± {v['sigma_k']:.2g}, r = {v['partial_r']:.2f} -> {v['verdict']}")
+    sc = out.get("sign_check")
+    if sc:
+        print(f"LOS sign decision: {sc['decision']}   (written to {a.out_dir / (a.case + '_sign.json')})")
+        for name, v in sc["ffm"]["per_track"].items():
+            print(f"  FFM {name}: k = {v['k']:.3g} +/- {v['sigma_k']:.2g} ({v['k_over_sigma'] or 0:+.1f} sigma), "
+                  f"r = {v['partial_r']:.2f} -> {v['verdict']}")
+        inv = sc["inversion"]
+        print(f"  inversion VR +1 = {inv['variance_reduction_plus1']:.3f}, -1 = {inv['variance_reduction_minus1']:.3f}")
+        print("  criteria +1:", sc["criteria_plus1"])
+    print_timing(out, a.boot)
+
+
+def print_timing(out: dict, n_boot: int) -> None:
+    """Stage times and the projected duration of a 50-run bootstrap (to time a run made with --boot 5)."""
+    tm = out.get("timing", {})
+    print("timing:", ", ".join(f"{k} {v} s" for k, v in tm.items()))
+    for i, p in enumerate(out.get("planes", [])):
+        t = p.get("timing", {})
+        per = t.get("per_bootstrap_run_s")
+        proj = f", --boot {N_BOOT} would take ~{t['fit_s'] + per * N_BOOT:.0f} s" if per else ""
+        print(f"  plane {i + 1}: fit {t.get('fit_s')} s, bootstrap {t.get('bootstrap_s')} s "
+              f"({n_boot} runs, {per} s/run){proj}")
     for f in out["findings"]:
         print(f"{f['id']}: {f['nisar']['value']} ± {f['nisar']['uncertainty']} {f['nisar']['unit']} ({f['agreement']})")
 
