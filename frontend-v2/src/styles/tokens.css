@@ -11,6 +11,11 @@
   --rule: #d5dadd;
   --hatch: rgb(21 26 30 / 12%);
 
+  /* Watch levels (yellow / orange / red from the API): the interface's only alert hues, never alone. */
+  --level-yellow: #f4cf45;
+  --level-orange: #d9650f;
+  --level-red: #9f1f15;
+
   /* Basemap: greys only, so the data palettes are the only colour on a map. */
   --sea: #e9ecee;
   --land: #fbfbfb;

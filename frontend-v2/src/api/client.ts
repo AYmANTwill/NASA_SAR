@@ -13,6 +13,7 @@ import {
   Watch,
   WatchNotification,
   type AskRequest,
+  type WatchLevel,
 } from "./contract";
 import { ApiError, OfflineError, parseWith } from "./errors";
 import { readSse } from "./sse";
@@ -32,6 +33,12 @@ export interface ApiClient {
   createWatch(answerId: string): Promise<Watch>;
   deleteWatch(id: string): Promise<void>;
   notifications(signal?: AbortSignal): Promise<WatchNotification[]>;
+  /**
+   * Actions whose response has no schema in the contract (API_REQUESTS.md #7): their body is
+   * never read or shown. The interface re-reads the watches and notifications instead, which are validated.
+   */
+  checkWatches(): Promise<void>;
+  simulateAlert(watchId: string, level: WatchLevel): Promise<void>;
 }
 
 type Schema<T> = z.ZodType<T, z.ZodTypeDef, unknown>;
@@ -88,6 +95,12 @@ export function createHttpClient(base: string = import.meta.env.VITE_API_BASE ??
       json("POST", "/watches", Watch, { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answer_id: answerId }) }),
     async deleteWatch(watchId) {
       await send("DELETE", `/watches/${id(watchId)}`);
+    },
+    async checkWatches() {
+      await send("POST", "/watches/check");
+    },
+    async simulateAlert(watchId, level) {
+      await send("POST", `/watches/${id(watchId)}/simulate?level=${id(level)}`);
     },
 
     async ask(request, onStep, signal) {

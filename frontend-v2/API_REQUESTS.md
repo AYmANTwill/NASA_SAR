@@ -56,3 +56,12 @@ interface cannot show it. Watches have `level`, answers do not.
 
 - **Ask (contract change, Ayman + Houssam):** add `alert_level: "yellow" | "orange" | "red" | null` to `Answer`.
 - **Until then:** no alert level is shown on an answer; the interface never derives one.
+
+## 7. Schemas for the watch actions
+
+`POST /api/watches/check` (`{changed: [...]}`) and `POST /api/watches/{id}/simulate` (`{simulated, watch_id, level}`)
+have no schema in the contract.
+
+- **Ask:** add their response shapes to `contract.ts` (or answer 204), so they can be validated like the rest.
+- **Until then:** the interface never reads these bodies. After either action it re-reads `GET /api/watches` and
+  `GET /api/notifications`, which are validated.

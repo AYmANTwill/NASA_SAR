@@ -95,6 +95,38 @@
   stroke-width: 1.5;
 }
 
+/* Watch levels: the only alert colours, always with a shape and a word. */
+.level {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.level-none {
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.level-icon {
+  inline-size: 1em;
+  block-size: 1em;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+}
+
+.level-yellow .level-icon {
+  fill: var(--level-yellow);
+}
+
+.level-orange .level-icon {
+  fill: var(--level-orange);
+}
+
+.level-red .level-icon {
+  fill: var(--level-red);
+}
+
 .glyph {
   inline-size: 0.75em;
   block-size: 0.75em;

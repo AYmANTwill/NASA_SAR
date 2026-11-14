@@ -6,7 +6,9 @@ import { CasesPage } from "@/features/cases/CasesPage";
 import { CaseView } from "@/features/cases/CaseView";
 import { AnswerPage } from "@/features/investigate/AnswerPage";
 import { AskPage } from "@/features/investigate/AskPage";
+import { LibraryPage } from "@/features/library/LibraryPage";
 import { StatusPage } from "@/features/status/StatusPage";
+import { WatchesPage } from "@/features/watch/WatchesPage";
 import { AppShell } from "./AppShell";
 import { useDocumentTitle } from "./useDocumentTitle";
 import "./pages.css";
@@ -26,17 +28,6 @@ function LangLayout() {
   );
 }
 
-function Pending({ titleKey }: { titleKey: string }) {
-  const { t } = useTranslation();
-  const title = t(titleKey);
-  useDocumentTitle(title);
-  return (
-    <section className="page">
-      <h1>{title}</h1>
-      <p className="page-lede">{t("pending.body")}</p>
-    </section>
-  );
-}
 
 export function NotFound() {
   const { t, i18n: instance } = useTranslation();
@@ -71,8 +62,8 @@ export const routes: RouteObject[] = [
       { path: "cases/:id", element: <LangGate><CaseView /></LangGate> },
       { path: "ask", element: <LangGate><AskPage /></LangGate> },
       { path: "answers/:id", element: <LangGate><AnswerPage /></LangGate> },
-      { path: "library", element: <LangGate><Pending titleKey="nav.library" /></LangGate> },
-      { path: "watches", element: <LangGate><Pending titleKey="nav.watches" /></LangGate> },
+      { path: "library", element: <LangGate><LibraryPage /></LangGate> },
+      { path: "watches", element: <LangGate><WatchesPage /></LangGate> },
       { path: "status", element: <LangGate><StatusPage /></LangGate> },
       { path: "*", element: <NotFound /> },
     ],

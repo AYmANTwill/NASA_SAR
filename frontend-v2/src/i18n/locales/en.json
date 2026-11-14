@@ -59,9 +59,6 @@
     "proof": "L-band versus C-band comparison",
     "proofReady": "The comparison is available."
   },
-  "pending": {
-    "body": "This page is not built yet in this version of the interface."
-  },
   "notFound": {
     "title": "Page not found",
     "body": "This address does not match any page.",
@@ -167,7 +164,7 @@
   "ask": {
     "lede": "Ask a question about a place. NISAR Pulse finds the radar passes, measures, compares with independent sources and says what it cannot know.",
     "label": "Your question",
-    "placeholder": "For example: did the ground move at Asni after the flood of 10 October?",
+    "placeholder": "For example: did the ground move at Asni after the flash flood?",
     "submit": "Investigate",
     "running": "Investigating…",
     "noPoint": "No point chosen: name a known place, or click on the map.",
@@ -303,5 +300,47 @@
     "date": "Date",
     "value": "Value",
     "range": "Range (±{{sigma}} σ)"
+  },
+  "library": {
+    "lede": "Precomputed events, available offline, with the independent source that checks them.",
+    "empty": "The library is empty.",
+    "noAnswer": "No NISAR answer for this event yet."
+  },
+  "libraryKind": {
+    "earthquake": "Earthquake",
+    "flood": "Flood",
+    "landslide": "Landslide",
+    "volcano": "Volcano"
+  },
+  "level": {
+    "none": "no level yet",
+    "label": "Level {{level}}",
+    "yellow": "yellow",
+    "orange": "orange",
+    "red": "red"
+  },
+  "watch": {
+    "lede": "A watched place is checked again at every new NISAR pass. You are told when its level changes.",
+    "listTitle": "Watched places",
+    "checkNow": "Check again now",
+    "checking": "Checking…",
+    "empty": "No place is watched.",
+    "emptyAction": "Ask a question, then watch its answer.",
+    "level": "Level",
+    "confidence": "Confidence",
+    "lastPass": "Last pass used",
+    "nextPass": "Next NISAR pass",
+    "openAnswer": "Open the answer",
+    "delete": "Stop watching",
+    "notifications": "Alerts received",
+    "notificationsNone": "No alert yet.",
+    "previously": "before:",
+    "create": "Watch this place",
+    "created": "Watch active. Next NISAR pass: {{date}}.",
+    "seeWatches": "See the watches",
+    "demoTitle": "Demonstration: simulate an alert",
+    "demoNote": "To show what an alert looks like. The message says SIMULATION in all three languages; it is not a measurement.",
+    "demoLevel": "Simulated level",
+    "demoRun": "Simulate"
   }
 }

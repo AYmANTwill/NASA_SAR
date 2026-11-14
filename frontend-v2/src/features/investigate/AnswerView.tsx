@@ -5,6 +5,7 @@ import { MeasurementView } from "@/components/science/MeasurementView";
 import { SeriesChart } from "@/components/science/SeriesChart";
 import { formatDate, formatNumber } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
+import { WatchButton } from "@/features/watch/WatchButton";
 import { StepList } from "./StepList";
 import "@/features/cases/CaseView.css";
 import "./investigate.css";
@@ -79,6 +80,9 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
             {answer.stable_in_noise && <span className="tag">{t("answer.stableInNoise")}</span>}
             <span className="tag">{t(`productStatus.${answer.product_status}`)}</span>
           </p>
+          <div className="answer-watch">
+            <WatchButton answerId={answer.id} />
+          </div>
 
           {answer.metrics.length > 0 && (
             <section className="ledger-section" aria-labelledby="metrics-title">

@@ -59,9 +59,6 @@
     "proof": "Comparaison bande L / bande C",
     "proofReady": "La comparaison est disponible."
   },
-  "pending": {
-    "body": "Cette page n'est pas encore construite dans cette version de l'interface."
-  },
   "notFound": {
     "title": "Page introuvable",
     "body": "Cette adresse ne correspond à aucune page.",
@@ -167,7 +164,7 @@
   "ask": {
     "lede": "Posez une question sur un lieu. NISAR Pulse cherche les passages du radar, mesure, compare à des sources indépendantes et dit ce qu’il ne peut pas savoir.",
     "label": "Votre question",
-    "placeholder": "Par exemple : le sol a-t-il bougé à Asni après la crue du 10 octobre ?",
+    "placeholder": "Par exemple : le sol a-t-il bougé à Asni après la crue éclair ?",
     "submit": "Enquêter",
     "running": "Enquête en cours…",
     "noPoint": "Aucun point choisi : nommez un lieu connu, ou cliquez sur la carte.",
@@ -303,5 +300,47 @@
     "date": "Date",
     "value": "Valeur",
     "range": "Intervalle (±{{sigma}} σ)"
+  },
+  "library": {
+    "lede": "Les événements précalculés, disponibles hors ligne, avec la source indépendante qui les vérifie.",
+    "empty": "La bibliothèque est vide.",
+    "noAnswer": "Pas encore de réponse NISAR pour cet événement."
+  },
+  "libraryKind": {
+    "earthquake": "Séisme",
+    "flood": "Crue",
+    "landslide": "Glissement de terrain",
+    "volcano": "Volcan"
+  },
+  "level": {
+    "none": "pas encore de niveau",
+    "label": "Niveau {{level}}",
+    "yellow": "jaune",
+    "orange": "orange",
+    "red": "rouge"
+  },
+  "watch": {
+    "lede": "Un lieu surveillé est réexaminé à chaque nouveau passage de NISAR. Vous êtes prévenu quand son niveau change.",
+    "listTitle": "Lieux surveillés",
+    "checkNow": "Réexaminer maintenant",
+    "checking": "Réexamen en cours…",
+    "empty": "Aucun lieu surveillé.",
+    "emptyAction": "Posez une question, puis surveillez sa réponse.",
+    "level": "Niveau",
+    "confidence": "Confiance",
+    "lastPass": "Dernier passage utilisé",
+    "nextPass": "Prochain passage NISAR",
+    "openAnswer": "Voir la réponse",
+    "delete": "Arrêter la surveillance",
+    "notifications": "Alertes reçues",
+    "notificationsNone": "Aucune alerte pour l’instant.",
+    "previously": "avant :",
+    "create": "Surveiller ce lieu",
+    "created": "Surveillance active. Prochain passage NISAR : {{date}}.",
+    "seeWatches": "Voir les surveillances",
+    "demoTitle": "Démonstration : simuler une alerte",
+    "demoNote": "Pour montrer à quoi ressemble une alerte. Le message porte la mention SIMULATION dans les trois langues ; ce n’est pas une mesure.",
+    "demoLevel": "Niveau simulé",
+    "demoRun": "Simuler"
   }
 }

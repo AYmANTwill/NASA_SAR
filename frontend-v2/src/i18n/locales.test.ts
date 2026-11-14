@@ -41,6 +41,28 @@ describe("locales", () => {
     }
   });
 
+  /**
+   * "Never type a number": interface strings carry no number of their own. Allowed: proper
+   * names (ERA5, Sentinel-1, SME2) and the contract's agreement rule (2σ / 4σ, CASE_CONTRACT.md).
+   * Numbers reach the screen only as {{parameters}} from the API.
+   */
+  it("no interface string contains a number of its own", async () => {
+    const allowedKeys = /^(agreement\.(agree|partial|disagree)|source\.(open_meteo|sentinel1|sentinel2)|limit\.soil_depth)$/;
+    const templates = { fr: await import("./templates/fr.json"), en: await import("./templates/en.json"), ar: await import("./templates/ar.json") };
+    for (const [name, locale] of Object.entries({ fr, en, ar })) {
+      const strings: [string, string][] = [];
+      const walk = (o: unknown, p: string) => {
+        if (typeof o === "string") strings.push([p, o]);
+        else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) walk(v, p ? `${p}.${k}` : k);
+      };
+      walk(locale, "");
+      const tpl = templates[name as keyof typeof templates];
+      for (const [k, v] of Object.entries({ ...tpl.tpl, ...tpl.term })) strings.push([k, v]);
+      const offenders = strings.filter(([k, s]) => !allowedKeys.test(k) && /\d/.test(s.replace(/\{\{[^}]*\}\}/g, "")));
+      expect(offenders, name).toEqual([]);
+    }
+  });
+
   it("has a label for every unit of the contract", async () => {
     const { Unit } = await import("@/api/contract");
     for (const locale of [fr, en, ar]) expect(Object.keys(locale.unit).sort()).toEqual([...Unit.options].sort());
