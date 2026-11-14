@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { waitForMap, watchConsole } from "./helpers";
 
-const ROUTES = ["/", "/investigate", "/investigate/fx-panama-2026-10-09", "/investigate/fx-alwahda-since-june", "/investigate/fx-zone-rif-slope", "/watch", "/library", "/proof"];
+const ROUTES = ["/", "/cases/panama-2026", "/cases/ionosphere-gps", "/discover", "/investigate", "/investigate/fx-panama-2026-10-09", "/investigate/fx-alwahda-since-june", "/investigate/fx-zone-rif-slope", "/watch", "/library", "/proof"];
 const LANGS = ["fr", "ar", "en"] as const;
 
 for (const lang of LANGS) {

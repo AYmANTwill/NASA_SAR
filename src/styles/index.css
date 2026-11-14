@@ -274,3 +274,25 @@
 }
 .orbit-sat { transform: rotate(var(--orbit-angle)); animation: orbit-fly 1.6s cubic-bezier(0.3, 0, 0.2, 1) 0.2s both; }
 .orbit-arc { animation: orbit-arc 1.6s cubic-bezier(0.3, 0, 0.2, 1) 0.2s both; }
+
+/* Case studies: the timeline unrolls event → pass → product. */
+@keyframes case-step {
+  from { opacity: 0; transform: translateY(8px); }
+}
+.case-step { animation: case-step 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@media (min-width: 640px) {
+  .case-timeline::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0.375rem;
+    top: 0.375rem;
+    height: 2px;
+    background: var(--line-strong);
+    transform-origin: 0 50%;
+    animation: case-line 900ms cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+  :dir(rtl) .case-timeline::before { transform-origin: 100% 50%; }
+}
+@keyframes case-line {
+  from { transform: scaleX(0); }
+}

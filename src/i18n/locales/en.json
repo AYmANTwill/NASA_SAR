@@ -11,7 +11,8 @@
     "watch": "Watch",
     "library": "Library",
     "proof": "L-band / C-band",
-    "soon": "soon"
+    "soon": "soon",
+    "cases": "Case studies"
   },
   "lang": {
     "label": "Language",
@@ -245,7 +246,11 @@
     "km2": "km²",
     "percent": "%",
     "coherence": "",
-    "km": "km"
+    "km": "km",
+    "Mw": "Mw",
+    "people": "people",
+    "count": "",
+    "deg": "°"
   },
   "unitName": {
     "coherence": "unitless"
@@ -462,5 +467,49 @@
   },
   "ruler": {
     "desc": "{{label}}: {{value}}, noise threshold {{threshold}}"
+  },
+  "cases": {
+    "title": "Case studies",
+    "intro": "Four events where NISAR is compared with an independent reference, with what the radar cannot say.",
+    "list": "Case studies",
+    "draft": "DRAFT, example values: this case is not validated by the team yet.",
+    "draftShort": "Draft",
+    "final": "Validated",
+    "kind": {
+      "earthquake": "Earthquake",
+      "flood": "Flood",
+      "method": "Method"
+    },
+    "back": "All case studies",
+    "open": "Open the case",
+    "timeline": "Timeline",
+    "after_one": "{{count}} day later",
+    "after_other": "{{count}} days later",
+    "before_one": "{{count}} day before",
+    "before_other": "{{count}} days before",
+    "sameDay": "same day",
+    "map": "Map",
+    "findings": "NISAR against an independent reference",
+    "what": "Quantity",
+    "nisar": "NISAR",
+    "reference": "Reference",
+    "source": "Source",
+    "agreementCol": "Agreement",
+    "agreement": {
+      "agree": "Agrees",
+      "partial": "Partly agrees",
+      "disagree": "Disagrees",
+      "no_reference": "No reference"
+    },
+    "noFindings": "Nothing is measured for this case yet.",
+    "exposure": "Exposure",
+    "people": "People",
+    "buildings": "Buildings",
+    "area": "Area",
+    "exposureSource": "Source: {{source}}",
+    "notMeasured": "not measured",
+    "figures": "Figures",
+    "openAnswer": "Open in the investigator",
+    "answers": "Agent answers"
   }
 }

@@ -22,10 +22,12 @@ test("demo path replays offline from cache", async ({ page, context }) => {
   await page.reload();
   const nav = page.getByRole("navigation", { name: "Navigation principale" });
   await expect(page.getByRole("status").filter({ hasText: "Hors ligne" })).toBeVisible();
-  await expect(page.getByText("Fond de carte simplifié (hors ligne)")).toBeVisible();
+  // The home page is now the case studies (cached offline).
+  await expect(page.getByRole("heading", { level: 1, name: "Études de cas" })).toBeVisible();
 
   // 3. Replay the demo.
   await nav.getByRole("link", { name: "Enquête", exact: true }).click();
+  await expect(page.getByText("Fond de carte simplifié (hors ligne)")).toBeVisible();
   await waitForMap(page);
   for (const q of [DEMO.panama.fr, DEMO.alWahda.fr]) {
     await page.getByRole("textbox", { name: "Votre question" }).fill(q);

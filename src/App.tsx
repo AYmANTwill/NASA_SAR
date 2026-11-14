@@ -7,6 +7,7 @@ import RouteError from "@/components/RouteError";
 import { Loading } from "@/components/states";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+const CasesPage = lazy(() => import("@/features/cases/CasesPage"));
 const DiscoverPage = lazy(() => import("@/features/discover/DiscoverPage"));
 const InvestigatePage = lazy(() => import("@/features/investigate/InvestigatePage"));
 const WatchPage = lazy(() => import("@/features/watch/WatchPage"));
@@ -23,13 +24,15 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { errorElement: <RouteError />, children: [
-      { index: true, element: page(<DiscoverPage />) },
+      { index: true, element: page(<CasesPage />) },
+      { path: "cases/:caseId", element: page(<CasesPage />) },
+      { path: "discover", element: page(<DiscoverPage />) },
       { path: "investigate", element: page(<InvestigatePage />) },
       { path: "investigate/:answerId", element: page(<InvestigatePage />) },
       { path: "watch", element: page(<WatchPage />) },
       { path: "library", element: page(<LibraryPage />) },
       { path: "proof", element: page(<ProofPage />) },
-      { path: "*", element: page(<DiscoverPage />) },
+      { path: "*", element: page(<CasesPage />) },
       ] },
     ],
   },

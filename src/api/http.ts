@@ -4,6 +4,8 @@ import {
   AgentStep,
   Answer,
   ApiErrorBody,
+  CaseStudy,
+  CaseSummary,
   DemoBundle,
   Discoveries,
   LbandProof,
@@ -80,5 +82,7 @@ export function createHttpClient(base = import.meta.env.VITE_API_BASE ?? "/api")
     library: (signal) => getJson("/library", z.array(LibraryEvent), signal),
     lbandProof: (signal) => getJson("/proofs/lband-vs-cband", LbandProof, signal),
     demoBundle: (signal) => getJson("/demo", DemoBundle, signal),
+    cases: (signal) => getJson("/cases", z.array(CaseSummary), signal),
+    caseStudy: (id, signal) => getJson(`/cases/${encodeURIComponent(id)}`, CaseStudy, signal),
   };
 }

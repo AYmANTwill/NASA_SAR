@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import * as fx from "@/__fixtures__";
-import { Answer, ApiErrorBody, DemoBundle, Discoveries, LbandProof, LibraryEvent, Watch, WatchNotification } from "./contract";
+import { Answer, ApiErrorBody, CaseStudy, CaseSummary, DemoBundle, Discoveries, LbandProof, LibraryEvent, Watch, WatchNotification } from "./contract";
 import { recordedRaw } from "@/__fixtures__/backend";
 import { matchDemoQuestion, normalizeQuestion } from "./match";
 import { parseBlock } from "./sse";
@@ -51,6 +51,19 @@ describe("demo question matching", () => {
   });
   it("does not invent a match for an unrelated question", () => {
     expect(matchDemoQuestion(fx.demoBundle, "Quel temps fera-t-il demain à Paris ?")).toBeNull();
+  });
+});
+
+describe("case studies", () => {
+  it.each(fx.caseStudies.map((c) => [c.id, c]))("case %s respects the contract", (_, c) => {
+    const parsed = CaseStudy.safeParse(c);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+  it("summaries respect the contract", () => {
+    expect(z.array(CaseSummary).safeParse(fx.caseSummaries).success).toBe(true);
+  });
+  it("a case without limits is rejected", () => {
+    expect(CaseStudy.safeParse({ ...fx.caseStudies[0], limits: [] }).success).toBe(false);
   });
 });
 

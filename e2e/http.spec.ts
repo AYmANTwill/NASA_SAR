@@ -28,6 +28,11 @@ async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveri
     }
     if (path === "/notifications") return json(route, fx.initialNotifications);
     if (path === "/library") return json(route, fx.library);
+    if (path === "/cases") return json(route, fx.caseSummaries);
+    if (path.startsWith("/cases/")) {
+      const c = fx.caseStudies.find((x) => x.id === decodeURIComponent(path.slice("/cases/".length)));
+      return c ? json(route, c) : json(route, { code: "not_found", message: { template: "error.not_found", params: {} } }, 404);
+    }
     if (path === "/proofs/lband-vs-cband" && overrides.proofError) return json(route, overrides.proofError.body, overrides.proofError.status);
     if (path === "/proofs/lband-vs-cband") return json(route, fx.lbandProof);
     if (path.startsWith("/answers/")) {
@@ -70,7 +75,7 @@ test("contract violation shows an explicit error, never a guessed value", async 
   const broken = structuredClone(fx.discoveries) as unknown as { zones: { velocity: Record<string, unknown> }[] };
   delete broken.zones[0].velocity.uncertainty;
   await mockApi(page, { discoveries: broken });
-  await page.goto("/");
+  await page.goto("/discover");
   await expect(page.getByRole("alert")).toContainText("contrat d'API");
   await expect(page.getByText("Versant de Taounate")).toHaveCount(0);
 });
@@ -97,7 +102,7 @@ const backendMessage = (code: string, fr: string) => ({ code, message: { templat
 
 test("discoveries switched off (503) is an information state, not an error", async ({ page }) => {
   await mockApi(page, { discoveriesError: { status: 503, body: backendMessage("discoveries_disabled", "Découverte automatique désactivée.") } });
-  await page.goto("/");
+  await page.goto("/discover");
   await expect(page.getByRole("heading", { level: 1, name: "Ce que NISAR a regardé" })).toBeVisible();
   await expect(page.getByRole("status").filter({ hasText: "La détection automatique est désactivée" })).toBeVisible();
   await expect(page.getByText("Découverte automatique désactivée.")).toBeVisible();
@@ -113,4 +118,17 @@ test("L/C comparison not computed (404) is labelled, with the physics explainer"
   await expect(page.getByRole("img", { name: /Sentinel-1/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Bande L \/ bande C/ })).toContainText("bientôt");
   await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("case studies: first page, draft banner, findings with agreement and limits", async ({ page }) => {
+  const errors = watchConsole(page);
+  await mockApi(page);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1, name: "Études de cas" })).toBeVisible();
+  await page.getByRole("link", { name: /Séisme du Panama/ }).click();
+  await expect(page.getByRole("note").filter({ hasText: "BROUILLON" })).toBeVisible();
+  await expect(page.getByRole("table")).toContainText("Pas de référence");
+  await expect(page.getByRole("heading", { name: "Ce que le radar ne peut pas dire ici" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ouvrir dans l’enquêteur" })).toHaveAttribute("href", /\/investigate\//);
+  expect(errors).toEqual([]);
 });

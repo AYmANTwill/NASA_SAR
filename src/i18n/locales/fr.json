@@ -11,7 +11,8 @@
     "watch": "Veille",
     "library": "Bibliothèque",
     "proof": "Bande L / bande C",
-    "soon": "bientôt"
+    "soon": "bientôt",
+    "cases": "Études de cas"
   },
   "lang": {
     "label": "Langue",
@@ -245,7 +246,11 @@
     "km2": "km²",
     "percent": "%",
     "coherence": "",
-    "km": "km"
+    "km": "km",
+    "Mw": "Mw",
+    "people": "personnes",
+    "count": "",
+    "deg": "°"
   },
   "unitName": {
     "coherence": "sans unité"
@@ -462,5 +467,50 @@
   },
   "ruler": {
     "desc": "{{label}} : {{value}}, seuil de bruit {{threshold}}"
+  },
+  "cases": {
+    "title": "Études de cas",
+    "intro": "Quatre événements où NISAR est comparé à une référence indépendante, avec ce que le radar ne peut pas dire.",
+    "list": "Études de cas",
+    "draft": "BROUILLON, valeurs d’exemple : cette étude n’est pas encore validée par l’équipe.",
+    "draftShort": "Brouillon",
+    "final": "Validée",
+    "kind": {
+      "earthquake": "Séisme",
+      "flood": "Inondation",
+      "method": "Méthode"
+    },
+    "back": "Toutes les études de cas",
+    "open": "Ouvrir l’étude",
+    "timeline": "Chronologie",
+    "after_zero": "{{count}} jour plus tard",
+    "after_one": "{{count}} jour plus tard",
+    "after_other": "{{count}} jours plus tard",
+    "before_one": "{{count}} jour avant",
+    "before_other": "{{count}} jours avant",
+    "sameDay": "le même jour",
+    "map": "Carte",
+    "findings": "NISAR face à une référence indépendante",
+    "what": "Grandeur",
+    "nisar": "NISAR",
+    "reference": "Référence",
+    "source": "Source",
+    "agreementCol": "Accord",
+    "agreement": {
+      "agree": "Accord",
+      "partial": "Accord partiel",
+      "disagree": "Désaccord",
+      "no_reference": "Pas de référence"
+    },
+    "noFindings": "Rien n’est encore mesuré pour cette étude.",
+    "exposure": "Exposition",
+    "people": "Personnes",
+    "buildings": "Bâtiments",
+    "area": "Surface",
+    "exposureSource": "Source : {{source}}",
+    "notMeasured": "pas mesuré",
+    "figures": "Figures",
+    "openAnswer": "Ouvrir dans l’enquêteur",
+    "answers": "Réponses de l’agent"
   }
 }

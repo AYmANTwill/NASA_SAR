@@ -84,3 +84,4 @@ export const demoBundle: DemoBundle = {
     ...recordedDemoEntries,
   ],
 };
+export { caseStudies, caseSummaries } from "./cases";

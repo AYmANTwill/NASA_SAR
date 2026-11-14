@@ -11,7 +11,8 @@
     "watch": "المراقبة",
     "library": "المكتبة",
     "proof": "النطاق L / النطاق C",
-    "soon": "قريبًا"
+    "soon": "قريبًا",
+    "cases": "دراسات الحالة"
   },
   "lang": {
     "label": "اللغة",
@@ -249,7 +250,11 @@
     "km2": "كم²",
     "percent": "%",
     "coherence": "",
-    "km": "كم"
+    "km": "كم",
+    "Mw": "Mw",
+    "people": "شخص",
+    "count": "",
+    "deg": "°"
   },
   "unitName": {
     "coherence": "بلا وحدة"
@@ -514,5 +519,57 @@
   },
   "ruler": {
     "desc": "{{label}}: {{value}}، عتبة الضجيج {{threshold}}"
+  },
+  "cases": {
+    "title": "دراسات الحالة",
+    "intro": "أربعة أحداث يُقارَن فيها NISAR بمرجع مستقل، مع ما لا يستطيع الرادار قوله.",
+    "list": "دراسات الحالة",
+    "draft": "مسودة، قيم توضيحية: لم يصادق الفريق على هذه الدراسة بعد.",
+    "draftShort": "مسودة",
+    "final": "مُصادَق عليها",
+    "kind": {
+      "earthquake": "زلزال",
+      "flood": "فيضان",
+      "method": "منهجية"
+    },
+    "back": "كل دراسات الحالة",
+    "open": "فتح الدراسة",
+    "timeline": "التسلسل الزمني",
+    "after_zero": "بعد {{count}} يوم",
+    "after_one": "بعد يوم واحد",
+    "after_two": "بعد يومين",
+    "after_few": "بعد {{count}} أيام",
+    "after_many": "بعد {{count}} يومًا",
+    "after_other": "بعد {{count}} يوم",
+    "before_zero": "قبل {{count}} يوم",
+    "before_one": "قبل يوم واحد",
+    "before_two": "قبل يومين",
+    "before_few": "قبل {{count}} أيام",
+    "before_many": "قبل {{count}} يومًا",
+    "before_other": "قبل {{count}} يوم",
+    "sameDay": "في اليوم نفسه",
+    "map": "الخريطة",
+    "findings": "NISAR مقابل مرجع مستقل",
+    "what": "المقدار",
+    "nisar": "NISAR",
+    "reference": "المرجع",
+    "source": "المصدر",
+    "agreementCol": "التوافق",
+    "agreement": {
+      "agree": "متوافق",
+      "partial": "متوافق جزئيًا",
+      "disagree": "غير متوافق",
+      "no_reference": "لا مرجع"
+    },
+    "noFindings": "لم يُقَس شيء بعد في هذه الدراسة.",
+    "exposure": "التعرّض",
+    "people": "الأشخاص",
+    "buildings": "المباني",
+    "area": "المساحة",
+    "exposureSource": "المصدر: {{source}}",
+    "notMeasured": "غير مقيس",
+    "figures": "الأشكال",
+    "openAnswer": "فتح في المحقّق",
+    "answers": "أجوبة الوكيل"
   }
 }

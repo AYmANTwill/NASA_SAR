@@ -16,6 +16,8 @@ export const keys = {
   library: ["library"] as const,
   proof: ["proof", "lband-vs-cband"] as const,
   demo: ["demo"] as const,
+  cases: ["cases"] as const,
+  caseStudy: (id: string) => ["case", id] as const,
 };
 
 export function createQueryClient() {
@@ -64,6 +66,11 @@ export const useNotifications = () =>
   useQuery({ queryKey: keys.notifications, queryFn: async ({ signal }) => (await getClient()).notifications(signal) });
 
 export const useLibrary = () => useQuery({ queryKey: keys.library, queryFn: async ({ signal }) => (await getClient()).library(signal) });
+
+export const useCases = () => useQuery({ queryKey: keys.cases, queryFn: async ({ signal }) => (await getClient()).cases(signal) });
+
+export const useCaseStudy = (id: string | undefined) =>
+  useQuery({ queryKey: keys.caseStudy(id ?? ""), enabled: !!id, queryFn: async ({ signal }) => (await getClient()).caseStudy(id!, signal) });
 
 export const useLbandProof = () => useQuery({ queryKey: keys.proof, queryFn: async ({ signal }) => (await getClient()).lbandProof(signal) });
 

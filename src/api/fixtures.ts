@@ -87,5 +87,15 @@ export async function createFixtureClient(): Promise<ApiClient> {
       await latency();
       return fx.demoBundle;
     },
+    async cases() {
+      await latency();
+      return fx.caseSummaries;
+    },
+    async caseStudy(id) {
+      await latency();
+      const c = fx.caseStudies.find((x) => x.id === id);
+      if (!c) throw notFound();
+      return c;
+    },
   };
 }

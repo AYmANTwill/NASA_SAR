@@ -3,6 +3,8 @@ import type {
   AgentStep,
   Answer,
   AskRequest,
+  CaseStudy,
+  CaseSummary,
   DemoBundle,
   Discoveries,
   LbandProof,
@@ -25,6 +27,8 @@ export interface ApiClient {
   library(signal?: AbortSignal): Promise<LibraryEvent[]>;
   lbandProof(signal?: AbortSignal): Promise<LbandProof>;
   demoBundle(signal?: AbortSignal): Promise<DemoBundle>;
+  cases(signal?: AbortSignal): Promise<CaseSummary[]>;
+  caseStudy(id: string, signal?: AbortSignal): Promise<CaseStudy>;
 }
 
 /** The backend answered, but with an explicit error body (e.g. no coverage). */

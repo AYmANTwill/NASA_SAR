@@ -5,7 +5,10 @@
 import { expect, test } from "@playwright/test";
 
 const ROUTES: [string, string][] = [
-  ["discover", "/"],
+  ["cases", "/"],
+  ["case-panama", "/cases/panama-2026"],
+  ["case-haouz", "/cases/haouz-flood-2026"],
+  ["discover", "/discover"],
   ["investigate-panama", "/investigate/fx-panama-2026-10-09"],
   ["answer-alwahda", "/investigate/fx-alwahda-since-june"],
   ["answer-zone1", "/investigate/fx-zone-rif-slope"],

@@ -9,7 +9,8 @@ import { useLang } from "@/i18n/useText";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/", key: "discover", end: true },
+  { to: "/", key: "cases", end: true },
+  { to: "/discover", key: "discover", end: false },
   { to: "/investigate", key: "investigate", end: false },
   { to: "/watch", key: "watch", end: false },
   { to: "/library", key: "library", end: false },
