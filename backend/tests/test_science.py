@@ -215,6 +215,18 @@ check("synthetic inversion recovers Mw within 0.05 and the top depth within 1 km
 check("synthetic inversion: RMS at the noise level (1 cm), stable, Mw sigma reported",
       0.8 < best["rms_cm"] < 1.2 and res["stable"] and best["mw"]["sigma"] is not None, res["unstable_reasons"])
 
+from science.panama_fault import block_means  # noqa: E402
+
+grid = np.arange(100 * 80, dtype=float).reshape(100, 80)
+grid[:50, :] = np.nan                                   # top half masked
+rows, cols, vals = block_means(grid, n_target=40)
+b = int(np.ceil(np.sqrt(50 * 80 / 40)))
+check("block means: masked blocks dropped, about n_target points kept, centres and means exact",
+      30 <= vals.size <= 60 and rows.min() >= 50 and vals[0] == np.nanmean(grid[int(rows[0] - b / 2):int(rows[0] + b / 2),
+                                                                              int(cols[0] - b / 2):int(cols[0] + b / 2)]),
+      (vals.size, rows.min()))
+check("block means: an all-masked raster gives no point", block_means(np.full((10, 10), np.nan))[2].size == 0)
+
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
 sys.exit(0 if passed == len(results) else 1)
