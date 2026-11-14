@@ -1075,13 +1075,17 @@ check("validation event: listed only on request, after the five unchanged Morocc
 vrows = _mvp.select(json.loads(PLAN_NISAR.read_text())["files"])
 vplan = json.loads((ROOT.parent / "plan_validation.json").read_text())
 geoms = {_mvp.geometry(r) for r in vrows}
-check("plan_validation: per geometry the 12-day pairs across 2026-10-09 17:56 UTC + the last pre-event pair; part 1, extra layers",
-      len(geoms) == 8 and len(vrows) == 16 and all(r["dataset"] == "panama" and r["part"] == 1 and r["extra_layers"] for r in vrows)
+check("plan_validation: part 1 = the 8 co-seismic 12-day pairs across 2026-10-09 17:56 UTC (tracks 4, 40, 76, 141, ~13.3 GB), "
+      "part 2 = the last pre-event pair per geometry; extra layers on",
+      len(geoms) == 8 and len(vrows) == 16 and all(r["dataset"] == "panama" and r["extra_layers"] for r in vrows)
+      and all(r["part"] == r["tier"] == (1 if r["event_role"] == "co" else 2) for r in vrows)
+      and {r["track"] for r in vrows if r["part"] == 1} == {4, 40, 76, 141} and sum(r["part"] == 1 for r in vrows) == 8
+      and 13.0e9 < sum(r["size"] for r in vrows if r["part"] == 1) < 13.6e9
       and all(r["ref_ts"] <= _mvp.EVENT <= r["sec_ts"] and r["span"] == 12 for r in vrows if r["event_role"] == "co")
       and all(sum(r["event_role"] == "pre" and _mvp.geometry(r) == g for r in vrows) == 1 for g in geoms)
       and all(r["sec_ts"] < _mvp.EVENT for r in vrows if r["event_role"] == "pre"), len(vrows))
-check("plan_validation.json (committed) = the builder's output, same row format, readable by download_all --plan (part 1 only)",
-      [r["name"] for r in vplan["files"]] == [r["name"] for r in vrows] and da.plan_parts(vplan) == [1]
+check("plan_validation.json (committed) = the builder's output, same row format, readable by download_all --plan (parts 1 and 2)",
+      [r["name"] for r in vplan["files"]] == [r["name"] for r in vrows] and da.plan_parts(vplan) == [1, 2]
       and set(json.loads(PLAN_NISAR.read_text())["files"][0]) <= set(vplan["files"][0]))
 
 # --- 2. corrections: optional, measured, each one a separate tested function ----------------------------------------

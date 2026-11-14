@@ -4,10 +4,14 @@
 Reads the `panama` rows of plan_nisar.json (never modifies it) and keeps, per viewing geometry (track, frame, direction):
   - every 12-day pair that straddles the earthquake (ref <= origin time <= sec), role "co";
   - the most recent pair that ends before the earthquake, role "pre" (the no-event reference for the noise floor).
-Rows keep the plan_nisar.json format; they get part = tier = 1 and extra_layers = true, so the troposphere and
-solid-earth-tide cubes are extracted for the correction tests. Directly usable as:
+Rows keep the plan_nisar.json format; they get extra_layers = true (troposphere and solid-earth-tide cubes are
+extracted for the correction tests) and part = tier:
+  part 1 = the 8 co-seismic pairs (tracks 4, 40, 76, 141; about 13.3 GB): start with this one;
+  part 2 = the pre-event pairs (about 13.4 GB): the no-event reference for noise_report.py.
+Directly usable as:
 
     python download_all.py run --plan plan_validation.json --part 1 [--keep-raw]
+    python download_all.py run --plan plan_validation.json --part 2 [--keep-raw]
 
 Usage (from the repo root):  python tools/make_validation_plan.py [--out plan_validation.json] [--dry-run]
 """
@@ -24,7 +28,9 @@ SOURCE = REPO / "plan_nisar.json"
 DEFAULT_OUT = REPO / "plan_validation.json"
 EVENT = "20261009T175606"          # USGS origin time, exact instant
 CO_SPAN_DAYS = 12
-TIERS = {"1": "Panama validation (outside Morocco)"}
+TIERS = {"1": "Panama co-seismic pairs (validation, outside Morocco)",
+         "2": "Panama last pre-event pair per geometry (noise reference)"}
+PART = {"co": 1, "pre": 2}
 
 
 def geometry(r: dict) -> tuple:
@@ -46,8 +52,9 @@ def select(rows: list[dict], event: str = EVENT) -> list[dict]:
         picked = [(r, "co") for r in co]
         if pre:
             picked.append((max(pre, key=lambda r: r["sec_ts"]), "pre"))
-        out += [{**r, "part": 1, "tier": 1, "extra_layers": True, "event_role": role} for r, role in picked]
-    return sorted(out, key=lambda r: (r["track"], r["frame"], r["dir"], r["ref_ts"]))
+        out += [{**r, "part": PART[role], "tier": PART[role], "extra_layers": True, "event_role": role}
+                for r, role in picked]
+    return sorted(out, key=lambda r: (r["part"], r["track"], r["frame"], r["dir"], r["ref_ts"]))
 
 
 def build(source: Path = SOURCE) -> dict:
@@ -59,11 +66,12 @@ def build(source: Path = SOURCE) -> dict:
 
 def summary(plan: dict) -> str:
     files = plan["files"]
-    gb = sum(r["size"] for r in files) / 1e9
-    n_co = sum(r["event_role"] == "co" for r in files)
-    n_geo = len({geometry(r) for r in files})
-    return (f"{len(files)} files, {gb:.2f} GB ({n_co} co-seismic + {len(files) - n_co} pre-event, "
-            f"{n_geo} geometries)")
+    lines = [f"{len(files)} files, {sum(r['size'] for r in files) / 1e9:.2f} GB, "
+             f"{len({geometry(r) for r in files})} geometries"]
+    for t, label in TIERS.items():
+        rs = [r for r in files if r["part"] == int(t)]
+        lines.append(f"  part {t}: {len(rs):2d} files {sum(r['size'] for r in rs) / 1e9:6.2f} GB  {label}")
+    return "\n".join(lines)
 
 
 def main() -> int:
