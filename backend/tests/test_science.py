@@ -215,6 +215,32 @@ check("synthetic inversion recovers Mw within 0.05 and the top depth within 1 km
 check("synthetic inversion: RMS at the noise level (1 cm), stable, Mw sigma reported",
       0.8 < best["rms_cm"] < 1.2 and res["stable"] and best["mw"]["sigma"] is not None, res["unstable_reasons"])
 
+check("inversion reports the variance reduction of every track (the NISAR_LOS_SIGN ±1 runs compare it)",
+      set(best["variance_reduction_per_track"]) == {"asc", "desc"}
+      and all(v > 0.9 for v in best["variance_reduction_per_track"].values()), best["variance_reduction_per_track"])
+
+from science import ffm_sign  # noqa: E402
+
+ff = ffm_sign.USGS_FFM_PANAMA
+lat0, lon0 = 7.6069, -80.7566
+ff_tracks = [Track(name, rng.uniform(-80, 80, 600), rng.uniform(-80, 80, 600), np.zeros(600), np.tile(v, (600, 1)))
+             for name, v in (("asc", [-0.62, -0.11, 0.78]), ("desc", [0.62, -0.11, 0.78]))]
+model = ffm_sign.forward(ff, ff_tracks, lat0, lon0)
+obs = [Track(t.name, t.east, t.north, 2.0 * m + 1.5 + 0.01 * t.east + rng.normal(0, 1.0, m.size), t.vec)
+       for t, m in zip(ff_tracks, model)]
+sc = ffm_sign.sign_check(obs, lat0, lon0, 1.0)
+check("FFM sign test: data built from the USGS model with the right sign -> consistent on every track",
+      sc["overall"] == "consistent" and all(abs(v["k"] - 2.0) < 0.2 for v in sc["per_track"].values()), sc["per_track"])
+flipped = [Track(t.name, t.east, t.north, -t.los, t.vec) for t in obs]
+check("FFM sign test: the same data with the opposite sign -> flipped",
+      ffm_sign.sign_check(flipped, lat0, lon0, 1.0)["overall"] == "flipped")
+noise = [Track(t.name, t.east, t.north, rng.normal(0, 1.0, t.los.size), t.vec) for t in obs]
+check("FFM sign test: pure noise -> inconclusive", ffm_sign.sign_check(noise, lat0, lon0, 1.0)["overall"] == "inconclusive")
+top_c = model[0][np.argmin(np.hypot(ff_tracks[0].east - (-80.769 - lon0) * 111.32 * np.cos(np.radians(lat0)),
+                                    ff_tracks[0].north - (7.54 - lat0) * 110.574))]
+check("FFM forward model: centre given as the surface projection of the fault-plane centre, non-zero signal there",
+      abs(top_c) > 1.0, top_c)
+
 from science.panama_fault import block_means  # noqa: E402
 
 grid = np.arange(100 * 80, dtype=float).reshape(100, 80)

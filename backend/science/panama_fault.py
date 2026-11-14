@@ -24,7 +24,7 @@ from pyproj import Transformer
 import catalog
 from config import LOS_SIGN
 from recipes import decompose, displacement
-from science import usgs
+from science import ffm_sign, usgs
 from science.case_models import Finding, Measurement, agreement
 from science.invert_fault import N_BOOT, Track, invert, predict
 
@@ -161,7 +161,10 @@ def figure(tracks: list[Track], fits, best: int, path: Path) -> None:
 
 
 def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_DIR,
-        n_target: int = N_TARGET) -> dict:
+        n_target: int = N_TARGET, ffm: "ffm_sign.FiniteFault | None" = None) -> dict:
+    """ffm: finite-fault model for the independent sign test (USGS model by default for us6000u18k)."""
+    if ffm is None and event_id == "us6000u18k":
+        ffm = ffm_sign.USGS_FFM_PANAMA
     ev = usgs.event(event_id)
     tracks, pair_ids = coseismic_tracks(ev, n_target)
     base = {"case": case_id, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
@@ -175,11 +178,12 @@ def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_D
         out = {**base, "stable": False, "unstable_reasons": ["no co-seismic GUNW pair with valid pixels"],
                "findings": [], "figures": [], "limits": limits}
     else:
+        sign = ffm_sign.sign_check(tracks, ev.lat, ev.lon, LOS_SIGN, ffm) if ffm else None
         result, fits = invert(tracks, ev.planes, n_boot)
         best = result["planes"][result["best_plane"]]
         fig_path = out_dir / f"{case_id}_fit.png"
         figure(tracks, fits, result["best_plane"], fig_path)
-        out = {**base, **result, "findings": findings_from(best, ev) if result["stable"] else [],
+        out = {**base, **result, "sign_check": sign, "findings": findings_from(best, ev) if result["stable"] else [],
                "figures": [{"id": "fault_fit", "path": fig_path.name, "kind": "image"}], "limits": limits}
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{case_id}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -193,10 +197,23 @@ def main() -> None:
     ap.add_argument("--boot", type=int, default=N_BOOT)
     ap.add_argument("--points", type=int, default=N_TARGET, help="target points per track")
     ap.add_argument("--out-dir", type=Path, default=OUT_DIR)
+    ap.add_argument("--ffm-top-depth", type=float, default=0.0, help="top depth (km) of the USGS finite-fault model")
     a = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
-    out = run(a.event, a.case, a.boot, a.out_dir, a.points)
+    ffm = None
+    if a.event == "us6000u18k":
+        from dataclasses import replace
+        ffm = replace(ffm_sign.USGS_FFM_PANAMA, top_depth_km=a.ffm_top_depth)
+    out = run(a.event, a.case, a.boot, a.out_dir, a.points, ffm)
+    print(f"NISAR_LOS_SIGN = {out['los_sign']}")
     print(json.dumps({k: out.get(k) for k in ("pairs", "stable", "unstable_reasons", "best_plane")}, indent=1))
+    if out.get("planes"):
+        print("variance reduction per track:", json.dumps(
+            out["planes"][out["best_plane"]]["variance_reduction_per_track"], indent=1))
+    if out.get("sign_check"):
+        print("USGS finite-fault sign test:", out["sign_check"]["overall"])
+        for name, v in out["sign_check"]["per_track"].items():
+            print(f"  {name}: k = {v['k']:.3g} ± {v['sigma_k']:.2g}, r = {v['partial_r']:.2f} -> {v['verdict']}")
     for f in out["findings"]:
         print(f"{f['id']}: {f['nisar']['value']} ± {f['nisar']['uncertainty']} {f['nisar']['unit']} ({f['agreement']})")
 

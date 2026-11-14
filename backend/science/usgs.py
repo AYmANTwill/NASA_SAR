@@ -18,6 +18,7 @@ from config import CACHE_DIR
 DETAIL_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/{id}.geojson"
 EVENT_PAGE = "https://earthquake.usgs.gov/earthquakes/eventpage/{id}"
 TIMEOUT_S = 30
+USER_AGENT = "nisar-pulse/1.0 (NASA Space Apps 2026)"
 
 
 class UsgsError(RuntimeError):
@@ -57,7 +58,7 @@ def fetch(event_id: str) -> dict:
     if os.environ.get("NISAR_OFFLINE") == "1":
         raise UsgsError(f"{event_id}: not in the cache ({path}) and NISAR_OFFLINE=1")
     try:
-        r = requests.get(DETAIL_URL.format(id=event_id), timeout=TIMEOUT_S)
+        r = requests.get(DETAIL_URL.format(id=event_id), timeout=TIMEOUT_S, headers={"User-Agent": USER_AGENT})
         r.raise_for_status()
         data = r.json()
     except (requests.RequestException, ValueError) as exc:

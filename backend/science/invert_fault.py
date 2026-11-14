@@ -179,6 +179,16 @@ def summarize(fit: PlaneFit) -> dict:
             "bootstrap_runs": int(len(boot)), "bootstrap_failed": fit.boot_failed}
 
 
+def per_track_vr(fit: PlaneFit, tracks: list[Track]) -> dict[str, float]:
+    """1 - sum(residual²) / sum((data - median)²) for each track: with NISAR_LOS_SIGN wrong it collapses."""
+    out = {}
+    for t, p in zip(tracks, predict(fit.theta, tracks, fit.plane)):
+        d = t.los - np.median(t.los)
+        r = t.los - p
+        out[t.name] = float(1.0 - (r @ r) / (d @ d)) if d @ d > 0 else 0.0
+    return out
+
+
 def stability(summary: dict, n_boot: int) -> list[str]:
     """Reasons why the magnitude must not be reported (empty list = stable)."""
     reasons = []
@@ -200,7 +210,7 @@ def invert(tracks: list[Track], planes: tuple[Plane, ...], n_boot: int = N_BOOT,
     if not tracks:
         raise ValueError("no track to invert")
     fits = [bootstrap(fit_plane(tracks, p), tracks, n_boot, seed) for p in planes]
-    summaries = [summarize(f) for f in fits]
+    summaries = [{**summarize(f), "variance_reduction_per_track": per_track_vr(f, tracks)} for f in fits]
     best = int(np.argmin([s["rms_cm"] for s in summaries]))
     reasons = stability(summaries[best], n_boot)
     result = {"planes": summaries, "best_plane": best, "stable": not reasons, "unstable_reasons": reasons,
