@@ -183,17 +183,26 @@ SURFACE_CHANGE = {
 }
 EVENTS = {"haouz-flood-2026-10-10": SURFACE_CHANGE}
 
-DISCOVERIES = {"mock": True, "enabled": True, "label": "unvalidated candidate", "schema": 2, "n_geometries": 11, "zones": [
-    {"id": "zone-1", "rank": 1, "lat": 32.24, "lon": -7.95, "area_km2": 3.1, "mean": -24.0, "peak": 41.0,
-     "unit": "mm/yr", "snr": 6.2, "confidence": "low", "alert_level": "yellow", "label": "unvalidated candidate",
-     "track": 44, "frame": 18, "direction": "ascending", "fringes": None, "peak_fringes": None, "n_components": 1,
+DISCOVERIES = {"mock": True, "enabled": True, "mode": "consistent", "label": "unvalidated candidate", "schema": 2,
+               "n_geometries": 11, "n_geometries_with_enough_independent_pairs": 6, "rejected_pairs": [],
+               "rules": {"min_independent_pairs": 3, "sigma_after_smoothing": 3.0, "same_sign": True, "opposite_sign_max_sigma": 2.0,
+                         "max_single_pair_share": 0.5, "corrections": ["iono"], "quality_filter": True}, "zones": [
+    {"id": "zone-1", "rank": 1, "lat": 32.24, "lon": -7.95, "area_km2": 3.1, "mean": -0.8, "peak": 1.4,
+     "unit": "cm", "snr": 4.2, "mode": "consistent", "n_independent_pairs": 5, "n_pairs_detected": 4,
+     "pairs_detected": ["GUNW_T044_F018_20260904_20260916", "GUNW_T044_F018_20260916_20260928",
+                        "GUNW_T044_F018_20260928_20261010", "GUNW_T044_F018_20261010_20261022"],
+     "per_pair_mean_cm": [-0.7, -0.9, -0.8, -0.8, -0.2], "same_sign": True, "max_single_pair_share": 0.26, "confidence": "low", "alert_level": "yellow", "label": "unvalidated candidate",
+     "track": 44, "frame": 18, "direction": "ascending", "fringes": 0.1, "peak_fringes": None, "n_components": 1,
      "main_component_share": 1.0, "in_one_component": True, "in_frame_main_component": True,
      "n_other_geometries_covering": 1, "other_geometries_showing": [], "second_geometry_shows": False,
      "flags": ["the other geometries do not show it"],
      "exposure": {"buildings": 4, "quarries_mines": 2}, "exposed": False},
-    {"id": "zone-2", "rank": 2, "lat": 33.59, "lon": -7.55, "area_km2": 1.4, "mean": -11.0, "peak": 19.0,
-     "unit": "mm/yr", "snr": 3.8, "confidence": "low", "alert_level": "yellow", "label": "unvalidated candidate",
-     "track": 23, "frame": 72, "direction": "descending", "fringes": None, "peak_fringes": None, "n_components": 1,
+    {"id": "zone-2", "rank": 2, "lat": 33.59, "lon": -7.55, "area_km2": 1.4, "mean": -0.5, "peak": 0.9,
+     "unit": "cm", "snr": 3.4, "mode": "consistent", "n_independent_pairs": 3, "n_pairs_detected": 3,
+     "pairs_detected": ["GUNW_T023_F072_20260913_20260925", "GUNW_T023_F072_20260925_20261007",
+                        "GUNW_T023_F072_20261007_20261019"],
+     "per_pair_mean_cm": [-0.5, -0.4, -0.6], "same_sign": True, "max_single_pair_share": 0.4, "confidence": "low", "alert_level": "yellow", "label": "unvalidated candidate",
+     "track": 23, "frame": 72, "direction": "descending", "fringes": 0.0, "peak_fringes": None, "n_components": 1,
      "main_component_share": 1.0, "in_one_component": True, "in_frame_main_component": True,
      "n_other_geometries_covering": 0, "other_geometries_showing": [], "second_geometry_shows": None,
      "flags": ["no second geometry covers it"],

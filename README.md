@@ -161,7 +161,7 @@ script for your part (see above). Check with `python download_all.py status`.
 cd backend
 python tests\test_all.py
 ```
-Expected: `30/30 checks passed`.
+Expected: `196/196 checks passed`.
 
 **5. Compute the demo answers, start the API**
 ```
@@ -178,10 +178,52 @@ processed. Map layers are PNG images with bounds: `L.imageOverlay(layer.url, lay
 **7. Share new data** — `python tools\make_data_zip.py` creates `NISAR_Pulse_data.zip` (ignored by git)
 to send through a drive or a USB key.
 
+## Validation (real data)
+
+**GNSS frames.** No NGL station inside Morocco has 2026 data (Rabat RABT ends 2024-11-14). Ceuta, Gibraltar
+and Algeciras do, and they sit in descending T095/F070 (all three) and ascending T015/F020, which the Morocco
+plan does not include. `plan_gps.json` lists their 12- and 24-day pairs: part 1 = T095/F070 (18 files,
+30.2 GB), part 2 = T015/F020 (8 files, 18.7 GB). Download part 1 first; `--keep-raw` is not needed here:
+```
+python download_all.py run --plan plan_gps.json --part 1 --out D:\nisar_gps
+```
+Scripts with fixed names and fixed output folders, for whoever holds the data. Everything they write goes to
+`results_out\` at the repo root (git-ignored, never committed). Each one also runs on synthetic data in
+`backend\tests\test_all.py`. Panama is a **validation** event outside the Morocco scope.
+
+**0. Download the Panama validation set** (from the repo root). Use a separate `--out`: the Panama pairs of
+`plan_nisar.json` already in `data\` were extracted without the troposphere/tide cubes and would be skipped as done.
+```powershell
+python tools/make_validation_plan.py --dry-run          # optional: shows the two parts (plan_validation.json is committed)
+python download_all.py run --plan plan_validation.json --part 1 --keep-raw --out D:\nisar_validation   # 8 co-seismic pairs, 13.3 GB (+ raw)
+python download_all.py run --plan plan_validation.json --part 2 --keep-raw --out D:\nisar_validation   # 8 pre-event pairs, 13.4 GB (+ raw)
+```
+`--keep-raw` keeps each raw `.h5` (about 1.2–2.4 GB each) so `sign_check.py` can print the attributes; drop it if disk is short.
+
+**1. to 5. Run the checks** (from `backend\`; `--data` defaults to `..\data`):
+
+| # | command | writes |
+|---|---|---|
+| 1 | `python noise_report.py --data D:\nisar_validation` | `results_out\noise_report.json`, `results_out\noise_report.md` (Panama) |
+| 1b | `python noise_report.py --data D:\nisar_data --out ..\results_out\morocco` | `results_out\morocco\noise_report.json`, `.md` |
+| 2 | `python validate_gps.py` | `results_out\gps_RABT.json`, `.md`, `.png` (NGL's RABT series ends 2024-11-14: expect "no_gps_in_window") |
+| 2b | `python validate_gps.py --auto` | `results_out\gps_stations.json` + `results_out\gps_<STA>.json/.md/.png` per NGL station inside the frames with data in the NISAR window |
+| 2c | `python validate_gps.py --auto --data D:\nisar_validation --out ..\results_out\panama` | same, for the Panama frames, in `results_out\panama\` |
+| 2d | `python validate_gps.py --auto --data D:\nisar_gps --out ..\results_out\gps` | same, on the frames of `plan_gps.json` (below) — the only ones with 2026 GNSS data |
+| 3 | `python sign_check.py --data D:\nisar_validation` | `results_out\sign_check.md`, `results_out\sign_check.png` |
+| 4 | a human reads `sign_check.md` and the USGS mechanism, then sets the sign (commands in the file), and sets `NISAR_CORRECTIONS` to the "Recommended setting" line of `noise_report.md` | nothing |
+| 5 | `python precompute.py` (same PowerShell window; add `$env:NISAR_DISCOVERIES_MODE = "consistent"` first to try the safe discoveries) | `backend\cache\events\*.json` (5 Morocco events + `panama-2026.json`), `backend\cache\discoveries.json` only if a discoveries mode is on |
+
+Settings these scripts read (all optional): `NISAR_CORRECTIONS` (`iono` default, `iono,tropo,tide`, or `none`),
+`NISAR_DEM` (`glo30` default when online, a local DEM path, or `none`), `NISAR_CORRECTION_HEIGHT_M` (constant height when
+no DEM, default 0), `NISAR_IONO_UNC_MAX_RAD` (1.0), `NISAR_FLAT_PHASE_SIGMA_RAD` (0.001), `NISAR_MIN_PAIR_COHERENCE`
+(0.15), `NISAR_DISCOVERIES_MODE` (`consistent`). Exit codes: `validate_gps.py` and `sign_check.py` return 2 when there is
+nothing to compare, and say why in their files.
+
 ## Before the demo
-- [ ] `python backend\tests\test_all.py` → 30/30 on the demo laptop
-- [ ] Sign check: compare the `/events/panama-2026` map with NASA's or USGS's published map of the
-      9 October 2026 earthquake; if the colours are reversed, set `NISAR_LOS_SIGN=-1` and rerun `precompute.py`
+- [ ] `python backend\tests\test_all.py` → 196/196 on the demo laptop
+- [ ] Sign check: `python backend\sign_check.py --data D:\nisar_validation` (see Validation); a human compares with the
+      USGS mechanism of the 9 October 2026 earthquake (strike-slip) and sets `NISAR_LOS_SIGN` / `NISAR_LOS_SIGN_VERIFIED`
 - [ ] `python backend\precompute.py` after the last data merge
 - [ ] Offline rehearsal with `NISAR_OFFLINE=1`
 - [ ] Optional keys: `FIRMS_MAP_KEY` (free, fire evidence), `ANTHROPIC_API_KEY` (paid, smarter questions and Arabic phrasing)

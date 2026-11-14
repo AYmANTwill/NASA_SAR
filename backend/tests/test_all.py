@@ -1045,6 +1045,364 @@ check("docs: sign_verified, iono_screen, crosses_data_gap, reference_same_compon
                                    "uncertainty_m3m3", "within_uncertainty", "not validated", "NISAR_DISCOVERIES_ENABLED",
                                    "unvalidated candidate", "fringes")))
 
+from datetime import date as _dt_date  # noqa: E402
+
+
+def _raises(fn, exc=ValueError):
+    try:
+        fn()
+    except exc:
+        return True
+    return False
+
+
+# =============================================================================================================
+# Validation and corrections (feat/validation-corrections). Synthetic data: logic only, not physics.
+# =============================================================================================================
+# --- 1. Panama: a global VALIDATION event, outside the Morocco scope -------------------------------------------
+import make_validation_plan as _mvp  # noqa: E402
+
+pv = c.get("/events/panama-2026", params={"refresh": True}).json()
+check("validation event: Panama computes as sudden motion at the exact USGS instant, both look directions, labelled validation",
+      pv["type"] == "sudden_motion" and pv["kind"] == "validation" and pv["status"] == "validation"
+      and pv["event"]["usgs_id"] == "us6000u18k" and pv["facts"]["event_precision"] == "exact"
+      and "decomposition_cm" in pv["facts"] and "outside Morocco" in c.get("/events", params={"include_validation": True}).json()[-1]["title_en"],
+      (pv.get("kind"), pv["facts"].get("event_precision")))
+lv = c.get("/events", params={"include_validation": True}).json()
+check("validation event: listed only on request, after the five unchanged Morocco events, each entry with its kind",
+      [e["id"] for e in lv] == [e["id"] for e in c.get("/events").json()] + ["panama-2026"]
+      and lv[-1]["kind"] == "validation" and all(e["kind"] == "morocco" for e in lv[:-1]))
+vrows = _mvp.select(json.loads(PLAN_NISAR.read_text())["files"])
+vplan = json.loads((ROOT.parent / "plan_validation.json").read_text())
+geoms = {_mvp.geometry(r) for r in vrows}
+check("plan_validation: part 1 = the 8 co-seismic 12-day pairs across 2026-10-09 17:56 UTC (tracks 4, 40, 76, 141, ~13.3 GB), "
+      "part 2 = the last pre-event pair per geometry; extra layers on",
+      len(geoms) == 8 and len(vrows) == 16 and all(r["dataset"] == "panama" and r["extra_layers"] for r in vrows)
+      and all(r["part"] == r["tier"] == (1 if r["event_role"] == "co" else 2) for r in vrows)
+      and {r["track"] for r in vrows if r["part"] == 1} == {4, 40, 76, 141} and sum(r["part"] == 1 for r in vrows) == 8
+      and 13.0e9 < sum(r["size"] for r in vrows if r["part"] == 1) < 13.6e9
+      and all(r["ref_ts"] <= _mvp.EVENT <= r["sec_ts"] and r["span"] == 12 for r in vrows if r["event_role"] == "co")
+      and all(sum(r["event_role"] == "pre" and _mvp.geometry(r) == g for r in vrows) == 1 for g in geoms)
+      and all(r["sec_ts"] < _mvp.EVENT for r in vrows if r["event_role"] == "pre"), len(vrows))
+check("plan_validation.json (committed) = the builder's output, same row format, readable by download_all --plan (parts 1 and 2)",
+      [r["name"] for r in vplan["files"]] == [r["name"] for r in vrows] and da.plan_parts(vplan) == [1, 2]
+      and set(json.loads(PLAN_NISAR.read_text())["files"][0]) <= set(vplan["files"][0]))
+
+# --- 2. corrections: optional, measured, each one a separate tested function ----------------------------------------
+from recipes import corrections as _corr  # noqa: E402
+
+import noise_report as _nr  # noqa: E402
+
+check("corrections setting: default = iono (the old behaviour), 'none' = nothing, canonical order, unknown name fails",
+      _corr.parse_setting(None) == ("iono",) and _corr.parse_setting("none") == () and _corr.parse_setting("") == ()
+      and _corr.parse_setting("tide, tropo,iono") == ("iono", "tropo", "tide") and _corr.active() == ("iono",)
+      and _raises(lambda: _corr.parse_setting("tropo,magic")))
+_ph = _np.zeros((4, 4))
+_scr = _np.full((4, 4), 2.0)
+_scr[0, 0] = _np.nan
+check("corrections: each screen is SUBTRACTED by its own function (iono, tropo = hydrostatic + wet, tide); NaN leaves the "
+      "phase unchanged; sign -1 adds; the input is never modified",
+      _np.allclose(_corr.correct_iono(_ph, _scr)[1:, 1:], -2.0) and _corr.correct_iono(_ph, _scr)[0, 0] == 0.0
+      and _np.allclose(_corr.correct_tropo(_ph, _np.full((4, 4), 1.5), _np.full((4, 4), 0.5)), -2.0)
+      and _np.allclose(_corr.correct_tide(_ph, _np.full((4, 4), 0.25), sign=-1), 0.25) and not _ph.any())
+check("corrections units: radians kept, metres of delay converted with -4*pi/lambda, unknown units = radians ASSUMED and said",
+      _corr.to_radians(_np.ones(2), "radians", 0.2384)[1] == "radians"
+      and _np.allclose(_corr.to_radians(_np.full(2, 0.2384 / (4 * _np.pi)), "meters", 0.2384)[0], -1.0)
+      and "assumed" in _corr.to_radians(_np.ones(2), None, 0.2384)[1])
+_hs, _ys, _xs = _np.array([0.0, 1000.0]), _np.array([20.0, 10.0, 0.0]), _np.array([0.0, 10.0])
+_cube = _np.stack([_np.add.outer(_ys, _xs), _np.add.outer(_ys, _xs) + 100.0])     # value = y + x (+100 at 1000 m)
+check("cube interpolation: exact at the nodes, linear in height, descending axes handled, clipped (no extrapolation)",
+      _np.isclose(_corr.interp_cube(_cube, _hs, _ys, _xs, _np.array([0.0]), _np.array([10.0]), _np.array([10.0]))[0], 20.0)
+      and _np.isclose(_corr.interp_cube(_cube, _hs, _ys, _xs, _np.array([500.0]), _np.array([5.0]), _np.array([2.0]))[0], 57.0)
+      and _np.isclose(_corr.interp_cube(_cube, _hs, _ys, _xs, _np.array([5000.0]), _np.array([99.0]), _np.array([0.0]))[0], 120.0))
+check("terrain height: Copernicus GLO-30 public tile names; offline -> the documented constant, said in the source",
+      _corr.glo30_tiles(-80.9, 7.4, -80.6, 7.8) == [_corr.GLO30_URL.format(n="Copernicus_DSM_COG_10_N07_00_W081_00_DEM")]
+      and len(_corr.glo30_tiles(-7.2, 33.9, -6.5, 34.1)) == 4 and "constant 0 m" in _corr.terrain_height(_prof())[1])
+TS = (30.40, -9.55)
+tps = [p for p in catalog.find(*TS, "GUNW") if p.track == 172]
+sig = {n: _disp.referenced(tps[0], *TS, names)[3] for n, names in
+       (("none", ()), ("tropo", ("tropo",)), ("tide", ("tide",)), ("both", ("tropo", "tide")))}
+rep_tt = _disp.los_cm_full(tps[0], ("tropo", "tide"))[4]
+check("corrections reduce a synthetic tropospheric ramp (+ tide ramp): noise floor none > tropo > tropo+tide, close to the "
+      "pixel noise once both are removed",
+      sig["none"] > 3 * sig["tropo"] and sig["tropo"] > sig["both"] and sig["tide"] < sig["none"] and sig["both"] < 0.4, sig)
+check("corrections report: applied, convention, units 'assumed' without a raw .h5, terrain-height source, cube EPSG",
+      rep_tt["tropo"]["applied"] and rep_tt["tide"]["applied"] and rep_tt["tropo"]["convention"] == "subtracted from unwrappedPhase"
+      and "assumed" in rep_tt["tropo"]["units"] and "no raw .h5" in rep_tt["tropo"]["attributes_from"]
+      and "constant" in rep_tt["tropo"]["height_source"] and rep_tt["tropo"]["cube_epsg"] == 32629
+      and rep_tt["tropo"]["already_applied_flag"] is None, rep_tt["tropo"])
+rep_none = _disp.los_cm_full(AL_ps[0], ("tropo", "tide"))[4]
+check("corrections: a product without cubes (no extra layers) is left alone and says why",
+      not rep_none["tropo"]["applied"] and "lacks the cube" in rep_none["tropo"]["reason"])
+fa = _disp.analyze(tps[0], *TS, make_layer=False)
+check("default setting: facts list the requested and applied corrections; tropo/tide stay off by default",
+      fa["corrections_requested"] == ["iono"] and fa["corrections_applied"] == [] and "iono" in fa["corrections"]
+      and "tropo" not in fa["corrections"])
+# raw .h5 kept: attributes are read, and a product flag saying "already applied" stops a second correction
+raw_dir = tmp / "raw_attrs"
+raw_dir.mkdir()
+with h5py.File(raw_dir / "x.h5", "w") as hf:
+    dset = hf.create_dataset("science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/unwrappedPhase", data=_np.zeros(2))
+    dset.attrs["description"] = b"Unwrapped interferometric phase"
+    dset.attrs["units"] = b"radians"
+    w_ = hf.create_dataset("science/LSAR/GUNW/metadata/radarGrid/wetTroposphericPhaseScreen", data=_np.zeros((2, 2, 2)))
+    w_.attrs["units"] = b"radians"
+    hf.create_dataset("science/LSAR/GUNW/metadata/processingInformation/parameters/troposphereCorrectionApplied", data=True)
+attrs = _corr.product_attributes(str(raw_dir))
+check("raw .h5 attributes: description/units read, processingInformation flag read; 'already applied' -> never applied twice",
+      attrs["datasets"]["unwrappedPhase"]["units"] == "radians" and _corr.already_applied("tropo", attrs) is True
+      and _corr.already_applied("tide", attrs) is False and _corr.already_applied("tide", {"source": None}) is None
+      and _corr.already_applied("iono", {"source": "x.h5", "flags": {"processingInformation/ionosphereEstimationEnabled": "True"}}) is False
+      and _corr._apply_cube("tropo", tps[0], _np.zeros((2, 2)), None, attrs, 0.2384, 1, {}, None)[1]["applied"] is False)
+f_tr = {**rg["en"]["facts"], "troposphere_corrected": True, "tide_corrected": True, "iono_screen": "subtracted"}
+tt = {lg: agent.template("slow_motion", f_tr, lg) for lg in ("fr", "en", "ar")}
+check("sentences: when tropo/tide are applied the verdict says so (FR/EN/AR, not validated); default wording unchanged",
+      "troposphere: the product's weather-model screen is subtracted (not validated)" in tt["en"]
+      and "Solid-earth tide" in tt["en"] and "troposphère : écran du modèle météo" in tt["fr"] and "المد الأرضي" in tt["ar"]
+      and "troposphere: not corrected" in agent.template("slow_motion", f_iono, "en")
+      and "troposphere: the product's weather-model screen is subtracted" in " ".join(agent.assess("slow_motion", {**f_tr, "sign_verified": True}, [])[1]))
+nr_out = tmp / "results_out"
+nr_rc = _nr.main(["--out", str(nr_out), "--match", "T172"])
+nr = json.loads((nr_out / "noise_report.json").read_text(encoding="utf-8"))
+check("noise_report: writes json + md; tropo recommended on the ramp, iono never applicable here, sign check consistent",
+      nr_rc == 0 and (nr_out / "noise_report.md").exists() and nr["summary"]["tropo"]["recommended"]
+      and nr["summary"]["iono"]["n_products"] == 0 and not nr["summary"]["iono"]["recommended"]
+      and "convention consistent" in nr["summary"]["tropo"]["sign_check"]["verdict"] and "tropo" in nr["recommended_setting"],
+      nr["recommended_setting"])
+check("noise_report: a correction that does not lower the noise is not recommended (stays off)",
+      not _nr.summarise([{"sigma_cm": {"none": 1.0, "tropo": 1.2, **{k: None for k in _nr.SETS if k not in ("none", "tropo")}},
+                          "applied": {"tropo": True}, "sigma_cm_opposite_sign": {}}])["tropo"]["recommended"])
+check(".gitignore ignores results_out/ (local outputs, never committed)",
+      "results_out/" in (ROOT.parent / ".gitignore").read_text(encoding="utf-8"))
+
+# --- 3. GPS validation (NGL tenv3), offline sample ---------------------------------------------------------------
+import validate_gps as _vg  # noqa: E402
+
+gps_dir = Path(os.environ["NISAR_DATA"]) / "GPS_sample"
+tv = _vg.parse_tenv3((gps_dir / "RABT.tenv3").read_text())
+hold = {s["station"]: s for s in _vg.parse_holdings((gps_dir / "DataHoldings.txt").read_text())}
+check("NGL parsing: tenv3 dates (26JUL04), E/N/U = integer + fractional columns, coordinates from the file; "
+      "DataHoldings longitudes 0..360 -> -180..180",
+      tv["station"] == "RABT" and abs(tv["lat"] - 33.9981) < 1e-3 and abs(tv["lon"] + 6.8543) < 1e-3
+      and tv["epochs"][0][0] == _dt_date(2026, 6, 1) and 4222.9 < tv["epochs"][0][1] < 4223.1
+      and abs(hold["RABT"]["lon"] + 6.8543) < 1e-3 and hold["OLDX"]["end"] == _dt_date(2009, 8, 12)
+      and _vg.TENV3_URL.startswith("https://geodesy.unr.edu/") and "{sta}" in _vg.TENV3_URL)
+gout = tmp / "gps_out"
+g_rc = _vg.main(["--offline-sample", "--out", str(gout)])
+gj = json.loads((gout / "gps_RABT.json").read_text(encoding="utf-8"))
+gs = gj["summary"]["all"]
+check("GPS validation recovers the synthetic displacement at RABT: 6 pairs, RMS < 1.5 mm raw and after mean removal, "
+      "correlation > 0.95, same sign; json + md + png written",
+      g_rc == 0 and gj["status"] == "compared" and gs["n_pairs"] == 6 and gs["rms_mm"] < 1.5
+      and gs["rms_after_removing_mean_mm"] < 1.5 and gs["correlation"] > 0.95 and gj["summary"]["sign_hint"] == "same sign as GPS"
+      and (gout / "gps_RABT.md").exists() and (gout / "gps_RABT.png").stat().st_size > 1000, gs)
+check("GPS validation: InSAR is relative -> raw and mean-removed comparisons both reported; a reversed sign is hinted",
+      "mean_difference_mm" in gs and _vg.summarise([{**r, "nisar_los_mm": -r["nisar_los_mm"]} for r in gj["pairs"]])["sign_hint"]
+      .startswith("anti-correlated"))
+a_rc = _vg.main(["--offline-sample", "--auto", "--out", str(gout)])
+found = {s["station"]: s for s in json.loads((gout / "gps_stations.json").read_text(encoding="utf-8"))}
+check("GPS --auto: stations inside the frames are listed (RABT with data in the window, OLDX without), FARX outside is not",
+      a_rc == 0 and found["RABT"]["overlaps_nisar"] is True and found["OLDX"]["overlaps_nisar"] is False and "FARX" not in found)
+far_dir = tmp / "gps_far"
+far_dir.mkdir()
+far_txt = (gps_dir / "RABT.tenv3").read_text().replace("RABT ", "FARX ").replace("33.9981036600   -6.8542892180", "10.0000000000   10.0000000000")
+(far_dir / "FARX.tenv3").write_text(far_txt)
+old_txt = "\n".join(l.replace(" 26", " 24", 1) if l.startswith("RABT") else l for l in (gps_dir / "RABT.tenv3").read_text().splitlines())
+(far_dir / "RABT.tenv3").write_text(old_txt)
+f_rc = _vg.main(["--offline-sample", str(far_dir), "--station", "FARX", "--out", str(gout)])
+fj = json.loads((gout / "gps_FARX.json").read_text(encoding="utf-8"))
+o_rc = _vg.main(["--offline-sample", str(far_dir), "--station", "RABT", "--out", str(gout / "old")])
+oj = json.loads((gout / "old" / "gps_RABT.json").read_text(encoding="utf-8"))
+m_rc = _vg.main(["--offline-sample", str(far_dir), "--station", "NONE", "--out", str(gout)])
+check("GPS validation never crashes: station in no frame -> 'no_coverage', GPS ending before NISAR -> 'no_gps_in_window', "
+      "unknown station -> 'no_gps'; exit code 2 and the files still say why",
+      f_rc == 2 and fj["status"] == "no_coverage" and "inside none" in fj["message"] and (gout / "gps_FARX.md").exists()
+      and o_rc == 2 and oj["status"] == "no_gps_in_window" and "2024" in oj["gps_last_date"]
+      and m_rc == 2 and json.loads((gout / "gps_NONE.json").read_text(encoding="utf-8"))["status"] == "no_gps",
+      (fj["status"], oj["status"]))
+
+# --- addendum (Phase A real-data report): sign basis, ionosphere rules, pair quality, User-Agent, failed steps ------
+import quality as _q  # noqa: E402
+
+check("sign basis: every signed answer carries the documented convention (ARIA-tools, MintPy prep_nisar); still "
+      "'sign unverified' until NISAR_LOS_SIGN_VERIFIED=1",
+      "ARIA-tools" in pv["facts"]["sign_basis"] and "MintPy prep_nisar" in pv["facts"]["sign_basis"]
+      and "ARIA-tools" in rg["en"]["facts"]["sign_basis"] and "ARIA-tools" in pv["facts"]["pairs"][0]["sign_basis"]
+      and pv["facts"]["sign_verified"] is False and pv["confidence"] == "low" and pv["alert_level"] == "none")
+IS = (29.60, -9.00)
+ips = sorted([p for p in catalog.find(*IS, "GUNW") if p.track == 173], key=lambda p: p.ref)
+ig, ib = (_disp.los_cm_full(p)[4]["iono"] for p in ips)
+dg = _disp.los_cm(ips[0])[0]
+check("ionosphere: the screen is subtracted where it lowers the robust sigma, and pixels whose screen uncertainty is "
+      "above the setting are masked (4 % corner), all recorded in the facts",
+      ig["applied"] and ig["kept_raw"] is False and ig["frame_sigma_subtracted_rad"] < ig["frame_sigma_raw_rad"]
+      and ig["uncertainty_layer"] == "present" and ig["uncertainty_max_rad"] == _corr.IONO_UNC_MAX_RAD
+      and abs(ig["uncertainty_masked_fraction"] - 0.04) < 0.005 and _np.isnan(dg[:100, :100]).all()
+      and _np.isfinite(dg[300:400, 300:400]).mean() > 0.9, ig)
+check("ionosphere: per pair the RAW phase is kept when subtracting does not lower the robust sigma (said, not masked)",
+      ib["applied"] is False and ib["kept_raw"] is True and "kept the raw phase" in ib["reason"]
+      and ib["frame_sigma_subtracted_rad"] > ib["frame_sigma_raw_rad"]
+      and _disp.analyze(ips[1], *IS, make_layer=False)["iono_applied"] is False
+      and _np.isfinite(_disp.los_cm(ips[1])[0][:100, :100]).mean() > 0.9)
+check("ionosphere rules are pure functions: uncertainty mask threshold, keep-raw decision",
+      _corr.uncertainty_mask(_np.array([0.5, 1.5, _np.nan]), 1.0).tolist() == [False, True, False]
+      and _corr.uncertainty_mask(None) is None and _corr.keep_raw_phase(1.0, 1.2) and not _corr.keep_raw_phase(1.0, 0.5)
+      and _corr.keep_raw_phase(1.0, float("nan")))
+nr_out2 = tmp / "results_out_iono"
+_nr.main(["--out", str(nr_out2), "--match", "T173"])
+nri = json.loads((nr_out2 / "noise_report.json").read_text(encoding="utf-8"))
+dec = {r["id"]: r["iono_decision"] for r in nri["products"]}
+check("noise_report: the ionosphere decision is reported per pair (subtracted / kept raw, both sigmas, masked share)",
+      [d["kept_raw"] for d in dec.values()] == [False, True] and all("frame_sigma_raw_rad" in d for d in dec.values())
+      and "kept raw" in (nr_out2 / "noise_report.md").read_text(encoding="utf-8")
+      and nri["summary"]["iono"]["n_products"] == 2, dec)
+QS = (29.00, -10.00)
+qps = sorted([p for p in catalog.find(*QS, "GUNW") if p.track == 174], key=lambda p: p.ref)
+qgood, qbad = _q.split(qps)
+bad_ids = {b["product"] for b in qbad}
+check("pair quality: a flat unwrapped phase and a median coherence < 0.15 are rejected with the reason; good pairs kept",
+      len(qgood) == 2 and bad_ids == {qps[1].id, qps[2].id}
+      and any("flat unwrapped phase" in x for b in qbad for x in b["reasons"])
+      and any("median coherence 0.10 < 0.15" in x for b in qbad for x in b["reasons"])
+      and _q.assess(_np.zeros((50, 50)), None)["ok"] is False and _q.assess(_np.random.default_rng(1).normal(0, 1, (50, 50)),
+                                                                           _np.full((50, 50), 0.5))["ok"] is True)
+qs = _ts.point_series(qps, *QS)
+qsd = _damage.analyze(qps, *QS, qps[3].ref[:8] + "T120000", "exact")
+qsd_txt = json.dumps({k: v for k, v in qsd.items() if k != "rejected_pairs"}, default=str)
+check("pair quality: rejected pairs are left out of the series and of the surface-change before/baseline pairs, and listed",
+      all(s["n_pairs"] <= 2 for s in qs) and {r["product"] for r in qs[0]["rejected_pairs"]} == bad_ids
+      and {r["product"] for r in qsd["rejected_pairs"]} == bad_ids and not any(b in qsd_txt for b in bad_ids)
+      and _ts.velocity_map(qps) is None, (qs[0]["n_pairs"], qsd.get("error")))
+qa = agent.investigate("Le sol bouge-t-il ici ?", *QS, "fr")
+check("pair quality: the answer lists the rejected pairs in facts and a step says so",
+      qa["type"] == "slow_motion" and {r["product"] for r in qa["facts"]["rejected_pairs"]} == bad_ids
+      and any("rejected by the quality filter" in s["step"] for s in qa["steps"]), qa["facts"].get("error"))
+_config.DISCOVERIES_ENABLED = True
+dq = _disc.scan(with_exposure=False)
+_config.DISCOVERIES_ENABLED = False
+check("pair quality: discoveries never scan a rejected pair and list them",
+      bad_ids <= {r["product"] for r in dq["rejected_pairs"]} and not any(b in json.dumps(dq["zones"]) for b in bad_ids))
+seen_headers = []
+
+
+class _FakeReq:
+    class RequestException(Exception):
+        pass
+
+    @staticmethod
+    def get(url, **kw):
+        seen_headers.append(kw.get("headers"))
+        raise _FakeReq.RequestException("blocked in the tests")
+
+    @staticmethod
+    def post(url, **kw):
+        seen_headers.append(kw.get("headers"))
+        raise _FakeReq.RequestException("406 Not Acceptable")
+
+
+_real_req, _real_off, _real_key = _evidence.requests, _evidence.OFFLINE, _evidence.FIRMS_MAP_KEY
+_evidence.requests, _evidence.OFFLINE, _evidence.FIRMS_MAP_KEY = _FakeReq, False, "test"
+try:
+    ev_out = [_evidence.earthquakes(7.59, -80.77, "20260927", "20261009"), _evidence.rainfall(31.25, -7.98, "20261001", "20261013"),
+              _evidence.fires(31.25, -7.98, "20261013"), _evidence.exposure(31.25, -7.98)]
+    st_ = agent.Steps()
+    st_.run("buildings and roads around the point", _evidence.exposure, 31.25, -7.98)
+finally:
+    _evidence.requests, _evidence.OFFLINE, _evidence.FIRMS_MAP_KEY = _real_req, _real_off, _real_key
+check("evidence: every outside request (USGS, Open-Meteo, FIRMS, Overpass) sends a User-Agent header",
+      len(seen_headers) >= 4 and all(h and h.get("User-Agent", "").startswith("NISAR-Pulse") for h in seen_headers)
+      and all(e["status"] == "unavailable" for e in ev_out), seen_headers)
+check("agent steps: an evidence source that returns 'unavailable' is recorded ok: false with its error",
+      st_[0]["ok"] is False and "406" in st_[0]["error"] and agent.Steps().run("x", lambda: {"status": "agrees"}) == {"status": "agrees"})
+
+# --- 4. sign-check helper: shows, explains, never decides ----------------------------------------------------------
+import sign_check as _sc  # noqa: E402
+
+env_before = {k: os.environ.get(k) for k in ("NISAR_LOS_SIGN", "NISAR_LOS_SIGN_VERIFIED")}
+sc_out = tmp / "sign_out"
+sc_rc = _sc.main(["--out", str(sc_out)])
+sc_md = (sc_out / "sign_check.md").read_text(encoding="utf-8")
+check("sign_check without a raw file: explains --keep-raw and list_h5_layers.py, renders ascending + descending Panama "
+      "co-seismic maps, links the USGS mechanism and finite fault, says strike-slip and not to use the synthetic uplift",
+      sc_rc == 0 and "--keep-raw" in sc_md and "list_h5_layers.py" in sc_md and (sc_out / "sign_check.png").stat().st_size > 10_000
+      and "ascending T4" in sc_md and "descending T141" in sc_md and _sc.USGS in sc_md and "/moment-tensor" in sc_md
+      and "/finite-fault" in sc_md and "strike-slip" in sc_md and "Do NOT use the synthetic" in sc_md and "ARIA-tools" in sc_md)
+check("sign_check prints the exact commands and never sets them itself (environment and config unchanged)",
+      '$env:NISAR_LOS_SIGN = "1"; $env:NISAR_LOS_SIGN_VERIFIED = "1"' in sc_md and '$env:NISAR_LOS_SIGN = "-1"' in sc_md
+      and {k: os.environ.get(k) for k in env_before} == env_before and _config.LOS_SIGN_VERIFIED is False
+      and "os.environ[\"NISAR_LOS_SIGN" not in (ROOT / "sign_check.py").read_text(encoding="utf-8"))
+pan_co = _sc.coseismic(catalog.load())[0]
+raw_sc = pan_co.folder / (pan_co.name + ".h5")
+with h5py.File(raw_sc, "w") as hf:
+    u_ = hf.create_dataset("science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/unwrappedPhase", data=_np.zeros(2))
+    u_.attrs["description"] = b"Unwrapped interferometric phase"
+    u_.attrs["units"] = b"radians"
+    hf.create_dataset("science/LSAR/GUNW/metadata/radarGrid/losUnitVectorX", data=_np.zeros((2, 2))).attrs["units"] = b"1"
+try:
+    _sc.main(["--out", str(sc_out / "raw")])
+    sc_md2 = (sc_out / "raw" / "sign_check.md").read_text(encoding="utf-8")
+finally:
+    raw_sc.unlink()
+check("sign_check with a kept raw .h5: prints the attributes of unwrappedPhase and of the LOS vectors",
+      "unwrappedPhase" in sc_md2 and "units: radians" in sc_md2 and "losUnitVectorX" in sc_md2 and "--keep-raw" not in sc_md2)
+
+# --- 5. discoveries, safely: the consistent mode ---------------------------------------------------------------------
+check("discoveries mode: off by default (no NISAR_DISCOVERIES_MODE, no NISAR_DISCOVERIES_ENABLED); the API says so",
+      _config.DISCOVERIES_MODE == "" and _disc.mode() == "off" and c.get("/discoveries").json()["mode"] == "off"
+      and c.get("/discoveries").json()["zones"] == [] and "NISAR_DISCOVERIES_MODE=consistent" in _config.DISCOVERIES_OFF_REASON)
+check("consistent rule: a single-pair artefact is rejected; a 3-pair signal of one sign is kept; one dominant pair, or a "
+      "sign that flips, is rejected",
+      not _disc.consistent_zone([(-60.0, 1.0), (0.1, 1.0), (-0.2, 1.0), (0.05, 1.0)])["kept"]
+      and "seen in 1" in _disc.consistent_zone([(-60.0, 1.0), (0.1, 1.0), (-0.2, 1.0), (0.05, 1.0)])["why_not"][0]
+      and _disc.consistent_zone([(-1.5, 0.3), (-1.4, 0.3), (-1.6, 0.3), (0.1, 0.3)])["kept"]
+      and not _disc.consistent_zone([(-1.0, 0.1), (-1.0, 0.1), (-20.0, 0.1)])["kept"]
+      and not _disc.consistent_zone([(-1.0, 0.1), (-1.0, 0.1), (-1.0, 0.1), (1.0, 0.1)])["kept"])
+P2 = lambda ref, sec, i: _types.SimpleNamespace(ref=ref, sec=sec, span_days=12, id=i)  # noqa: E731
+check("consistent mode uses INDEPENDENT pairs only (no shared time interval)",
+      [p.id for p in _disc.independent([P2("20260801", "20260813", "a"), P2("20260801", "20260825", "b"),
+                                         P2("20260813", "20260825", "c"), P2("20260819", "20260831", "d"),
+                                         P2("20260825", "20260906", "e")])] == ["a", "c", "e"])
+_config.DISCOVERIES_MODE = "consistent"
+try:
+    dc = c.get("/discoveries", params={"refresh": True, "exposure": False}).json()
+    dc_cached = c.get("/discoveries").json()
+finally:
+    _config.DISCOVERIES_MODE = ""
+CS = (28.50, -10.50)
+bump_z = [z for z in dc["zones"] if z["track"] == 175 and abs(z["lon"] - (CS[1] + 5 / 98)) < 0.03 and abs(z["lat"] - CS[0]) < 0.03]
+check("consistent discoveries keep the 4-pair signal and reject the single-pair -60 cm artefact of the same geometry",
+      dc["mode"] == "consistent" and len(bump_z) == 1 and bump_z[0]["n_pairs_detected"] == 4 and bump_z[0]["same_sign"]
+      and bump_z[0]["max_single_pair_share"] <= 0.5 and len(bump_z[0]["pairs_detected"]) == 4
+      and not any(z["track"] == 175 and z["lon"] < CS[1] - 0.03 for z in dc["zones"]),
+      [(z["track"], z["lat"], z["lon"], z["n_pairs_detected"]) for z in dc["zones"]])
+check("consistent discoveries: unvalidated candidates only (low, yellow), quality filter and masked-ionosphere setting "
+      "recorded, an oscillating (seasonal) signal is not kept, the cache answers in the same mode",
+      dc["zones"] and all(z["label"] == "unvalidated candidate" and z["confidence"] == "low" and z["alert_level"] == "yellow"
+                          for z in dc["zones"])
+      and bad_ids <= {r["product"] for r in dc["rejected_pairs"]} and dc["rules"]["corrections"] == ["iono"]
+      and dc["rules"]["quality_filter"] is True and not any(z["track"] == 170 for z in dc["zones"])
+      and dc_cached["mode"] == "consistent" and dc_cached["zones"] == dc["zones"])
+check("mock discoveries: consistent-mode shape (mode, rules, per-zone pair counts), never above low / yellow",
+      _mock.DISCOVERIES["mode"] == "consistent" and _mock.DISCOVERIES["rules"]["min_independent_pairs"] == 3
+      and all(z["n_pairs_detected"] >= 3 and z["same_sign"] and z["confidence"] == "low" and z["alert_level"] == "yellow"
+              for z in _mock.DISCOVERIES["zones"]))
+
+# --- 6. docs: README validation commands, MOROCCO_PLAN link, contract for every new field ------------------------
+readme = (ROOT.parent / "README.md").read_text(encoding="utf-8")
+contract3 = (ROOT.parent / "docs" / "API_CONTRACT.md").read_text(encoding="utf-8")
+check("README: a Validation section lists noise_report, validate_gps, sign_check, the plan_validation download and "
+      "precompute with their output paths; the MOROCCO_PLAN.md link resolves",
+      "## Validation" in readme and all(k in readme for k in (
+          "python noise_report.py", "python validate_gps.py", "python sign_check.py", "--plan plan_validation.json --part 1",
+          "python precompute.py", "results_out\\noise_report.json", "results_out\\gps_RABT.json", "results_out\\sign_check.md",
+          "results_out\\gps_stations.json"))
+      and "docs/claude/MOROCCO_PLAN.md" in readme and (ROOT.parent / "docs" / "claude" / "MOROCCO_PLAN.md").exists())
+check("API contract: validation event, correction facts, sign basis, pair quality, discoveries mode documented "
+      "(older keys still there)",
+      all(k in contract3 for k in ("include_validation", "kind", "us6000u18k", "corrections_requested", "corrections_applied",
+                                   "tide_corrected", "kept_raw", "uncertainty_masked_fraction", "sign_basis", "rejected_pairs",
+                                   "NISAR_DISCOVERIES_MODE", "n_pairs_detected", "max_single_pair_share", "ok: false"))
+      and all(k in contract3 for k in ("surface_change", "crid", "maturity", "event_time", "iono_screen", "unvalidated candidate")))
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 

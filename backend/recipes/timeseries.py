@@ -11,6 +11,7 @@ from datetime import date
 
 import numpy as np
 
+import quality
 import raster
 from catalog import Product
 from config import DATA_GAPS, MIN_RATE_DAYS
@@ -77,7 +78,9 @@ def _fit(dates: list[str], series: np.ndarray, min_days: int | None = None):
 
 
 def point_series(products: list[Product], lat: float, lon: float) -> list[dict]:
-    """One series per (geometry, CRID). Cumulative LOS in mm relative to the first date of the main chain."""
+    """One series per (geometry, CRID). Cumulative LOS in mm relative to the first date of the main chain.
+    Pairs rejected by the quality filter are left out and listed per series in "rejected_pairs"."""
+    products, rejected = quality.split(products)
     groups = defaultdict(list)
     for p in products:
         groups[p.series_key].append(p)
@@ -128,20 +131,32 @@ def point_series(products: list[Product], lat: float, lon: float) -> list[dict]:
         crossed = [[a, b] for a, b in DATA_GAPS if any(p.ref[:8] < a and p.sec[:8] > b for p in upairs)]
         res.update(
             iono_screen="subtracted" if n_iono == len(ufacts) else "not applied" if n_iono == 0 else "partly subtracted",
-            iono_applied_pairs=n_iono, troposphere_corrected=False,
+            iono_applied_pairs=n_iono,
+            troposphere_corrected=bool(ufacts) and all("tropo" in f.get("corrections_applied", []) for f in ufacts),
+            tide_corrected=bool(ufacts) and all("tide" in f.get("corrections_applied", []) for f in ufacts),
+            corrections_requested=ufacts[0].get("corrections_requested", []) if ufacts else [],
+            corrections_applied=sorted({n for f in ufacts for n in f.get("corrections_applied", [])}),
             reference_same_component=False if any(x is False for x in flags) else None if any(x is None for x in flags) else True,
             n_pairs_reference_other_component=sum(1 for x in flags if x is False),
             n_pairs_reference_unknown=sum(1 for x in flags if x is None),
             crosses_data_gap=bool(crossed), data_gaps_crossed=crossed,
             n_pairs_across_gap=sum(1 for p in upairs if any(p.ref[:8] < a and p.sec[:8] > b for a, b in crossed)))
+        res["rejected_pairs"] = [r for r in rejected if _key_of(r["product"]) == key[:2]]
         results.append(res)
     return sorted(results, key=lambda r: -r["n_pairs"])
 
 
+def _key_of(pid: str) -> tuple:
+    """(track, frame) from a product id GUNW_T116_F019_20260622_20260704."""
+    parts = pid.split("_")
+    return int(parts[1][1:]), int(parts[2][1:])
+
+
 def velocity_map(pairs: list[Product]):
     """Per-pixel inversion for one geometry and one CRID. Returns (velocity mm/yr, prof) or None.
-    None when the pairs do not form a chain of at least MIN_RATE_DAYS (no rate from a short record)."""
-    pairs = sorted(pairs, key=lambda p: p.ref)
+    None when the pairs do not form a chain of at least MIN_RATE_DAYS (no rate from a short record).
+    Pairs rejected by the quality filter are left out."""
+    pairs = sorted(quality.split(pairs)[0], key=lambda p: p.ref)
     if not pairs:
         return None
     chain = _components(pairs)[0]                                  # one connected chain only

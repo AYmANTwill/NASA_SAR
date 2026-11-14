@@ -11,6 +11,8 @@ import requests
 from config import FIRMS_MAP_KEY, OFFLINE
 
 TIMEOUT = 15
+# Sent with every outside request: Overpass answers 406 to a request without a User-Agent. Generic, no personal data.
+HEADERS = {"User-Agent": "NISAR-Pulse/0.1 (NASA Space Apps 2026 research prototype)"}
 
 
 def _iso(d: str) -> str:
@@ -35,7 +37,7 @@ def earthquakes(lat, lon, start, end, radius_km=150, min_mag=4.0) -> dict:
     if OFFLINE:
         return _unavailable("USGS", "offline mode")
     try:
-        r = requests.get("https://earthquake.usgs.gov/fdsnws/event/1/query", timeout=TIMEOUT, params=dict(
+        r = requests.get("https://earthquake.usgs.gov/fdsnws/event/1/query", timeout=TIMEOUT, headers=HEADERS, params=dict(
             format="geojson", starttime=_iso(start), endtime=_iso(end), latitude=lat, longitude=lon,
             maxradiuskm=radius_km, minmagnitude=min_mag, orderby="magnitude"))
         r.raise_for_status()
@@ -62,7 +64,7 @@ def rainfall(lat, lon, start, end) -> dict:
         s, e = _iso(start), _iso(end)
         if date.fromisoformat(e) > date.today() - timedelta(days=5):
             e = (date.today() - timedelta(days=5)).isoformat()
-        r = requests.get("https://archive-api.open-meteo.com/v1/archive", timeout=TIMEOUT, params=dict(
+        r = requests.get("https://archive-api.open-meteo.com/v1/archive", timeout=TIMEOUT, headers=HEADERS, params=dict(
             latitude=lat, longitude=lon, start_date=s, end_date=e, daily="precipitation_sum", timezone="UTC"))
         r.raise_for_status()
         d = r.json()["daily"]
@@ -85,7 +87,7 @@ def fires(lat, lon, end, days=10, half_deg=0.25) -> dict:
         bbox = f"{lon-half_deg},{lat-half_deg},{lon+half_deg},{lat+half_deg}"
         start = (date.fromisoformat(_iso(end)) - timedelta(days=days - 1)).isoformat()
         url = f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{FIRMS_MAP_KEY}/VIIRS_SNPP_NRT/{bbox}/{min(days,10)}/{start}"
-        r = requests.get(url, timeout=TIMEOUT)
+        r = requests.get(url, timeout=TIMEOUT, headers=HEADERS)
         r.raise_for_status()
         lines = [l.split(",") for l in r.text.strip().splitlines()]
         head, rows = lines[0], lines[1:]
@@ -109,7 +111,7 @@ def exposure(lat, lon, radius_m=2000) -> dict:
      nwr["amenity"~"hospital|school"](around:{radius_m},{lat},{lon}););
     out tags center 2000;"""
     try:
-        r = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=30)
+        r = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=30, headers=HEADERS)
         r.raise_for_status()
         els = r.json()["elements"]
         count = lambda k, v=None: sum(1 for e in els if k in e.get("tags", {}) and (v is None or e["tags"][k] in v))

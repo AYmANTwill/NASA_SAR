@@ -27,7 +27,7 @@ Response (fields the interface uses):
 | `profile` | object[] \| null | west–east profile through the point: `[{km, value}]` |
 | `evidence` | object[] | `{source, status: agrees/disagrees/none/unavailable/context, summary}`. `context` = rain or an earthquake that co-occurs with the measurement but does not test it (surface change): never counted as confirmation |
 | `cannot_say` | string | what the radar cannot tell here |
-| `steps` | object[] | the agent's steps for the "how I found this" panel: `{step, ok, ms}` |
+| `steps` | object[] | the agent's steps for the "how I found this" panel: `{step, ok, ms}`; a failed step (or an evidence source that answered `unavailable`) has `ok: false` and `error` |
 | `place` | object | `{lat, lon, name}` |
 | `facts` | object | every number behind the verdict (for detail panels) |
 | `data_used` | string[] | NISAR product ids used |
@@ -67,12 +67,28 @@ Response (fields the interface uses):
   Confidence is `medium` at most.
 - **Signed line-of-sight answers** (`sudden_motion`, `slow_motion`): `sign_verified` (false until `NISAR_LOS_SIGN_VERIFIED=1`).
   While false, the verdict starts with "Uncorrected line-of-sight change, sign unverified" (FR/AR equivalents), `confidence` is
-  `low` and `alert_level` is `none`. Also `iono_screen` (`"subtracted"` = the product's `ionospherePhaseScreen` is subtracted,
-  not validated · `"partly subtracted"` · `"not applied"`), `troposphere_corrected` (always false), and
+  `low` and `alert_level` is `none`. `sign_basis`: why the sign is what it is (documented convention: GUNW phase positive = away
+  from the sensor, ARIA-tools / MintPy prep_nisar); `NISAR_LOS_SIGN_VERIFIED` stays the switch. Also `iono_screen` (`"subtracted"` =
+  the product's `ionospherePhaseScreen` is subtracted, not validated · `"partly subtracted"` · `"not applied"`),
+  `troposphere_corrected` (false unless `NISAR_CORRECTIONS` includes `tropo` and it was applied; then the verdict says so),
+  `tide_corrected` (same for `tide`), `corrections_requested[]` / `corrections_applied[]`, and
   `reference_same_component` (the reference area shares the point's connected component; false caps confidence at low;
   slow motion also `n_pairs_reference_other_component`). Slow motion adds `crosses_data_gap`, `n_pairs_across_gap`,
   `data_gap_start`, `data_gap_end` (a pair that starts before and ends after a configured acquisition gap, now 2026-07-27 to
   2026-08-10); the verdict says so.
+- **Corrections** (`NISAR_CORRECTIONS`, default `iono` = the previous behaviour; `tropo` and `tide` stay off until
+  `noise_report.py` shows they lower the noise): each pair in `facts.pairs[]` (sudden motion) has `corrections: {iono|tropo|tide:
+  {applied, reason, dataset, convention ("subtracted from unwrappedPhase"), units, units_attribute, description,
+  attributes_from (the raw .h5 kept with --keep-raw, else "not available"), already_applied_flag (true/false/null from
+  processingInformation; true = never applied twice)}}`. Cubes add `height_source` (Copernicus GLO-30, a local DEM, or the
+  documented constant), `height_m_median`, `cube_epsg`. The ionosphere adds `kept_raw` (the raw phase is kept for a pair where
+  subtracting does not lower the frame-wide robust sigma), `frame_sigma_raw_rad`, `frame_sigma_subtracted_rad`,
+  `uncertainty_layer`, `uncertainty_max_rad` (`NISAR_IONO_UNC_MAX_RAD`, default 1.0) and `uncertainty_masked_fraction`
+  (pixels whose screen uncertainty is above the threshold are masked).
+- **Pair quality** (all GUNW answers): `rejected_pairs[]` = `{product, reasons[], phase_sigma_rad, coherence_median}` for pairs
+  with a flat unwrapped phase (robust sigma < `NISAR_FLAT_PHASE_SIGMA_RAD`, 0.001) or a median coherence below
+  `NISAR_MIN_PAIR_COHERENCE` (0.15). They are never used: not in series, not as surface-change before / event / baseline pairs,
+  not in discoveries. Time series also list them per series.
 - **`soil_moisture`**: `uncertainty_m3m3` (median of the product's `soilMoistureUncertainty` around the point; 0.028 if the layer
   is missing) and `within_uncertainty` (|`anomaly_m3m3`| below it). When true the confidence is `low` and the verdict says the
   change is within the product's uncertainty. Never above `medium` (provisional L3 product).
@@ -87,8 +103,11 @@ Response (fields the interface uses):
 
 ## GET /events · GET /events/{id}
 Library of precomputed answers (instant, offline-safe). Ids: `haouz-flood-2026-10-10`, `haouz-soil-moisture`, `gharb-soil-moisture`,
-`ben-guerir-mine`, `al-wahda-surroundings` (each with `title`, `title_en`, `title_ar`). Panama and Venezuela
-are synthetic test fixtures: still resolvable by id, never listed. `/events/{id}` returns the same shape as `/ask` plus `event: {id, title}`.
+`ben-guerir-mine`, `al-wahda-surroundings` (each with `title`, `title_en`, `title_ar`, and `kind: "morocco"`).
+**Validation event** (outside the Morocco scope): `panama-2026` (Panama M7.7, 9 Oct 2026 17:56:06 UTC, USGS `us6000u18k`, exact
+instant), `kind: "validation"`, `status: "validation"`. Listed only with `GET /events?include_validation=true` (after the five
+Morocco events; the default listing is unchanged); its answer has `kind` and `event: {id, title, scope, usgs_id, magnitude,
+origin_utc, usgs_url}`. Venezuela is a synthetic test fixture: resolvable by id, never listed. `/events/{id}` returns the same shape as `/ask` plus `event: {id, title}`.
 `?refresh=true` recomputes. Each event has `status` (`"ready"`, or `"not validated"` with `status_note`: `ben-guerir-mine` is the
 mine centroid with no quarry polygon checked) in the listing and in the answer; the title says so too.
 
@@ -101,6 +120,18 @@ fringes (|cm| / 11.92, cm zones only), peak_fringes, coherence_mean, n_component
 in_frame_main_component, n_other_geometries_covering, other_geometries_showing[], second_geometry_shows (null = no other geometry
 covers it), flags[] (why it is doubtful), exposure | null}], n_geometries, note}`.
 `?refresh=true&exposure=false` recomputes (exposure needs internet).
+
+Every payload now also has `mode`: `"off"` (default), `"single"` (the old mode above, `NISAR_DISCOVERIES_ENABLED=1`) or
+`"consistent"` (the safe mode, `NISAR_DISCOVERIES_MODE=consistent`; still off unless set). The fields above are unchanged.
+In **consistent** mode, per geometry and CRID, only **independent** pairs (no shared time interval) that pass the pair quality
+filter are used, with the default corrections (ionosphere with its uncertainty mask). A zone is kept only if it is above
+3 sigma after smoothing in **at least 3** of them, with the **same sign** in each (no pair beyond 2 sigma with the opposite
+sign), and **no single pair holds more than half** of its motion. Extra fields: top level `n_geometries_with_enough_independent_pairs`,
+`rejected_pairs[]` (see "Pair quality" above), `rules {min_independent_pairs: 3, sigma_after_smoothing: 3, same_sign: true,
+opposite_sign_max_sigma: 2, max_single_pair_share: 0.5, corrections, quality_filter: true}`; per zone `mode: "consistent"`,
+`unit: "cm"` (mean change per pair), `n_independent_pairs`, `n_pairs_detected`, `pairs_detected[]` (product ids),
+`per_pair_mean_cm[]`, `same_sign`, `max_single_pair_share`. Every zone is still an **unvalidated candidate**: `confidence`
+`"low"`, `alert_level` `"yellow"`, never higher. The mock (`?mock=true`) returns the consistent-mode shape.
 
 ## Watch
 - `POST /watch` `{lat, lon, question, lang, label}` → the watch: `{id, level, last_verdict, next_passes: [{direction, next_pass}], notifications: [...]}`
