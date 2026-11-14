@@ -25,7 +25,7 @@ The v1 prototype (simulated globe with 8 cases) was replaced by the v2 **radar i
 Cross-cutting work:
 - **Design system:** light tokens, IBM Plex Sans + IBM Plex Sans Arabic (self-hosted), canonical raster palettes shared with the backend (`src/design/palettes.json`), chart series validated with the dataviz checker (chroma, CVD, contrast), see `PRODUCT.md`.
 - **i18n:** i18next, FR default, AR full RTL (layout mirrored, logical properties), EN. Language switches without reloading. Six Arabic plural forms. Numbers in Western digits (ar-MA). Numeric runs isolated left to right inside Arabic sentences.
-- **Data:** TanStack Query, query cache persisted to localStorage, demo bundle prefetch, offline replay of precomputed answers (under 1 s).
+- **Data:** TanStack Query, query cache persisted to localStorage, demo bundle prefetch, offline replay of precomputed answers (staged, under 4 s; immediate with reduced motion).
 - **Robustness:** a contract violation produces an explicit error, never a guessed value. Map and route error boundaries (a missing chunk offline no longer brings down the app).
 
 ## Phase 3 results
@@ -41,11 +41,25 @@ Cross-cutting work:
 | Keyboard | ✅ skip link → main, every control reachable with visible focus (answer, "Watch this place", opacity sliders), language switch without reload |
 | `dir` / `lang` | ✅ `rtl`/`ar` and `ltr`/`fr|en` checked on every route |
 | Network cut (production build + service worker) | ✅ full demo path offline, "Offline" indicator, simplified basemap, **0 console errors** |
-| http adapter (production build, `/api` mocked from fixtures) | ✅ SSE ask, translated backend error, contract violation → explicit error, offline replay from the persisted cache in < 1 s |
+| http adapter (production build, `/api` mocked from fixtures) | ✅ SSE ask, translated backend error, contract violation → explicit error, offline replay from the persisted cache, staged in < 4 s |
 | Widths 375 / 768 / 1280 / 1920 × 3 languages | ✅ 84 captures in `docs/screenshots/`, **no horizontal overflow** |
 | Timed demo (`npm run e2e:demo`) | ✅ 6.8 s automated, Panama 0.54 s, Al Wahda 0.89 s, live SME2 3.4 s (simulated pace), **0 console errors** |
 
 Visual review: hierarchy, alignment, RTL mirroring, Arabic text without overflow, legend legibility. The fixes from that review are in the history: map container at zero height, map waiting for remote tiles (now `style.load`), legend covering the area (now a legend-aware fit), irregular axis ticks (now nice ticks), steps pushing the verdict down (now folded), Arabic minus sign isolation.
+
+## Motion (14 November)
+
+Every movement shows a real physical step; nothing animates through invented values. Canvas, SVG and CSS only, no dependency. `prefers-reduced-motion` removes all of it (end states, immediate answers; tested in `e2e/motion.spec.ts`).
+
+- **Agent at work**: real elapsed time; steps arrive one by one (a pacer spaces precomputed answers so the reasoning can be followed); on the map, satellite passes sweep over the point, alternately ascending and descending, with the side-looking beam and its pulses.
+- **Raster reveal**: each answer's rasters are drawn strip by strip behind the beam front, in the flight direction of the acquisition (`tracks[0].direction`). The PNG pixels are unchanged; only how much is shown varies.
+- **Noise ruler**: the measurement settles from zero onto its value, the uncertainty opens around it, and a pulse marks it when it clears the noise.
+- **Time series**: drawn left to right, pass after pass.
+- **Home**: once per session, a pass crosses the map and every event answers with an echo as the beam reaches it.
+- **L-band vs C-band**: to-scale wavelengths (from the instruments' frequencies): the C-band wave scatters from the foliage, the L-band wave reaches the ground and returns to the satellite.
+- **Watch**: an orbit clock from the last pass to the next one (both from the API).
+
+The whole staged answer stays under four seconds (`STAGE` in `src/motion/motion.ts`; measured: Panama 2.5 s, Al Wahda 2.4 s, Gharb live 3.5 s).
 
 ## Still imperfect, and why
 
