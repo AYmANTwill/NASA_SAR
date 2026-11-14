@@ -16,6 +16,47 @@
     "watches": "Surveillances",
     "status": "État du service"
   },
+  "common": {
+    "loading": "Chargement…",
+    "retry": "Réessayer"
+  },
+  "errors": {
+    "offline": {
+      "title": "Serveur injoignable",
+      "body": "Le serveur NISAR Pulse ne répond pas à cette adresse. Vérifiez qu'il est démarré, puis réessayez."
+    },
+    "contract": {
+      "title": "Réponse refusée",
+      "body": "Le serveur a envoyé des données qui ne respectent pas le contrat de l'interface. Elles ne sont pas affichées, pour ne montrer aucun chiffre non vérifié.",
+      "fields": "Champs en cause ({{endpoint}})"
+    },
+    "api": {
+      "title": "Le serveur a refusé la demande",
+      "noBody": "Le serveur n'a pas donné de raison."
+    },
+    "unexpected": {
+      "title": "Erreur inattendue",
+      "body": "Une erreur imprévue empêche d'afficher ces données. Réessayez ; si elle revient, signalez-la à l'équipe."
+    },
+    "untranslated": "Texte non disponible dans cette langue ({{id}})"
+  },
+  "status": {
+    "backend": {
+      "title": "Serveur",
+      "state": "État",
+      "ok": "Joignable",
+      "data": "Données",
+      "mode": {
+        "live": "Produits NISAR présents sur ce serveur",
+        "cache": "Réponses précalculées uniquement"
+      },
+      "version": "Version"
+    },
+    "discoveries": "Découverte automatique",
+    "discoveriesOn": "La découverte automatique est active.",
+    "proof": "Comparaison bande L / bande C",
+    "proofReady": "La comparaison est disponible."
+  },
   "pending": {
     "body": "Cette page n'est pas encore construite dans cette version de l'interface."
   },

@@ -16,6 +16,47 @@
     "watches": "Watches",
     "status": "Service status"
   },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again"
+  },
+  "errors": {
+    "offline": {
+      "title": "Server unreachable",
+      "body": "The NISAR Pulse server does not answer at this address. Check that it is running, then try again."
+    },
+    "contract": {
+      "title": "Response rejected",
+      "body": "The server sent data that does not match the interface contract. It is not shown, so that no unchecked number appears.",
+      "fields": "Fields at fault ({{endpoint}})"
+    },
+    "api": {
+      "title": "The server refused the request",
+      "noBody": "The server gave no reason."
+    },
+    "unexpected": {
+      "title": "Unexpected error",
+      "body": "An unexpected error prevents this data from being shown. Try again; if it comes back, report it to the team."
+    },
+    "untranslated": "Text not available in this language ({{id}})"
+  },
+  "status": {
+    "backend": {
+      "title": "Server",
+      "state": "State",
+      "ok": "Reachable",
+      "data": "Data",
+      "mode": {
+        "live": "NISAR products on this server",
+        "cache": "Precomputed answers only"
+      },
+      "version": "Version"
+    },
+    "discoveries": "Automatic discovery",
+    "discoveriesOn": "Automatic discovery is on.",
+    "proof": "L-band versus C-band comparison",
+    "proofReady": "The comparison is available."
+  },
   "pending": {
     "body": "This page is not built yet in this version of the interface."
   },

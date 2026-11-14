@@ -1,0 +1,16 @@
+{
+ "path": "/discoveries?region=morocco",
+ "status": 503,
+ "body": {
+  "code": "discoveries_disabled",
+  "message": {
+   "template": "backend.error.discoveries_disabled",
+   "params": {},
+   "text": {
+    "fr": "Découverte automatique désactivée : les zones candidates ne sont pas encore validées.",
+    "en": "Automatic discovery is off: the candidate zones are not validated yet.",
+    "ar": "الاكتشاف التلقائي معطّل: المناطق المرشّحة غير مؤكَّدة بعد."
+   }
+  }
+ }
+}

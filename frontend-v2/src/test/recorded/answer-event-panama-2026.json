@@ -1,0 +1,168 @@
+{
+ "path": "/answers/event-panama-2026",
+ "status": 200,
+ "body": {
+  "id": "event-panama-2026",
+  "created_at": "2026-11-14T20:46:30+00:00",
+  "question": "Où le sol a-t-il bougé après le séisme du Panama ?",
+  "lang": "fr",
+  "location": {
+   "lat": 7.59,
+   "lon": -80.77,
+   "name": null,
+   "name_i18n": {
+    "fr": "Validation (hors Maroc) : séisme M7.7 du Panama, 9 octobre 2026",
+    "en": "Validation (outside Morocco): Panama M7.7 earthquake, 9 October 2026",
+    "ar": "تحقق (خارج المغرب): زلزال بنما بقوة 7.7، 9 أكتوبر 2026"
+   },
+   "bbox": null
+  },
+  "recipe": "sudden_motion",
+  "product": "GUNW",
+  "product_status": "provisional",
+  "period": {
+   "start": "2026-11-14",
+   "end": "2026-11-14"
+  },
+  "acquisitions": [],
+  "tracks": [],
+  "verdict": {
+   "template": "backend.verdict.sudden_motion",
+   "params": {},
+   "text": {
+    "fr": "Aucune donnée NISAR téléchargée ne permet encore de répondre ici. no NISAR pair straddles the event of 20261009 (exact precision); other pairs were not used",
+    "en": "No NISAR data downloaded yet can answer this here. no NISAR pair straddles the event of 20261009 (exact precision); other pairs were not used",
+    "ar": "لا توجد بعد بيانات NISAR محمّلة تسمح بالإجابة هنا. no NISAR pair straddles the event of 20261009 (exact precision); other pairs were not used"
+   }
+  },
+  "confidence": "low",
+  "stable_in_noise": false,
+  "metrics": [],
+  "series": [],
+  "checks": [],
+  "evidence": [],
+  "layers": [],
+  "earthquakes": [],
+  "limits": [
+   {
+    "template": "backend.limit.sudden_motion",
+    "params": {},
+    "text": {
+     "fr": "Le radar mesure le mouvement le long de sa ligne de visée ; il ne dit pas ce qui va se passer ensuite.",
+     "en": "The radar measures motion along its line of sight; it cannot tell what will happen next.",
+     "ar": "يقيس الرادار الحركة على طول خط رؤيته؛ ولا يمكنه التنبؤ بما سيحدث لاحقًا."
+    }
+   },
+   {
+    "template": "backend.limit.sign_unverified",
+    "params": {},
+    "text": {
+     "fr": "Sens du mouvement non vérifié sur données réelles : le signe suit la convention documentée (ARIA-tools, MintPy), sans contrôle indépendant.",
+     "en": "Direction of motion not yet verified on real data: the sign follows the documented convention (ARIA-tools, MintPy), without an independent check.",
+     "ar": "اتجاه الحركة غير متحقَّق منه على بيانات حقيقية: الإشارة تتبع الاصطلاح الموثّق (ARIA-tools وMintPy) دون تحقق مستقل."
+    }
+   },
+   {
+    "template": "limit.los_only",
+    "params": {}
+   },
+   {
+    "template": "limit.no_prediction",
+    "params": {}
+   }
+  ],
+  "indication": null,
+  "classifier": null,
+  "next_pass": null,
+  "cached": true,
+  "steps": [
+   {
+    "id": "s1",
+    "kind": "classify",
+    "tool": "agent.classify",
+    "status": "done",
+    "params": {},
+    "started_at": "2026-11-14T20:46:30+00:00",
+    "duration_ms": 0,
+    "summary": {
+     "template": "step.classify",
+     "params": {
+      "recipe": {
+       "term": "recipe.sudden_motion"
+      }
+     }
+    },
+    "error": null
+   },
+   {
+    "id": "s2",
+    "kind": "search_scenes",
+    "tool": "catalog.find",
+    "status": "failed",
+    "params": {},
+    "started_at": "2026-11-14T20:46:30+00:00",
+    "duration_ms": 0,
+    "summary": {
+     "template": "backend.step",
+     "params": {},
+     "text": {
+      "fr": "found 0 interferograms covering the point",
+      "en": "found 0 interferograms covering the point",
+      "ar": "found 0 interferograms covering the point"
+     }
+    },
+    "error": {
+     "template": "backend.step.error",
+     "params": {},
+     "text": {
+      "fr": "failed",
+      "en": "failed",
+      "ar": "failed"
+     }
+    }
+   },
+   {
+    "id": "s3",
+    "kind": "search_scenes",
+    "tool": "catalog.find",
+    "status": "failed",
+    "params": {},
+    "started_at": "2026-11-14T20:46:30+00:00",
+    "duration_ms": 0,
+    "summary": {
+     "template": "backend.step",
+     "params": {},
+     "text": {
+      "fr": "0 pair(s) straddle the event (20261009, exact precision)",
+      "en": "0 pair(s) straddle the event (20261009, exact precision)",
+      "ar": "0 pair(s) straddle the event (20261009, exact precision)"
+     }
+    },
+    "error": {
+     "template": "backend.step.error",
+     "params": {},
+     "text": {
+      "fr": "failed",
+      "en": "failed",
+      "ar": "failed"
+     }
+    }
+   },
+   {
+    "id": "s4",
+    "kind": "verdict",
+    "tool": "agent.template",
+    "status": "done",
+    "params": {},
+    "started_at": "2026-11-14T20:46:30+00:00",
+    "duration_ms": 0,
+    "summary": {
+     "template": "step.verdict",
+     "params": {}
+    },
+    "error": null
+   }
+  ],
+  "x_alert_level": null
+ }
+}

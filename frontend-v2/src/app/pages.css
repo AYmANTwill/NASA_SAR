@@ -5,6 +5,10 @@
   padding: var(--space-6) var(--gutter);
 }
 
+.loading {
+  color: var(--ink-2);
+}
+
 .page-lede {
   color: var(--ink-2);
   font-size: var(--step-1);

@@ -1,0 +1,54 @@
+{
+ "path": "/cases",
+ "status": 200,
+ "body": [
+  {
+   "id": "panama-2026",
+   "kind": "earthquake",
+   "title": {
+    "fr": "Séisme du Panama, 9 octobre 2026",
+    "en": "Panama earthquake, 9 October 2026",
+    "ar": "زلزال بنما، 9 أكتوبر 2026"
+   },
+   "date": "2026-10-09T17:56:06Z",
+   "status": "draft",
+   "thumbnail_url": null
+  },
+  {
+   "id": "venezuela-2026",
+   "kind": "earthquake",
+   "title": {
+    "fr": "Séismes du Venezuela, 24 juin 2026",
+    "en": "Venezuela earthquakes, 24 June 2026",
+    "ar": "زلازل فنزويلا، 24 يونيو 2026"
+   },
+   "date": "2026-06-24T00:00:00Z",
+   "status": "draft",
+   "thumbnail_url": null
+  },
+  {
+   "id": "haouz-flood-2026",
+   "kind": "flood",
+   "title": {
+    "fr": "Crue éclair d'Al Haouz près d'Asni, 10 octobre 2026",
+    "en": "Al Haouz flash flood near Asni, 10 October 2026",
+    "ar": "سيول الحوز قرب أسني، 10 أكتوبر 2026"
+   },
+   "date": "2026-10-10T00:00:00Z",
+   "status": "draft",
+   "thumbnail_url": null
+  },
+  {
+   "id": "ionosphere-gps",
+   "kind": "method",
+   "title": {
+    "fr": "Correction ionosphérique vérifiée par GPS",
+    "en": "Ionospheric correction checked against GPS",
+    "ar": "تصحيح الأيونوسفير مقارنة بمحطات GPS"
+   },
+   "date": "2026-10-01T00:00:00Z",
+   "status": "draft",
+   "thumbnail_url": null
+  }
+ ]
+}

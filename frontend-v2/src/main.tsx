@@ -10,12 +10,15 @@ import "@fontsource/ibm-plex-sans-arabic/600.css";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./i18n";
+import { ApiProvider } from "./api/ApiProvider";
 import { AppRoutes } from "./app/routes";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <ApiProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </ApiProvider>
   </StrictMode>,
 );
