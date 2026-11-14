@@ -12,7 +12,8 @@ export default defineConfig(({ mode }) => {
     resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
     plugins: [react()],
     publicDir: offline ? "demo-data/public" : "public",
-    build: offline ? { outDir: "dist-demo", emptyOutDir: true } : undefined,
+    // Separate folders: a rehearsal build (drafts kept) can never replace the jury build.
+    build: offline ? { outDir: mode === "demo" ? "dist-demo" : "dist-rehearsal", emptyOutDir: true } : undefined,
     server: { host: "127.0.0.1", port: 5310, strictPort: true, proxy: { "/api": { target: api, changeOrigin: true } } },
     preview: offline ? undefined : { proxy: { "/api": { target: api, changeOrigin: true } } },
     test: {

@@ -2,6 +2,7 @@ import maplibregl, { type GeoJSONSource, type LngLatBoundsLike, type Map as MapL
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import type { Bounds, RasterLayer } from "@/api/contract";
+import { prefersReducedMotion } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
 import { basemapStyle, loadBasemap } from "./basemap";
 import "./RadarMap.css";
@@ -21,7 +22,6 @@ export interface RadarMapProps {
 }
 
 const RASTER_OPACITY = 0.88;
-const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 const toLngLat = (b: Bounds): LngLatBoundsLike => [
   [b[0], b[1]],
   [b[2], b[3]],
@@ -137,7 +137,7 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
     });
     const key = frame.join(",");
     if (framed.current !== null && framed.current !== key) {
-      m.fitBounds(toLngLat(frame), { padding: 32, duration: reducedMotion() ? 0 : 900 });
+      m.fitBounds(toLngLat(frame), { padding: 32, duration: prefersReducedMotion() ? 0 : 900 });
     }
     framed.current = key;
   }, [frame, point, ready, showArea]);

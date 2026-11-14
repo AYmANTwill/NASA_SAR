@@ -58,10 +58,25 @@ export interface SnapshotProblem {
   problem: string;
 }
 
-/** Every response must pass the contract (an error status must carry an ApiErrorBody). */
+/**
+ * Routes whose error is an information state the interface shows as such
+ * (discovery off, L-band proof not computed). Every other page of the demo
+ * path must have been recorded successfully.
+ */
+const MAY_BE_INFORMATION = [/^\/discoveries\?/, /^\/proofs\/lband-vs-cband$/];
+
+/**
+ * Every response must pass the contract, and the demo path must be whole:
+ * an error is accepted only where it is an information state, and only with
+ * an ApiErrorBody.
+ */
 export function validateSnapshot(snapshot: Snapshot): SnapshotProblem[] {
   const problems: SnapshotProblem[] = [];
   for (const [path, response] of Object.entries(snapshot.responses)) {
+    if (response.status >= 400 && !MAY_BE_INFORMATION.some((pattern) => pattern.test(path))) {
+      problems.push({ path, problem: `recorded with status ${response.status}: the demo would show an error on this page` });
+      continue;
+    }
     const schema = response.status >= 400 ? ApiErrorBody : schemaFor(path);
     if (!schema) {
       problems.push({ path, problem: "no contract schema for this path" });
@@ -75,12 +90,18 @@ export function validateSnapshot(snapshot: Snapshot): SnapshotProblem[] {
   return problems;
 }
 
-/** CASE_CONTRACT.md, rule 5: a demo build refuses any draft case. */
+/**
+ * CASE_CONTRACT.md, rule 5: a demo build refuses any draft case, whether the
+ * list (/cases) or the case itself (/cases/:id) says so.
+ */
 export function draftCases(snapshot: Snapshot): string[] {
-  return Object.entries(snapshot.responses)
-    .filter(([path, r]) => /^\/cases\/[^/]+$/.test(path) && r.status < 400)
-    .filter(([, r]) => (r.body as { status?: string }).status === "draft")
-    .map(([path]) => path.replace("/cases/", ""));
+  const drafts = new Set<string>();
+  const list = snapshot.responses["/cases"]?.body;
+  if (Array.isArray(list)) for (const c of list as { id?: string; status?: string }[]) if (c.status === "draft" && c.id) drafts.add(c.id);
+  for (const [path, r] of Object.entries(snapshot.responses)) {
+    if (/^\/cases\/[^/]+$/.test(path) && (r.body as { status?: string } | null)?.status === "draft") drafts.add(path.replace("/cases/", ""));
+  }
+  return [...drafts].sort();
 }
 
 /** Questions are matched after removing case, accents, punctuation and extra spaces. */

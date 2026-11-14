@@ -16,7 +16,8 @@
     "snapshot": "vite-node scripts/snapshot.ts",
     "build:demo": "vite-node scripts/check-demo.ts && tsc --noEmit && vite build --mode demo",
     "build:rehearsal": "vite-node scripts/check-demo.ts -- --allow-drafts && tsc --noEmit && vite build --mode rehearsal",
-    "preview:demo": "vite preview --mode demo --outDir dist-demo --host 127.0.0.1 --port 4311 --strictPort",
+    "preview:demo": "vite preview --mode demo --host 127.0.0.1 --port 4311 --strictPort",
+    "preview:rehearsal": "vite preview --mode rehearsal --host 127.0.0.1 --port 4312 --strictPort",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {

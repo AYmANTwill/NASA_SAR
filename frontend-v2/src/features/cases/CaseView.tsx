@@ -13,9 +13,11 @@ import "./CaseView.css";
 
 export function CaseView() {
   const { id = "" } = useParams();
-  const { t, lang } = useText();
+  const { t, lang, localized } = useText();
   const query = useCaseStudy(id);
-  useDocumentTitle(t("nav.cases"));
+  // One title for the page (a child effect would run first and be overwritten): the case's, or "Cases" while loading.
+  const study = query.data;
+  useDocumentTitle(study ? `${study.status === "draft" ? `[${t("caseStatus.draft")}] ` : ""}${localized(study.title)}` : t("nav.cases"));
 
   return (
     <div className="case-view">
@@ -30,7 +32,6 @@ export function CaseView() {
 function CaseBody({ study }: { study: CaseStudy }) {
   const { t, lang, text, localized } = useText();
   const draft = study.status === "draft";
-  useDocumentTitle(`${draft ? `[${t("caseStatus.draft")}] ` : ""}${localized(study.title)}`);
   // Figures with a raster layer go on the map; the others (charts, images) stay in the ledger.
   const mapEntries: MapEntry[] = study.figures.flatMap((f) => (f.layer ? [{ layer: f.layer, title: f.title, caption: f.caption }] : []));
   const otherFigures = study.figures.filter((f) => !f.layer);

@@ -8,7 +8,8 @@ import { draftCases, normalizeQuestion, validateSnapshot, type Snapshot } from "
 /** A snapshot built from the recorded live responses (src/test/recorded). */
 function recordedSnapshot(): Snapshot {
   const responses: Snapshot["responses"] = {};
-  for (const name of [...recordedNames("case"), ...recordedNames("answer-"), "health.json", "library.json", "demo.json", "discoveries.json", "lband-proof.json"]) {
+  const caseFiles = recordedNames("case").filter((n) => n !== "case-404.json");
+  for (const name of [...caseFiles, ...recordedNames("answer-"), "health.json", "library.json", "demo.json", "discoveries.json", "lband-proof.json"]) {
     const r = recorded(name);
     responses[r.path] = { status: r.status, body: r.body };
   }
@@ -25,7 +26,24 @@ describe("snapshot gate", () => {
     const expected = Object.values(snapshot.responses)
       .filter((r) => r.status < 400 && (r.body as CaseStudy).status === "draft" && (r.body as CaseStudy).findings)
       .map((r) => (r.body as CaseStudy).id);
-    expect(draftCases(snapshot).sort()).toEqual(expected.sort());
+    expect(draftCases(snapshot)).toEqual(expected.sort());
+  });
+
+  it("a draft listed in /cases is refused even if its page failed to record", () => {
+    const snapshot = recordedSnapshot();
+    const listed = (snapshot.responses["/cases"]!.body as { id: string; status: string }[]).find((c) => c.status === "draft");
+    if (!listed) return;
+    delete snapshot.responses[`/cases/${listed.id}`];
+    expect(draftCases(snapshot)).toContain(listed.id);
+  });
+
+  it("a demo page recorded as an error is a problem; an information state is not", () => {
+    const snapshot = recordedSnapshot();
+    const notFound = recorded("case-404.json");
+    snapshot.responses["/cases/panama-2026"] = { status: notFound.status, body: notFound.body };
+    const paths = validateSnapshot(snapshot).map((p) => p.path);
+    expect(paths).toContain("/cases/panama-2026");
+    expect(paths).not.toContain("/discoveries?region=morocco");
   });
 
   it("reports a response that breaks the contract", () => {

@@ -10,8 +10,25 @@ const LOCALE: Record<Lang, string> = { fr: "fr-FR", en: "en-GB", ar: "ar-MA-u-nu
 /** Enough fraction digits to print any value the API sends without rounding it away. */
 const MAX_FRACTION_DIGITS = 6;
 
+/** One formatter per language and kind: Intl objects are costly to build on every render. */
+function cached<T>(make: (lang: Lang) => T): (lang: Lang) => T {
+  const store = new Map<Lang, T>();
+  return (lang) => {
+    let value = store.get(lang);
+    if (value === undefined) {
+      value = make(lang);
+      store.set(lang, value);
+    }
+    return value;
+  };
+}
+
+const numberFormat = cached((lang) => new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: MAX_FRACTION_DIGITS, useGrouping: true }));
+const dayFormat = cached((lang) => new Intl.DateTimeFormat(LOCALE[lang], { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }));
+const timeFormat = cached((lang) => new Intl.DateTimeFormat(LOCALE[lang], { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }));
+
 export function formatNumber(value: number, lang: Lang): string {
-  return new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: MAX_FRACTION_DIGITS, useGrouping: true }).format(value);
+  return numberFormat(lang).format(value);
 }
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -20,9 +37,9 @@ const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 export function formatDate(iso: string, lang: Lang): string {
   const date = new Date(DATE_ONLY.test(iso) ? `${iso}T00:00:00Z` : iso);
   if (Number.isNaN(date.getTime())) return iso;
-  const day = new Intl.DateTimeFormat(LOCALE[lang], { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(date);
+  const day = dayFormat(lang).format(date);
   if (DATE_ONLY.test(iso) || isMidnightUtc(iso)) return day;
-  const time = new Intl.DateTimeFormat(LOCALE[lang], { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }).format(date);
+  const time = timeFormat(lang).format(date);
   // In Arabic the Latin "17:56 UTC" is isolated (LRI…PDI) so the bidi algorithm cannot reorder it.
   return lang === "ar" ? `${day}، ⁦${time} UTC⁩` : `${day}, ${time} UTC`;
 }
@@ -30,4 +47,9 @@ export function formatDate(iso: string, lang: Lang): string {
 /** Day-precision events are sent as T00:00:00Z: showing "00:00" would invent a time. */
 function isMidnightUtc(iso: string): boolean {
   return /T00:00(:00(\.0+)?)?(Z|\+00:00)$/.test(iso);
+}
+
+/** The visitor asked for less motion (pauses, camera moves and spinners are then skipped). */
+export function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false);
 }

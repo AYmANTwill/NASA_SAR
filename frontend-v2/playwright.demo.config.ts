@@ -15,9 +15,9 @@ export default defineConfig({
   use: {
     ...devices["Desktop Chrome"],
     channel: "chrome",
-    baseURL: "http://127.0.0.1:4311",
+    baseURL: "http://127.0.0.1:4312",
     viewport: { width: 1440, height: 900 },
     trace: "retain-on-failure",
   },
-  webServer: { command: "npm run build:rehearsal && npm run preview:demo", url: "http://127.0.0.1:4311", reuseExistingServer: false, timeout: 240_000 },
+  webServer: { command: "npm run build:rehearsal && npm run preview:rehearsal", url: "http://127.0.0.1:4312", reuseExistingServer: false, timeout: 240_000 },
 });

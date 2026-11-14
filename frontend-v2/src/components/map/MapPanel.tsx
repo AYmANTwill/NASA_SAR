@@ -37,7 +37,7 @@ export function MapPanel({
   /** What the side panel says when there is no raster (default: no radar map yet). */
   emptyText?: string;
 }) {
-  const { t, text, localized } = useText();
+  const { t, lang, text, localized } = useText();
   const [index, setIndex] = useState(0);
   const name = useId();
   const active = entries[index] ?? entries[0] ?? null;
@@ -46,7 +46,8 @@ export function MapPanel({
     <div className="map-panel">
       <MapBoundary fallback={<div className="radar-map-loading">{t("map.noWebgl")}</div>}>
         <Suspense fallback={<div className="radar-map-loading">{t("common.loading")}</div>}>
-          <RadarMap frame={frame} point={point} layer={active?.layer ?? null} label={label} onPick={onPick} showArea={showArea} />
+          {/* key: MapLibre sets its control labels once, so the map is rebuilt in a new language. */}
+          <RadarMap key={lang} frame={frame} point={point} layer={active?.layer ?? null} label={label} onPick={onPick} showArea={showArea} />
         </Suspense>
       </MapBoundary>
 

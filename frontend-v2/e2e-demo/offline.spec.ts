@@ -19,7 +19,7 @@ async function offline(page: Page) {
   const outside: string[] = [];
   await page.route("**/*", (route) => {
     const url = new URL(route.request().url());
-    if (url.host === "127.0.0.1:4311") return route.continue();
+    if (url.host === "127.0.0.1:4312") return route.continue();
     outside.push(url.href);
     return route.abort("internetdisconnected");
   });

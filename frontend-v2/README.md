@@ -31,8 +31,11 @@ npm run build:demo        # refuses to build while any case is a draft (CASE_CON
 npm run preview:demo      # serves dist-demo/ on http://127.0.0.1:4311, no backend needed
 ```
 
-- `npm run build:rehearsal` builds the same thing with the drafts kept, under a hatched "REHEARSAL, not for the
-  jury" banner. It is for testing the offline path before the cases are final.
+- `npm run build:rehearsal` (into `dist-rehearsal/`, served by `npm run preview:rehearsal` on port 4312) keeps the
+  drafts, under a hatched "REHEARSAL, not for the jury" banner. It is for testing the offline path before the cases
+  are final, and it can never overwrite the jury build in `dist-demo/`.
+- If a snapshot fails (backend down, a response breaking the contract, an image missing), the previous snapshot is
+  kept unchanged.
 - The demo answers the demonstration questions of `GET /api/demo` (in FR, EN and AR, matched without case, accents
   or punctuation) and shows every recorded page. Anything else says "not available in the offline demo". It never
   creates or changes a watch.
