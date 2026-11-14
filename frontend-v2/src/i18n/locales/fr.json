@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "NISAR Pulse",
+    "tagline": "Ce que le radar NISAR a mesuré, avec son incertitude et ses limites"
+  },
+  "shell": {
+    "skip": "Aller au contenu",
+    "navLabel": "Sections",
+    "langLabel": "Langue",
+    "offline": "Hors ligne : seules les données déjà enregistrées sont disponibles"
+  },
+  "nav": {
+    "cases": "Études de cas",
+    "ask": "Enquêter",
+    "library": "Bibliothèque",
+    "watches": "Surveillances",
+    "status": "État du service"
+  },
+  "pending": {
+    "body": "Cette page n'est pas encore construite dans cette version de l'interface."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "body": "Cette adresse ne correspond à aucune page.",
+    "back": "Revenir aux études de cas"
+  }
+}

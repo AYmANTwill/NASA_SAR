@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "NISAR Pulse",
+    "tagline": "What the NISAR radar measured, with its uncertainty and its limits"
+  },
+  "shell": {
+    "skip": "Skip to content",
+    "navLabel": "Sections",
+    "langLabel": "Language",
+    "offline": "Offline: only data already saved is available"
+  },
+  "nav": {
+    "cases": "Case studies",
+    "ask": "Investigate",
+    "library": "Library",
+    "watches": "Watches",
+    "status": "Service status"
+  },
+  "pending": {
+    "body": "This page is not built yet in this version of the interface."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This address does not match any page.",
+    "back": "Back to the case studies"
+  }
+}
