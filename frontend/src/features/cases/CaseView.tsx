@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { useText } from "@/i18n/useText";
 import { formatDate } from "@/lib/format";
 import { BackToCases, KIND_ICON, localized } from "./CasesPage";
-import { AgreementBadge, DraftBanner, PendingAgreementBadge } from "./parts";
+import { CaseFigures } from "./CaseFigures";
+import { AgreementBadge, BaselineHelp, DraftBanner, isBaselineSource, PendingAgreementBadge } from "./parts";
 
 const DAY = 86_400_000;
 const dayOf = (at: string) => Date.parse(at.length === 10 ? at + "T00:00:00Z" : at);
@@ -83,22 +84,8 @@ function CaseBody({ c }: { c: CaseStudy }) {
         </div>
       </div>
 
-      {/* Figures that are not map layers */}
-      {c.figures.some((f) => f.kind !== "map" && f.url) && (
-        <section aria-labelledby="case-figures" className="space-y-3">
-          <h2 id="case-figures" className="font-semibold">{t("cases.figures")}</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {c.figures
-              .filter((f) => f.kind !== "map" && f.url)
-              .map((f) => (
-                <figure key={f.id} className="space-y-2 rounded-md border border-line bg-surface p-3">
-                  <img src={f.url!} alt={localized(f.title, lang)} className="w-full rounded-sm" />
-                  <figcaption className="text-sm text-ink-2">{text(f.caption)}</figcaption>
-                </figure>
-              ))}
-          </div>
-        </section>
-      )}
+      {/* Figures that are not map layers (images, charts): whole, captioned, full screen on demand */}
+      <CaseFigures figures={c.figures.filter((f) => f.kind !== "map" && f.url)} />
 
       {/* 6. Limits, always visible */}
       <section aria-labelledby="case-limits" className="space-y-2 rounded-md bg-ink p-4 text-white">
@@ -106,7 +93,8 @@ function CaseBody({ c }: { c: CaseStudy }) {
           <ShieldQuestion className="size-4" aria-hidden />
           {t("answer.limits")}
         </h2>
-        <ul className="list-disc space-y-1 ps-5 text-sm text-white/90">
+        {/* Several long limits per case: one per line, readable measure, never collapsed. */}
+        <ul className="max-w-4xl list-disc space-y-2 ps-5 leading-relaxed text-pretty text-white/90 marker:text-white/60">
           {c.limits.map((l, i) => (
             <li key={l.template + i}>{text(l)}</li>
           ))}
@@ -206,7 +194,16 @@ function Findings({ c }: { c: CaseStudy }) {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2">{f.nisar.uncertainty > 0 ? <AgreementBadge value={f.agreement} /> : <PendingAgreementBadge />}</td>
+                  <td className="px-3 py-2">
+                    {f.nisar.uncertainty > 0 ? (
+                      <>
+                        <AgreementBadge value={f.agreement} />
+                        {isBaselineSource(f.reference_source) && <BaselineHelp />}
+                      </>
+                    ) : (
+                      <PendingAgreementBadge />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

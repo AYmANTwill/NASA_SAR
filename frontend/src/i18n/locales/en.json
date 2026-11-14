@@ -470,7 +470,7 @@
   },
   "cases": {
     "title": "Case studies",
-    "intro": "Four events where NISAR is compared with an independent reference, with what the radar cannot say.",
+    "intro": "Events and methods where NISAR is checked against an independent reference, with what the radar cannot say.",
     "list": "Case studies",
     "draft": "DRAFT, example values: this case is not validated by the team yet.",
     "draftShort": "Draft",
@@ -511,6 +511,9 @@
     "figures": "Figures",
     "openAnswer": "Open in the investigator",
     "answers": "Agent answers",
+    "enlarge": "Enlarge the figure: {{title}}",
+    "imageMissing": "Image not available yet.",
+    "baselineHelp": "Reference: the no-event baseline. Here, “agree” means “not different from no change”.",
     "notMeasuredYet": "not measured yet",
     "afterHours_one": "{{count}} hour later",
     "afterHours_other": "{{count}} hours later"

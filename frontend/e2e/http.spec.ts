@@ -3,6 +3,7 @@
  * /api answered by Playwright from the fixtures: JSON endpoints, SSE streaming,
  * contract validation and the persisted offline cache.
  */
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page, type Route } from "@playwright/test";
 import * as fx from "../src/__fixtures__";
 import { STAGE_MAX_MS, waitForMap, watchConsole } from "./helpers";
@@ -12,7 +13,7 @@ test.use({ serviceWorkers: "block" });
 const json = (route: Route, body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 
 type Override = { status: number; body: unknown };
-async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveriesError?: Override; proofError?: Override } = {}) {
+async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveriesError?: Override; proofError?: Override; cases?: unknown; studies?: { id: string }[] } = {}) {
   const answers = new Map(fx.fixtureAnswers.map((a) => [a.id, a]));
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
@@ -28,9 +29,10 @@ async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveri
     }
     if (path === "/notifications") return json(route, fx.initialNotifications);
     if (path === "/library") return json(route, fx.library);
-    if (path === "/cases") return json(route, fx.caseSummaries);
+    if (path === "/cases") return json(route, overrides.cases ?? fx.caseSummaries);
     if (path.startsWith("/cases/")) {
-      const c = fx.caseStudies.find((x) => x.id === decodeURIComponent(path.slice("/cases/".length)));
+      const id = decodeURIComponent(path.slice("/cases/".length));
+      const c = overrides.studies?.find((x) => x.id === id) ?? fx.caseStudies.find((x) => x.id === id);
       return c ? json(route, c) : json(route, { code: "not_found", message: { template: "error.not_found", params: {} } }, 404);
     }
     if (path === "/proofs/lband-vs-cband" && overrides.proofError) return json(route, overrides.proofError.body, overrides.proofError.status);
@@ -132,3 +134,82 @@ test("case studies: first page, draft banner, findings with agreement and limits
   await expect(page.getByRole("link", { name: "Ouvrir dans l’enquêteur" })).toHaveAttribute("href", /\/investigate\//);
   expect(errors).toEqual([]);
 });
+
+test("a fifth case served by the API gets its own card", async ({ page }) => {
+  const errors = watchConsole(page);
+  // Test-only summary: same shape as the API's, title marked as a test.
+  const fifth = { ...fx.caseSummaries[0], id: "bin-el-ouidane-2026", title: { fr: "Cas de test 5", en: "Test case 5", ar: "Test case 5" } };
+  await mockApi(page, { cases: [...fx.caseSummaries, fifth] });
+  await page.goto("/");
+  const cards = page.getByRole("list", { name: "Études de cas", exact: true }).getByRole("listitem");
+  await expect(cards).toHaveCount(fx.caseSummaries.length + 1);
+  await expect(page.getByRole("link", { name: "Cas de test 5" })).toHaveAttribute("href", "/cases/bin-el-ouidane-2026");
+  expect(errors).toEqual([]);
+});
+
+// Test-only case, labelled as such: shape of the coming Haouz case (negative verdict, no strong number,
+// several long limits) and of the dam case (image figures). Checks layout and tone, not values.
+const longLimit = (n: number) => ({
+  template: `test.limit${n}`,
+  params: {},
+  text: {
+    fr: `Limite de test ${n} : texte long pour vérifier la lecture, produits provisoires, signe non vérifié, magnitude non estimée, à ne pas lire comme une mesure.`,
+    en: `Test limit ${n}: long text to check reading, provisional products, sign not verified, magnitude not estimated, not to be read as a measurement.`,
+    ar: `حدّ اختباري ${n}: نص طويل للتحقق من القراءة، منتجات مؤقتة، إشارة غير متحقق منها، شدة غير مقدّرة، لا يُقرأ كقياس.`,
+  },
+});
+const negativeCase = {
+  ...fx.caseStudies.find((c) => c.id === "haouz-flood-2026")!,
+  status: "final",
+  title: { fr: "Cas de test : aucun changement net", en: "Test case: no net change", ar: "حالة اختبار: لا تغيّر صافٍ" },
+  headline: { template: "test.headline", params: {}, text: { fr: "Test : aucun changement net au-dessus de la dispersion de référence.", en: "Test: no net change above the reference spread.", ar: "اختبار: لا تغيّر صافٍ فوق التشتت المرجعي." } },
+  findings: [
+    {
+      id: "test-baseline",
+      label: { fr: "Test comparé à la ligne de base sans événement", en: "Test compared with the no-event baseline", ar: "اختبار مقارنة بخط الأساس دون حدث" },
+      nisar: { value: 0.1, uncertainty: 0.2, unit: "km2", sigma: 1 },
+      reference: { value: 0, uncertainty: 0.3, unit: "km2", sigma: 1 },
+      reference_source: { name: "Test no-event baseline", url: "https://example.org/" },
+      agreement: "agree",
+    },
+  ],
+  exposure: null,
+  figures: [
+    { id: "before-after", kind: "image", title: { fr: "Test avant / après", en: "Test before / after", ar: "اختبار قبل / بعد" }, url: "/__fixtures__/rasters/alwahda-velocity.png", caption: { template: "test.cap", params: {}, text: { fr: "Légende de test.", en: "Test caption.", ar: "تعليق اختباري." } } },
+    { id: "clouds", kind: "image", title: { fr: "Test nuages contre radar", en: "Test clouds vs radar", ar: "اختبار السحب مقابل الرادار" }, url: "/__fixtures__/rasters/gharb-soil-moisture.png", caption: { template: "test.cap", params: {}, text: { fr: "Légende de test.", en: "Test caption.", ar: "تعليق اختباري." } } },
+    { id: "missing", kind: "image", title: { fr: "Test image absente", en: "Test missing image", ar: "اختبار صورة مفقودة" }, url: "/__fixtures__/rasters/does-not-exist.png", caption: { template: "test.cap", params: {}, text: { fr: "Légende de test.", en: "Test caption.", ar: "تعليق اختباري." } } },
+  ],
+  limits: [1, 2, 3, 4, 5].map(longLimit),
+};
+
+for (const width of [390, 1280]) {
+  test(`negative verdict, long limits and image figures stay calm and readable (ar, ${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const errors = watchConsole(page);
+    await mockApi(page, { studies: [negativeCase] });
+    await page.goto("/cases/haouz-flood-2026?lang=ar");
+    await expect(page.getByRole("heading", { level: 1, name: "حالة اختبار: لا تغيّر صافٍ" })).toBeVisible();
+    // Never suggests a detection: no alert, no failure colour, no draft banner on a final case.
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.locator(".text-fail, .border-fail, .bg-fail")).toHaveCount(0);
+    await expect(page.getByRole("note")).toHaveCount(0);
+    // Against the no-event baseline, "agree" is explained as "not different from no change".
+    await expect(page.getByRole("table")).toContainText("هنا، «اتفاق» يعني «لا يختلف عن غياب التغيّر».");
+    // Every limit is visible and nothing overflows, in RTL, on a phone too.
+    const limits = page.getByRole("region", { name: "ما لا يستطيع الرادار قوله هنا" }).getByRole("listitem");
+    await expect(limits).toHaveCount(5);
+    for (const li of await limits.all()) await expect(li).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    // Image figures: whole, captioned, a missing one is said, and each opens full screen.
+    await expect(page.getByText("الصورة غير متاحة حالياً.")).toBeVisible();
+    await page.getByRole("button", { name: /اختبار قبل \/ بعد/ }).click();
+    const dialog = page.getByRole("dialog", { name: "اختبار قبل / بعد" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("img")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).exclude(".maplibregl-canvas").analyze();
+    expect(axe.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
+    expect(errors.filter((e) => !e.includes("does-not-exist"))).toEqual([]);
+  });
+}
