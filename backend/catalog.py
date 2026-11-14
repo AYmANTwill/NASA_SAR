@@ -1,19 +1,28 @@
 """Index of the NISAR products already downloaded (built from the data folder)."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from functools import lru_cache
 from pathlib import Path
 
 import rasterio
 from rasterio.warp import transform_bounds
 
-from config import DATA_DIR
+from config import CRID_MATURITY, DATA_DIR
 
 
 def _d(s: str) -> date:
     return date(int(s[:4]), int(s[4:6]), int(s[6:8]))
+
+
+_CRID_RE = re.compile(r"^[A-Z]\d{5}$")
+
+
+def parse_crid(name: str) -> str:
+    """CRID in a NISAR file name (e.g. P05023 provisional, P05036 validated); '' if none."""
+    return next((t for t in name.split("_")[8:] if _CRID_RE.match(t)), "")
 
 
 def parse_name(name: str) -> dict:
@@ -21,14 +30,17 @@ def parse_name(name: str) -> dict:
     stamps = [s for s in p if len(s) == 15 and s[8] == "T"]
     ref = stamps[0] if stamps else ""
     sec = stamps[2] if len(stamps) >= 4 else ref
+    crid = parse_crid(name)
     return dict(level=p[3], track=int(p[5]), direction="ascending" if p[6] == "A" else "descending",
-                frame=int(p[7]), ref=ref, sec=sec, span_days=(_d(sec) - _d(ref)).days if ref else 0)
+                frame=int(p[7]), ref=ref, sec=sec, span_days=(_d(sec) - _d(ref)).days if ref else 0,
+                crid=crid, maturity=CRID_MATURITY.get(crid, "unknown"))
 
 
 # layer key -> file-name suffix written by download_all.py, per product level
 LAYER_FILES = {
     "GUNW": {"phase": "unwrappedPhase.tif", "coherence": "coherenceMagnitude.tif",
-             "conncomp": "connectedComponents.tif", "iono": "ionospherePhaseScreen.tif"},
+             "conncomp": "connectedComponents.tif", "iono": "ionospherePhaseScreen.tif",
+             "iono_unc": "ionospherePhaseScreenUncertainty.tif"},
     "GCOV": {"hh": "HHHH.tif", "hv": "HVHV.tif", "vv": "VVVV.tif"},
     "GOFF": {"along": "alongTrackOffset.tif", "range": "slantRangeOffset.tif",
              "peak": "correlationSurfacePeak.tif"},
@@ -49,6 +61,8 @@ class Product:
     span_days: int
     bbox: tuple
     files: dict = field(default_factory=dict)
+    crid: str = ""
+    maturity: str = "unknown"      # provisional | validated | unknown (from the CRID)
 
     @property
     def id(self) -> str:
@@ -58,13 +72,19 @@ class Product:
     def geometry(self) -> tuple:
         return (self.track, self.frame)
 
+    @property
+    def series_key(self) -> tuple:
+        """One time series = one viewing geometry AND one CRID: never mix product versions."""
+        return (self.track, self.frame, self.crid)
+
     def covers(self, lat: float, lon: float) -> bool:
         return self.bbox[0] <= lon <= self.bbox[2] and self.bbox[1] <= lat <= self.bbox[3]
 
     def summary(self) -> dict:
         return dict(id=self.id, level=self.level, track=self.track, frame=self.frame,
                     direction=self.direction, ref=self.ref, sec=self.sec,
-                    span_days=self.span_days, bbox=self.bbox, layers=sorted(self.files))
+                    span_days=self.span_days, bbox=self.bbox, layers=sorted(self.files),
+                    crid=self.crid, maturity=self.maturity)
 
 
 def _pick(folder: Path, suffix: str):
@@ -139,7 +159,7 @@ def load() -> list[Product]:
             out.append(Product(name=folder.name, folder=folder, files=files,
                                bbox=tuple(round(v, 4) for v in bbox) if bbox else (-180, -90, 180, 90),
                                **{k: meta[k] for k in ["level", "track", "frame", "direction", "ref", "sec",
-                                                       "span_days"]}))
+                                                       "span_days", "crid", "maturity"]}))
     return sorted(out, key=lambda p: (p.level, p.track, p.frame, p.ref))
 
 
@@ -153,12 +173,44 @@ def find(lat: float, lon: float, level: str = "GUNW") -> list[Product]:
                   key=lambda p: p.sec, reverse=True)
 
 
-def straddling(products: list[Product], event: str) -> list[Product]:
-    return [p for p in products if p.ref <= event <= p.sec]
+def event_window(event: str, precision: str = "exact") -> tuple[str, str]:
+    """(start, end) of an event as 'YYYYMMDDTHHMMSS' UTC. 'exact': one instant (start == end).
+    'day': the whole UTC day [00:00, next 00:00), used when only the date is known (e.g. a storm)."""
+    if precision == "day":
+        d = _d(event)
+        return f"{d:%Y%m%d}T000000", f"{d + timedelta(days=1):%Y%m%d}T000000"
+    return event, event
 
 
-def before(products: list[Product], event: str) -> list[Product]:
-    return [p for p in products if p.sec < event]
+def relation(p: Product, event: str, precision: str = "exact") -> str:
+    """'before' | 'straddles' | 'after' | 'ambiguous' for a pair relative to an event.
+    Exact event: ref <= event <= sec straddles. Day event: the pair must start before the day and end
+    after it; a pair with an acquisition INSIDE the event day is 'ambiguous' and is used neither as
+    before nor as after (the radar cannot tell which side of the event that acquisition is on)."""
+    start, end = event_window(event, precision)
+    if precision != "day":
+        return "before" if p.sec < event else "after" if p.ref > event else "straddles"
+    if p.sec < start:
+        return "before"
+    if p.ref >= end:
+        return "after"
+    return "straddles" if (p.ref < start and p.sec >= end) else "ambiguous"
+
+
+def straddling(products: list[Product], event: str, precision: str = "exact") -> list[Product]:
+    return [p for p in products if relation(p, event, precision) == "straddles"]
+
+
+def before(products: list[Product], event: str, precision: str = "exact") -> list[Product]:
+    return [p for p in products if relation(p, event, precision) == "before"]
+
+
+def after(products: list[Product], event: str, precision: str = "exact") -> list[Product]:
+    return [p for p in products if relation(p, event, precision) == "after"]
+
+
+def ambiguous(products: list[Product], event: str, precision: str = "exact") -> list[Product]:
+    return [p for p in products if relation(p, event, precision) == "ambiguous"]
 
 
 def by_id(pid: str) -> Product | None:
