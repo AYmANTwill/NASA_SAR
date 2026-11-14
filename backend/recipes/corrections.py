@@ -318,8 +318,9 @@ def already_applied(name: str, attrs: dict) -> bool | None:
     desc = ((attrs.get("datasets") or {}).get("unwrappedPhase") or {}).get("description", "").lower()
     if name in desc and any(w in desc for w in ("corrected", "applied", "removed")):
         return True
-    hits = [v for k, v in (attrs.get("flags") or {}).items()
-            if name in k.lower() and any(w in k.lower() for w in ("applied", "apply", "enabled"))]
+    # only a flag that says APPLIED counts: "...enabled" may only mean the screen was estimated, and skipping the
+    # subtraction on that basis would silently change the default answer
+    hits = [v for k, v in (attrs.get("flags") or {}).items() if name in k.lower() and "applied" in k.lower()]
     if any(v.strip().lower() in _TRUE for v in hits):
         return True
     return None if attrs.get("source") is None else False

@@ -1152,6 +1152,7 @@ attrs = _corr.product_attributes(str(raw_dir))
 check("raw .h5 attributes: description/units read, processingInformation flag read; 'already applied' -> never applied twice",
       attrs["datasets"]["unwrappedPhase"]["units"] == "radians" and _corr.already_applied("tropo", attrs) is True
       and _corr.already_applied("tide", attrs) is False and _corr.already_applied("tide", {"source": None}) is None
+      and _corr.already_applied("iono", {"source": "x.h5", "flags": {"processingInformation/ionosphereEstimationEnabled": "True"}}) is False
       and _corr._apply_cube("tropo", tps[0], _np.zeros((2, 2)), None, attrs, 0.2384, 1, {}, None)[1]["applied"] is False)
 f_tr = {**rg["en"]["facts"], "troposphere_corrected": True, "tide_corrected": True, "iono_screen": "subtracted"}
 tt = {lg: agent.template("slow_motion", f_tr, lg) for lg in ("fr", "en", "ar")}
