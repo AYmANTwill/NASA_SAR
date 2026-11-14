@@ -15,7 +15,7 @@ import events
 if __name__ == "__main__":
     ps = catalog.refresh()
     print(f"{len(ps)} products in the catalog")
-    for ev in events.EVENTS:
+    for ev in events.EVENTS + events.VALIDATION_EVENTS:      # validation events: outside Morocco
         t = time.time()
         r = events.compute(ev)
         print(f"- {ev['id']:<16} {r.get('confidence','?'):<7} {r.get('alert_level','?'):<7} "

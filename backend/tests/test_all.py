@@ -1045,6 +1045,34 @@ check("docs: sign_verified, iono_screen, crosses_data_gap, reference_same_compon
                                    "uncertainty_m3m3", "within_uncertainty", "not validated", "NISAR_DISCOVERIES_ENABLED",
                                    "unvalidated candidate", "fringes")))
 
+# =============================================================================================================
+# Validation and corrections (feat/validation-corrections). Synthetic data: logic only, not physics.
+# =============================================================================================================
+# --- 1. Panama: a global VALIDATION event, outside the Morocco scope -------------------------------------------
+import make_validation_plan as _mvp  # noqa: E402
+
+pv = c.get("/events/panama-2026", params={"refresh": True}).json()
+check("validation event: Panama computes as sudden motion at the exact USGS instant, both look directions, labelled validation",
+      pv["type"] == "sudden_motion" and pv["kind"] == "validation" and pv["status"] == "validation"
+      and pv["event"]["usgs_id"] == "us6000u18k" and pv["facts"]["event_precision"] == "exact"
+      and "decomposition_cm" in pv["facts"] and "outside Morocco" in c.get("/events", params={"include_validation": True}).json()[-1]["title_en"],
+      (pv.get("kind"), pv["facts"].get("event_precision")))
+lv = c.get("/events", params={"include_validation": True}).json()
+check("validation event: listed only on request, after the five unchanged Morocco events, each entry with its kind",
+      [e["id"] for e in lv] == [e["id"] for e in c.get("/events").json()] + ["panama-2026"]
+      and lv[-1]["kind"] == "validation" and all(e["kind"] == "morocco" for e in lv[:-1]))
+vrows = _mvp.select(json.loads(PLAN_NISAR.read_text())["files"])
+vplan = json.loads((ROOT.parent / "plan_validation.json").read_text())
+geoms = {_mvp.geometry(r) for r in vrows}
+check("plan_validation: per geometry the 12-day pairs across 2026-10-09 17:56 UTC + the last pre-event pair; part 1, extra layers",
+      len(geoms) == 8 and len(vrows) == 16 and all(r["dataset"] == "panama" and r["part"] == 1 and r["extra_layers"] for r in vrows)
+      and all(r["ref_ts"] <= _mvp.EVENT <= r["sec_ts"] and r["span"] == 12 for r in vrows if r["event_role"] == "co")
+      and all(sum(r["event_role"] == "pre" and _mvp.geometry(r) == g for r in vrows) == 1 for g in geoms)
+      and all(r["sec_ts"] < _mvp.EVENT for r in vrows if r["event_role"] == "pre"), len(vrows))
+check("plan_validation.json (committed) = the builder's output, same row format, readable by download_all --plan (part 1 only)",
+      [r["name"] for r in vplan["files"]] == [r["name"] for r in vrows] and da.plan_parts(vplan) == [1]
+      and set(json.loads(PLAN_NISAR.read_text())["files"][0]) <= set(vplan["files"][0]))
+
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 

@@ -99,8 +99,8 @@ def ask(body: Ask, mock_: bool = Query(False, alias="mock")):
 
 
 @app.get("/events")
-def list_events():
-    return events.listing()
+def list_events(include_validation: bool = False):
+    return events.listing(include_validation)
 
 
 @app.get("/events/{eid}")

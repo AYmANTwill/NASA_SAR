@@ -70,7 +70,7 @@ _PLACES = {
     "khouribga": ((32.88, -6.90), ["khouribga", "خريبكة"]),
     "casablanca": ((33.57, -7.59), ["casablanca", "الدار البيضاء"]),
     "chefchaouen": ((35.17, -5.27), ["chefchaouen", "شفشاون"]),
-    # Test fixtures (synthetic Panama / Venezuela data); not part of the Moroccan demo
+    # Panama: global VALIDATION event (events.VALIDATION_EVENTS), outside the Morocco scope; Venezuela: test fixture
     "panama": ((7.59, -80.77), ["panama", "pitaloza"]),
     "caracas": ((10.50, -66.90), ["caracas", "venezuela"]),
 }
