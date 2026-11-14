@@ -8,6 +8,7 @@
 import type { Answer, CaseStudy, CaseSummary, Localized, TemplatedText } from "@/api/contract";
 import { panama, venezuela } from "./answers";
 import { recordedAnswers } from "./backend";
+import exported from "./cases-export";
 
 const metric = (a: Answer, id: string) => a.metrics.find((x) => x.id === id)?.measurement;
 const prose = (key: string, fr: string, en: string, ar: string): TemplatedText => ({ template: `backend.case.${key}`, params: {}, text: { fr, en, ar } });
@@ -33,7 +34,7 @@ const panamaCase: CaseStudy = {
     { id: "los_max", label: { fr: "Déplacement maximal en ligne de visée", en: "Maximum line-of-sight displacement", ar: "أقصى إزاحة في خط الرؤية" }, nisar: metric(panama, "los_displacement_max")!, reference: null, reference_source: null, agreement: "no_reference" },
     { id: "coh_loss", label: { fr: "Surface ayant perdu la cohérence", en: "Area that lost coherence", ar: "المساحة التي فقدت التماسك" }, nisar: metric(panama, "coherence_loss_area")!, reference: null, reference_source: null, agreement: "no_reference" },
   ],
-  figures: panama.layers.map((layer) => ({ id: `fig-${layer.id}`, kind: "map" as const, title: { fr: layer.source, en: layer.source, ar: layer.source }, url: null, caption: prose("panama.fig", "Carte NISAR de l'événement.", "NISAR map of the event.", "خريطة NISAR للحدث."), layer })),
+  figures: panama.layers.map((layer) => ({ id: `fig-${layer.id}`, kind: "map" as const, title: { fr: layer.source, en: layer.source, ar: layer.source }, url: layer.url, caption: prose("panama.fig", "Carte NISAR de l'événement.", "NISAR map of the event.", "خريطة NISAR للحدث."), layer })),
   exposure: null,
   timeline: [
     { label: { fr: "Dernier passage NISAR avant", en: "Last NISAR pass before", ar: "آخر مرور لـ NISAR قبل" }, at: panama.period.start },
@@ -53,9 +54,9 @@ const venezuelaCase: CaseStudy = {
   location: loc(venezuela, placeOf(venezuela)),
   headline: prose("venezuela.headline", "Le déplacement mesuré par NISAR est comparé à la carte publiée par la NASA.", "The displacement measured by NISAR is compared with the map published by NASA.", "تُقارَن الإزاحة التي قاسها NISAR بالخريطة التي نشرتها ناسا."),
   findings: [
-    { id: "los_max", label: { fr: "Déplacement maximal en ligne de visée", en: "Maximum line-of-sight displacement", ar: "أقصى إزاحة في خط الرؤية" }, nisar: metric(venezuela, "los_displacement_max")!, reference: null, reference_source: { name: "NASA", url: null }, agreement: "no_reference" },
+    { id: "los_max", label: { fr: "Déplacement maximal en ligne de visée", en: "Maximum line-of-sight displacement", ar: "أقصى إزاحة في خط الرؤية" }, nisar: metric(venezuela, "los_displacement_max")!, reference: null, reference_source: null, agreement: "no_reference" },
   ],
-  figures: venezuela.layers.map((layer) => ({ id: `fig-${layer.id}`, kind: "map" as const, title: { fr: layer.source, en: layer.source, ar: layer.source }, url: null, caption: prose("venezuela.fig", "Carte NISAR de l'événement.", "NISAR map of the event.", "خريطة NISAR للحدث."), layer })),
+  figures: venezuela.layers.map((layer) => ({ id: `fig-${layer.id}`, kind: "map" as const, title: { fr: layer.source, en: layer.source, ar: layer.source }, url: layer.url, caption: prose("venezuela.fig", "Carte NISAR de l'événement.", "NISAR map of the event.", "خريطة NISAR للحدث."), layer })),
   exposure: null,
   timeline: [
     { label: { fr: "Dernier passage NISAR avant", en: "Last NISAR pass before", ar: "آخر مرور لـ NISAR قبل" }, at: venezuela.period.start },
@@ -105,6 +106,11 @@ const ionoCase: CaseStudy = {
   limits: [prose("iono.limit", "Tant que la validation GPS n'est pas terminée, aucune valeur n'est affichée.", "Until the GPS validation is finished, no value is shown.", "لن تُعرض أي قيمة قبل انتهاء التحقق بـ GPS.")],
 };
 
-export const caseStudies: CaseStudy[] = [panamaCase, venezuelaCase, haouzCase, ionoCase];
+const drafts: CaseStudy[] = [panamaCase, venezuelaCase, haouzCase, ionoCase];
 
-export const caseSummaries: CaseSummary[] = caseStudies.map((c) => ({ id: c.id, kind: c.kind, title: c.title, date: c.date, status: c.status, thumbnail_url: null }));
+/** The cases exported from the real API (scripts/export-cases.mjs) win over the local drafts. */
+export const caseStudies: CaseStudy[] = exported ? (exported.studies as CaseStudy[]) : drafts;
+
+export const caseSummaries: CaseSummary[] = exported
+  ? (exported.summaries as CaseSummary[])
+  : drafts.map((c) => ({ id: c.id, kind: c.kind, title: c.title, date: c.date, status: c.status, thumbnail_url: null }));

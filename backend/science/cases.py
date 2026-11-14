@@ -4,11 +4,13 @@
 
 Inputs (each optional; what is missing is listed in "placeholders" and the case stays a draft):
 - cases/out/panama-2026.json and *_fit.png (science.panama_fault), cases/out/<id>_exposure.json (science.exposure_run);
-- results/<id>/findings.json + its figures (format: docs/CASE_CONTRACT.md, "Inputs");
+- results/<id>/findings.json + its figures, rasters and product ids (format: docs/CASE_CONTRACT.md, "Inputs");
 - results/gps/gps_none/gps_*.json and results/gps/gps_iono/gps_*.json (validate_gps.py without / with the
-  ionospheric correction).
+  ionospheric correction);
+- the NISAR catalog (co-seismic pairs and the products named by the inputs), USGS and ASF for the timeline.
 
-A case is written as "final" only when nothing is missing and every finding has a non-zero uncertainty.
+Every case must ship at least one map figure with a layer and a full timeline. A case is written as "final" only
+when nothing is missing and every finding has a non-zero uncertainty.
 """
 from __future__ import annotations
 
@@ -22,21 +24,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-import requests
 from pydantic import ValidationError
 
-from config import CACHE_DIR
-from science import usgs
+from science import case_layers, iono_chart, usgs
 from science.case_models import CaseStudy, Figure, Finding, TemplatedText
-from science.case_store import CASES_DIR
+from science.case_store import CASES_DIR, FIGURE_NAME
 
 log = logging.getLogger(__name__)
 BACKEND = Path(__file__).resolve().parents[1]
 RESULTS = BACKEND.parent / "results"
-ASF_SEARCH = "https://api.daac.asf.alaska.edu/services/search/param"
-USER_AGENT = "nisar-pulse/1.0 (NASA Space Apps 2026)"
-FIG_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}\.(png|jpg|jpeg|webp)$")
+FIG_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}\.(png|jpg|jpeg|webp|tif|tiff)$")
 EVENTS = {"panama-2026": "us6000u18k", "venezuela-2026": None}
+QUAKE_LABEL = {"fr": "Séisme (USGS)", "en": "Earthquake (USGS)", "ar": "الزلزال (USGS)"}
+FLOOD_LABEL = {"fr": "Crue", "en": "Flood", "ar": "الفيضان"}
 
 
 class CaseInputError(RuntimeError):
@@ -69,78 +69,65 @@ def _limit(l3: dict) -> dict:
     return {"template": "backend.case_limit", "params": {}, "text": l3}
 
 
-def _iso(ms_or_dt) -> str:
-    dt = ms_or_dt if isinstance(ms_or_dt, datetime) else datetime.fromtimestamp(ms_or_dt / 1000, tz=timezone.utc)
-    return dt.astimezone(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def _stamp_iso(stamp: str) -> str:
-    """'YYYYMMDDTHHMMSS' -> ISO UTC."""
-    return _iso(datetime.strptime(stamp[:15], "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc))
+def _checked_file(folder: Path, name: str) -> Path:
+    if not FIG_NAME.match(name):
+        raise CaseInputError(f"file name not allowed: {name}")
+    path = folder / name
+    if not path.is_file():
+        raise CaseInputError(f"file not found: {path}")
+    return path
 
 
 def copy_figure(case_id: str, src: Path) -> str:
-    """Copies a figure into cases/figures/<id>/ and returns its /api URL."""
-    if not FIG_NAME.match(src.name):
-        raise CaseInputError(f"figure name not allowed: {src.name}")
-    if not src.is_file():
-        raise CaseInputError(f"figure not found: {src}")
+    """Copies an image figure into cases/figures/<id>/ and returns its /api URL."""
+    if not FIGURE_NAME.match(src.name):
+        raise CaseInputError(f"figure must be a png/jpg/webp image: {src.name}")
+    src = _checked_file(src.parent, src.name)
     dst = fig_dir() / case_id / src.name
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
     return f"/api/cases/{case_id}/figures/{src.name}"
 
 
-def asf_processing_date(granule: str, offline: bool) -> str | None:
-    """ASF 'processingDate' of a granule (cached), as ISO UTC; None when unknown."""
-    path = CACHE_DIR / "asf" / f"{granule}.json"
-    if path.is_file():
-        return json.loads(path.read_text(encoding="utf-8")).get("processingDate")
-    if offline:
+def _bbox(products: list) -> list | None:
+    if not products:
         return None
-    try:
-        r = requests.get(ASF_SEARCH, params={"granule_list": granule, "output": "geojson"}, timeout=60,
-                         headers={"User-Agent": USER_AGENT})
-        r.raise_for_status()
-        feats = r.json().get("features", [])
-    except (requests.RequestException, ValueError) as exc:
-        log.warning("ASF search failed for %s: %s", granule, exc)
-        return None
-    raw = feats[0]["properties"].get("processingDate") if feats else None
-    value = _iso(datetime.fromisoformat(raw.replace("Z", "+00:00"))) if raw else None
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"granule": granule, "processingDate": value}), encoding="utf-8")
-    return value
+    b = np.array([p.bbox for p in products], dtype=float)
+    return [float(b[:, 0].min()), float(b[:, 1].min()), float(b[:, 2].max()), float(b[:, 3].max())]
 
 
-# ---------------------------------------------------------------- parts (each returns its placeholders)
-def quake_timeline(event_id: str | None, pairs: list, offline: bool) -> tuple[list, list, list | None, str | None]:
-    """(timeline, placeholders, bbox, event time). pairs: catalog Products straddling the event."""
-    items, missing, bbox, when = [], [], None, None
-    if event_id:
-        ev = usgs.event(event_id)
-        when = _iso(ev.time_ms)
-        items.append({"label": {"fr": "Séisme (USGS)", "en": "Earthquake (USGS)", "ar": "الزلزال (USGS)"}, "at": when})
-    else:
-        missing.append("date and timeline: USGS event id not set")
-    if pairs:
-        first = min(pairs, key=lambda p: p.sec)
-        items.append({"label": {"fr": "Première acquisition NISAR après l'événement",
-                                "en": "First NISAR acquisition after the event", "ar": "أول التقاط لـ NISAR بعد الحدث"},
-                      "at": _stamp_iso(first.sec)})
-        published = asf_processing_date(first.name, offline)
-        if published:
-            items.append({"label": {"fr": "Produit publié par l'ASF", "en": "Product published by ASF",
-                                    "ar": "نشر المنتج من طرف ASF"}, "at": published})
-        else:
-            missing.append(f"timeline: ASF processingDate of {first.name}")
-        b = np.array([p.bbox for p in pairs], dtype=float)
-        bbox = [float(b[:, 0].min()), float(b[:, 1].min()), float(b[:, 2].max()), float(b[:, 3].max())]
-    else:
-        missing.append("timeline and bbox: no co-seismic NISAR pair in the catalog")
-    return items, missing, bbox, when
+def _catalog_products(ids: list[str]) -> tuple[list, list[str]]:
+    """(catalog Products with these ids, placeholders for the ids not found)."""
+    if not ids:
+        return [], []
+    import catalog
+    by_id = {p.id: p for p in catalog.load()}
+    found = [by_id[i] for i in ids if i in by_id]
+    return found, [f"product {i} not in the catalog" for i in ids if i not in by_id]
 
 
+def _coseismic_pairs(event_id: str | None) -> list:
+    if not event_id:
+        return []
+    import catalog
+    ev = usgs.event(event_id)
+    origin = datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc).strftime("%Y%m%dT%H%M%S")
+    return catalog.straddling(catalog.find(ev.lat, ev.lon, "GUNW"), origin)
+
+
+def _maps(case_id: str, products: list, lat: float, lon: float) -> tuple[list, list[str]]:
+    """Displacement map figures of the products (render errors become placeholders)."""
+    figs, missing = [], []
+    for p in products:
+        try:
+            figs.append(case_layers.displacement_figure(case_id, p, lat, lon, fig_dir()))
+        except (OSError, ValueError, KeyError) as exc:
+            log.error("%s: map of %s failed: %s", case_id, p.id, exc)
+            missing.append(f"map of {p.id} failed: {exc}")
+    return figs, missing
+
+
+# ---------------------------------------------------------------- inputs
 def results_part(case_id: str, results: Path) -> tuple[dict, list, list, list, list]:
     """(raw file, findings, figures, limits, placeholders) from results/<id>/findings.json."""
     folder = results / case_id
@@ -151,8 +138,13 @@ def results_part(case_id: str, results: Path) -> tuple[dict, list, list, list, l
         findings = [Finding.model_validate(f).model_dump(mode="json") for f in data.get("findings", [])]
         figures = []
         for f in data.get("figures", []):
-            fig = {"id": f["id"], "kind": f["kind"], "title": f["title"], "url": copy_figure(case_id, folder / f["file"]),
-                   "caption": TemplatedText.model_validate(f["caption"]).model_dump(mode="json")}
+            caption = TemplatedText.model_validate(f["caption"]).model_dump(mode="json")
+            if "raster" in f:
+                fig = case_layers.raster_figure(case_id, _checked_file(folder, f["raster"]),
+                                                {**f, "caption": caption}, fig_dir())
+            else:
+                fig = {"id": f["id"], "kind": f["kind"], "title": f["title"], "caption": caption,
+                       "url": copy_figure(case_id, folder / f["file"])}
             figures.append(Figure.model_validate(fig).model_dump(mode="json"))
         limits = [_limit(l3) for l3 in data.get("limits", [])]
     except (ValidationError, KeyError, TypeError) as exc:
@@ -167,12 +159,52 @@ def exposure_part(case_id: str) -> tuple[dict | None, list]:
     return data["exposure"], []
 
 
+SIGN_DECISIONS = {"+1": 1, "-1": -1, "undecided": 0}
+NO_SIGN_CHECK = {"fr": "Signe de la ligne de visée non testé contre le modèle de faille finie de l'USGS.",
+                 "en": "Line-of-sight sign not tested against the USGS finite-fault model.",
+                 "ar": "لم يتم اختبار إشارة خط النظر مقابل نموذج الصدع المحدود لـ USGS."}
+
+
+def sign_part(sign: dict | None) -> tuple[list, list]:
+    """(limits, placeholders) from the 'sign_check' of panama_fault (science.sign_decision.decide).
+
+    The verdict is reported as a limit with the numbers of the run. A decided sign opposite to the sign the run
+    used means the findings were computed with the wrong sign: the case stays a draft."""
+    if sign is None:
+        return [_limit(NO_SIGN_CHECK)], []
+    decision = sign.get("decision")
+    if decision not in SIGN_DECISIONS:
+        raise CaseInputError(f"sign_check.decision must be one of {sorted(SIGN_DECISIONS)}, got {decision!r}")
+    try:
+        ffm, inv, used = sign["ffm"], sign["inversion"], float(sign["los_sign_env"])
+        n_pos, n_neg, n = ffm["n_k_positive_3sigma"], ffm["n_k_negative_3sigma"], ffm["n_tracks"]
+        vr_p, vr_m = float(inv["variance_reduction_plus1"]), float(inv["variance_reduction_minus1"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise CaseInputError(f"sign_check: missing or invalid key ({exc})") from exc
+    facts = (f"k > 0 at 3σ on {n_pos}/{n} tracks, k < 0 on {n_neg}/{n}; "
+             f"variance reduction {vr_p:.2f} (+1) vs {vr_m:.2f} (−1)")
+    if decision == "undecided":
+        return [_limit({"fr": f"Signe de la ligne de visée non tranché par les données ({facts}) ; "
+                              "convention documentée de NISAR utilisée.",
+                        "en": f"Line-of-sight sign not settled by the data ({facts}); "
+                              "the documented NISAR convention is used.",
+                        "ar": f"لم تحسم البيانات إشارة خط النظر ({facts})؛ استُخدم الاصطلاح الموثق لـ NISAR."})], []
+    limits = [_limit({"fr": f"Signe de la ligne de visée testé : {decision} ({facts}).",
+                      "en": f"Line-of-sight sign tested: {decision} ({facts}).",
+                      "ar": f"تم اختبار إشارة خط النظر: {decision} ({facts})."})]
+    if SIGN_DECISIONS[decision] * used < 0:
+        return limits, [f"LOS sign: the data say {decision} but the run used {used:+g}; "
+                        f"rerun panama_fault with NISAR_LOS_SIGN={SIGN_DECISIONS[decision]}"]
+    return limits, []
+
+
 def fault_part(case_id: str) -> tuple[list, list, list, list]:
     """(findings, figures, limits, placeholders) from science.panama_fault's output."""
     data = _read(out_dir() / f"{case_id}.json")
     if data is None:
         return [], [], [], [f"fault inversion: cases/out/{case_id}.json not available"]
-    limits = [_limit(l3) for l3 in data.get("limits", [])]
+    sign_limits, sign_missing = sign_part(data.get("sign_check"))
+    limits = [_limit(l3) for l3 in data.get("limits", [])] + sign_limits
     figures = []
     for f in data.get("figures", []):
         figures.append({"id": f["id"], "kind": f.get("kind", "image"), "url": copy_figure(case_id, out_dir() / f["path"]),
@@ -187,8 +219,8 @@ def fault_part(case_id: str) -> tuple[list, list, list, list]:
         limits.append(_limit({"fr": f"Magnitude non estimée : l'inversion n'est pas stable ({reasons}).",
                               "en": f"Magnitude not estimated: the inversion is not stable ({reasons}).",
                               "ar": f"لم يتم تقدير القدر: الانعكاس غير مستقر ({reasons})."}))
-        return [], figures, limits, ["fault inversion not stable: magnitude not estimated"]
-    return data["findings"], figures, limits, []
+        return [], figures, limits, ["fault inversion not stable: magnitude not estimated"] + sign_missing
+    return data["findings"], figures, limits, sign_missing
 
 
 def _rms_measure(n: int, rms: float) -> dict:
@@ -203,9 +235,8 @@ GPS_NAMES = {"none": ("rms_before", "Écart quadratique NISAR–GPS sans correct
 
 
 def gps_part(results: Path) -> dict:
-    """findings, limits, placeholders, bbox and latest pair date from the GPS comparisons without / with iono."""
-    out = {"findings": [], "limits": [], "missing": [], "bbox": None, "last": None}
-    stations = []
+    """findings, limits, placeholders, stations, product ids and latest pair date from the GPS comparisons."""
+    out = {"findings": [], "limits": [], "missing": [], "stations": [], "products": [], "last": None}
     for label in ("none", "iono"):
         reps = [r for r in (_read(p) for p in sorted((results / "gps" / f"gps_{label}").glob("gps_*.json"))
                             if p.name != "gps_stations.json") if r]
@@ -214,11 +245,13 @@ def gps_part(results: Path) -> dict:
             continue
         pairs = []
         for r in reps:
-            stations.append(r.get("station") or {})
+            out["stations"].append(r.get("station") or {})
             for row in r.get("pairs", []):
                 if row.get("gps_los_mm") is not None and row.get("nisar_los_mm") is not None:
                     pairs.append((row["nisar_los_mm"], row["gps_los_mm"]))
                     out["last"] = max(out["last"] or "", row.get("date_after", ""))
+                    if row.get("product") and row["product"] not in out["products"]:
+                        out["products"].append(row["product"])
         if not pairs:
             out["missing"].append(f"results/gps/gps_{label}/: no NISAR-GPS pair")
             continue
@@ -235,16 +268,12 @@ def gps_part(results: Path) -> dict:
                     "fr": f"Corrélation NISAR–GPS négative ({c:.2f}, {label}) : signe à vérifier.",
                     "en": f"Negative NISAR–GPS correlation ({c:.2f}, {label}): check the line-of-sight sign.",
                     "ar": f"ارتباط سلبي بين NISAR وGPS ({c:.2f}، {label}): يجب التحقق من إشارة خط النظر."}))
-    pts = np.array([(s["lon"], s["lat"]) for s in stations if "lat" in s and "lon" in s], dtype=float)
-    if pts.size:
-        out["bbox"] = [float(pts[:, 0].min() - 0.1), float(pts[:, 1].min() - 0.1),
-                       float(pts[:, 0].max() + 0.1), float(pts[:, 1].max() + 0.1)]
     return out
 
 
 # ---------------------------------------------------------------- assembly
 def headline(case_id: str, findings: list[dict]) -> dict | None:
-    """A headline whose numbers come from the findings (None keeps the draft headline)."""
+    """A headline whose numbers come from the findings (None keeps the draft headline and lists it as missing)."""
     by = {f["id"]: f for f in findings}
     if case_id == "panama-2026" and "mw" in by:
         m = by["mw"]["nisar"]
@@ -271,12 +300,16 @@ def finalize(base: dict, parts: dict, placeholders: list[str]) -> dict:
     """Merges the computed parts into the draft, decides the status, validates against the contract."""
     case = {**base, **{k: v for k, v in parts.items() if v is not None}}
     placeholders = list(placeholders)
-    if parts.get("headline") is None:      # the draft's "[DRAFT]" headline would otherwise survive
+    if parts.get("headline") is None:       # the draft's "[DRAFT]" texts would otherwise survive
         placeholders.append("headline: no finding to report")
     if parts.get("limits") is None:
         placeholders.append("limits: none computed")
+    if not any(f.get("layer") for f in parts.get("figures") or []):
+        placeholders.append("figures: no map with a layer")
+    if not parts.get("timeline"):
+        placeholders.append("timeline: empty")
     case["placeholders"] = sorted(set(placeholders))
-    has_findings = bool(case.get("findings")) and "findings" in parts
+    has_findings = bool(parts.get("findings"))
     case["status"] = "final" if not case["placeholders"] and has_findings else "draft"
     try:
         return CaseStudy.model_validate(case).model_dump(mode="json")
@@ -288,72 +321,139 @@ def _base(case_id: str) -> dict:
     return json.loads((CASES_DIR / f"{case_id}.json").read_text(encoding="utf-8"))
 
 
-def _coseismic_pairs(event_id: str | None) -> list:
-    if not event_id:
-        return []
-    import catalog
-    ev = usgs.event(event_id)
-    origin = datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc).strftime("%Y%m%dT%H%M%S")
-    return catalog.straddling(catalog.find(ev.lat, ev.lon, "GUNW"), origin)
-
-
 def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool) -> dict:
     base = _base(case_id)
-    try:
-        timeline, missing, bbox, when = quake_timeline(event_id, _coseismic_pairs(event_id), offline)
-    except usgs.UsgsError as exc:
-        log.warning("%s: %s", case_id, exc)
-        timeline, missing, bbox, when = [], [f"date, timeline and bbox: USGS event unavailable ({exc})"], None, None
+    missing, ev, pairs = [], None, []
+    if not event_id:
+        missing.append("USGS event id not set: no date, timeline or map")
+    else:
+        try:
+            ev = usgs.event(event_id)
+            pairs = _coseismic_pairs(event_id)
+        except usgs.UsgsError as exc:
+            log.warning("%s: %s", case_id, exc)
+            missing.append(f"USGS event unavailable ({exc})")
+    when = case_layers.iso_utc(datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc)) if ev else None
+    tl, m1 = case_layers.timeline((QUAKE_LABEL, when) if when else None, pairs, offline)
+    maps, m4 = _maps(case_id, pairs, ev.lat, ev.lon) if ev else ([], [])
     if case_id == "panama-2026":
         findings, figures, limits, m2 = fault_part(case_id)
     else:
         _raw, findings, figures, limits, m2 = results_part(case_id, results)
     exposure, m3 = exposure_part(case_id)
-    parts = {"findings": findings or None, "figures": figures, "exposure": exposure, "timeline": timeline or None,
+    bbox = _bbox(pairs)
+    parts = {"findings": findings or None, "figures": maps + figures, "exposure": exposure, "timeline": tl or None,
              "limits": limits or None, "date": when, "headline": headline(case_id, findings),
              "location": {**base["location"], "bbox": bbox} if bbox else None}
-    return finalize(base, parts, missing + m2 + m3)
+    if not bbox:
+        missing.append("location.bbox: no co-seismic NISAR pair")
+    return finalize(base, parts, missing + m1 + m2 + m3 + m4)
 
 
-def build_flood(case_id: str, results: Path) -> dict:
+def build_flood(case_id: str, results: Path, offline: bool) -> dict:
     base = _base(case_id)
     raw, findings, figures, limits, missing = results_part(case_id, results)
     exposure, m3 = exposure_part(case_id)
-    if raw:
-        missing += [f"results/{case_id}/findings.json: '{k}' not given" for k in ("date", "timeline", "bbox")
-                    if k not in raw]
+    products, m5 = _catalog_products(raw.get("products", []))
+    if raw and "date" not in raw:
+        missing.append(f"results/{case_id}/findings.json: 'date' not given")
+    if raw and not raw.get("products"):
+        missing.append(f"results/{case_id}/findings.json: 'products' not given (needed for the timeline)")
+    tl, m1 = case_layers.timeline((FLOOD_LABEL, raw["date"]) if raw.get("date") else None, products, offline)
+    bbox = raw.get("bbox") or _bbox(products)
+    if raw and not bbox:
+        missing.append(f"results/{case_id}/findings.json: no 'bbox' and no product to derive it")
     parts = {"findings": findings or None, "figures": figures, "exposure": exposure, "limits": limits or None,
-             "date": raw.get("date"), "timeline": raw.get("timeline"), "headline": headline(case_id, findings),
-             "location": {**base["location"], "bbox": raw["bbox"]} if "bbox" in raw else None}
-    return finalize(base, parts, missing + m3)
+             "date": raw.get("date"), "timeline": tl or None, "headline": headline(case_id, findings),
+             "location": {**base["location"], "bbox": bbox} if bbox else None}
+    return finalize(base, parts, missing + m1 + m3 + m5)
 
 
-def build_iono(results: Path) -> dict:
+IONO_CHART = "iono_noise_pairs.png"
+
+
+def iono_chart_part(results: Path) -> tuple[list, list]:
+    """(figures, limits): the before / after noise chart of the NISAR pairs from Anass's
+    results/noise_with_without_iono_*.csv (a final file is preferred to a preliminary one). No file: nothing."""
+    files = sorted(results.glob("noise_with_without_iono_*.csv"))
+    files = [f for f in files if "preliminary" not in f.stem] or files
+    if not files:
+        log.info("ionosphere-gps: no results/noise_with_without_iono_*.csv, no noise chart")
+        return [], []
+    src = files[-1]
+    try:
+        rows = iono_chart.read(src)
+        st = iono_chart.summary(rows)
+    except iono_chart.NoiseCsvError as exc:
+        raise CaseInputError(f"{src}: {exc}") from exc
+    iono_chart.render(rows, fig_dir() / "ionosphere-gps" / IONO_CHART)
+    n, k, m, left = st["n_pairs"], st["n_lower_after"], st["n_plus_higher"], st["n_left_out"]
+    raw, after = st["median_raw_cm"], st["median_after_cm"]
+    out_fr = f" {left} paire(s) écartée(s) (écart brut nul)." if left else ""
+    out_en = f" {left} pair(s) left out (zero raw spread)." if left else ""
+    out_ar = f" استُبعد {left} زوج (تشتت خام معدوم)." if left else ""
+    caption = _tt("backend.iono_chart_caption",
+                  f"Écart de la phase déroulée sur la scène, {n} paires NISAR : médiane {raw} cm brute, {after} cm après "
+                  f"correction ionosphérique ; plus faible sur {k}/{n} paires. Avec le signe opposé, l'écart augmente "
+                  f"sur {m}/{n} paires (contrôle du signe).{out_fr} Source : {src.name}.",
+                  f"Spread of the unwrapped phase over the frame, {n} NISAR pairs: median {raw} cm raw, {after} cm after "
+                  f"the ionospheric correction; lower on {k}/{n} pairs. With the opposite sign the spread rises on "
+                  f"{m}/{n} pairs (sign check).{out_en} Source: {src.name}.",
+                  f"تشتت الطور المفكوك على المشهد، {n} أزواج NISAR: الوسيط {raw} سم خام و{after} سم بعد التصحيح "
+                  f"الأيونوسفيري؛ أقل في {k}/{n} أزواج. مع الإشارة المعاكسة يزداد التشتت في {m}/{n} أزواج "
+                  f"(فحص الإشارة).{out_ar} المصدر: {src.name}.",
+                  {"n_pairs": n, "n_lower": k, "n_plus_higher": m, "n_left_out": left,
+                   "median_raw": {"value": raw, "uncertainty": 0, "unit": "cm", "sigma": 1},
+                   "median_after": {"value": after, "uncertainty": 0, "unit": "cm", "sigma": 1}})
+    fig = {"id": "iono_noise_pairs", "kind": "chart", "url": f"/api/cases/ionosphere-gps/figures/{IONO_CHART}",
+           "title": {"fr": "Bruit des paires avant / après la correction ionosphérique",
+                     "en": "Noise of the pairs before / after the ionospheric correction",
+                     "ar": "ضوضاء الأزواج قبل التصحيح الأيونوسفيري وبعده"},
+           "caption": caption}
+    limits = []
+    if "preliminary" in src.stem:
+        limits.append(_limit({"fr": f"Graphique du bruit issu d'un calcul préliminaire ({src.name}).",
+                              "en": f"Noise chart from a preliminary run ({src.name}).",
+                              "ar": f"مخطط الضوضاء من حساب أولي ({src.name})."}))
+    return [fig], limits
+
+
+def build_iono(results: Path, offline: bool) -> dict:
     base = _base("ionosphere-gps")
     g = gps_part(results)
     missing = list(g["missing"])
-    bbox, last = g["bbox"], g["last"]
-    if not bbox:
+    products, m5 = _catalog_products(g["products"])
+    pts = np.array([(s["lon"], s["lat"]) for s in g["stations"] if "lat" in s and "lon" in s], dtype=float)
+    loc = None
+    if pts.size:
+        bbox = [float(pts[:, 0].min() - 0.1), float(pts[:, 1].min() - 0.1),
+                float(pts[:, 0].max() + 0.1), float(pts[:, 1].max() + 0.1)]
+        loc = {**base["location"], "bbox": bbox, "lat": float(pts[:, 1].mean()), "lon": float(pts[:, 0].mean())}
+    else:
         missing.append("location: no GPS station report")
+    last = g["last"]
     date = f"{last[:4]}-{last[4:6]}-{last[6:8]}T00:00:00Z" if last and len(last) >= 8 else None
     if date is None:
         missing.append("date: no NISAR-GPS pair")
+    tl, m1 = case_layers.timeline(None, products, offline)
+    latest = sorted(products, key=lambda p: p.sec)[-1:]
+    maps, m4 = _maps("ionosphere-gps", latest, loc["lat"], loc["lon"]) if loc and latest else ([], [])
     method = _limit({"fr": "Écart quadratique groupé sur toutes les stations ; incertitude = RMS/√(2n).",
                      "en": "RMS pooled over all stations; uncertainty = RMS/√(2n).",
                      "ar": "جذر متوسط المربعات مجمّع على كل المحطات؛ الشك = RMS/√(2n)."})
-    loc = {**base["location"], "bbox": bbox, "lat": (bbox[1] + bbox[3]) / 2, "lon": (bbox[0] + bbox[2]) / 2} \
-        if bbox else None
-    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"]], "location": loc, "date": date,
-             "headline": headline("ionosphere-gps", g["findings"])}
-    return finalize(base, parts, missing)
+    chart, chart_limits = iono_chart_part(results)
+    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"], *chart_limits], "location": loc,
+             "date": date, "headline": headline("ionosphere-gps", g["findings"]), "figures": maps + chart,
+             "timeline": tl or None}
+    return finalize(base, parts, missing + m1 + m4 + m5)
 
 
 def build_all(results: Path = RESULTS, venezuela_event: str | None = None, offline: bool = False,
               write: bool = True) -> dict[str, dict]:
     built = {"panama-2026": build_quake("panama-2026", results, EVENTS["panama-2026"], offline),
              "venezuela-2026": build_quake("venezuela-2026", results, venezuela_event, offline),
-             "haouz-flood-2026": build_flood("haouz-flood-2026", results),
-             "ionosphere-gps": build_iono(results)}
+             "haouz-flood-2026": build_flood("haouz-flood-2026", results, offline),
+             "ionosphere-gps": build_iono(results, offline)}
     if write:
         for cid, case in built.items():
             (CASES_DIR / f"{cid}.json").write_text(json.dumps(case, ensure_ascii=False, indent=1), encoding="utf-8")

@@ -13,6 +13,8 @@ from config import FIRMS_MAP_KEY, OFFLINE
 TIMEOUT = 15
 # Sent with every outside request: Overpass answers 406 to a request without a User-Agent. Generic, no personal data.
 HEADERS = {"User-Agent": "NISAR-Pulse/0.1 (NASA Space Apps 2026 research prototype)"}
+# Overpass queues requests when busy: a real request took 29 s on 14 Nov 2026, so 30 s timed out.
+OVERPASS_TIMEOUT = 90
 
 
 def _iso(d: str) -> str:
@@ -111,7 +113,8 @@ def exposure(lat, lon, radius_m=2000) -> dict:
      nwr["amenity"~"hospital|school"](around:{radius_m},{lat},{lon}););
     out tags center 2000;"""
     try:
-        r = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=30, headers=HEADERS)
+        r = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=OVERPASS_TIMEOUT,
+                          headers=HEADERS)
         r.raise_for_status()
         els = r.json()["elements"]
         count = lambda k, v=None: sum(1 for e in els if k in e.get("tags", {}) and (v is None or e["tags"][k] in v))

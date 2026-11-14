@@ -36,6 +36,14 @@ def rejects(data) -> bool:
     return False
 
 
+def raises(fn, exc_type) -> bool:
+    try:
+        fn()
+    except exc_type:
+        return True
+    return False
+
+
 def m(value, unc, unit="Mw", sigma=1):
     return Measurement(value=value, uncertainty=unc, unit=unit, sigma=sigma)
 
@@ -241,6 +249,103 @@ top_c = model[0][np.argmin(np.hypot(ff_tracks[0].east - (-80.769 - lon0) * 111.3
 check("FFM forward model: centre given as the surface projection of the fault-plane centre, non-zero signal there",
       abs(top_c) > 1.0, top_c)
 
+from science.panama_fault import MIN_COMPONENT_BLOCKS, component_blocks  # noqa: E402
+
+dmap = np.ones((40, 40))
+ccmap = np.ones((40, 40))
+ccmap[:, 28:] = 2                   # a second component, one fringe (11.9 cm) higher in the data
+dmap[:, 28:] += 11.9
+ccmap[:3, :3] = 3                   # a tiny third component: too few blocks for its own offset
+ccmap[0, 39] = 0                    # unwrapping failed there
+r_cc, c_cc, v_cc, comp_cc, note = component_blocks(dmap, ccmap, n_target=400)
+check("connected components: block means never mix two components; each block carries its component index",
+      comp_cc is not None and set(np.unique(comp_cc)) == {0, 1}
+      and np.allclose(v_cc[comp_cc == 0], 1.0) and np.allclose(v_cc[comp_cc == 1], 12.9)
+      and "2 connected component(s) kept" in note and "1 smaller component(s)" in note, note)
+nd = component_blocks(dmap, None, n_target=400)
+check("connected components: no layer -> one component, the limitation is noted",
+      nd[3] is None and nd[2].size > 0 and "not handled" in nd[4], nd[4])
+check("connected components: the largest one is kept even when it is small", MIN_COMPONENT_BLOCKS > 1
+      and set(np.unique(component_blocks(dmap, ccmap, n_target=4)[3])) == {0})
+
+jump = [Track(t.name, t.east, t.north, t.los + np.where(t.east > 40, 11.9, 0.0), t.vec,
+              comp=(t.east > 40).astype(int)) for t in synth]
+res_j, _ = invert(jump, (true_plane,), n_boot=5)
+res_n, _ = invert([Track(t.name, t.east, t.north, t.los, t.vec) for t in jump], (true_plane,), n_boot=5)
+bj, bn = res_j["planes"][0], res_n["planes"][0]
+check("component offsets: a one-fringe jump between components is absorbed (Mw within 0.05, RMS at the noise); "
+      "without them it is not",
+      abs(bj["mw"]["value"] - moment_mw(120, 40, 2.5)[1]) < 0.05 and 0.8 < bj["rms_cm"] < 1.2
+      and bn["rms_cm"] > 2.0, (bj["mw"]["value"], bj["rms_cm"], bn["rms_cm"]))
+fj = ffm_sign.scale_fit(jump[0].los, predict(true_theta, synth, true_plane)[0], jump[0].east, jump[0].north,
+                        jump[0].comp)
+check("component offsets: the finite-fault sign test uses them too (k = 1 on the model the data were built from)",
+      abs(fj["k"] - 1.0) < 0.05, fj)
+from science import sign_decision  # noqa: E402
+
+fl = sign_decision.flipped([Track("x", np.zeros(3), np.zeros(3), np.ones(3), np.zeros((3, 3)), chol=np.eye(3),
+                                  comp=np.array([0, 0, 1]))])[0]
+check("sign decision: flipping the sign keeps the noise covariance and the components",
+      fl.chol is not None and fl.comp is not None and np.all(fl.los == -1))
+
+usgs_planes = (Plane(25.21, 74.77, -155.3), Plane(288.32, 66.22, -16.68))
+FAST = [(30.0, 15.0, 1.0), (80.0, 25.0, 8.0)]   # two starts instead of six, to keep the tests fast
+vecs = {"A1": [-0.62, -0.11, 0.78], "A2": [-0.55, -0.10, 0.83], "D1": [0.62, -0.11, 0.78], "D2": [0.55, -0.10, 0.83]}
+sd_tracks = [Track(n, rng.uniform(-70, 70, 250), rng.uniform(-70, 70, 250), np.zeros(250), np.tile(v, (250, 1)))
+             for n, v in vecs.items()]
+# fault placed where the USGS finite-fault model is (top-edge centre ~16 km SSW of the epicentre), left-lateral plane
+theta_ll = np.concatenate([[-0.05, -15.8, 55, 33.6, 0.5, 3.0], np.zeros(12)])
+sd_tracks = [Track(t.name, t.east, t.north, p + rng.normal(0, 1.0, p.size), t.vec)
+             for t, p in zip(sd_tracks, predict(theta_ll, sd_tracks, usgs_planes[1]))]
+dec = sign_decision.decide(sd_tracks, usgs_planes, lat0, lon0, starts=FAST)
+check("sign decision: left-lateral data in the +1 convention -> '+1' with all three criteria met",
+      dec["decision"] == "+1" and all(dec["criteria_plus1"].values()) and dec["ffm"]["n_k_positive_3sigma"] >= 3,
+      (dec["criteria_plus1"], dec["inversion"]))
+dec_m = sign_decision.decide(sign_decision.flipped(sd_tracks), usgs_planes, lat0, lon0, starts=FAST)
+check("sign decision: the same data with the opposite sign -> '-1'", dec_m["decision"] == "-1", dec_m["criteria_minus1"])
+noise_tracks = [Track(t.name, t.east, t.north, rng.normal(0, 1.0, t.los.size), t.vec) for t in sd_tracks]
+check("sign decision: noise -> 'undecided'",
+      sign_decision.decide(noise_tracks, usgs_planes, lat0, lon0, starts=FAST)["decision"] == "undecided")
+check("sign decision JSON: k, σ, k/σ and verdict per track, the rule text, both criteria sets",
+      all({"k", "sigma_k", "k_over_sigma", "verdict"} <= set(v) for v in dec["ffm"]["per_track"].values())
+      and "288/66/-17" in dec["rule"] and json.dumps(dec))
+check("sign decision: fewer than 3 tracks can never accept a sign",
+      sign_decision.decide(sd_tracks[:2], usgs_planes, lat0, lon0, starts=FAST)["decision"] == "undecided")
+
+# ---------------------------------------------------------------- noise covariance (pre-event pair)
+from science import noise_cov  # noqa: E402
+
+nrng = np.random.default_rng(3)
+true_noise = noise_cov.NoiseModel(sill_cm2=4.0, range_km=15.0, nugget_cm2=0.25, source="synthetic")
+pe, pn = nrng.uniform(-150, 150, 1500), nrng.uniform(-150, 150, 1500)
+pre_field = true_noise.cholesky(pe, pn) @ nrng.standard_normal(1500) + 0.02 * pe     # correlated noise + a ramp
+nm = noise_cov.from_points(pe, pn, pre_field, "pre-event")
+check("noise covariance: the variogram of a pre-event field recovers sill and range within 35 %",
+      abs(nm.sill_cm2 - 4.0) / 4.0 < 0.35 and abs(nm.range_km - 15.0) / 15.0 < 0.35, nm.summary())
+try:
+    noise_cov.from_points(pe, pn, np.zeros(1500), "flat")
+    check("noise covariance: a pre-event map without noise is refused", False)
+except ValueError:
+    check("noise covariance: a pre-event map without noise is refused", True)
+
+# small event: the noise matters; correlated noise must widen the Mw uncertainty
+small_plane = Plane(290, 30, 90)
+st = [Track(n_, nrng.uniform(-60, 60, 300), nrng.uniform(-60, 60, 300), np.zeros(300), np.tile(v, (300, 1)))
+      for n_, v in (("a", [-0.62, -0.11, 0.78]), ("d", [0.62, -0.11, 0.78]))]
+small_theta = np.array([0, 0, 20, 10, 2, 0.3, 0, 0, 0, 0, 0, 0])
+st = [Track(t.name, t.east, t.north, p + true_noise.cholesky(t.east, t.north) @ nrng.standard_normal(300), t.vec)
+      for t, p in zip(st, predict(small_theta, st, small_plane))]
+white, _ = invert(st, (small_plane,), n_boot=8)
+modelled_tracks = [Track(t.name, t.east, t.north, t.los, t.vec, chol=nm.cholesky(t.east, t.north)) for t in st]
+corr, _ = invert(modelled_tracks, (small_plane,), n_boot=8)
+w, c = white["planes"][0], corr["planes"][0]
+check("noise covariance: with the correlated-noise model the formal Mw sigma is larger than with independent points "
+      "(the independent-point sigma is a lower bound); Monte Carlo is used",
+      c["uncertainty_method"] == "monte_carlo_correlated_noise" and w["uncertainty_method"] == "point_bootstrap"
+      and c["mw"]["sigma_jacobian"] > w["mw"]["sigma_jacobian"], (w["mw"], c["mw"]))
+check("noise covariance: the true Mw lies within 3 sigma of the correlated-noise estimate",
+      abs(c["mw"]["value"] - moment_mw(20, 10, 0.3)[1]) < 3 * c["mw"]["sigma"], c["mw"])
+
 from science.panama_fault import block_means  # noqa: E402
 
 grid = np.arange(100 * 80, dtype=float).reshape(100, 80)
@@ -361,8 +466,33 @@ cs.CASES_DIR = work
 (CACHE_DIR / "asf").mkdir(parents=True, exist_ok=True)
 (CACHE_DIR / "asf" / "GUNW_TEST.json").write_text(json.dumps({"processingDate": "2026-10-13T08:00:00Z"}),
                                                   encoding="utf-8")
-cs._coseismic_pairs = lambda eid: [SimpleNamespace(sec="20261012T110301", name="GUNW_TEST",
-                                                   bbox=(-81.6, 6.9, -80.0, 8.4))] if eid else []
+(CACHE_DIR / "asf" / "GUNW_TEST2.json").write_text(json.dumps({"processingDate": "2026-10-10T02:00:00Z"}),
+                                                   encoding="utf-8")
+fake_pairs = [SimpleNamespace(id="GUNW_TEST", name="GUNW_TEST", track=4, direction="ascending",
+                              ref="20260930T110250", sec="20261012T110301", bbox=(-81.6, 6.9, -80.0, 8.4)),
+              SimpleNamespace(id="GUNW_TEST2", name="GUNW_TEST2", track=141, direction="descending",
+                              ref="20260927T231500", sec="20261009T231520", bbox=(-81.2, 7.1, -79.8, 8.6))]
+cs._coseismic_pairs = lambda eid: fake_pairs if eid else []
+fake_by_id = {p.id: p for p in fake_pairs}
+cs._catalog_products = lambda ids: ([fake_by_id[i] for i in ids if i in fake_by_id],
+                                    [f"product {i} not in the catalog" for i in ids if i not in fake_by_id])
+
+from science import case_layers  # noqa: E402
+
+map_arr = np.linspace(-5, 5, 400, dtype="float32").reshape(20, 20)
+map_prof = {"transform": from_origin(-81.0, 8.0, 0.05, 0.05), "crs": "EPSG:4326"}
+
+
+def fake_displacement_figure(case_id, p, lat, lon, fdir):
+    """The real map_figure / render_png on a synthetic raster (no GUNW on the test machine)."""
+    return case_layers.map_figure(
+        case_id, map_arr, map_prof, fig_dir=fdir, fig_id=f"los_T{p.track}", kind="displacement", unit="cm",
+        palette="diverging_displacement", vmin=-5.0, vmax=5.0, title={"fr": "m", "en": "m", "ar": "m"},
+        caption={"template": "x", "params": {}}, source=p.id, period={"start": "2026-09-30", "end": "2026-10-12"},
+        sign_convention="positive_toward_satellite")
+
+
+case_layers.displacement_figure = fake_displacement_figure
 mw_finding = {"id": "mw", "label": {"fr": "Mw", "en": "Mw", "ar": "Mw"},
               "nisar": {"value": 7.62, "uncertainty": 0.08, "unit": "Mw", "sigma": 1},
               "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
@@ -375,12 +505,21 @@ fault_out = {"stable": True, "findings": [mw_finding], "limits": [{"fr": "l", "e
 pan = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
 check("cases: Panama with fault, exposure, USGS and ASF inputs becomes FINAL with no placeholder",
       pan["status"] == "final" and pan["placeholders"] == [], pan["placeholders"])
-check("cases: Panama timeline = USGS origin, first NISAR acquisition, ASF publication; date from USGS",
-      [t["at"] for t in pan["timeline"]] == ["2026-10-09T17:56:06Z", "2026-10-12T11:03:01Z", "2026-10-13T08:00:00Z"]
-      and pan["date"] == "2026-10-09T17:56:06Z", pan["timeline"])
-check("cases: headline numbers come from the Mw finding; figure copied and served under /api/cases",
+check("cases: full timeline, sorted: USGS origin, every NISAR acquisition time of the pairs, ASF publication dates",
+      [t["at"] for t in pan["timeline"]] == ["2026-09-27T23:15:00Z", "2026-09-30T11:02:50Z", "2026-10-09T17:56:06Z",
+                                              "2026-10-09T23:15:20Z", "2026-10-10T02:00:00Z", "2026-10-12T11:03:01Z",
+                                              "2026-10-13T08:00:00Z"]
+      and pan["date"] == "2026-10-09T17:56:06Z", [t["at"] for t in pan["timeline"]])
+maps = [f for f in pan["figures"] if f.get("layer")]
+lay = maps[0]["layer"] if maps else {}
+check("cases: one map figure with a RasterLayer per co-seismic pair (PNG rendered with the frontend palette, served)",
+      len(maps) == 2 and maps[0]["kind"] == "map" and lay["palette"] == "diverging_displacement"
+      and lay["unit"] == "cm" and lay["sign_convention"] == "positive_toward_satellite"
+      and np.allclose(lay["bounds"], [-81.0, 7.0, -80.0, 8.0], atol=0.02)
+      and case_store.figure_path("panama-2026", lay["url"].rsplit("/", 1)[1], work) is not None, lay)
+check("cases: headline numbers come from the Mw finding; the fit figure is copied and served under /api/cases",
       "7.62 ± 0.08" in pan["headline"]["text"]["en"]
-      and pan["figures"][0]["url"] == "/api/cases/panama-2026/figures/panama-2026_fit.png"
+      and any(f["url"] == "/api/cases/panama-2026/figures/panama-2026_fit.png" for f in pan["figures"])
       and case_store.figure_path("panama-2026", "panama-2026_fit.png", work) is not None)
 check("cases: unsafe figure names are refused (traversal, other case, unknown extension)",
       case_store.figure_path("panama-2026", "../panama-2026.json", work) is None
@@ -394,21 +533,73 @@ check("cases: unstable fault -> draft, 'Magnitude not estimated' with the reason
       pan2["status"] == "draft" and any("Magnitude not estimated" in lim["text"]["en"] and "0.3 < 0.5" in lim["text"]["en"]
                                         for lim in pan2["limits"]), pan2["placeholders"])
 
+sign_ok = {"decision": "+1", "los_sign_env": 1.0,
+           "ffm": {"n_tracks": 3, "n_k_positive_3sigma": 3, "n_k_negative_3sigma": 0},
+           "inversion": {"variance_reduction_plus1": 0.81, "variance_reduction_minus1": 0.42}}
+s_lim, s_ph = cs.sign_part(sign_ok)
+check("cases: ffm sign verdict +1 with the run's sign -> a limit with the counts and VR, no placeholder",
+      s_ph == [] and "Line-of-sight sign tested: +1" in s_lim[0]["text"]["en"]
+      and "3/3 tracks" in s_lim[0]["text"]["en"] and "0.81 (+1) vs 0.42" in s_lim[0]["text"]["en"], s_lim)
+_, s_ph2 = cs.sign_part({**sign_ok, "decision": "-1"})
+u_lim, u_ph = cs.sign_part({**sign_ok, "decision": "undecided"})
+n_lim, n_ph = cs.sign_part(None)
+check("cases: a sign verdict opposite to the run's sign keeps the case a draft; undecided / untested are limits only",
+      len(s_ph2) == 1 and "NISAR_LOS_SIGN=-1" in s_ph2[0] and u_ph == [] and "not settled" in u_lim[0]["text"]["en"]
+      and n_ph == [] and "not tested" in n_lim[0]["text"]["en"], (s_ph2, u_lim, n_lim))
+check("cases: a sign_check with an unknown decision or missing keys is refused",
+      raises(lambda: cs.sign_part({**sign_ok, "decision": "yes"}), cs.CaseInputError)
+      and raises(lambda: cs.sign_part({"decision": "+1"}), cs.CaseInputError))
+(work / "out" / "panama-2026.json").write_text(json.dumps({**fault_out, "sign_check": {**sign_ok, "decision": "-1"}}),
+                                              encoding="utf-8")
+pan3 = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("cases: Panama with a contradicting sign verdict stays a draft and says how to rerun",
+      pan3["status"] == "draft" and any("NISAR_LOS_SIGN=-1" in x for x in pan3["placeholders"]), pan3["placeholders"])
 res_dir = tmp / "results"
 for label, offset in (("none", 6.0), ("iono", 1.0)):
     d = res_dir / "gps" / f"gps_{label}"
     d.mkdir(parents=True)
-    gps_pairs = [{"gps_los_mm": g, "nisar_los_mm": g + (offset if i % 2 else -offset), "date_after": f"202610{10 + i}"}
-                 for i, g in enumerate([1.0, 5.0, -3.0, 8.0, 2.0, -1.0, 4.0, 0.0])]
+    gps_pairs = [{"gps_los_mm": g, "nisar_los_mm": g + (offset if i % 2 else -offset), "date_after": f"202610{10 + i}",
+                  "product": "GUNW_TEST"} for i, g in enumerate([1.0, 5.0, -3.0, 8.0, 2.0, -1.0, 4.0, 0.0])]
     (d / "gps_CEU1.json").write_text(json.dumps({"station": {"station": "CEU1", "lat": 35.89, "lon": -5.31},
                                                  "pairs": gps_pairs}), encoding="utf-8")
-iono = cs.build_iono(res_dir)
+iono = cs.build_iono(res_dir, offline=True)
 by = {f["id"]: f["nisar"] for f in iono["findings"]}
 check("cases: ionosphere-gps RMS before/after from the GPS reports, uncertainty RMS/sqrt(2n), FINAL",
       iono["status"] == "final" and by["rms_before"]["value"] == 6.0 and by["rms_after"]["value"] == 1.0
       and abs(by["rms_before"]["uncertainty"] - 6.0 / 4.0) < 0.01, (iono["placeholders"], by))
-check("cases: ionosphere-gps location around the stations, date = latest NISAR acquisition",
-      abs(iono["location"]["lat"] - 35.89) < 1e-6 and iono["date"] == "2026-10-17T00:00:00Z", iono["date"])
+check("cases: ionosphere-gps location around the stations, date = latest NISAR acquisition, map + timeline of its pairs",
+      abs(iono["location"]["lat"] - 35.89) < 1e-6 and iono["date"] == "2026-10-17T00:00:00Z"
+      and any(f.get("layer") for f in iono["figures"]) and len(iono["timeline"]) == 3, iono["placeholders"])
+
+noise_csv = ("track,frame,direction,ref,sec,sigma_raw_cm,sigma_minus_iono_cm,sigma_plus_iono_cm,iono_median_rad,"
+             "iono_p5_p95_rad,valid_px\n"
+             "10,20,A,20261001,20261013,8.0,2.0,15.0,-3.0,-4.0/-2.0,1000\n"
+             "10,20,A,20260901,20260913,4.0,3.0,6.0,2.0,1.0/3.0,1000\n"
+             "30,40,D,20261002,20261014,3.0,3.5,2.5,0.5,0.1/0.9,1000\n"
+             "30,40,D,20260902,20260914,0.0,5.0,6.0,1.0,0.5/1.5,1000\n")       # synthetic; the last row has no raw spread
+(res_dir / "noise_with_without_iono_preliminary.csv").write_text(noise_csv, encoding="utf-8")
+iono_c = cs.build_iono(res_dir, offline=True)
+chart = next((f for f in iono_c["figures"] if f["id"] == "iono_noise_pairs"), None)
+cap = chart["caption"]["text"]["en"] if chart else ""
+check("cases: ionosphere noise chart from the CSV: median 4.0 -> 3.0 cm, lower on 2/3, opposite sign higher on 2/3, "
+      "zero-raw row left out, PNG served",
+      chart is not None and chart["kind"] == "chart" and "median 4.0 cm raw, 3.0 cm after" in cap
+      and "lower on 2/3" in cap and "rises on 2/3" in cap and "1 pair(s) left out" in cap
+      and case_store.figure_path("ionosphere-gps", "iono_noise_pairs.png", work) is not None
+      and iono_c["status"] == "final", cap)
+check("cases: a preliminary noise CSV adds a limit naming the file",
+      any("preliminary run (noise_with_without_iono_preliminary.csv)" in x["text"]["en"] for x in iono_c["limits"]))
+(res_dir / "noise_with_without_iono_preliminary.csv").write_text("track,frame\n1,2\n", encoding="utf-8")
+check("cases: a noise CSV without the documented columns stops the build",
+      raises(lambda: cs.build_iono(res_dir, offline=True), cs.CaseInputError))
+(res_dir / "noise_with_without_iono_preliminary.csv").write_text(noise_csv, encoding="utf-8")
+iono = iono_c
+
+if os.environ.get("NISAR_CASE_DUMP"):          # final cases for tools/frontend_contract/validate.ts
+    dump_dir = Path(os.environ["NISAR_CASE_DUMP"])
+    dump_dir.mkdir(parents=True, exist_ok=True)
+    for name, built in (("panama-final", pan), ("ionosphere-final", iono)):
+        (dump_dir / f"case__{name}.json").write_text(json.dumps(built, ensure_ascii=False), encoding="utf-8")
 
 (res_dir / "haouz-flood-2026").mkdir()
 (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [
@@ -416,16 +607,59 @@ check("cases: ionosphere-gps location around the stations, date = latest NISAR a
      "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
      "reference_source": None, "agreement": "no_reference"}], "limits": [{"fr": "l", "en": "l", "ar": "l"}]}),
     encoding="utf-8")
-flood = cs.build_flood("haouz-flood-2026", res_dir)
-check("cases: a flood case missing date / timeline / bbox / exposure stays a draft and says what is missing",
+flood = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+check("cases: a flood case without date / products / map / exposure stays a draft and says what is missing",
       flood["status"] == "draft" and any("'date'" in p for p in flood["placeholders"])
+      and any("'products'" in p for p in flood["placeholders"])
+      and "figures: no map with a layer" in flood["placeholders"]
       and any("exposure" in p for p in flood["placeholders"]), flood["placeholders"])
 (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [{"id": "x"}]}), encoding="utf-8")
 try:
-    cs.build_flood("haouz-flood-2026", res_dir)
+    cs.build_flood("haouz-flood-2026", res_dir, offline=True)
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", False)
 except cs.CaseInputError:
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", True)
+
+# --- api_v2: Houssam's notes (frontend/docs/API_CONTRACT.md, "What I noticed") ------------------------------
+import api_v2  # noqa: E402
+
+check("api_v2: no Measurement without its uncertainty; a σ / exact count is value_only (uncertainty 0)",
+      api_v2.meas(1.0, None, "cm") is None and api_v2.meas(1.0, 0.2, "cm")["uncertainty"] == 0.2
+      and api_v2.value_only(0.4, "cm") == {"value": 0.4, "uncertainty": 0.0, "unit": "cm", "sigma": 1})
+mets = {m["id"] for m in api_v2._metrics("slow_motion", {"velocity_mm_yr": 3.0, "velocity_sigma": None,
+                                                         "decomposition_mm_yr": {"up": 1.0, "east": 2.0}})}
+mets2 = {m["id"]: m["measurement"] for m in api_v2._metrics("sudden_motion", {
+    "value_cm": 10.0, "noise_cm": 0.5, "decomposition_cm": {"up": -3.0, "east": 4.0, "sigma_up": 0.7, "sigma_east": 0.9}})}
+check("api_v2: velocity / vertical / east-west only with a σ that was computed (no hand factor)",
+      "velocity" not in mets and "vertical_velocity" not in mets
+      and mets2["vertical_displacement"]["uncertainty"] == 0.7 and mets2["east_west_displacement"]["uncertainty"] == 0.9)
+check("api_v2: coherence-loss area without its range is not reported",
+      api_v2._metrics("surface_change", {"changed_km2_5km": 2.0}) == []
+      and api_v2._metrics("surface_change", {"changed_km2_5km": 2.0, "changed_km2_range": [1.0, 3.0]})[0]
+      ["measurement"]["uncertainty"] == 1.0)
+(CACHE_DIR / "layers").mkdir(parents=True, exist_ok=True)
+(CACHE_DIR / "layers" / "disp_ok.png").write_bytes(bytes([0x89]) + b"PNG" + bytes([13, 10, 26, 10]))
+lays = api_v2._layers([{"url": "/layers/disp_ok.png", "bounds": [[7, -81], [8, -80]], "vmin": -1, "vmax": 1},
+                       {"url": "/layers/disp_gone.png", "bounds": [[7, -81], [8, -80]], "vmin": -1, "vmax": 1}], None)
+check("api_v2: a layer whose PNG is not on disk is omitted", [x["id"] for x in lays] == ["disp_ok"], lays)
+ev_un, _ = api_v2._evidence([{"source": "OpenStreetMap", "status": "unavailable",
+                              "summary": "OpenStreetMap unreachable (Read timed out)"}])
+txt = ev_un[0]["summary"]["text"]
+check("api_v2: an unavailable source keeps the English error out of the FR / AR prose",
+      "unreachable" not in txt["fr"] and "unreachable" not in txt["ar"] and "unreachable" in txt["en"], txt)
+facts_sm = {"value_cm": 12.0, "noise_cm": 0.5, "date_before": "20261005", "date_after": "20261017",
+            "pairs": [{"product": "GUNW_T004_F012_20261005_20261017", "track": 4, "frame": 12, "direction": "ascending",
+                       "date_before": "20261005", "date_after": "20261017"},
+                      {"product": "GUNW_T141_F070_20260927_20261009", "track": 141, "frame": 70,
+                       "direction": "descending", "date_before": "20260927", "date_after": "20261009"}]}
+ans = api_v2.to_answer({"type": "sudden_motion", "facts": facts_sm, "place": {},
+                        "data_used": ["GUNW_T004_F012_20261005_20261017", "GUNW_T141_F070_20260927_20261009"]},
+                       "a-test", "q", "fr")
+check("api_v2: products absent from the local catalog -> tracks, acquisitions and period from the facts and ids",
+      ans["tracks"] == [{"number": 4, "direction": "ascending", "frame": 12},
+                        {"number": 141, "direction": "descending", "frame": 70}]
+      and ans["acquisitions"] == ["2026-09-27", "2026-10-05", "2026-10-09", "2026-10-17"]
+      and ans["period"] == {"start": "2026-09-27", "end": "2026-10-17"}, (ans["tracks"], ans["acquisitions"]))
 
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
