@@ -1,0 +1,33 @@
+{
+ "id": "ionosphere-gps",
+ "kind": "method",
+ "status": "draft",
+ "title": {"fr": "Correction ionosphérique vérifiée par GPS", "en": "Ionospheric correction checked against GPS", "ar": "تصحيح الأيونوسفير مقارنة بمحطات GPS"},
+ "date": "2026-10-01T00:00:00Z",
+ "location": {"lat": 36.0, "lon": -5.4, "bbox": [-5.65, 35.75, -5.15, 36.3],
+              "place": {"fr": "Détroit de Gibraltar (Ceuta, Gibraltar, Algésiras)", "en": "Strait of Gibraltar (Ceuta, Gibraltar, Algeciras)", "ar": "مضيق جبل طارق (سبتة، جبل طارق، الجزيرة الخضراء)"}},
+ "headline": {"template": "backend.case_draft", "params": {},
+              "text": {"fr": "[BROUILLON] Écart NISAR–GPS avant et après correction ionosphérique : en cours.",
+                       "en": "[DRAFT] NISAR–GPS misfit before and after the ionospheric correction: in progress.",
+                       "ar": "[مسودة] الفرق بين NISAR وGPS قبل تصحيح الأيونوسفير وبعده: قيد الإنجاز."}},
+ "findings": [
+  {"id": "rms_before", "label": {"fr": "Écart quadratique NISAR–GPS sans correction", "en": "NISAR–GPS RMS, uncorrected", "ar": "جذر متوسط مربع الفرق NISAR–GPS دون تصحيح"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "mm", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"},
+  {"id": "rms_after", "label": {"fr": "Écart quadratique NISAR–GPS avec correction", "en": "NISAR–GPS RMS, corrected", "ar": "جذر متوسط مربع الفرق NISAR–GPS بعد التصحيح"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "mm", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"}
+ ],
+ "figures": [],
+ "exposure": null,
+ "timeline": [],
+ "answer_ids": [],
+ "limits": [
+  {"template": "backend.case_draft_limit", "params": {},
+   "text": {"fr": "Brouillon : les écarts NISAR–GPS sont des espaces réservés (0), pas des mesures.",
+            "en": "Draft: the NISAR–GPS misfits are placeholders (0), not measurements.",
+            "ar": "مسودة: قيم الفرق بين NISAR وGPS مؤقتة (0) وليست قياسات."}}
+ ],
+ "placeholders": ["date (period of the GPS comparison to come)", "location", "findings[rms_before].nisar",
+                  "findings[rms_after].nisar", "headline", "limits"]
+}
