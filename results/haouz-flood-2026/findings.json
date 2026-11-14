@@ -4,9 +4,9 @@
   {
    "id": "gcov_hh_asni",
    "label": {
-    "fr": "Asni, rétrodiffusion GCOV HH, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
-    "en": "Asni, GCOV HH backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
-    "ar": "أسني، تغير التشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+    "fr": "Asni, rétrodiffusion GCOV HH, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.469 dB), pas une erreur de mesure ; la valeur est au percentile 97.7 de ce niveau",
+    "en": "Asni, GCOV HH backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.469 dB), not a measurement error; the storm value sits at percentile 97.7 of that null",
+    "ar": "أسني، النسبة اللوغاريتمية للتشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.469 dB) وليس خطأ قياس؛ القيمة عند المئين 97.7 من هذا المستوى"
    },
    "nisar": {
     "value": 1.131,
@@ -21,9 +21,9 @@
   {
    "id": "gcov_hv_asni",
    "label": {
-    "fr": "Asni, rétrodiffusion GCOV HV, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
-    "en": "Asni, GCOV HV backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
-    "ar": "أسني، تغير التشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+    "fr": "Asni, rétrodiffusion GCOV HV, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.372 dB), pas une erreur de mesure ; la valeur est au percentile 96.9 de ce niveau",
+    "en": "Asni, GCOV HV backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.372 dB), not a measurement error; the storm value sits at percentile 96.9 of that null",
+    "ar": "أسني، النسبة اللوغاريتمية للتشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.372 dB) وليس خطأ قياس؛ القيمة عند المئين 96.9 من هذا المستوى"
    },
    "nisar": {
     "value": 0.69,
@@ -38,9 +38,9 @@
   {
    "id": "gcov_hh_moulay_brahim",
    "label": {
-    "fr": "Moulay Brahim, rétrodiffusion GCOV HH, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
-    "en": "Moulay Brahim, GCOV HH backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
-    "ar": "مولاي إبراهيم، تغير التشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+    "fr": "Moulay Brahim, rétrodiffusion GCOV HH, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.469 dB), pas une erreur de mesure ; la valeur est au percentile 97.7 de ce niveau",
+    "en": "Moulay Brahim, GCOV HH backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.469 dB), not a measurement error; the storm value sits at percentile 97.7 of that null",
+    "ar": "مولاي إبراهيم، النسبة اللوغاريتمية للتشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.469 dB) وليس خطأ قياس؛ القيمة عند المئين 97.7 من هذا المستوى"
    },
    "nisar": {
     "value": 1.115,
@@ -55,9 +55,9 @@
   {
    "id": "gcov_hv_moulay_brahim",
    "label": {
-    "fr": "Moulay Brahim, rétrodiffusion GCOV HV, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
-    "en": "Moulay Brahim, GCOV HV backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
-    "ar": "مولاي إبراهيم، تغير التشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+    "fr": "Moulay Brahim, rétrodiffusion GCOV HV, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.372 dB), pas une erreur de mesure ; la valeur est au percentile 97.2 de ce niveau",
+    "en": "Moulay Brahim, GCOV HV backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.372 dB), not a measurement error; the storm value sits at percentile 97.2 of that null",
+    "ar": "مولاي إبراهيم، النسبة اللوغاريتمية للتشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.372 dB) وليس خطأ قياس؛ القيمة عند المئين 97.2 من هذا المستوى"
    },
    "nisar": {
     "value": 0.759,
@@ -72,9 +72,9 @@
   {
    "id": "gcov_hh_imlil",
    "label": {
-    "fr": "Imlil, rétrodiffusion GCOV HH, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
-    "en": "Imlil, GCOV HH backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
-    "ar": "إمليل، تغير التشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+    "fr": "Imlil, rétrodiffusion GCOV HH, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.469 dB), pas une erreur de mesure ; la valeur est au percentile 76.6 de ce niveau",
+    "en": "Imlil, GCOV HH backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.469 dB), not a measurement error; the storm value sits at percentile 76.6 of that null",
+    "ar": "إمليل، النسبة اللوغاريتمية للتشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.469 dB) وليس خطأ قياس؛ القيمة عند المئين 76.6 من هذا المستوى"
    },
    "nisar": {
     "value": -0.016,
@@ -89,9 +89,9 @@
   {
    "id": "gcov_hv_imlil",
    "label": {
-    "fr": "Imlil, rétrodiffusion GCOV HV, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
-    "en": "Imlil, GCOV HV backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
-    "ar": "إمليل، تغير التشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+    "fr": "Imlil, rétrodiffusion GCOV HV, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.372 dB), pas une erreur de mesure ; la valeur est au percentile 47.0 de ce niveau",
+    "en": "Imlil, GCOV HV backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.372 dB), not a measurement error; the storm value sits at percentile 47.0 of that null",
+    "ar": "إمليل، النسبة اللوغاريتمية للتشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.372 dB) وليس خطأ قياس؛ القيمة عند المئين 47.0 من هذا المستوى"
    },
    "nisar": {
     "value": 0.014,
@@ -106,13 +106,13 @@
   {
    "id": "coherence_excess_asni",
    "label": {
-    "fr": "Asni, perte de cohérence dans 5 km au-delà de la moyenne de la scène, 3 au 15 oct. (44/17) : cas limite, sans incertitude calculée",
-    "en": "Asni, coherence loss within 5 km beyond the scene mean, 3 to 15 Oct (44/17): borderline, no uncertainty computed",
-    "ar": "أسني، فقدان التماسك ضمن 5 كم فوق متوسط المشهد، 3 إلى 15 أكتوبر (44/17): حالة حدية، دون حساب عدم اليقين"
+    "fr": "Asni, perte de cohérence dans 5 km au-delà de la moyenne de la scène, 3 au 15 oct. (44/17) : cas limite. « Incertitude » = écart-type 0.038 des cercles sans événement (044/17, juin à sept.), source backend/recipes/damage.py:39 et docs/claude/DECISIONS.md (D-008) ; pas une erreur de mesure",
+    "en": "Asni, coherence loss within 5 km beyond the scene mean, 3 to 15 Oct (44/17): borderline. The \"uncertainty\" is the no-event spread 0.038 of random circles (044/17, June to Sept), source backend/recipes/damage.py:39 and docs/claude/DECISIONS.md (D-008); not a measurement error",
+    "ar": "أسني، فقدان التماسك ضمن 5 كم فوق متوسط المشهد، 3 إلى 15 أكتوبر (44/17): حالة حدية. «عدم اليقين» هو الانتشار 0.038 للدوائر دون حدث (044/17، يونيو إلى سبتمبر)، المصدر backend/recipes/damage.py:39 وdocs/claude/DECISIONS.md (D-008)؛ وليس خطأ قياس"
    },
    "nisar": {
     "value": 0.119,
-    "uncertainty": 0.0,
+    "uncertainty": 0.038,
     "unit": "coherence",
     "sigma": 1
    },
@@ -131,23 +131,6 @@
     "value": -0.027,
     "uncertainty": 0.028,
     "unit": "m3/m3",
-    "sigma": 1
-   },
-   "reference": null,
-   "reference_source": null,
-   "agreement": "no_reference"
-  },
-  {
-   "id": "rain_context_era5",
-   "label": {
-    "fr": "Contexte seulement : pluie 3 au 15 oct., réanalyse ERA5 via Open-Meteo, une seule maille ; pas une mesure locale",
-    "en": "Context only: rain 3 to 15 Oct, ERA5 reanalysis via Open-Meteo, one grid cell; not a local measurement",
-    "ar": "للسياق فقط: أمطار من 3 إلى 15 أكتوبر، إعادة تحليل ERA5 عبر Open-Meteo، خلية شبكية واحدة؛ ليست قياسا محليا"
-   },
-   "nisar": {
-    "value": 37.9,
-    "uncertainty": 0.0,
-    "unit": "mm",
     "sigma": 1
    },
    "reference": null,
@@ -193,9 +176,14 @@
    "ar": "مستوى غياب الحدث مأخوذ من 2000 دائرة عشوائية لهندسة واحدة (44/17) وموسم واحد؛ لا تقدر أي مساحة ولا امتداد فيضان: هذه البيانات لا تقيس فيضانا."
   },
   {
-   "fr": "Produits NISAR provisoires (CRID P05023). L'humidité SME2 n'est calculée qu'à Asni. La pluie ERA5 est une réanalyse sur une maille, donnée comme contexte et non comme test.",
-   "en": "NISAR products are provisional (CRID P05023). SME2 soil moisture is computed at Asni only. ERA5 rain is a one-cell reanalysis given as context, not as a test.",
-   "ar": "منتجات NISAR مؤقتة (CRID P05023). رطوبة التربة SME2 محسوبة في أسني فقط. أمطار ERA5 إعادة تحليل لخلية واحدة، تعطى للسياق لا كاختبار."
+   "fr": "Produits NISAR provisoires (CRID P05023). L'humidité SME2 n'est calculée qu'à Asni.",
+   "en": "NISAR products are provisional (CRID P05023). SME2 soil moisture is computed at Asni only.",
+   "ar": "منتجات NISAR مؤقتة (CRID P05023). رطوبة التربة SME2 محسوبة في أسني فقط."
+  },
+  {
+   "fr": "Contexte seulement : pluie du 3 au 15 oct. = 37.9 mm, réanalyse ERA5 via Open-Meteo, une seule maille ; maximum le 09 oct. (13.4 mm) ; coupures à minuit UTC. Ce n'est ni une mesure locale ni un test.",
+   "en": "Context only: rain 3 to 15 Oct = 37.9 mm, ERA5 reanalysis via Open-Meteo, one grid cell; peak on 9 Oct (13.4 mm); daily cuts at UTC midnight. Not a local measurement and not a test.",
+   "ar": "للسياق فقط: أمطار من 3 إلى 15 أكتوبر = 37.9 مم، إعادة تحليل ERA5 عبر Open-Meteo، خلية شبكية واحدة؛ الذروة في 9 أكتوبر (13.4 مم)؛ حدود اليوم عند منتصف الليل UTC. ليست قياسا محليا ولا اختبارا."
   },
   {
    "fr": "Le signe de la ligne de visée n'est pas vérifié ; cette étude n'utilise pas de déplacement.",

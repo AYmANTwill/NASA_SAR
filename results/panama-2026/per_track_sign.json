@@ -1,0 +1,220 @@
+{
+ "event": "us6000u18k",
+ "los_sign_env": 1.0,
+ "method": "fit_plane (multi-start), no bootstrap, no noise model",
+ "starts": 6,
+ "tracks": {
+  "T141": {
+   "direction": "descending",
+   "pairs": [
+    "GUNW_T141_F085_20260927_20261009",
+    "GUNW_T141_F085_20260927_20261009",
+    "GUNW_T141_F084_20260927_20261009"
+   ],
+   "n_points": 4698,
+   "valid_fraction_by_pair": {
+    "GUNW_T141_F085_20260927_20261009": 0.0205,
+    "GUNW_T141_F084_20260927_20261009": 0.1826
+   },
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.9666,
+     "vr_minus1": 0.9676,
+     "rms_plus1_cm": 16.59,
+     "rms_minus1_cm": 16.32,
+     "at_bound_plus1": [
+      "along_km",
+      "top_depth_km"
+     ],
+     "at_bound_minus1": [
+      "length_km"
+     ]
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.9866,
+     "vr_minus1": 0.9739,
+     "rms_plus1_cm": 10.5,
+     "rms_minus1_cm": 14.66,
+     "at_bound_plus1": [
+      "top_depth_km"
+     ],
+     "at_bound_minus1": [
+      "along_km",
+      "width_km"
+     ]
+    }
+   ],
+   "better_sign_best_plane": "+1",
+   "vr_difference_best_plane": 0.0127
+  },
+  "T4": {
+   "direction": "ascending",
+   "pairs": [
+    "GUNW_T004_F005_20260930_20261012"
+   ],
+   "n_points": 1432,
+   "valid_fraction_by_pair": {
+    "GUNW_T004_F005_20260930_20261012": 0.0251
+   },
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.7949,
+     "vr_minus1": 0.7868,
+     "rms_plus1_cm": 5.17,
+     "rms_minus1_cm": 5.27,
+     "at_bound_plus1": [
+      "top_depth_km",
+      "slip_m"
+     ],
+     "at_bound_minus1": [
+      "width_km",
+      "slip_m"
+     ]
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.7847,
+     "vr_minus1": 0.8226,
+     "rms_plus1_cm": 5.29,
+     "rms_minus1_cm": 4.81,
+     "at_bound_plus1": [
+      "along_km",
+      "top_depth_km",
+      "slip_m"
+     ],
+     "at_bound_minus1": [
+      "along_km",
+      "width_km",
+      "top_depth_km"
+     ]
+    }
+   ],
+   "better_sign_best_plane": "-1",
+   "vr_difference_best_plane": -0.0379
+  },
+  "T40": {
+   "direction": "descending",
+   "pairs": [
+    "GUNW_T040_F085_20261002_20261014",
+    "GUNW_T040_F084_20261002_20261014"
+   ],
+   "n_points": 3175,
+   "valid_fraction_by_pair": {
+    "GUNW_T040_F085_20261002_20261014": 0.0446,
+    "GUNW_T040_F084_20261002_20261014": 0.1293
+   },
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.8612,
+     "vr_minus1": 0.8557,
+     "rms_plus1_cm": 14.09,
+     "rms_minus1_cm": 14.37,
+     "at_bound_plus1": [
+      "along_km",
+      "top_depth_km"
+     ],
+     "at_bound_minus1": [
+      "slip_m"
+     ]
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.8812,
+     "vr_minus1": 0.8658,
+     "rms_plus1_cm": 13.04,
+     "rms_minus1_cm": 13.86,
+     "at_bound_plus1": [
+      "width_km",
+      "slip_m"
+     ],
+     "at_bound_minus1": [
+      "slip_m"
+     ]
+    }
+   ],
+   "better_sign_best_plane": "+1",
+   "vr_difference_best_plane": 0.0154
+  },
+  "T76": {
+   "direction": "ascending",
+   "pairs": [
+    "GUNW_T076_F006_20261005_20261017",
+    "GUNW_T076_F005_20261005_20261017"
+   ],
+   "n_points": 3107,
+   "valid_fraction_by_pair": {
+    "GUNW_T076_F006_20261005_20261017": 0.0754,
+    "GUNW_T076_F005_20261005_20261017": 0.0291
+   },
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.7641,
+     "vr_minus1": 0.857,
+     "rms_plus1_cm": 6.25,
+     "rms_minus1_cm": 4.87,
+     "at_bound_plus1": [
+      "along_km",
+      "width_km"
+     ],
+     "at_bound_minus1": [
+      "slip_m"
+     ]
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.73,
+     "vr_minus1": 0.8608,
+     "rms_plus1_cm": 6.69,
+     "rms_minus1_cm": 4.8,
+     "at_bound_plus1": [
+      "width_km",
+      "top_depth_km"
+     ],
+     "at_bound_minus1": [
+      "width_km"
+     ]
+    }
+   ],
+   "better_sign_best_plane": "-1",
+   "vr_difference_best_plane": -0.1308
+  }
+ },
+ "elapsed_s": 436
+}
