@@ -65,7 +65,7 @@ def scan(with_exposure: bool = True, top: int = 20) -> dict:
     groups = defaultdict(list)
     for p in catalog.load():
         if p.level == "GUNW":
-            groups[p.geometry].append(p)
+            groups[p.series_key].append(p)      # geometry AND CRID: never mix product versions
     zones = []
     for geom, ps in groups.items():
         twelve = [p for p in ps if p.span_days in (12, 24)]

@@ -18,6 +18,13 @@ LOS_SIGN = float(os.environ.get("NISAR_LOS_SIGN", "1"))
 
 COHERENCE_MIN = 0.3          # pixels below are masked
 POINT_RADIUS_M = 1000        # radius used to measure the signal around a clicked point
+# A rate (mm/yr) is only reported for a record at least this long (12 months): a few months of a
+# 12-day chain cannot separate a trend from atmospheric noise and seasonal effects.
+MIN_RATE_DAYS = 365
+
+# Product maturity from the CRID in the file name (ASF NISAR availability page, 2026-11-12).
+# Never mix CRIDs in one time series. Add a line when a new CRID appears; unknown CRIDs stay "unknown".
+CRID_MATURITY = {"P05023": "provisional", "P05036": "validated"}
 
 # Optional keys
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -25,12 +32,31 @@ LLM_MODEL = os.environ.get("NISAR_LLM_MODEL", "claude-haiku-5-5")
 FIRMS_MAP_KEY = os.environ.get("FIRMS_MAP_KEY", "")
 OFFLINE = os.environ.get("NISAR_OFFLINE", "0") == "1"   # skip all internet calls (demo mode)
 
-# Demo places the agent recognises by name (approximate coordinates; refine on the map)
-GAZETTEER = {
-    "al wahda": (34.64, -5.17), "wahda": (34.64, -5.17), "الوحدة": (34.64, -5.17),
-    "ben guerir": (32.27, -7.93), "benguerir": (32.27, -7.93), "ابن جرير": (32.27, -7.93),
-    "khouribga": (32.88, -6.90), "خريبكة": (32.88, -6.90),
-    "casablanca": (33.57, -7.59), "الدار البيضاء": (33.57, -7.59),
-    "chefchaouen": (35.17, -5.27), "panama": (7.59, -80.77), "pitaloza": (7.59, -80.77),
-    "caracas": (10.50, -66.90), "venezuela": (10.50, -66.90),
+# Places the agent recognises by name, with French / English / Arabic aliases. Coordinates and sources:
+# docs/claude/morocco_inventory.md §1 (OSM-checked on 2026-11-12). Matching is by whole word, longest alias first.
+# A Moroccan map view for the interface (centre lat, lon, zoom).
+DEFAULT_MAP_VIEW = {"lat": 32.0, "lon": -6.5, "zoom": 6}
+
+_PLACES = {
+    # Al Haouz flash flood area (frames 44/17 A, 23/73 D, 95/73 D)
+    "imlil": ((31.136, -7.919), ["imlil", "إمليل"]),
+    "asni": ((31.250, -7.983), ["asni", "أسني", "al haouz", "haouz", "الحوز"]),   # Asni stands for the Haouz region
+    "moulay brahim": ((31.286, -7.966), ["moulay brahim", "moulay_brahim", "مولاي إبراهيم"]),
+    # Al Wahda dam: OSM dam polygon (way 26301395), NOT the old (34.64, -5.17) which is ~5 km away
+    "al wahda": ((34.598, -5.198), ["al wahda", "al wahda dam", "barrage al wahda", "wahda", "al ouahda",
+                                    "سد الوحدة", "الوحدة"]),
+    "gharb": ((34.50, -6.00), ["gharb", "plaine du gharb", "الغرب"]),
+    # proposed farmland point (OSM way 257797663); the plan's (35.00, -5.90) is inside the town. Confirm on a basemap.
+    "ksar el kebir": ((35.0105, -5.9031), ["ksar el kebir", "ksar el kébir", "ksar el-kebir", "ksar-el-kebir",
+                                           "loukkos", "القصر الكبير"]),
+    "ben guerir mine": ((32.25825, -7.82355), ["ben guerir mine", "mine de ben guerir", "mine de benguerir",
+                                               "mine benguerir", "منجم ابن جرير"]),
+    "ben guerir": ((32.27, -7.93), ["ben guerir", "benguerir", "ابن جرير"]),
+    "khouribga": ((32.88, -6.90), ["khouribga", "خريبكة"]),
+    "casablanca": ((33.57, -7.59), ["casablanca", "الدار البيضاء"]),
+    "chefchaouen": ((35.17, -5.27), ["chefchaouen", "شفشاون"]),
+    # Test fixtures (synthetic Panama / Venezuela data); not part of the Moroccan demo
+    "panama": ((7.59, -80.77), ["panama", "pitaloza"]),
+    "caracas": ((10.50, -66.90), ["caracas", "venezuela"]),
 }
+GAZETTEER = {alias: coords for coords, aliases in _PLACES.values() for alias in aliases}

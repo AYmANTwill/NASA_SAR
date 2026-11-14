@@ -41,11 +41,11 @@ def stamp(d: date, hhmmss="053852"):
     return d.strftime("%Y%m%d") + "T" + hhmmss
 
 
-def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg):
+def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg, crid="P05023"):
     a = "A" if direction == "ascending" else "D"
     hh = "053852" if a == "A" else "235308"      # descending passes are in the evening
     name = (f"NISAR_L2_PR_GUNW_030_{track:03d}_{a}_{frame:03d}_031_4000_SH_{stamp(d1, hh)}_{stamp(d1,'235330')}_"
-            f"{stamp(d2, hh)}_{stamp(d2,'235330')}_P05023_N_F_J_001")
+            f"{stamp(d2, hh)}_{stamp(d2,'235330')}_{crid}_N_F_J_001")
     f = OUT / "GUNW" / name
     f.mkdir(parents=True, exist_ok=True)
     t, *_ = grid(lat, lon, epsg)
@@ -60,7 +60,11 @@ def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg):
     (f / "_DONE").write_text("{}")
 
 
-def stack(track, direction, frame, start, n, lat, lon, epsg, up_mm_yr, east_mm_yr=0.0, r_km=2.0):
+AL_WAHDA = (34.598, -5.198)      # the dam (OSM dam polygon); the old gazetteer point (34.64, -5.17) was ~5 km away
+ASNI = (31.250, -7.983)          # Al Haouz, flash flood of 2026-10-10
+
+
+def stack(track, direction, frame, start, n, lat, lon, epsg, up_mm_yr, east_mm_yr=0.0, r_km=2.0, crid="P05023"):
     v = _nominal(direction)
     for k in range(n):
         d1 = start + timedelta(days=12 * k)
@@ -70,7 +74,7 @@ def stack(track, direction, frame, start, n, lat, lon, epsg, up_mm_yr, east_mm_y
                 continue
             yrs = span / 365.25
             los = (v[2] * up_mm_yr + v[0] * east_mm_yr) / 1000 * yrs * bump(r_km=r_km)
-            gunw(track, direction, frame, d1, d2, los, np.clip(rng.normal(0.75, 0.08, (N, N)), 0, 1), lat, lon, epsg)
+            gunw(track, direction, frame, d1, d2, los, np.clip(rng.normal(0.75, 0.08, (N, N)), 0, 1), lat, lon, epsg, crid)
 
 
 def main():
@@ -85,10 +89,25 @@ def main():
         gunw(track, direction, frame, d1 - timedelta(days=12), d1, np.zeros((N, N)),
              np.clip(rng.normal(0.7, 0.05, (N, N)), 0, 1), lat, lon, epsg)
     # --- Al Wahda: 9-pass stacks, -20 mm/yr vertical on the dam
-    stack(116, "ascending", 19, date(2026, 6, 22), 9, 34.64, -5.17, 32630, up_mm_yr=-20)
-    stack(95, "descending", 71, date(2026, 6, 20), 9, 34.64, -5.17, 32630, up_mm_yr=-20)
+    stack(116, "ascending", 19, date(2026, 6, 22), 9, *AL_WAHDA, 32630, up_mm_yr=-20)
+    stack(95, "descending", 71, date(2026, 6, 20), 9, *AL_WAHDA, 32630, up_mm_yr=-20)
+    # --- three VALIDATED-CRID pairs (P05036) after the provisional chain: a separate series, never mixed
+    stack(116, "ascending", 19, date(2026, 10, 22), 3, *AL_WAHDA, 32630, up_mm_yr=-20, crid="P05036")
     # --- Ben Guerir mine: 4-pass stack, -60 mm/yr
     stack(44, "ascending", 18, date(2026, 6, 17), 4, 32.27, -7.93, 32629, up_mm_yr=-60, r_km=1.5)
+
+    # --- Al Haouz flash flood (10 Oct 2026, whole day): last pre-event pair + pair across the storm, on the
+    #     real frames 44/17 (ascending) and 23/73 (descending); a coherence loss around Asni in the storm pair
+    for track, direction, frame, pre, co in [
+            (44, "ascending", 17, (date(2026, 9, 21), date(2026, 10, 3)), (date(2026, 10, 3), date(2026, 10, 15))),
+            (23, "descending", 73, (date(2026, 9, 19), date(2026, 10, 1)), (date(2026, 10, 1), date(2026, 10, 13))),
+            # like the real frame 95/73 at Asni: barely coherent there -> unusable, must not vote
+            (95, "descending", 73, (date(2026, 9, 24), date(2026, 10, 6)), (date(2026, 10, 6), date(2026, 10, 18)))]:
+        for k, (d1, d2) in enumerate([pre, co]):
+            coh = np.clip(rng.normal(0.75, 0.05, (N, N)) - (0.5 * bump(0, 0, 1.5) if k == 1 else 0), 0, 1)
+            if track == 95:
+                coh = np.full((N, N), 0.2)
+            gunw(track, direction, frame, d1, d2, np.zeros((N, N)), coh, *ASNI, 32629)
 
     # --- SME2 over the Gharb, 6 passes
     t, x0, y0 = grid(34.5, -6.0, 32630)

@@ -15,7 +15,12 @@ sys.path.insert(0, str(ROOT))
 
 from fastapi.testclient import TestClient  # noqa: E402
 
+import agent  # noqa: E402
 import api  # noqa: E402
+from recipes import timeseries as _ts  # noqa: E402
+
+agent.classify_llm = lambda q: None      # the tests never call a language model
+_ts.MIN_RATE_DAYS = 40                   # the synthetic stacks are 1.5-4 months long; the real 365-day rule is tested below
 
 c = TestClient(api.app)
 results = []
@@ -46,8 +51,9 @@ check("ask slow_motion: series returned", r.get("series") and len(r["series"][0]
 
 r = c.post("/ask", json={"question": "Y a-t-il des dégâts après le séisme du Panama ?",
                          "lat": 7.59 + 1 / 111, "lon": -80.77 + 1 / 110}).json()
-check("ask damage: coherence loss found", r["type"] == "damage" and (r["facts"].get("loss_at_point") or 0) > 0.3,
-      r["facts"].get("loss_at_point"))
+check("ask surface change (earthquake, exact instant): coherence loss found, before and event pairs of the same length",
+      r["type"] == "surface_change" and (r["facts"].get("loss_at_point") or 0) > 0.3 and r["facts"]["mode"] == "event"
+      and r["facts"]["event_precision"] == "exact" and r["facts"]["window_days"] == 12, r["facts"].get("loss_at_point"))
 r = c.post("/ask", json={"question": "Mes champs ont-ils été inondés ?", "lat": 34.5, "lon": -6.0 - 3 / 92}).json()
 check("ask flood: open water found", r["type"] == "flood" and r["facts"]["open_water_ha"] > 500, r["facts"].get("open_water_ha"))
 r = c.post("/ask", json={"question": "La forêt a-t-elle été coupée ?", "lat": 34.5 + 2 / 111, "lon": -6.0 + 4 / 92}).json()
@@ -62,22 +68,22 @@ r = c.post("/ask", json={"question": "Le glacier avance-t-il ?", "lat": 34.5, "l
 check("ask without data: graceful answer", "verdict" in r and r["confidence"] == "low")
 check("ask without location: 400", c.post("/ask", json={"question": "Ça bouge ?"}).status_code == 400)
 
-ev = c.get("/events/al-wahda").json()
-check("event computed", ev.get("event", {}).get("id") == "al-wahda" and ev.get("verdict"))
+ev = c.get("/events/al-wahda-surroundings").json()
+check("event computed", ev.get("event", {}).get("id") == "al-wahda-surroundings" and ev.get("verdict"))
 check("events listing", any(e["computed"] for e in c.get("/events").json()))
 
 d = c.get("/discoveries", params={"refresh": True, "exposure": False}).json()
 near = lambda z, lat, lon: abs(z["lat"] - lat) < 0.05 and abs(z["lon"] - lon) < 0.05
 check("discoveries: finds the Ben Guerir subsidence", any(near(z, 32.27, -7.93) for z in d["zones"]),
       [(z["lat"], z["lon"], z["mean"], z["unit"]) for z in d["zones"][:5]])
-check("discoveries: finds Al Wahda", any(near(z, 34.64, -5.17) for z in d["zones"]))
+check("discoveries: finds Al Wahda", any(near(z, 34.598, -5.198) for z in d["zones"]))
 
-w = c.post("/watch", json={"lat": 34.64, "lon": -5.17, "question": "Le barrage Al Wahda se déforme-t-il ?"}).json()
+w = c.post("/watch", json={"lat": 34.598, "lon": -5.198, "question": "Le barrage Al Wahda se déforme-t-il ?"}).json()
 check("watch created with next passes", w.get("id") and w["next_passes"], w.get("next_passes", [])[:1])
 check("watch listed", any(x["id"] == w["id"] for x in c.get("/watch").json()))
 check("watch check runs", "alerts" in c.post("/watch/check").json())
 check("watch delete", c.delete(f"/watch/{w['id']}").status_code == 200)
-check("next-pass", len(c.get("/next-pass", params={"lat": 34.64, "lon": -5.17}).json()) >= 2)
+check("next-pass", len(c.get("/next-pass", params={"lat": 34.598, "lon": -5.198}).json()) >= 2)
 
 check("mock mode answers", c.post("/ask?mock=true", json={"question": "x"}).json().get("mock") is True)
 check("mock layer served", c.get("/layers/mock_disp.png").status_code == 200)
@@ -104,6 +110,219 @@ check("classify endpoint", "areas_ha" in r and r["areas_ha"].get("flooded", 0) >
 out = subprocess.run([sys.executable, str(ROOT / "precompute.py"), "--no-exposure"], cwd=ROOT,
                      capture_output=True, text=True, env=os.environ)
 check("precompute script", out.returncode == 0, out.stdout.strip().splitlines()[-1] if out.stdout else out.stderr[-300:])
+
+# ---------------------------------------------------------------------------------------------
+# Morocco backend (docs/claude/MOROCCO_PLAN.md §5): CRID, event windows, surface change, time-series rules,
+# trilingual verdicts. Synthetic data reuse the same formulas as the recipes: these tests check the logic,
+# not the physics (see the science-check notes in the review).
+# ---------------------------------------------------------------------------------------------
+import re as _re  # noqa: E402
+import types as _types  # noqa: E402
+
+import evidence as _evidence  # noqa: E402
+import events as _events  # noqa: E402
+import mock as _mock  # noqa: E402
+from recipes import damage as _damage  # noqa: E402
+
+AL = (34.598, -5.198)
+ASNI = (31.250, -7.983)
+
+# --- router: whole words, FR / EN / AR, unknown question is not guessed ---------------------------
+cases = {"Cette street est-elle un problème ?": None, "Is the street flooded?": "flood",
+         "Is the damage visible?": "surface_change", "Is the dam moving?": "slow_motion",
+         "Le barrage Al Wahda se déforme-t-il depuis juin ?": "slow_motion",
+         "Did the flash flood change Imlil?": "surface_change", "crue éclair à Asni le 10 octobre": "surface_change",
+         "سيول الحوز": "surface_change", "هل يتحرك سد الوحدة؟": "slow_motion",
+         "Quelle est l'humidité du sol ?": "soil_moisture", "Mes champs ont-ils été inondés ?": "flood",
+         "Où la surface de la mine de Ben Guerir a-t-elle changé ?": "surface_change",
+         "Is the soil wet?": "soil_moisture", "wetland map": None, "La forêt a-t-elle été coupée ?": "deforestation"}
+bad = {q: agent.classify_rules(q)[0] for q, t in cases.items() if agent.classify_rules(q)[0] != t}
+check("router: whole-word keywords in FR/EN/AR ('street' is not 'tree', 'damage' is not 'dam', no keyword = no type)",
+      not bad, bad)
+r = c.post("/ask", json={"question": "Quel temps fait-il ?", "lat": 34.5, "lon": -6.0})
+check("unknown question: 200 with a request to rephrase, no type guessed, no alert",
+      r.status_code == 200 and r.json()["type"] == "unknown" and "Reformulez" in r.json()["verdict"]
+      and r.json()["alert_level"] == "none")
+check("event detection: Panama exact instant; Haouz and dated questions are whole-day events",
+      agent.find_event("séisme du Panama") == ("20261009T175606", "exact") and agent.find_event("crue à Asni")[1] == "day"
+      and agent.find_event("le 10 octobre 2026") == ("20261010T000000", "day") and agent.find_event("rien") == (None, None))
+
+# --- catalog: event windows and CRID ------------------------------------------------------------
+P = lambda ref, sec: _types.SimpleNamespace(ref=ref, sec=sec)  # noqa: E731
+EV = "20261010T000000"
+rel = lambda ref, sec, ev=EV, prec="day": catalog.relation(P(ref, sec), ev, prec)  # noqa: E731
+check("catalog.relation: exact instant (ref <= event <= sec straddles)",
+      rel("20261009T100000", "20261009T180000", "20261009T175606", "exact") == "straddles"
+      and rel("20260927T000000", "20261009T100000", "20261009T175606", "exact") == "before"
+      and rel("20261009T180000", "20261012T000000", "20261009T175606", "exact") == "after")
+check("catalog.relation: whole-day event: only a pair that starts before the day and ends after it straddles; "
+      "an acquisition inside the day is ambiguous",
+      rel("20261003T054606", "20261015T054606") == "straddles"
+      and rel("20261003T054606", "20261010T054606") == "ambiguous"
+      and rel("20261010T054606", "20261022T054606") == "ambiguous"
+      and rel("20260921T054606", "20261003T054606") == "before" and rel("20261011T054606", "20261023T054606") == "after")
+nm = "NISAR_L2_PR_GUNW_032_044_A_017_033_2000_SH_20261003T054606_20261003T054641_20261015T054606_20261015T054641_{}_N_F_J_001"
+check("catalog: CRID parsed; maturity provisional / validated / unknown",
+      [catalog.parse_name(nm.format(x))["maturity"] for x in ("P05023", "P05036", "P09999")] == ["provisional", "validated", "unknown"]
+      and catalog.parse_name(nm.format("P05036"))["crid"] == "P05036")
+cat = c.get("/catalog", params={"level": "GUNW"}).json()
+check("/catalog exposes crid and maturity (provisional and validated products both present)",
+      all("crid" in x and "maturity" in x for x in cat) and {x["crid"] for x in cat} >= {"P05023", "P05036"})
+
+# --- sudden motion: exact event time, no fallback --------------------------------------------------
+r = c.post("/ask", json={"question": "séisme au Panama", "lat": 7.59, "lon": -80.77, "date": "2026-05-05"}).json()
+check("sudden motion: no pair straddles the event -> no-data answer, no fallback to other pairs",
+      r["type"] == "sudden_motion" and "straddles" in r["facts"].get("error", "") and "value_cm" not in r["facts"]
+      and r["confidence"] == "low" and r["alert_level"] == "none" and "straddles" in r["verdict"], r["facts"])
+r = c.post("/ask", json={"question": "tremblement de terre ?", "lat": 7.59, "lon": -80.77}).json()
+check("sudden motion without an event date: asks for the date instead of picking the latest pair",
+      r["type"] == "sudden_motion" and "event" in r["facts"].get("error", "") and "value_cm" not in r["facts"])
+
+# --- surface change (Al Haouz flash flood, whole-day event) ------------------------------------------
+Q_HAOUZ = "Le sol a-t-il changé à Asni lors de la crue éclair du 10 octobre 2026 ?"
+r = c.post("/ask", json={"question": Q_HAOUZ}).json()
+f = r["facts"]
+pairs_ok = (f["pre_date_before"], f["pre_date_after"], f["date_before"], f["date_after"]) in {
+    ("20260921", "20261003", "20261003", "20261015"), ("20260919", "20261001", "20261001", "20261013")}
+check("surface change Haouz: whole-day event; before pair and storm pair share frame, CRID and length (12 d); "
+      "provisional label; both geometries used",
+      r["type"] == "surface_change" and r["event_time"] == {"utc": "20261010T000000", "precision": "day"} and pairs_ok
+      and f["window_days"] == 12 and f["crid"] == "P05023" and f["maturity"] == "provisional"
+      and f["n_geometries"] == 3 and f["n_usable_geometries"] == 2
+      and {g["direction"] for g in f["geometries"] if g["usable"]} == {"ascending", "descending"}
+      and [g["frame"] for g in f["geometries"] if not g["usable"]] == [73] and f["geometries_agree"] is True and (f["loss_at_point"] or 0) > 0.3, {k: f.get(k) for k in ("date_before", "loss_at_point")})
+check("surface change: a frame that barely covers the point is listed but unusable, and does not vote",
+      sum(not g["usable"] for g in f["geometries"]) == 1 and f["changed_km2_range"][0] <= f["changed_km2_range"][1])
+check("surface change: medium at most (never high), orange alert, layer is the coherence-loss map",
+      r["confidence"] == "medium" and r["alert_level"] == "orange" and r["layers"] and "Surface change" in r["layers"][0]["title"]
+      and "changed_km2_5km" in f and "damaged_km2_5km" not in f)
+
+
+def stray_numbers(verdict, facts):
+    """Numbers in a verdict that are not in the facts (template constants 0, 1, 5 are allowed)."""
+    allowed = {0.0, 1.0, 5.0}
+
+    def walk(x):
+        if isinstance(x, dict):
+            [walk(v) for v in x.values()]
+        elif isinstance(x, (list, tuple)):
+            [walk(v) for v in x]
+        elif isinstance(x, bool) or x is None:
+            pass
+        elif isinstance(x, (int, float)):
+            allowed.add(abs(float(x)))
+        elif isinstance(x, str) and _re.fullmatch(r"\d{8}(T\d{6})?", x):
+            allowed.update({float(int(x[:4])), float(int(x[4:6])), float(int(x[6:8]))})
+    walk(facts)
+    stray = set()
+    for tok in _re.findall(r"\d+(?:\.\d+)?", verdict):
+        dec = len(tok.split(".")[1]) if "." in tok else 0
+        if not any(abs(round(a, dec) - float(tok)) < 1e-9 for a in allowed):     # the sentence rounds a fact
+            stray.add(tok)
+    return stray
+
+
+verdicts = {lg: c.post("/ask", json={"question": Q_HAOUZ, "lang": lg}).json() for lg in ("fr", "en", "ar")}
+check("surface change verdict in French, English and Arabic; every number comes from the facts",
+      "perte de cohérence" in verdicts["fr"]["verdict"] and "coherence loss" in verdicts["en"]["verdict"]
+      and any("؀" <= ch <= "ۿ" for ch in verdicts["ar"]["verdict"])
+      and all(not stray_numbers(v["verdict"], v["facts"]) for v in verdicts.values()),
+      {lg: stray_numbers(v["verdict"], v["facts"]) for lg, v in verdicts.items()})
+check("surface change: says it is not damage / depth / cause, in the three languages",
+      all(verdicts[lg]["cannot_say"] for lg in verdicts) and verdicts["ar"]["cannot_say"] != verdicts["fr"]["cannot_say"])
+_rain = _evidence.rainfall
+_evidence.rainfall = lambda lat, lon, a, b: {"source": "Open-Meteo", "status": "agrees", "summary": "80 mm", "total_mm": 80, "items": []}
+try:
+    rr = agent.investigate(Q_HAOUZ, lang="fr")
+finally:
+    _evidence.rainfall = _rain
+st = {e["source"]: e["status"] for e in rr["evidence"]}
+check("surface change: rain is CONTEXT, never an independent confirmation (status 'context', confidence stays medium)",
+      st.get("Open-Meteo") == "context" and rr["confidence"] == "medium", st)
+rr = agent.investigate("Le sol a-t-il changé à Asni ?", date="2026-10-03", lang="fr")
+check("surface change: a pair with an acquisition on the event day is ambiguous and never used",
+      rr["facts"]["n_geometries"] == 1 and rr["facts"]["direction"] == "descending" and len(rr["facts"]["ambiguous_pairs"]) == 2,
+      rr["facts"].get("ambiguous_pairs"))
+rr = agent.investigate("Mes champs à Asni ont-ils été inondés ?", lang="fr")
+check("flood question with no GCOV product: routed to surface change and says so",
+      rr["type"] == "surface_change" and rr["facts"]["routed_from"] == "flood" and rr["verdict"].startswith("Pas de données de rétrodiffusion"))
+em = c.get("/events/ben-guerir-mine").json()
+check("surface change without an event date: 'latest' mode says so, no change in synthetic data -> no alert",
+      em["type"] == "surface_change" and em["facts"]["mode"] == "latest" and em["event_time"] is None
+      and "Sans date d'événement" in em["verdict"] and em["alert_level"] == "none", em["facts"].get("loss_at_point"))
+
+
+def fp(key, span, ref, sec, name):
+    return _types.SimpleNamespace(series_key=key, span_days=span, ref=ref, sec=sec, files={"coherence": "x"}, id=name)
+
+
+k_prov, k_val = (44, 17, "P05023"), (44, 17, "P05036")
+pre12, pre24 = fp(k_prov, 12, "20260921T054606", "20261003T054606", "pre12"), fp(k_prov, 24, "20260909T054606", "20261003T054606", "pre24")
+co12 = fp(k_prov, 12, "20261003T054606", "20261015T054606", "co12")
+ids = lambda cands: [(b.id, c_.id) for b, c_ in cands]  # noqa: E731
+check("surface change pairing: same pair length (coherence decays with the baseline) and same CRID are required",
+      ids(_damage._candidates([pre12, pre24, co12], EV, "day")) == [("pre12", "co12")]
+      and _damage._candidates([pre24, co12], EV, "day") == []
+      and _damage._candidates([fp(k_val, 12, "20260921T054606", "20261003T054606", "preV"), co12], EV, "day") == [])
+
+# --- time series: connected chain, CRIDs separate, no rate under 12 months --------------------------------
+al_pairs = [p for p in catalog.find(*AL, "GUNW") if p.series_key == (116, 19, "P05023")]
+dates_al = sorted({p.ref[:8] for p in al_pairs} | {p.sec[:8] for p in al_pairs})
+mid = dates_al[len(dates_al) // 2]
+cut = [p for p in al_pairs if not (p.ref[:8] <= mid <= p.sec[:8])]          # remove every pair that spans one date
+full_s, cut_s = _ts.point_series(al_pairs, *AL)[0], _ts.point_series(cut, *AL)[0]
+check("time series: a connected chain uses its 24-day pairs; cutting the chain is reported, never bridged",
+      full_s["chain_connected"] and full_s["n_components"] == 1 and full_s["n_bridge_pairs"] > 0
+      and full_s["series"][0]["los_mm"] == 0.0 and full_s["total_los_mm"] == full_s["series"][-1]["los_mm"]
+      and not cut_s["chain_connected"] and cut_s["n_components"] == 2 and any(x["los_mm"] is None for x in cut_s["series"]))
+lin = np.array([0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0])
+short_d = ["20260101", "20260201", "20260301", "20260401", "20260501", "20260601", "20260701"]
+long_d = ["20260101", "20260301", "20260501", "20260701", "20260901", "20261101", "20270101"]
+check("time series: rate withheld under 12 months (365 d), reported from 12 months",
+      _ts._fit(short_d, lin, min_days=365)["velocity_mm_yr"] is None and _ts._fit(short_d, lin, min_days=365)["min_rate_days"] == 365
+      and 11 < _ts._fit(long_d, lin, min_days=365)["velocity_mm_yr"] < 13)
+_ts.MIN_RATE_DAYS = 365                                                       # the real default, for the next checks
+try:
+    r = c.post("/ask", json={"question": "Le barrage Al Wahda se déforme-t-il depuis juin ?"}).json()
+    vm_none = _ts.velocity_map(al_pairs) is None
+finally:
+    _ts.MIN_RATE_DAYS = 40
+f = r["facts"]
+check("slow motion, 4-month record: cumulative LOS only, no mm/yr, no decomposition, confidence capped, provisional label",
+      f["velocity_mm_yr"] is None and f["total_mm"] is not None and "decomposition_mm_yr" not in f
+      and r["confidence"] in ("low", "medium") and any("capped" in x for x in r["confidence_reasons"])
+      and "trop courte" in r["verdict"] and "produit NISAR provisoire" in r["verdict"] and vm_none, (f.get("span_days"), r["confidence"]))
+check("slow motion: provisional (P05023) and validated (P05036) chains are separate series, never mixed",
+      {s["crid"] for s in r["series"]} == {"P05023", "P05036"} and f["crid"] == "P05023"
+      and min(x["date"] for x in next(s for s in r["series"] if s["crid"] == "P05036")["series"]) >= "20261022")
+r = c.post("/ask", json={"question": "Le barrage Al Wahda se déforme-t-il depuis juin ?", "lang": "en"}).json()
+check("slow motion with a rate (record >= threshold): rate and vertical component are reported, numbers from facts",
+      r["facts"]["velocity_mm_yr"] is not None and "decomposition_mm_yr" in r["facts"] and not stray_numbers(r["verdict"], r["facts"]))
+
+# --- gazetteer, events library, mock, contract --------------------------------------------------------
+fp_ = agent.find_place
+check("gazetteer: FR / EN / AR aliases resolve to the inventory coordinates; Al Wahda is on the dam",
+      fp_("سد الوحدة")[:2] == AL and fp_("Barrage Al Wahda")[:2] == AL and fp_("مولاي إبراهيم")[:2] == fp_("Moulay Brahim")[:2]
+      and fp_("إمليل")[:2] == (31.136, -7.919) and fp_("القصر الكبير")[:2] == fp_("Ksar El Kébir")[:2]
+      and fp_("la mine de Ben Guerir")[:2] == (32.25825, -7.82355) and fp_("à Ben Guerir")[:2] == (32.27, -7.93))
+check("/health gives a Moroccan default map view", c.get("/health").json()["map_view"]["lat"] > 30)
+listing = c.get("/events").json()
+check("events library: the five Morocco events, Panama only as a hidden test fixture",
+      [e["id"] for e in listing] == ["haouz-flood-2026-10-10", "haouz-soil-moisture", "gharb-soil-moisture", "ben-guerir-mine",
+                                    "al-wahda-surroundings"] and all(e["title_en"] and e["title_ar"] for e in listing)
+      and c.get("/events/panama-2026").json()["type"] == "sudden_motion")
+hz = c.get("/events/haouz-flood-2026-10-10").json()
+check("events: Haouz flash flood computed (surface change), Gharb soil moisture computed",
+      hz["type"] == "surface_change" and (hz["facts"].get("loss_at_point") or 0) > 0.3
+      and c.get("/events/gharb-soil-moisture").json()["type"] == "soil_moisture")
+check("mock: sentences equal the real templates (so the interface mock cannot drift)",
+      agent.template("surface_change", _mock.SURFACE_CHANGE["facts"], "fr") == _mock.SURFACE_CHANGE["verdict"]
+      and agent.template("slow_motion", _mock.ASK["facts"], "fr") == _mock.ASK["verdict"]
+      and c.get("/events/haouz-flood-2026-10-10?mock=true").json()["type"] == "surface_change")
+contract = (ROOT.parent / "docs" / "API_CONTRACT.md").read_text(encoding="utf-8")
+check("docs/API_CONTRACT.md: surface_change, context status, crid/maturity, event_time documented; no 'damage' type left",
+      all(k in contract for k in ("surface_change", "context", "crid", "maturity", "event_time", "haouz-flood-2026-10-10"))
+      and "slow_motion, damage" not in contract)
 
 # ---------------------------------------------------------------------------------------------
 # Morocco download plan and downloader flags: offline, nothing is downloaded, no token is read.

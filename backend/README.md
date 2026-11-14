@@ -66,7 +66,7 @@ PowerShell: `$env:FIRMS_MAP_KEY="..."` before `uvicorn`.
 | `recipes/displacement.py` | sudden motion: phase → cm, masks, stable reference, profile |
 | `recipes/timeseries.py` | slow motion: small-baseline inversion, velocity, acceleration, velocity maps |
 | `recipes/decompose.py` | ascending + descending → vertical and east-west |
-| `recipes/damage.py` | coherence-loss damage proxy |
+| `recipes/damage.py` | surface change = coherence loss between a before pair and the pair across an event (not a damage measure) |
 | `recipes/backscatter.py` | flood and deforestation from GCOV |
 | `recipes/soil_moisture.py` | NISAR SME2 soil moisture |
 | `recipes/offsets.py` | large displacements from GOFF |

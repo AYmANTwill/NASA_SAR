@@ -17,7 +17,7 @@ import discoveries
 import events
 import mock
 import watch
-from config import ANTHROPIC_API_KEY, CACHE_DIR, DATA_DIR, FIRMS_MAP_KEY, OFFLINE
+from config import ANTHROPIC_API_KEY, CACHE_DIR, DATA_DIR, DEFAULT_MAP_VIEW, FIRMS_MAP_KEY, OFFLINE
 
 app = FastAPI(title="NISAR Pulse API", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -72,7 +72,8 @@ def health():
     for p in ps:
         counts[p.level] = counts.get(p.level, 0) + 1
     return {"ok": True, "data_dir": str(DATA_DIR), "products": counts, "mock_mode": use_mock(False),
-            "llm": bool(ANTHROPIC_API_KEY), "firms": bool(FIRMS_MAP_KEY), "offline": OFFLINE}
+            "llm": bool(ANTHROPIC_API_KEY), "firms": bool(FIRMS_MAP_KEY), "offline": OFFLINE,
+            "map_view": DEFAULT_MAP_VIEW}
 
 
 @app.get("/catalog")
@@ -104,7 +105,7 @@ def list_events():
 @app.get("/events/{eid}")
 def get_event(eid: str, refresh: bool = False, mock_: bool = Query(False, alias="mock")):
     if use_mock(mock_):
-        return {**mock.ASK, "event": {"id": eid, "title": eid}}
+        return {**mock.EVENTS.get(eid, mock.ASK), "event": {"id": eid, "title": eid}}
     r = events.get(eid, refresh)
     if r is None:
         raise HTTPException(404, "unknown event")
