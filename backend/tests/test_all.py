@@ -1313,6 +1313,37 @@ check("evidence: every outside request (USGS, Open-Meteo, FIRMS, Overpass) sends
       and all(e["status"] == "unavailable" for e in ev_out), seen_headers)
 check("agent steps: an evidence source that returns 'unavailable' is recorded ok: false with its error",
       st_[0]["ok"] is False and "406" in st_[0]["error"] and agent.Steps().run("x", lambda: {"status": "agrees"}) == {"status": "agrees"})
+
+# --- 4. sign-check helper: shows, explains, never decides ----------------------------------------------------------
+import sign_check as _sc  # noqa: E402
+
+env_before = {k: os.environ.get(k) for k in ("NISAR_LOS_SIGN", "NISAR_LOS_SIGN_VERIFIED")}
+sc_out = tmp / "sign_out"
+sc_rc = _sc.main(["--out", str(sc_out)])
+sc_md = (sc_out / "sign_check.md").read_text(encoding="utf-8")
+check("sign_check without a raw file: explains --keep-raw and list_h5_layers.py, renders ascending + descending Panama "
+      "co-seismic maps, links the USGS mechanism and finite fault, says strike-slip and not to use the synthetic uplift",
+      sc_rc == 0 and "--keep-raw" in sc_md and "list_h5_layers.py" in sc_md and (sc_out / "sign_check.png").stat().st_size > 10_000
+      and "ascending T4" in sc_md and "descending T141" in sc_md and _sc.USGS in sc_md and "/moment-tensor" in sc_md
+      and "/finite-fault" in sc_md and "strike-slip" in sc_md and "Do NOT use the synthetic" in sc_md and "ARIA-tools" in sc_md)
+check("sign_check prints the exact commands and never sets them itself (environment and config unchanged)",
+      '$env:NISAR_LOS_SIGN = "1"; $env:NISAR_LOS_SIGN_VERIFIED = "1"' in sc_md and '$env:NISAR_LOS_SIGN = "-1"' in sc_md
+      and {k: os.environ.get(k) for k in env_before} == env_before and _config.LOS_SIGN_VERIFIED is False
+      and "os.environ[\"NISAR_LOS_SIGN" not in (ROOT / "sign_check.py").read_text(encoding="utf-8"))
+pan_co = _sc.coseismic(catalog.load())[0]
+raw_sc = pan_co.folder / (pan_co.name + ".h5")
+with h5py.File(raw_sc, "w") as hf:
+    u_ = hf.create_dataset("science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/unwrappedPhase", data=_np.zeros(2))
+    u_.attrs["description"] = b"Unwrapped interferometric phase"
+    u_.attrs["units"] = b"radians"
+    hf.create_dataset("science/LSAR/GUNW/metadata/radarGrid/losUnitVectorX", data=_np.zeros((2, 2))).attrs["units"] = b"1"
+try:
+    _sc.main(["--out", str(sc_out / "raw")])
+    sc_md2 = (sc_out / "raw" / "sign_check.md").read_text(encoding="utf-8")
+finally:
+    raw_sc.unlink()
+check("sign_check with a kept raw .h5: prints the attributes of unwrappedPhase and of the LOS vectors",
+      "unwrappedPhase" in sc_md2 and "units: radians" in sc_md2 and "losUnitVectorX" in sc_md2 and "--keep-raw" not in sc_md2)
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 
