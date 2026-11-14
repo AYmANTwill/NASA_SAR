@@ -169,6 +169,52 @@ try:
 except ValueError:
     check("Okada: a fault crossing the free surface is refused", True)
 
+# ---------------------------------------------------------------- nodal planes and fault inversion
+from science.invert_fault import Track, invert, moment_mw, predict  # noqa: E402
+from science.usgs import Plane, UsgsError, auxiliary_plane, parse  # noqa: E402
+
+aux = auxiliary_plane(Plane(0, 45, 90))
+check("auxiliary plane of (0, 45, 90) is (180, 45, 90)",
+      np.allclose([aux.strike, aux.dip, aux.rake], [180, 45, 90], atol=1e-6), aux)
+ok = True
+for p in (Plane(30, 60, -120), Plane(200, 80, 10), Plane(300, 20, 95)):
+    back = auxiliary_plane(auxiliary_plane(p))
+    ok &= np.allclose([back.strike, back.dip, back.rake], [p.strike, p.dip, p.rake], atol=1e-6)
+check("auxiliary plane of the auxiliary plane is the original plane", ok)
+check("Mw = 2/3 (log10(mu L W s) - 9.1) with mu = 30 GPa",
+      abs(moment_mw(120, 40, 2.5)[1] - (2 / 3) * (np.log10(30e9 * 120e3 * 40e3 * 2.5) - 9.1)) < 1e-12)
+
+usgs_fixture = {"id": "us_test", "geometry": {"coordinates": [-80.77, 7.59, 20.0]},
+                "properties": {"time": 1791568566000, "mag": 7.7, "magType": "mww", "products": {"moment-tensor": [
+                    {"source": "us", "properties": {"derived-magnitude-type": "Mww",
+                     "nodal-plane-1-strike": "290", "nodal-plane-1-dip": "30", "nodal-plane-1-rake": "90",
+                     "nodal-plane-2-strike": "110", "nodal-plane-2-dip": "60", "nodal-plane-2-rake": "90"}}]}}}
+ev = parse(usgs_fixture)
+check("USGS GeoJSON: epicentre, magnitude and both nodal planes are parsed",
+      (ev.lat, ev.lon, ev.magnitude, ev.planes[1].dip) == (7.59, -80.77, 7.7, 60.0))
+try:
+    parse({**usgs_fixture, "properties": {**usgs_fixture["properties"], "products": {}}})
+    check("USGS GeoJSON without a moment tensor raises UsgsError", False)
+except UsgsError:
+    check("USGS GeoJSON without a moment tensor raises UsgsError", True)
+
+rng = np.random.default_rng(1)
+true_plane = Plane(290, 30, 90)
+synth = [Track(name, rng.uniform(-150, 150, 500), rng.uniform(-150, 150, 500), np.zeros(500), np.tile(v, (500, 1)))
+         for name, v in (("asc", [-0.62, -0.11, 0.78]), ("desc", [0.62, -0.11, 0.78]))]
+true_theta = np.array([10, -5, 120, 40, 2, 2.5, 3, 0.01, -0.02, -2, 0.0, 0.015])
+synth = [Track(t.name, t.east, t.north, p + rng.normal(0, 1.0, p.size), t.vec)
+         for t, p in zip(synth, predict(true_theta, synth, true_plane))]
+res, _ = invert(synth, (true_plane, auxiliary_plane(true_plane)), n_boot=5)
+best = res["planes"][res["best_plane"]]
+check("synthetic inversion keeps the true nodal plane (lower RMS than the auxiliary plane)",
+      res["best_plane"] == 0 and best["rms_cm"] < res["planes"][1]["rms_cm"], [p["rms_cm"] for p in res["planes"]])
+check("synthetic inversion recovers Mw within 0.05 and the top depth within 1 km",
+      abs(best["mw"]["value"] - moment_mw(120, 40, 2.5)[1]) < 0.05
+      and abs(best["params"]["top_depth_km"]["value"] - 2) < 1, best["mw"])
+check("synthetic inversion: RMS at the noise level (1 cm), stable, Mw sigma reported",
+      0.8 < best["rms_cm"] < 1.2 and res["stable"] and best["mw"]["sigma"] is not None, res["unstable_reasons"])
+
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
 sys.exit(0 if passed == len(results) else 1)
