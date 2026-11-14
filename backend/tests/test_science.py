@@ -25,7 +25,7 @@ results = []
 
 def check(name, cond, detail=""):
     results.append((name, bool(cond)))
-    print(("PASS " if cond else "FAIL ") + name + (f"  — {detail}" if detail and not cond else ""))
+    print(("PASS " if cond else "FAIL ") + name + (f"  — {detail}" if not cond and str(detail) else ""))
 
 
 def rejects(data) -> bool:
@@ -135,6 +135,39 @@ try:
     check("load() raises CaseFileError on an invalid file", False)
 except case_store.CaseFileError:
     check("load() raises CaseFileError on an invalid file", True)
+
+# ---------------------------------------------------------------- Okada (1985)
+import numpy as np  # noqa: E402
+
+from science.okada import fault_enu, okada85  # noqa: E402
+
+# Table 2 of Okada (1985), finite rectangular source: x=2, y=3, d=4, dip=70°, L=3, W=2, lambda=mu.
+TABLE2 = {"strike": ({"U1": 1}, (-8.689e-3, -4.298e-3, -2.747e-3)),
+          "dip": ({"U2": 1}, (-4.682e-3, -3.527e-2, -3.564e-2)),
+          "tensile": ({"U3": 1}, (-2.660e-4, 1.056e-2, 3.214e-3))}
+for name, (kw, expected) in TABLE2.items():
+    got = np.array(okada85(2.0, 3.0, 4.0, 70.0, 3.0, 2.0, **kw), dtype=float)
+    check(f"Okada Table 2, {name} slip: (ux, uy, uz) to 4 significant figures",
+          np.allclose(got, expected, rtol=6e-4, atol=0), f"{got} vs {expected}")
+for kw in ({"U1": 1}, {"U2": 1}, {"U3": 1}):
+    a = np.array(okada85(2.0, 3.0, 4.0, 90.0, 3.0, 2.0, **kw))
+    b = np.array(okada85(2.0, 3.0, 4.0, 89.9999, 3.0, 2.0, **kw))
+    check(f"Okada: the vertical-fault branch (eq. 29) joins the dipping branch, {kw}", np.abs(a - b).max() < 1e-4)
+yy = np.array([1.0, 5.0, 20.0, -5.0])
+_, un, uu = fault_enu(yy, np.zeros(4), x0=0, y0=0, strike_deg=0, dip_deg=90, rake_deg=0, top_depth=0,
+                      length=1e5, width=10, slip=1)
+check("Okada: long vertical strike-slip fault = 2D screw dislocation, u = sign(y)·atan(D/|y|)/π",
+      np.allclose(un, np.sign(yy) * np.arctan(10 / np.abs(yy)) / np.pi, atol=1e-6) and np.abs(uu).max() < 1e-9, un)
+ee = np.array([-10.0, 5.0, 15.0])
+_, _, uu = fault_enu(ee, np.zeros(3), x0=0, y0=0, strike_deg=0, dip_deg=30, rake_deg=90, top_depth=1,
+                     length=100, width=20, slip=1)
+check("Okada: a thrust (rake 90) lifts the hanging wall (east of a north-striking, east-dipping fault)",
+      uu[1] > 0.3 and uu[2] > 0 and uu[0] < 0, uu)
+try:
+    okada85(0.0, 0.0, 1.0, 30.0, 10.0, 10.0, U1=1)
+    check("Okada: a fault crossing the free surface is refused", False)
+except ValueError:
+    check("Okada: a fault crossing the free surface is refused", True)
 
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
