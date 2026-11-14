@@ -1,0 +1,7 @@
+{
+  "$comment": "Canonical map palettes. The backend must render raster PNGs with exactly these stops (linear interpolation, min→max) so legends match pixels. diverging_displacement is centred on zero: min must equal -max.",
+  "diverging_displacement": ["#24527e", "#4479a8", "#86aed0", "#c6dbea", "#f3f2ee", "#f0cbb3", "#de9772", "#c25d3c", "#8f2f1f"],
+  "sequential_coherence": ["#00224e", "#203d6d", "#4a5a6d", "#6d7570", "#929271", "#b8af65", "#ddcb51", "#fde737"],
+  "sequential_coherence_loss": ["#fff4e6", "#fdd6ab", "#fca968", "#ef7a32", "#cf5313", "#9a3507", "#5e2104"],
+  "sequential_moisture": ["#f3e6c4", "#d9e5c9", "#a9d7c9", "#6dbcb3", "#3a9a93", "#167671", "#04524f"]
+}
