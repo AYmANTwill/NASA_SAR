@@ -72,7 +72,11 @@ ev = c.get("/events/al-wahda-surroundings").json()
 check("event computed", ev.get("event", {}).get("id") == "al-wahda-surroundings" and ev.get("verdict"))
 check("events listing", any(e["computed"] for e in c.get("/events").json()))
 
+import config as _config  # noqa: E402
+
+_config.DISCOVERIES_ENABLED = True              # discoveries are off by default: switch them on for these checks only
 d = c.get("/discoveries", params={"refresh": True, "exposure": False}).json()
+_config.DISCOVERIES_ENABLED = False
 near = lambda z, lat, lon: abs(z["lat"] - lat) < 0.05 and abs(z["lon"] - lon) < 0.05
 check("discoveries: finds the Ben Guerir subsidence", any(near(z, 32.27, -7.93) for z in d["zones"]),
       [(z["lat"], z["lon"], z["mean"], z["unit"]) for z in d["zones"][:5]])
@@ -224,7 +228,7 @@ def stray_numbers(verdict, facts):
 
 verdicts = {lg: c.post("/ask", json={"question": Q_HAOUZ, "lang": lg}).json() for lg in ("fr", "en", "ar")}
 check("surface change verdict in French, English and Arabic; every number comes from the facts",
-      "perte de cohérence" in verdicts["fr"]["verdict"] and "coherence loss" in verdicts["en"]["verdict"]
+      "cohérence radar" in verdicts["fr"]["verdict"] and "radar coherence" in verdicts["en"]["verdict"]
       and any("؀" <= ch <= "ۿ" for ch in verdicts["ar"]["verdict"])
       and all(not stray_numbers(v["verdict"], v["facts"]) for v in verdicts.values()),
       {lg: stray_numbers(v["verdict"], v["facts"]) for lg, v in verdicts.items()})
@@ -321,7 +325,10 @@ check("mock: sentences equal the real templates (so the interface mock cannot dr
       and c.get("/events/haouz-flood-2026-10-10?mock=true").json()["type"] == "surface_change")
 contract = (ROOT.parent / "docs" / "API_CONTRACT.md").read_text(encoding="utf-8")
 check("docs/API_CONTRACT.md: surface_change, context status, crid/maturity, event_time documented; no 'damage' type left",
-      all(k in contract for k in ("surface_change", "context", "crid", "maturity", "event_time", "haouz-flood-2026-10-10"))
+      all(k in contract for k in ("surface_change", "context", "crid", "maturity", "event_time", "haouz-flood-2026-10-10",
+                                  "coverage_5km", "baseline_loss_mean", "baseline_changed_km2", "frame_loss_mean",
+                                  "frame_frac_changed", "excess_level", "borderline", "not usable", "null_limits",
+                                  "true 5 km radius circle"))
       and "slow_motion, damage" not in contract)
 
 # ---------------------------------------------------------------------------------------------
@@ -733,6 +740,310 @@ cli = subprocess.run([sys.executable, str(ROOT.parent / "download_all.py"), "reb
                      capture_output=True, text=True)
 check("download_all rebuild-npz CLI: runs offline without a token or a plan; exit code 1 only because of the broken test folder",
       cli.returncode == 1 and "dry-run" in cli.stdout and "erreur" in cli.stdout and "reconstruits" in cli.stdout, cli.stdout[-200:])
+
+# --- surface change: true 5 km circle, baseline pair, frame background, usability rules --------------------
+import numpy as _np  # noqa: E402
+import raster as _raster  # noqa: E402
+
+KH = (32.88, -6.91)
+kh_all = catalog.find(*KH, "GUNW")
+res = _damage.analyze(kh_all, *KH, EV, "day")
+G = {g["track"]: g for g in res["geometries"]}
+check("surface change: nine geometries listed; usable = good, degraded-before, corner-patch, borderline, quiet; "
+      "not usable = no baseline, edge of the array, never coherent, baseline pair not measurable",
+      res["n_geometries"] == 9 and res["n_usable_geometries"] == 5
+      and [t for t in sorted(G) if G[t]["usable"]] == [60, 61, 65, 66, 67], {t: G[t]["usable"] for t in G})
+check("surface change: 'not usable: <reason>' names the failing rule and carries no change number",
+      G[62]["reason"].startswith("not usable:") and "no earlier pair" in G[62]["reason"]
+      and "not covered" in G[63]["reason"] and G[63]["coverage_5km"] < 0.9
+      and "less than half" in G[64]["reason"] and G[64]["coherent_before_fraction_5km"] < 0.5
+      and "baseline pair cannot be measured" in G[68]["reason"] and G[68]["baseline_loss_mean"] is None
+      and all(G[t][k] is None for t in (62, 63, 64, 68)
+              for k in ("loss_at_point", "loss_mean_5km", "changed_km2_5km", "baseline_loss_mean", "frame_loss_mean")), G[63]["reason"])
+only_bad = _damage.analyze([p for p in kh_all if p.track in (62, 63, 64)], *KH, EV, "day")
+check("surface change: when no geometry is usable the recipe returns the error 'not usable: ...' and no number at all",
+      only_bad.get("error", "").startswith("not usable:") and "loss_at_point" not in only_bad
+      and only_bad["n_usable_geometries"] == 0 and len(only_bad["geometries"]) == 3, only_bad.get("error"))
+g = G[60]
+check("surface change: coverage_5km, baseline and frame-background facts are present and sensible on the good geometry",
+      g["coverage_5km"] >= 0.99 and abs(g["baseline_loss_mean"]) < 0.05 and g["baseline_changed_km2"] < 0.1
+      and g["changed_km2_5km"] > 1 and g["frame_loss_mean"] < 0.05 and g["frame_frac_changed"] < 0.05
+      and g["baseline_pair"] and res["excess_margin"] == _damage.EXCESS_MARGIN, g)
+check("surface change: local excess = circle mean loss above the frame mean by more than the margin (and not otherwise)",
+      g["local_excess"] is True and g["excess_over_frame"] > _damage.EXCESS_MARGIN
+      and g["excess_over_frame"] == round(g["loss_mean_5km"] - g["frame_loss_mean"], 3)
+      and _damage.analyze([p for p in kh_all if p.track in (60,)], *KH, EV, "day")["local_excess"] is True)
+check("surface change: baseline unreliable when the before pair is >0.1 below the median of the geometry's other pairs",
+      G[61]["baseline_unreliable"] is True and G[60]["baseline_unreliable"] is False
+      and G[61]["pair_coherence_mean"] < G[61]["other_pairs_coherence_median"] - 0.1, (G[61]["pair_coherence_mean"], G[61]["other_pairs_coherence_median"]))
+cp = _damage.analyze([p for p in kh_all if p.track == 65], *KH, EV, "day")
+b65, c65 = [p for p in kh_all if p.track == 65 and p.id == cp["pre_pair"]][0], [p for p in kh_all if p.id == cp["co_pair"]][0]
+cb_, prof_ = _raster.read(b65.files["coherence"])
+ca_, _ = _raster.read(c65.files["coherence"])
+ls_ = _np.where(cb_ >= 0.4, cb_ - ca_, _np.nan)
+sq_ = _raster.window(ls_, prof_, *KH, 5000)
+square_km2 = float(_np.nansum(sq_ > 0.3) * (_raster.pixel_size_m(prof_) / 1000) ** 2)
+check("surface change: the area is a true 5 km radius circle (a patch in the corner of the old 10x10 km square is not counted)",
+      square_km2 > 1.0 and cp["changed_km2_5km"] < 0.3, (square_km2, cp["changed_km2_5km"]))
+fh = c.post("/ask", json={"question": Q_HAOUZ}).json()["facts"]
+check("surface change: the facts reach the Haouz answer (new keys present, old key names unchanged)",
+      all(k in fh for k in ("coverage_5km", "baseline_loss_mean", "baseline_changed_km2", "frame_loss_mean",
+                           "frame_frac_changed", "changed_km2_5km", "loss_at_point", "coherent_before_fraction_5km")))
+
+# --- three bands: local excess (>= 0.15), borderline (0.11 to 0.15), no clear change (< 0.11) ---------------
+check("surface change: excess bands use the stated margins; only the strong band sets local_excess",
+      _damage.EXCESS_MARGIN == 0.11 and _damage.EXCESS_STRONG == 0.15
+      and G[60]["excess_level"] == "strong" and G[60]["excess_over_frame"] >= 0.15 and G[60]["local_excess"] is True
+      and G[66]["excess_level"] == "borderline" and 0.11 <= G[66]["excess_over_frame"] < 0.15 and G[66]["local_excess"] is False
+      and G[67]["excess_level"] == "none" and G[67]["excess_over_frame"] < 0.11 and G[67]["local_excess"] is False,
+      {t: (G[t]["excess_over_frame"], G[t]["excess_level"]) for t in (60, 66, 67)})
+check("surface change: the limits of the no-event reference are in the facts (one geometry, one season, random circles)",
+      res["null_false_alarm"] == 0.01 and res["null_false_alarm_pct"] == 1 and res["excess_margin"] == 0.11
+      and res["excess_strong"] == 0.15 and len(res["null_limits"]) == 3
+      and "one viewing geometry" in res["null_limits"][0] and "one season" in res["null_limits"][1]
+      and "random" in res["null_limits"][2], res["null_limits"])
+
+
+def level_answer(track):
+    fx = _damage.analyze([p for p in kh_all if p.track == track], *KH, EV, "day")
+    return fx, {lg: agent.template("surface_change", fx, lg) for lg in ("fr", "en", "ar")}, agent.assess("surface_change", fx, [])
+
+
+fx60, tx60, as60 = level_answer(60)
+fx66, tx66, as66 = level_answer(66)
+fx67, tx67, as67 = level_answer(67)
+check("surface change wording, strong band: 'local excess', medium confidence, orange, in FR/EN/AR, no cause or damage claimed",
+      "Excès local" in tx60["fr"] and "Local excess" in tx60["en"] and "فائض محلي" in tx60["ar"]
+      and as60[0] == "medium" and as60[2] == "orange" and "borderline" not in tx60["en"])
+check("surface change wording, borderline band: 'just above the no-event level', low confidence, yellow, no cause, FR/EN/AR",
+      "cas limite" in tx66["fr"] and "borderline" in tx66["en"] and "just above" in tx66["en"] and "حالة حدّية" in tx66["ar"]
+      and "no cause can be given" in tx66["en"] and "aucune cause" in tx66["fr"] and "Local excess" not in tx66["en"]
+      and as66[0] == "low" and as66[2] == "yellow", (as66[0], as66[2]))
+check("surface change wording, below the margin: 'no clear local change', no alert, FR/EN/AR",
+      "Pas de changement local net" in tx67["fr"] and "No clear local change" in tx67["en"] and "لا تغيّر محلي واضح" in tx67["ar"]
+      and as67[2] == "none" and "Local excess" not in tx67["en"] and "borderline" not in tx67["en"])
+check("surface change wording: every sentence states the limits of the no-event reference (FR/EN/AR)",
+      all("une seule géométrie" in t["fr"] and "one viewing geometry" in t["en"] and "هندسة رؤية واحدة" in t["ar"]
+          for t in (tx60, tx66, tx67)))
+check("surface change wording: every number of every sentence in every band and language comes from the facts",
+      all(not stray_numbers(t[lg], fx) for fx, t in ((fx60, tx60), (fx66, tx66), (fx67, tx67)) for lg in ("fr", "en", "ar")),
+      [(lg, stray_numbers(t[lg], fx)) for fx, t in ((fx60, tx60), (fx66, tx66), (fx67, tx67)) for lg in ("fr", "en", "ar")])
+fx61, tx61, as61 = level_answer(61)
+check("surface change wording: an unreliable baseline is said in FR/EN/AR and caps confidence at low (yellow, not orange)",
+      fx61["baseline_unreliable"] is True and "n'est pas fiable" in tx61["fr"] and "baseline is unreliable" in tx61["en"]
+      and "غير موثوق" in tx61["ar"] and as61[0] == "low" and as61[2] == "yellow"
+      and "baseline_unreliable" not in str(tx60["en"]) and "unreliable" not in tx60["en"], (as61[0], as61[2]))
+check("surface change: the loss at the point stays a fact and is not in the sentence",
+      fx60["loss_at_point"] is not None and f"{fx60['loss_at_point']:.2f}" not in tx60["en"]
+      and "at the point" not in tx60["en"].split("Local excess")[0])
+check("surface change: a reliable baseline is preferred when choosing the main geometry",
+      _damage.analyze([p for p in kh_all if p.track in (60, 61)], *KH, EV, "day")["track"] == 60
+      and res["geometries_agree"] is False)
+_find = catalog.find
+catalog.find = lambda lat, lon, level=None, *a, **k: [p for p in _find(lat, lon, level, *a, **k) if p.track in (62, 63, 64, 68)]
+try:
+    rn = agent.investigate("Le sol a-t-il changé à Khouribga lors de la crue éclair du 10 octobre 2026 ?", lat=KH[0], lon=KH[1], lang="en")
+finally:
+    catalog.find = _find
+check("surface change: no usable geometry gives 'not usable: <reason>', no number, no alert, through the whole answer",
+      rn["type"] == "surface_change" and "not usable:" in rn["verdict"] and "km²" not in rn["verdict"]
+      and "loss_mean_5km" not in rn["facts"] and rn["confidence"] == "low" and rn["alert_level"] in ("none", "yellow"),
+      rn["verdict"])
+mf = _mock.SURFACE_CHANGE["facts"]
+check("mock: surface-change facts, confidence, reasons and alert are exactly what assess() gives (the mock cannot drift)",
+      (_mock.SURFACE_CHANGE["confidence"], _mock.SURFACE_CHANGE["confidence_reasons"], _mock.SURFACE_CHANGE["alert_level"])
+      == agent.assess("surface_change", mf, []) and mf["excess_level"] == "strong"
+      and all(not stray_numbers(agent.template("surface_change", mf, lg), mf) for lg in ("fr", "en", "ar")))
+
+# --- entry points that print verdicts must survive a non-UTF-8 stdout (redirected output on Windows) ---------
+env_ascii = {k: v for k, v in os.environ.items() if k != "PYTHONUTF8"}
+env_ascii["PYTHONIOENCODING"] = "ascii"
+out_b = subprocess.run([sys.executable, str(ROOT / "precompute.py"), "--no-exposure"], cwd=ROOT, capture_output=True, env=env_ascii)
+txt_b = out_b.stdout.decode("utf-8", "strict")
+check("precompute prints French/Arabic verdicts even when stdout is ascii (exit 0, output is UTF-8)",
+      out_b.returncode == 0 and "é" in txt_b and "→" in txt_b, out_b.stderr[-200:].decode("utf-8", "replace"))
+check("every entry point that prints reconfigures stdout (precompute.py, train_classifier.py)",
+      all('sys.stdout.reconfigure(encoding="utf-8", errors="replace")' in (ROOT / n).read_text(encoding="utf-8")
+          for n in ("precompute.py", "train_classifier.py")))
+
+# =============================================================================================================
+# Discoveries off by default, unvalidated candidates, sign unverified, data gap / reference / ionosphere, soil-moisture
+# uncertainty, event status.   (Synthetic: logic only, not physics.)
+# =============================================================================================================
+import dataclasses as _dc  # noqa: E402
+
+from recipes import displacement as _disp  # noqa: E402
+from recipes import soil_moisture as _sm  # noqa: E402
+import discoveries as _disc  # noqa: E402
+
+# --- 1. discoveries ---------------------------------------------------------------------------------------------
+check("discoveries are disabled by default (config.DISCOVERIES_ENABLED is False)", _config.DISCOVERIES_ENABLED is False)
+(_config.CACHE_DIR / "discoveries.json").write_text(
+    json.dumps({"schema": 2, "enabled": True, "zones": [{"id": "zone-1", "confidence": "high", "alert_level": "orange"}]}), encoding="utf-8")
+off = c.get("/discoveries").json()
+off_r = c.get("/discoveries", params={"refresh": True}).json()
+check("discoveries off: the API returns an empty list with a reason, with or without refresh, and never an old cache",
+      off["zones"] == [] and off["enabled"] is False and "disabled" in off["reason"] and off_r["zones"] == []
+      and off["label"] == "unvalidated candidate" and _disc.cached()["zones"] == [])
+_config.DISCOVERIES_ENABLED = True
+on = c.get("/discoveries", params={"refresh": True, "exposure": False}).json()
+_config.DISCOVERIES_ENABLED = False
+check("discoveries on: every zone is an 'unvalidated candidate', confidence low, alert yellow (never high, orange or red)",
+      on["enabled"] is True and on["zones"] and all(z["label"] == "unvalidated candidate" and z["confidence"] == "low"
+                                                    and z["alert_level"] == "yellow" for z in on["zones"]),
+      [(z["confidence"], z["alert_level"]) for z in on["zones"][:3]])
+
+
+def _prof(n=200):
+    from rasterio.transform import from_origin
+    return dict(transform=from_origin(500000.0, 3500000.0, 80.0, 80.0), crs="EPSG:32629", width=n, height=n)
+
+
+# a 40x40 px block of -60 cm (about 5 fringes) in the middle of a quiet 200x200 map
+rng_t = _np.random.default_rng(3)
+arr_t = rng_t.normal(0, 0.5, (200, 200)).astype("float32")
+arr_t[80:120, 80:120] = -60.0
+cc_one = _np.ones((200, 200), "uint32")
+z_one, _ = _disc._zones(arr_t.copy(), _prof(), "cm", "pair a→b", (23, 73, "P05023"), "descending", cc=cc_one)
+cc_two = cc_one.copy()
+cc_two[:, 100:] = 2                                        # the block spans two connected components
+z_two, _ = _disc._zones(arr_t.copy(), _prof(), "cm", "pair a→b", (23, 73, "P05023"), "descending", cc=cc_two)
+zt = z_one[0]
+check("discoveries: fringes = |cm| / 11.92 and the area is reported (a 60 cm block is 3 to 5 fringes after smoothing)",
+      abs(zt["fringes"] - abs(zt["mean"]) / 11.92) < 0.06 and 3 < zt["fringes"] < 5.2 and zt["area_km2"] > 5, (zt["fringes"], zt["area_km2"]))
+check("discoveries: one connected component is detected, and a zone that spans two is flagged",
+      zt["in_one_component"] is True and zt["n_components"] == 1
+      and z_two[0]["in_one_component"] is False and z_two[0]["n_components"] == 2 and z_two[0]["main_component_share"] < 0.95)
+zt["track"], zt["frame"], zt["direction"] = 23, 73, "descending"
+mk = lambda geom, v: {"arr": _np.full((200, 200), v, "float32"), "prof": _prof(), "sigma": 1.0, "med": 0.0, "geom": geom,  # noqa: E731
+                      "direction": "ascending", "unit": "cm"}
+own, other_yes, other_no = mk((23, 73, "P05023"), -60.0), mk((44, 17, "P05023"), -50.0), mk((95, 73, "P05023"), 0.0)
+za, zb, zc = dict(zt), dict(zt), dict(zt)
+_disc._other_geometries(za, [own])
+_disc._other_geometries(zb, [own, other_yes])
+_disc._other_geometries(zc, [own, other_no])
+check("discoveries: the zone's own geometry is never a second opinion; another geometry that shows it confirms it",
+      za["second_geometry_shows"] is None and za["n_other_geometries_covering"] == 0
+      and zb["second_geometry_shows"] is True and zb["other_geometries_showing"][0]["track"] == 44
+      and zc["second_geometry_shows"] is False and zc["n_other_geometries_covering"] == 1)
+check("discoveries: a zone of one fringe or more in one pair is flagged as not physical",
+      any("fringes in a single pair" in f for f in _disc._flags({**za, "in_frame_main_component": True})), _disc._flags(za))
+
+# --- 2. signed line-of-sight answers: sign unverified until STATUS H4 is closed -------------------------------------
+check("LOS_SIGN_VERIFIED is False by default (STATUS H4 open)", _config.LOS_SIGN_VERIFIED is False)
+Q_PAN = "Y a-t-il eu un mouvement du sol après le séisme du Panama ?"
+lat_p, lon_p = 7.59 + 1 / 111, -80.77 + 1 / 110
+un = {lg: agent.investigate(Q_PAN, lat_p, lon_p, lg, "2026-10-09") for lg in ("fr", "en", "ar")}
+check("sign unverified: sudden motion says 'uncorrected line-of-sight change, sign unverified' (FR/EN/AR), confidence low, no alert",
+      un["en"]["type"] == "sudden_motion" and "Uncorrected line-of-sight change, sign unverified" in un["en"]["verdict"]
+      and "Variation de ligne de visée non corrigée, signe non vérifié" in un["fr"]["verdict"]
+      and "الإشارة غير متحقَّق منها" in un["ar"]["verdict"]
+      and all(u["confidence"] == "low" and u["alert_level"] == "none" for u in un.values())
+      and any("LOS sign unverified" in x for x in un["en"]["confidence_reasons"]), (un["en"]["confidence"], un["en"]["alert_level"]))
+check("sign unverified: ionosphere and troposphere are stated (no screen in the synthetic products -> 'not corrected')",
+      "Ionosphere and troposphere: not corrected" in un["en"]["verdict"] and "Ionosphère et troposphère : non corrigées" in un["fr"]["verdict"]
+      and un["en"]["facts"]["iono_screen"] == "not applied" and un["en"]["facts"]["troposphere_corrected"] is False)
+_config.LOS_SIGN_VERIFIED = True
+ver = agent.investigate(Q_PAN, lat_p, lon_p, "en", "2026-10-09")
+_config.LOS_SIGN_VERIFIED = False
+check("sign verified (flag on): the old sentence and the normal confidence rules come back",
+      "sign unverified" not in ver["verdict"] and ver["confidence"] in ("medium", "high") and ver["facts"]["sign_verified"] is True,
+      (ver["confidence"], ver["alert_level"]))
+
+# --- 3. Al Wahda: data gap, reference component, ionosphere -------------------------------------------------------------
+AL_ps = catalog.find(*AL, "GUNW")
+s0 = _ts.point_series(AL_ps, *AL)[0]
+check("time series: no data gap crossed and the reference shares the point's component on the synthetic stack",
+      s0["crosses_data_gap"] is False and s0["n_pairs_across_gap"] == 0 and s0["reference_same_component"] is True
+      and s0["n_pairs_reference_other_component"] == 0 and s0["iono_screen"] == "not applied" and s0["troposphere_corrected"] is False)
+_gap = _ts.DATA_GAPS
+_ts.DATA_GAPS = [("20260705", "20260715")]                 # a pair that starts before and ends after this window crosses it
+s1 = _ts.point_series(AL_ps, *AL)[0]
+_ts.DATA_GAPS = _gap
+check("time series: a pair that starts before and ends after the gap is counted as crossing it",
+      s1["crosses_data_gap"] is True and s1["n_pairs_across_gap"] >= 1 and s1["data_gaps_crossed"] == [["20260705", "20260715"]], s1["n_pairs_across_gap"])
+_ts.DATA_GAPS = [("20260705", "20260715")]
+rg = {lg: agent.investigate("Le barrage Al Wahda se déforme-t-il depuis juin ?", *AL, lg) for lg in ("fr", "en", "ar")}
+_ts.DATA_GAPS = _gap
+check("Al Wahda sentence: says the chain crosses the data gap, in the three languages, with the pair count from the facts",
+      "crosses the data gap" in rg["en"]["verdict"] and "traverse la lacune de données" in rg["fr"]["verdict"]
+      and "فجوة البيانات" in rg["ar"]["verdict"] and rg["en"]["facts"]["crosses_data_gap"] is True
+      and rg["en"]["confidence"] == "low" and rg["en"]["alert_level"] == "none"
+      and "Uncorrected line-of-sight change, sign unverified" in rg["en"]["verdict"])
+ap = AL_ps[0]
+_cc_keep = _disp._components_raster
+_disp._components_raster = lambda p: _np.ones((600, 600), "uint32")
+ref_ok = _disp.analyze(ap, *AL, make_layer=False)
+_far = _np.ones((600, 600), "uint32")
+_ii, _jj = _np.ogrid[:600, :600]
+_far[_np.hypot(_ii - 300, _jj - 300) * 80 > 8000] = 2     # the point is in component 1, everything beyond 8 km in component 2
+_disp._components_raster = lambda p: _far
+ref_bad = _disp.analyze(ap, *AL, make_layer=False)
+_disp._components_raster = _cc_keep
+check("reference component: shared -> reference_same_component True; reference in another component -> False, with the share",
+      ref_ok["reference_same_component"] is True and ref_ok["reference_share_in_point_component"] == 1.0
+      and ref_bad["reference_same_component"] is False and ref_bad["reference_share_in_point_component"] < 0.9
+      and ref_bad["point_component"] == 1, (ref_ok["reference_share_in_point_component"], ref_bad["reference_share_in_point_component"]))
+f_ref = {**rg["en"]["facts"], "reference_same_component": False, "n_pairs_reference_other_component": 3}
+sent_ref = {lg: agent.template("slow_motion", f_ref, lg) for lg in ("fr", "en", "ar")}
+check("reference in another component: said in FR/EN/AR and the confidence is capped at low",
+      "not in the same connected component" in sent_ref["en"] and "pas dans la même composante connexe" in sent_ref["fr"]
+      and "ليست في المركّبة المتصلة نفسها" in sent_ref["ar"]
+      and agent.assess("slow_motion", {**f_ref, "sign_verified": True}, [])[0] == "low")
+f_one = {**rg["en"]["facts"], "n_pairs_across_gap": 1}
+check("one bridging pair is said in the singular (FR/EN/AR)",
+      "1 pair bridges it" in agent.template("slow_motion", f_one, "en") and "1 paire l'enjambe" in agent.template("slow_motion", f_one, "fr")
+      and "زوج واحد يعبرها" in agent.template("slow_motion", f_one, "ar"))
+f_iono = {**rg["en"]["facts"], "iono_screen": "subtracted"}
+check("ionosphere screen subtracted: the sentence says so (not validated) in FR/EN/AR; troposphere is never corrected",
+      "screen is subtracted (not validated); troposphere: not corrected" in agent.template("slow_motion", f_iono, "en")
+      and "écran du produit soustrait (non validé)" in agent.template("slow_motion", f_iono, "fr")
+      and "خُصمت شاشة المنتج" in agent.template("slow_motion", f_iono, "ar"))
+
+# --- 4. soil moisture: a change inside the retrieval uncertainty is not a change -------------------------------------------
+sm_all = catalog.find(34.5, -6.0, "SME2")
+sm_few = sorted(sm_all, key=lambda p: p.ref)[2:4]          # two close passes: small anomaly
+r_all = _sm.analyze(sm_all, 34.5, -6.0)
+r_few = _sm.analyze(sm_few, 34.5, -6.0)
+check("soil moisture: the product's own uncertainty layer is read; a large change is outside it, a small one inside",
+      r_all["uncertainty_m3m3"] == 0.04 and r_all["within_uncertainty"] is False and abs(r_all["anomaly_m3m3"]) > 0.04
+      and r_few["within_uncertainty"] is True and abs(r_few["anomaly_m3m3"]) < 0.04, (r_all["anomaly_m3m3"], r_few["anomaly_m3m3"]))
+_unc = _sm._uncertainty
+_sm._uncertainty = lambda *a, **k: None
+r_fb = _sm.analyze(sm_all, 34.5, -6.0)
+_sm._uncertainty = _unc
+check("soil moisture: without an uncertainty layer the 0.028 default is used", r_fb["uncertainty_m3m3"] == 0.028)
+mk_sm = lambda anom, unc: {"latest_date": "20261020", "latest_m3m3": 0.219, "anomaly_m3m3": anom, "n_passes": 6,  # noqa: E731
+                           "uncertainty_m3m3": unc, "within_uncertainty": abs(anom) < unc}
+a_in, a_out = agent.assess("soil_moisture", mk_sm(0.025, 0.028), []), agent.assess("soil_moisture", mk_sm(0.075, 0.028), [])
+_agree = [{"source": "Open-Meteo", "status": "agrees"}]
+a_ag = agent.assess("soil_moisture", mk_sm(0.075, 0.028), _agree)
+check("soil moisture: inside the uncertainty -> confidence forced low; outside -> medium; never high, even if rain 'agrees'; no alert",
+      a_in[0] == "low" and a_out[0] == "medium" and a_ag[0] == "medium" and a_in[2] == a_out[2] == a_ag[2] == "none"
+      and "within the product's uncertainty" in a_in[1][0])
+t_in = {lg: agent.template("soil_moisture", mk_sm(0.025, 0.028), lg) for lg in ("fr", "en", "ar")}
+t_out = {lg: agent.template("soil_moisture", mk_sm(0.075, 0.028), lg) for lg in ("fr", "en", "ar")}
+check("soil moisture: the sentence says the change is within the product's uncertainty (FR/EN/AR) only when it is",
+      "within the product's uncertainty (0.028)" in t_in["en"] and "dans l'incertitude du produit (0.028)" in t_in["fr"]
+      and "ضمن عدم اليقين" in t_in["ar"] and all("uncertainty" not in t_out["en"] and "incertitude" not in t_out["fr"]
+                                                 and "عدم اليقين" not in t_out["ar"] for _ in (0,)))
+
+# --- 5. events: the Ben Guerir mine has no polygon -> marked, not validated ----------------------------------------------
+lst = {e["id"]: e for e in c.get("/events").json()}
+check("events: ben-guerir-mine is marked 'not validated' (status, note and title); the others are 'ready'",
+      lst["ben-guerir-mine"]["status"] == "not validated" and "polygon" in lst["ben-guerir-mine"]["status_note"]
+      and "not validated" in lst["ben-guerir-mine"]["title_en"] and "non validé" in lst["ben-guerir-mine"]["title"]
+      and all(lst[k]["status"] == "ready" for k in lst if k != "ben-guerir-mine"))
+bg = c.get("/events/ben-guerir-mine", params={"refresh": True}).json()
+check("events: the computed answer of the mine carries the status too", bg["status"] == "not validated" and bg["status_note"])
+check("mock discoveries: same shape, labelled, never high or orange",
+      _mock.DISCOVERIES["label"] == "unvalidated candidate" and all(z["confidence"] == "low" and z["alert_level"] == "yellow"
+                                                                    for z in _mock.DISCOVERIES["zones"]))
+contract2 = (ROOT.parent / "docs" / "API_CONTRACT.md").read_text(encoding="utf-8")
+check("docs: sign_verified, iono_screen, crosses_data_gap, reference_same_component, uncertainty_m3m3, status, discoveries off documented",
+      all(k in contract2 for k in ("sign_verified", "iono_screen", "crosses_data_gap", "reference_same_component",
+                                   "uncertainty_m3m3", "within_uncertainty", "not validated", "NISAR_DISCOVERIES_ENABLED",
+                                   "unvalidated candidate", "fringes")))
 
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)

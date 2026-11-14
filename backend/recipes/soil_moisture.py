@@ -5,6 +5,7 @@ import numpy as np
 
 import raster
 from catalog import Product
+from config import SM_UNCERTAINTY
 
 NAME_HINTS = ["soilMoisture", "soil_moisture", "SM"]
 
@@ -49,6 +50,24 @@ def _read(p: Product):
     return arr, prof, name
 
 
+def _uncertainty(p: Product, prof, lat: float, lon: float, radius_m: float):
+    """Median retrieval uncertainty (m3/m3) around the point, from the product's soilMoistureUncertainty layer."""
+    import h5py
+    try:
+        with h5py.File(p.files["h5"], "r") as h5:
+            hits = []
+            h5.visititems(lambda n, o: hits.append(n) if n.split("/")[-1] == "soilMoistureUncertainty"
+                          and isinstance(o, h5py.Dataset) and o.ndim == 2 and "algorithmCandidates" not in n else None)
+            if not hits:
+                return None
+            u = h5[sorted(hits, key=lambda n: n.count("/"))[0]][()].astype("float32")
+        u[(u <= 0) | (u >= 1)] = np.nan
+        w = raster.window(u, prof, lat, lon, radius_m)
+        return float(np.nanmedian(w)) if np.isfinite(w).any() else None
+    except Exception:
+        return None
+
+
 def analyze(products: list[Product], lat: float, lon: float, radius_m: float = 3000) -> dict:
     series, latest = [], None
     for p in sorted(products, key=lambda p: p.ref):
@@ -66,8 +85,12 @@ def analyze(products: list[Product], lat: float, lon: float, radius_m: float = 3
         return {"error": "no readable soil-moisture value at this point", "series": series}
     p, arr, prof, ds = latest
     mean = float(np.mean(vals))
+    unc = _uncertainty(p, prof, lat, lon, radius_m)
+    unc = SM_UNCERTAINTY if unc is None else unc
+    anomaly = vals[-1] - mean
     layer = raster.render_png(arr, prof, f"sm_{p.id}", "YlGnBu", 0.0, 0.5)
     layer["title"] = f"Soil moisture (m³/m³), {p.ref[:8]}"
     return {"latest_date": series[-1]["date"], "latest_m3m3": vals[-1], "mean_m3m3": round(mean, 3),
-            "anomaly_m3m3": round(vals[-1] - mean, 3), "n_passes": len(vals), "series": series,
+            "anomaly_m3m3": round(anomaly, 3), "uncertainty_m3m3": round(unc, 3),
+            "within_uncertainty": bool(abs(round(anomaly, 3)) < round(unc, 3)), "n_passes": len(vals), "series": series,
             "dataset": ds, "layer": layer}

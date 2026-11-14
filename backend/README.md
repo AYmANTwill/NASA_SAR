@@ -55,6 +55,8 @@ the real products and mock mode turns off by itself.
 | `FIRMS_MAP_KEY` | fire evidence for the deforestation answer | free, firms.modaps.eosdis.nasa.gov/api/map_key |
 | `NISAR_OFFLINE=1` | demo mode: no internet calls at all | — |
 | `NISAR_MOCK=1` | force fake answers (interface development) | — |
+| `NISAR_LOS_SIGN_VERIFIED=1` | say that the LOS sign was checked on real data (STATUS H4). While unset, every signed line-of-sight answer says "sign unverified", has confidence low and no alert | after the Panama check |
+| `NISAR_DISCOVERIES_ENABLED=1` | turn the automatic discoveries back on. Off by default: the zones were not physical. `/discoveries` then returns an empty list and the reason | — |
 
 PowerShell: `$env:FIRMS_MAP_KEY="..."` before `uvicorn`.
 
@@ -66,7 +68,7 @@ PowerShell: `$env:FIRMS_MAP_KEY="..."` before `uvicorn`.
 | `recipes/displacement.py` | sudden motion: phase → cm, masks, stable reference, profile |
 | `recipes/timeseries.py` | slow motion: small-baseline inversion, velocity, acceleration, velocity maps |
 | `recipes/decompose.py` | ascending + descending → vertical and east-west |
-| `recipes/damage.py` | surface change = coherence loss between a before pair and the pair across an event (not a damage measure) |
+| `recipes/damage.py` | surface change = coherence loss between a before pair and the pair across an event, in a 5 km circle, against a baseline pair and the frame background (not a damage measure) |
 | `recipes/backscatter.py` | flood and deforestation from GCOV |
 | `recipes/soil_moisture.py` | NISAR SME2 soil moisture |
 | `recipes/offsets.py` | large displacements from GOFF |

@@ -13,7 +13,7 @@ import numpy as np
 
 import raster
 from catalog import Product
-from config import MIN_RATE_DAYS
+from config import DATA_GAPS, MIN_RATE_DAYS
 from recipes import displacement
 
 
@@ -84,9 +84,10 @@ def point_series(products: list[Product], lat: float, lon: float) -> list[dict]:
     results = []
     for key, pairs in groups.items():
         pairs = sorted(pairs, key=lambda p: p.ref)
-        obs, sig = [], []
+        obs, sig, facts = [], [], []
         for p in pairs:
             f = displacement.analyze(p, lat, lon, make_layer=False)
+            facts.append(f)
             obs.append(np.nan if f["los_cm"] is None else f["los_cm"] * 10)       # mm
             sig.append(np.nan if f["noise_cm"] is None else f["noise_cm"] * 10)
         ok = np.isfinite(obs)
@@ -97,6 +98,7 @@ def point_series(products: list[Product], lat: float, lon: float) -> list[dict]:
         main = comps[0]
         use = [(p, o, s) for p, o, s, g in zip(pairs, obs, sig, ok) if g and p.ref[:8] in main]
         upairs = [u[0] for u in use]
+        ufacts = [f for p, f, g in zip(pairs, facts, ok) if g and p.ref[:8] in main]
         uobs, usig = np.array([u[1] for u in use]), np.array([u[2] for u in use])
         dates, A = _design(upairs)
         if A.shape[1] == 0:
@@ -121,6 +123,17 @@ def point_series(products: list[Product], lat: float, lon: float) -> list[dict]:
                "first_date": dates[0], "last_date": dates[-1],
                "span_days": (_date(dates[-1]) - _date(dates[0])).days}
         res.update(_fit(dates, cum))
+        n_iono = sum(1 for f in ufacts if f.get("iono_applied"))
+        flags = [f.get("reference_same_component") for f in ufacts]
+        crossed = [[a, b] for a, b in DATA_GAPS if any(p.ref[:8] < a and p.sec[:8] > b for p in upairs)]
+        res.update(
+            iono_screen="subtracted" if n_iono == len(ufacts) else "not applied" if n_iono == 0 else "partly subtracted",
+            iono_applied_pairs=n_iono, troposphere_corrected=False,
+            reference_same_component=False if any(x is False for x in flags) else None if any(x is None for x in flags) else True,
+            n_pairs_reference_other_component=sum(1 for x in flags if x is False),
+            n_pairs_reference_unknown=sum(1 for x in flags if x is None),
+            crosses_data_gap=bool(crossed), data_gaps_crossed=crossed,
+            n_pairs_across_gap=sum(1 for p in upairs if any(p.ref[:8] < a and p.sec[:8] > b for a, b in crossed)))
         results.append(res)
     return sorted(results, key=lambda r: -r["n_pairs"])
 

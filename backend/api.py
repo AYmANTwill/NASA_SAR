@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 import agent
 import catalog
+import config
 import discoveries
 import events
 import mock
@@ -116,6 +117,8 @@ def get_event(eid: str, refresh: bool = False, mock_: bool = Query(False, alias=
 def get_discoveries(refresh: bool = False, exposure: bool = True, mock_: bool = Query(False, alias="mock")):
     if use_mock(mock_):
         return mock.DISCOVERIES
+    if not config.DISCOVERIES_ENABLED:            # off by default: an empty list and the reason, never the old cache
+        return discoveries.disabled()
     return discoveries.scan(with_exposure=exposure) if refresh else discoveries.cached()
 
 

@@ -15,12 +15,27 @@ WAVELENGTH_M = 0.2384
 # Sign convention: +1 means "positive = motion TOWARD the satellite".
 # CHECK on the Panama pair against the published NASA/USGS map; flip to -1 if reversed.
 LOS_SIGN = float(os.environ.get("NISAR_LOS_SIGN", "1"))
+# STATUS H4: the sign has not been checked on real data. While False, every signed line-of-sight answer says "sign
+# unverified", has confidence low and no alert. Set NISAR_LOS_SIGN_VERIFIED=1 only after the Panama check.
+LOS_SIGN_VERIFIED = os.environ.get("NISAR_LOS_SIGN_VERIFIED", "0") == "1"
+FRINGE_CM = WAVELENGTH_M / 2 * 100      # 11.92 cm of line-of-sight change per fringe (one 2*pi of phase)
 
 COHERENCE_MIN = 0.3          # pixels below are masked
 POINT_RADIUS_M = 1000        # radius used to measure the signal around a clicked point
 # A rate (mm/yr) is only reported for a record at least this long (12 months): a few months of a
 # 12-day chain cannot separate a trend from atmospheric noise and seasonal effects.
 MIN_RATE_DAYS = 365
+
+# Acquisition gaps (docs/claude/morocco_inventory.md): a pair that starts before and ends after one is a "bridge" pair.
+DATA_GAPS = [("20260727", "20260810")]
+
+# Automatic discoveries are OFF: the zones were not physical (8 to 15 fringes in one 12-day pair). The code is kept.
+DISCOVERIES_ENABLED = os.environ.get("NISAR_DISCOVERIES_ENABLED", "0") == "1"
+DISCOVERIES_OFF_REASON = ("Automatic discoveries are disabled: the candidate zones were not physical (several fringes in a "
+                          "single 12-day pair) and are not validated. Set NISAR_DISCOVERIES_ENABLED=1 to run them anyway.")
+
+# SME2 soil-moisture retrieval uncertainty (m3/m3), used when the product has no uncertainty layer (median in real files).
+SM_UNCERTAINTY = 0.028
 
 # Product maturity from the CRID in the file name (ASF NISAR availability page, 2026-11-12).
 # Never mix CRIDs in one time series. Add a line when a new CRID appears; unknown CRIDs stay "unknown".

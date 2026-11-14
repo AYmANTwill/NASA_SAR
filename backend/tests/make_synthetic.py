@@ -62,6 +62,8 @@ def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg, crid="P050
 
 AL_WAHDA = (34.598, -5.198)      # the dam (OSM dam polygon); the old gazetteer point (34.64, -5.17) was ~5 km away
 ASNI = (31.250, -7.983)          # Al Haouz, flash flood of 2026-10-10
+KHOURIBGA = (32.88, -6.91)       # far from Asni: geometries that test the usability rules of the surface-change recipe
+STORM = 0.7                      # coherence lost at the centre of the storm patch
 
 
 def stack(track, direction, frame, start, n, lat, lon, epsg, up_mm_yr, east_mm_yr=0.0, r_km=2.0, crid="P05023"):
@@ -104,7 +106,7 @@ def main():
             # like the real frame 95/73 at Asni: barely coherent there -> unusable, must not vote
             (95, "descending", 73, (date(2026, 9, 24), date(2026, 10, 6)), (date(2026, 10, 6), date(2026, 10, 18)))]:
         for k, (d1, d2) in enumerate([pre, co]):
-            coh = np.clip(rng.normal(0.75, 0.05, (N, N)) - (0.5 * bump(0, 0, 1.5) if k == 1 else 0), 0, 1)
+            coh = np.clip(rng.normal(0.75, 0.05, (N, N)) - (STORM * bump(0, 0, 2.0) if k == 1 else 0), 0, 1)
             if track == 95:
                 coh = np.full((N, N), 0.2)
             gunw(track, direction, frame, d1, d2, np.zeros((N, N)), coh, *ASNI, 32629)
@@ -142,6 +144,46 @@ def main():
         tif(f / "grids_frequencyA_HHHH.tif", hh.astype("float32"), t, 32630)
         tif(f / "grids_frequencyA_HVHV.tif", hv.astype("float32"), t, 32630)
         (f / "_DONE").write_text("{}")
+    # --- baseline pairs for the surface-change recipe: every geometry needs the pair(s) before its "before" pair
+    for track, direction, frame, d1, d2 in [(141, "descending", 84, date(2026, 9, 27), date(2026, 10, 9)),
+                                           (4, "ascending", 6, date(2026, 9, 30), date(2026, 10, 12))]:
+        gunw(track, direction, frame, d1 - timedelta(days=24), d1 - timedelta(days=12), np.zeros((N, N)),
+             np.clip(rng.normal(0.7, 0.05, (N, N)), 0, 1), 7.59, -80.77, 32617)
+    for track, direction, frame, before_pair in [(44, "ascending", 17, date(2026, 9, 21)),
+                                                 (23, "descending", 73, date(2026, 9, 19))]:
+        for k in range(1, 5):                       # four earlier 12-day pairs on the same chain
+            d1 = before_pair - timedelta(days=12 * k)
+            gunw(track, direction, frame, d1, d1 + timedelta(days=12), np.zeros((N, N)),
+                 np.clip(rng.normal(0.75, 0.05, (N, N)), 0, 1), *ASNI, 32629)
+
+    # --- usability rules, around Khouribga (never near the other test points)
+    pairs = [(date(2026, 8, 4), date(2026, 8, 16)), (date(2026, 8, 16), date(2026, 8, 28)),
+             (date(2026, 8, 28), date(2026, 9, 9)), (date(2026, 9, 9), date(2026, 9, 21)),
+             (date(2026, 9, 21), date(2026, 10, 3)), (date(2026, 10, 3), date(2026, 10, 15))]   # last = across the storm
+
+    def chain(track, direction, frame, first=0, lat_c=None, level=0.75, before_level=None, patch=None, loss=True,
+              bad_baseline=False):
+        lat, lon = KHOURIBGA
+        for k, (d1, d2) in enumerate(pairs):
+            if k < first:
+                continue
+            m = before_level if (before_level is not None and k == 4) else level
+            if bad_baseline and k == 3:                  # the pair just before the before pair: nowhere coherent
+                m = 0.2
+            coh = np.clip(rng.normal(m, 0.05, (N, N)), 0, 1)
+            if k == 5 and loss:
+                coh = np.clip(coh - (patch if patch is not None else STORM * bump(0, 0, 2.0)), 0, 1)
+            gunw(track, direction, frame, d1, d2, np.zeros((N, N)), coh, lat_c if lat_c is not None else lat, lon, 32629)
+
+    chain(60, "ascending", 31)                                   # good: usable, normal before pair
+    chain(61, "descending", 32, before_level=0.55)               # usable, but the before pair is degraded
+    chain(62, "ascending", 33, first=4)                          # before + event only: no baseline pair
+    chain(63, "descending", 34, lat_c=KHOURIBGA[0] - 0.20)       # the point is 1.8 km from the array edge: not covered
+    chain(64, "ascending", 35, level=0.25)                       # never coherent: unusable
+    chain(65, "descending", 36, patch=0.9 * bump(4.0, 4.0, 0.5))  # loss only in the corner of the 10x10 km square
+    chain(66, "ascending", 37, patch=0.43 * bump(0, 0, 2.0))      # excess ~0.13: the borderline band
+    chain(67, "descending", 38, patch=0.10 * bump(0, 0, 2.0))     # excess ~0.03: nothing clear
+    chain(68, "ascending", 39, bad_baseline=True)                 # the baseline pair cannot be measured
     print("synthetic data written to", OUT.resolve())
 
 

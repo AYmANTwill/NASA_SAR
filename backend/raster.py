@@ -47,6 +47,55 @@ def window(arr: np.ndarray, prof: dict, lat: float, lon: float, radius_m: float)
     return arr[r0:r1, c0:c1]
 
 
+def _embed(block, r0, c0, r, c, k):
+    """Puts block (the in-array part of a (2k+1)² window centred on pixel (r, c), starting at (r0, c0)) in a
+    NaN-filled square. Returns (sub, inside); inside is True where the pixel lies in the array."""
+    sub = np.full((2 * k + 1, 2 * k + 1), np.nan, dtype="float32")
+    inside = np.zeros(sub.shape, dtype=bool)
+    if block is not None and block.size:
+        a, b = r0 - (r - k), c0 - (c - k)
+        sub[a:a + block.shape[0], b:b + block.shape[1]] = block
+        inside[a:a + block.shape[0], b:b + block.shape[1]] = True
+    return sub, inside
+
+
+def _disc(k: int, px: float, radius_m: float) -> np.ndarray:
+    ii, jj = np.ogrid[-k:k + 1, -k:k + 1]
+    return np.hypot(ii, jj) * px <= radius_m
+
+
+def crop_around(arr: np.ndarray, prof: dict, lat: float, lon: float, radius_m: float):
+    """Square crop centred on the point, NaN where it falls outside the array.
+    Returns (sub, inside, circle): inside = the pixel is in the array; circle = within radius_m of the point
+    (a geometric disc, whatever the data), so circle.sum() is the full disc even when it is clipped."""
+    r, c = to_pixel(prof, lat, lon)
+    px = pixel_size_m(prof)
+    k = max(1, int(np.ceil(radius_m / px)))
+    r0, r1, c0, c1 = max(r - k, 0), min(r + k + 1, arr.shape[0]), max(c - k, 0), min(c + k + 1, arr.shape[1])
+    block = arr[r0:r1, c0:c1] if (r0 < r1 and c0 < c1) else None
+    sub, inside = _embed(block, r0, c0, r, c, k)
+    return sub, inside, _disc(k, px, radius_m)
+
+
+def read_around(path, lat: float, lon: float, radius_m: float):
+    """Like crop_around on a file, but reads only the window (fast on a 4000x4000 raster).
+    Returns (sub, inside, circle, prof)."""
+    from rasterio.windows import Window
+    with rasterio.open(path) as src:
+        prof = dict(transform=src.transform, crs=src.crs, width=src.width, height=src.height)
+        r, c = to_pixel(prof, lat, lon)
+        px = pixel_size_m(prof)
+        k = max(1, int(np.ceil(radius_m / px)))
+        r0, r1, c0, c1 = max(r - k, 0), min(r + k + 1, src.height), max(c - k, 0), min(c + k + 1, src.width)
+        block = None
+        if r0 < r1 and c0 < c1:
+            block = src.read(1, window=Window(c0, r0, c1 - c0, r1 - r0)).astype("float32")
+            if src.nodata is not None and not np.isnan(src.nodata):
+                block[block == src.nodata] = np.nan
+    sub, inside = _embed(block, r0, c0, r, c, k)
+    return sub, inside, _disc(k, px, radius_m), prof
+
+
 def distance_mask(prof: dict, lat: float, lon: float, min_m: float) -> np.ndarray:
     """True for pixels farther than min_m from the point (used as the stable reference area)."""
     r, c = to_pixel(prof, lat, lon)

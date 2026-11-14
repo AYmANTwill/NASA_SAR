@@ -14,6 +14,7 @@ from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, WAVELENGTH_M
 from uncertainty import robust_sigma
 
 REF_DISTANCE_M = 25_000      # reference area = pixels farther than this from the point
+REF_SAME_COMPONENT_MIN = 0.9  # share of reference pixels that must be in the point's connected component
 
 
 @lru_cache(maxsize=8)
@@ -35,6 +36,36 @@ def los_cm(p: Product):
             bad |= cc == 0
     disp = np.where(bad, np.nan, disp).astype("float32")
     return disp, coh, prof, tuple(notes)
+
+
+@lru_cache(maxsize=8)
+def _components_raster(p: Product):
+    if "conncomp" not in p.files:
+        return None
+    cc, _ = raster.read(p.files["conncomp"])
+    return np.nan_to_num(cc, nan=0).astype("uint32")
+
+
+def _reference_component(p: Product, d, prof, lat: float, lon: float) -> dict:
+    """Phase is only unwrapped consistently inside one connected component; a reference taken in another component can be
+    off by whole fringes. Reports the point's component and the share of the reference pixels that are in it."""
+    out = {"point_component": None, "reference_share_in_point_component": None, "reference_same_component": None}
+    cc = _components_raster(p)
+    if cc is None or cc.shape != d.shape:
+        return out
+    wcc = raster.window(cc, prof, lat, lon, POINT_RADIUS_M)
+    wd = raster.window(d, prof, lat, lon, POINT_RADIUS_M)
+    lab = wcc[np.isfinite(wd) & (wcc > 0)]
+    if lab.size == 0:
+        return out
+    point_cc = int(np.bincount(lab.astype(np.int64)).argmax())
+    far = raster.distance_mask(prof, lat, lon, REF_DISTANCE_M) & np.isfinite(d)
+    if far.sum() < 500:
+        far = np.isfinite(d)
+    share = float((cc[far] == point_cc).mean())
+    out.update(point_component=point_cc, reference_share_in_point_component=round(share, 2),
+               reference_same_component=bool(share >= REF_SAME_COMPONENT_MIN))
+    return out
 
 
 def referenced(p: Product, lat: float, lon: float):
@@ -64,9 +95,11 @@ def analyze(p: Product, lat: float, lon: float, make_layer: bool = True) -> dict
         "max_abs_cm_10km": round(float(np.nanmax(np.abs(big))), 2) if np.isfinite(big).any() else None,
         "profile": raster.profile_line(d, prof, lat, lon),
         "notes": list(notes),
+        "iono_applied": "ionospheric correction applied" in notes,
         "meaning": "positive = ground moved toward the satellite" if LOS_SIGN > 0 else
                    "positive = ground moved away from the satellite",
     }
+    facts.update(_reference_component(p, d, prof, lat, lon))
     if make_layer:
         lim = float(np.nanpercentile(np.abs(d), 98)) if np.isfinite(d).any() else 1.0
         facts["layer"] = raster.render_png(d, prof, f"disp_{p.id}", "RdBu_r", -lim, lim)

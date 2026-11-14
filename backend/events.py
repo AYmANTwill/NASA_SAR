@@ -24,8 +24,11 @@ EVENTS = [
      "title_en": "Soil moisture, Gharb plain", "title_ar": "رطوبة التربة في سهل الغرب",
      "lat": 34.50, "lon": -6.00, "date": None, "lang": "fr",
      "question": "Quelle est l'humidité du sol dans le Gharb ?"},
-    {"id": "ben-guerir-mine", "title": "Mine de phosphate de Ben Guerir",
-     "title_en": "Ben Guerir phosphate mine", "title_ar": "منجم الفوسفاط بابن جرير",
+    {"id": "ben-guerir-mine", "title": "Mine de phosphate de Ben Guerir (non validé : pas de polygone)",
+     "title_en": "Ben Guerir phosphate mine (not validated: no polygon)",
+     "title_ar": "منجم الفوسفاط بابن جرير (غير مؤكد: دون مضلع)",
+     "status": "not validated",
+     "status_note": "The point is the mine centroid. No quarry polygon was checked, so the answer is not validated.",
      "lat": 32.25825, "lon": -7.82355, "date": None, "lang": "fr",
      "question": "Où la surface de la mine de Ben Guerir a-t-elle changé ?"},
     {"id": "al-wahda-surroundings", "title": "Alentours du barrage Al Wahda",
@@ -48,6 +51,9 @@ FIXTURES = [
 def compute(ev: dict) -> dict:
     res = agent.investigate(ev["question"], ev["lat"], ev["lon"], ev["lang"], ev.get("date"))
     res["event"] = {k: ev[k] for k in ("id", "title")}
+    res["status"] = ev.get("status", "ready")
+    if ev.get("status_note"):
+        res["status_note"] = ev["status_note"]
     (DIR / f"{ev['id']}.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     return res
 
@@ -68,7 +74,8 @@ def listing() -> list[dict]:
         f = DIR / f"{e['id']}.json"
         r = json.loads(f.read_text(encoding="utf-8")) if f.exists() else None
         out.append({"id": e["id"], "title": e["title"], "title_en": e.get("title_en"), "title_ar": e.get("title_ar"),
-                    "lat": e["lat"], "lon": e["lon"],
+                    "lat": e["lat"], "lon": e["lon"], "status": e.get("status", "ready"),
+                    "status_note": e.get("status_note"),
                     "computed": r is not None, "verdict": r.get("verdict") if r else None,
                     "confidence": r.get("confidence") if r else None,
                     "alert_level": r.get("alert_level") if r else None})

@@ -14,6 +14,9 @@ import sys
 
 import numpy as np
 
+if hasattr(sys.stdout, "reconfigure"):          # redirected stdout on Windows is cp1252
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import catalog
 import ml_classifier as mc
 import raster
