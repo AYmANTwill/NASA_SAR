@@ -194,6 +194,7 @@ def main():
     gps_site()
     iono_site()
     quality_site()
+    consistent_site()
     print("synthetic data written to", OUT.resolve())
 
 
@@ -263,6 +264,22 @@ def quality_site():
         coh = np.full((N, N), 0.1) if k == 2 else np.clip(rng.normal(0.8, 0.05, (N, N)), 0, 1)
         gunw(174, "ascending", 54, d1, d1 + timedelta(days=12), np.zeros((N, N)), coh, *QUALITY_SITE, 32628,
              noise=(k != 1))
+
+
+# --- consistent discoveries: a -1.5 cm bump in each of 4 independent pairs (kept) and a -60 cm block in ONE pair
+#     (a single-pair artefact, rejected) -----------------------------------------------------------------------------
+CONSISTENT_SITE = (28.50, -10.50)
+CONSISTENT_SIGNAL_M = -0.015
+
+
+def consistent_site():
+    yy, xx = np.mgrid[:N, :N]
+    block = (np.abs(yy - N / 2) < 20) & (np.abs(xx - N / 2 + 100) < 20)     # 8 km west of the centre
+    for k in range(4):
+        d1 = date(2026, 8, 7) + timedelta(days=12 * k)
+        los = CONSISTENT_SIGNAL_M * bump(5.0, 0, 1.5) + (np.where(block, -0.60, 0.0) if k == 1 else 0.0)
+        gunw(175, "ascending", 55, d1, d1 + timedelta(days=12), los, np.clip(rng.normal(0.8, 0.05, (N, N)), 0, 1),
+             *CONSISTENT_SITE, 32628)
 
 
 # --- GPS validation: a NISAR stack over the RABT station and an NGL-format sample of its daily positions -----------

@@ -1344,6 +1344,47 @@ finally:
     raw_sc.unlink()
 check("sign_check with a kept raw .h5: prints the attributes of unwrappedPhase and of the LOS vectors",
       "unwrappedPhase" in sc_md2 and "units: radians" in sc_md2 and "losUnitVectorX" in sc_md2 and "--keep-raw" not in sc_md2)
+
+# --- 5. discoveries, safely: the consistent mode ---------------------------------------------------------------------
+check("discoveries mode: off by default (no NISAR_DISCOVERIES_MODE, no NISAR_DISCOVERIES_ENABLED); the API says so",
+      _config.DISCOVERIES_MODE == "" and _disc.mode() == "off" and c.get("/discoveries").json()["mode"] == "off"
+      and c.get("/discoveries").json()["zones"] == [] and "NISAR_DISCOVERIES_MODE=consistent" in _config.DISCOVERIES_OFF_REASON)
+check("consistent rule: a single-pair artefact is rejected; a 3-pair signal of one sign is kept; one dominant pair, or a "
+      "sign that flips, is rejected",
+      not _disc.consistent_zone([(-60.0, 1.0), (0.1, 1.0), (-0.2, 1.0), (0.05, 1.0)])["kept"]
+      and "seen in 1" in _disc.consistent_zone([(-60.0, 1.0), (0.1, 1.0), (-0.2, 1.0), (0.05, 1.0)])["why_not"][0]
+      and _disc.consistent_zone([(-1.5, 0.3), (-1.4, 0.3), (-1.6, 0.3), (0.1, 0.3)])["kept"]
+      and not _disc.consistent_zone([(-1.0, 0.1), (-1.0, 0.1), (-20.0, 0.1)])["kept"]
+      and not _disc.consistent_zone([(-1.0, 0.1), (-1.0, 0.1), (-1.0, 0.1), (1.0, 0.1)])["kept"])
+P2 = lambda ref, sec, i: _types.SimpleNamespace(ref=ref, sec=sec, span_days=12, id=i)  # noqa: E731
+check("consistent mode uses INDEPENDENT pairs only (no shared time interval)",
+      [p.id for p in _disc.independent([P2("20260801", "20260813", "a"), P2("20260801", "20260825", "b"),
+                                         P2("20260813", "20260825", "c"), P2("20260819", "20260831", "d"),
+                                         P2("20260825", "20260906", "e")])] == ["a", "c", "e"])
+_config.DISCOVERIES_MODE = "consistent"
+try:
+    dc = c.get("/discoveries", params={"refresh": True, "exposure": False}).json()
+    dc_cached = c.get("/discoveries").json()
+finally:
+    _config.DISCOVERIES_MODE = ""
+CS = (28.50, -10.50)
+bump_z = [z for z in dc["zones"] if z["track"] == 175 and abs(z["lon"] - (CS[1] + 5 / 98)) < 0.03 and abs(z["lat"] - CS[0]) < 0.03]
+check("consistent discoveries keep the 4-pair signal and reject the single-pair -60 cm artefact of the same geometry",
+      dc["mode"] == "consistent" and len(bump_z) == 1 and bump_z[0]["n_pairs_detected"] == 4 and bump_z[0]["same_sign"]
+      and bump_z[0]["max_single_pair_share"] <= 0.5 and len(bump_z[0]["pairs_detected"]) == 4
+      and not any(z["track"] == 175 and z["lon"] < CS[1] - 0.03 for z in dc["zones"]),
+      [(z["track"], z["lat"], z["lon"], z["n_pairs_detected"]) for z in dc["zones"]])
+check("consistent discoveries: unvalidated candidates only (low, yellow), quality filter and masked-ionosphere setting "
+      "recorded, an oscillating (seasonal) signal is not kept, the cache answers in the same mode",
+      dc["zones"] and all(z["label"] == "unvalidated candidate" and z["confidence"] == "low" and z["alert_level"] == "yellow"
+                          for z in dc["zones"])
+      and bad_ids <= {r["product"] for r in dc["rejected_pairs"]} and dc["rules"]["corrections"] == ["iono"]
+      and dc["rules"]["quality_filter"] is True and not any(z["track"] == 170 for z in dc["zones"])
+      and dc_cached["mode"] == "consistent" and dc_cached["zones"] == dc["zones"])
+check("mock discoveries: consistent-mode shape (mode, rules, per-zone pair counts), never above low / yellow",
+      _mock.DISCOVERIES["mode"] == "consistent" and _mock.DISCOVERIES["rules"]["min_independent_pairs"] == 3
+      and all(z["n_pairs_detected"] >= 3 and z["same_sign"] and z["confidence"] == "low" and z["alert_level"] == "yellow"
+              for z in _mock.DISCOVERIES["zones"]))
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 

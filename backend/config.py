@@ -36,8 +36,13 @@ DATA_GAPS = [("20260727", "20260810")]
 
 # Automatic discoveries are OFF: the zones were not physical (8 to 15 fringes in one 12-day pair). The code is kept.
 DISCOVERIES_ENABLED = os.environ.get("NISAR_DISCOVERIES_ENABLED", "0") == "1"
+# NISAR_DISCOVERIES_MODE=consistent turns on the SAFE mode only: a zone must appear in >= 3 independent pairs of one
+# geometry, with the same sign, not concentrated in one pair, above 3 sigma after smoothing (discoveries.py).
+# Unset (default): discoveries stay off unless NISAR_DISCOVERIES_ENABLED=1 (the old single-pair / velocity mode).
+DISCOVERIES_MODE = os.environ.get("NISAR_DISCOVERIES_MODE", "").strip().lower()
 DISCOVERIES_OFF_REASON = ("Automatic discoveries are disabled: the candidate zones were not physical (several fringes in a "
-                          "single 12-day pair) and are not validated. Set NISAR_DISCOVERIES_ENABLED=1 to run them anyway.")
+                          "single 12-day pair) and are not validated. Set NISAR_DISCOVERIES_MODE=consistent for the safe mode "
+                          "(>= 3 independent pairs, same sign), or NISAR_DISCOVERIES_ENABLED=1 to run the old mode anyway.")
 
 # SME2 soil-moisture retrieval uncertainty (m3/m3), used when the product has no uncertainty layer (median in real files).
 SM_UNCERTAINTY = 0.028
