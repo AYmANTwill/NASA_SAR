@@ -1,0 +1,216 @@
+{
+ "date": "2026-10-10T00:00:00Z",
+ "findings": [
+  {
+   "id": "gcov_hh_asni",
+   "label": {
+    "fr": "Asni, rétrodiffusion GCOV HH, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
+    "en": "Asni, GCOV HH backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
+    "ar": "أسني، تغير التشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+   },
+   "nisar": {
+    "value": 1.131,
+    "uncertainty": 0.469,
+    "unit": "dB",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hv_asni",
+   "label": {
+    "fr": "Asni, rétrodiffusion GCOV HV, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
+    "en": "Asni, GCOV HV backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
+    "ar": "أسني، تغير التشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+   },
+   "nisar": {
+    "value": 0.69,
+    "uncertainty": 0.372,
+    "unit": "dB",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hh_moulay_brahim",
+   "label": {
+    "fr": "Moulay Brahim, rétrodiffusion GCOV HH, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
+    "en": "Moulay Brahim, GCOV HH backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
+    "ar": "مولاي إبراهيم، تغير التشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+   },
+   "nisar": {
+    "value": 1.115,
+    "uncertainty": 0.469,
+    "unit": "dB",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hv_moulay_brahim",
+   "label": {
+    "fr": "Moulay Brahim, rétrodiffusion GCOV HV, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
+    "en": "Moulay Brahim, GCOV HV backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
+    "ar": "مولاي إبراهيم، تغير التشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+   },
+   "nisar": {
+    "value": 0.759,
+    "uncertainty": 0.372,
+    "unit": "dB",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hh_imlil",
+   "label": {
+    "fr": "Imlil, rétrodiffusion GCOV HH, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
+    "en": "Imlil, GCOV HH backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
+    "ar": "إمليل، تغير التشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+   },
+   "nisar": {
+    "value": -0.016,
+    "uncertainty": 0.469,
+    "unit": "dB",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hv_imlil",
+   "label": {
+    "fr": "Imlil, rétrodiffusion GCOV HV, passage du 3 au 15 oct. (piste 44/17), contre le niveau sans événement (± écart-type des cercles aléatoires)",
+    "en": "Imlil, GCOV HV backscatter change, 3 to 15 Oct (track 44/17), against the no-event level (± standard deviation of random circles)",
+    "ar": "إمليل، تغير التشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17)، مقابل مستوى غياب الحدث (± الانحراف المعياري للدوائر العشوائية)"
+   },
+   "nisar": {
+    "value": 0.014,
+    "uncertainty": 0.372,
+    "unit": "dB",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "coherence_excess_asni",
+   "label": {
+    "fr": "Asni, perte de cohérence dans 5 km au-delà de la moyenne de la scène, 3 au 15 oct. (44/17) : cas limite, sans incertitude calculée",
+    "en": "Asni, coherence loss within 5 km beyond the scene mean, 3 to 15 Oct (44/17): borderline, no uncertainty computed",
+    "ar": "أسني، فقدان التماسك ضمن 5 كم فوق متوسط المشهد، 3 إلى 15 أكتوبر (44/17): حالة حدية، دون حساب عدم اليقين"
+   },
+   "nisar": {
+    "value": 0.119,
+    "uncertainty": 0.0,
+    "unit": "coherence",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "sme2_anomaly_asni",
+   "label": {
+    "fr": "Asni, humidité du sol SME2 : écart du dernier passage à la moyenne de 7 passages, dans l'incertitude du produit",
+    "en": "Asni, SME2 soil moisture: latest pass minus the mean of 7 passes, within the product uncertainty",
+    "ar": "أسني، رطوبة التربة SME2: آخر مرور ناقص متوسط 7 مرات مرور، ضمن عدم يقين المنتج"
+   },
+   "nisar": {
+    "value": -0.027,
+    "uncertainty": 0.028,
+    "unit": "m3/m3",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "rain_context_era5",
+   "label": {
+    "fr": "Contexte seulement : pluie 3 au 15 oct., réanalyse ERA5 via Open-Meteo, une seule maille ; pas une mesure locale",
+    "en": "Context only: rain 3 to 15 Oct, ERA5 reanalysis via Open-Meteo, one grid cell; not a local measurement",
+    "ar": "للسياق فقط: أمطار من 3 إلى 15 أكتوبر، إعادة تحليل ERA5 عبر Open-Meteo، خلية شبكية واحدة؛ ليست قياسا محليا"
+   },
+   "nisar": {
+    "value": 37.9,
+    "uncertainty": 0.0,
+    "unit": "mm",
+    "sigma": 1
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  }
+ ],
+ "figures": [
+  {
+   "id": "gcov_logratio_asni",
+   "kind": "image",
+   "title": {
+    "fr": "Rapport logarithmique GCOV autour d'Asni, 3 au 15 oct.",
+    "en": "GCOV log-ratio around Asni, 3 to 15 Oct",
+    "ar": "النسبة اللوغاريتمية GCOV حول أسني، 3 إلى 15 أكتوبر"
+   },
+   "file": "gcov_logratio_asni_storm.png",
+   "caption": {
+    "template": "backend.case_caption",
+    "params": {},
+    "text": {
+     "fr": "Brouillon : carte du log-rapport (dB) calculé sur la puissance linéaire, pas une carte d'inondation.",
+     "en": "Draft: log-ratio map (dB) computed on linear power; not a flood map.",
+     "ar": "مسودة: خريطة النسبة اللوغاريتمية (dB) محسوبة على القدرة الخطية؛ ليست خريطة فيضان."
+    }
+   }
+  }
+ ],
+ "limits": [
+  {
+   "fr": "Aucune passe GCOV n'a lieu dans les 3 jours après le 10 oct. La plus proche est le 13 oct. (piste 23/73, descendante) sans passe de référence : « non utilisable ». La première passe utilisable est le 15 oct. (44/17).",
+   "en": "No GCOV pass falls within 3 days after 10 Oct. The nearest is 13 Oct (track 23/73, descending) with no baseline: not usable. The first usable pass is 15 Oct (44/17).",
+   "ar": "لا يوجد مرور GCOV خلال 3 أيام بعد 10 أكتوبر. أقرب مرور هو 13 أكتوبر (المسار 23/73، تنازلي) دون خط أساس: غير صالح للاستخدام. أول مرور صالح هو 15 أكتوبر (44/17)."
+  },
+  {
+   "fr": "Le GCOV et la cohérence utilisent les mêmes passes : ce ne sont pas des indicateurs indépendants. Verdict par site (GCOV, 44/17) : « pas de changement net » à Asni, Moulay Brahim et Imlil (HH et HV mixtes à Asni et Moulay Brahim, proches du seuil).",
+   "en": "GCOV and coherence use the same passes: they are not independent indicators. Verdict per site (GCOV, 44/17): no clear change at Asni, Moulay Brahim and Imlil (HH and HV disagree at Asni and Moulay Brahim, close to the threshold).",
+   "ar": "يستخدم GCOV والتماسك المرورات نفسها: ليسا مؤشرين مستقلين. الحكم لكل موقع (GCOV، 44/17): لا تغير واضح في أسني ومولاي إبراهيم وإمليل (HH وHV متباينان في أسني ومولاي إبراهيم، قرب العتبة)."
+  },
+  {
+   "fr": "Le niveau sans événement vient de 2000 cercles aléatoires d'une seule géométrie (44/17) et d'une seule saison ; aucune surface ni zone inondée n'est estimée : ces données ne mesurent pas une inondation.",
+   "en": "The no-event level comes from 2000 random circles of one geometry (44/17) and one season; no area and no flood extent is estimated: these data do not measure a flood.",
+   "ar": "مستوى غياب الحدث مأخوذ من 2000 دائرة عشوائية لهندسة واحدة (44/17) وموسم واحد؛ لا تقدر أي مساحة ولا امتداد فيضان: هذه البيانات لا تقيس فيضانا."
+  },
+  {
+   "fr": "Produits NISAR provisoires (CRID P05023). L'humidité SME2 n'est calculée qu'à Asni. La pluie ERA5 est une réanalyse sur une maille, donnée comme contexte et non comme test.",
+   "en": "NISAR products are provisional (CRID P05023). SME2 soil moisture is computed at Asni only. ERA5 rain is a one-cell reanalysis given as context, not as a test.",
+   "ar": "منتجات NISAR مؤقتة (CRID P05023). رطوبة التربة SME2 محسوبة في أسني فقط. أمطار ERA5 إعادة تحليل لخلية واحدة، تعطى للسياق لا كاختبار."
+  },
+  {
+   "fr": "Le signe de la ligne de visée n'est pas vérifié ; cette étude n'utilise pas de déplacement.",
+   "en": "The line-of-sight sign is not verified; this case does not use displacement.",
+   "ar": "إشارة خط النظر لم يتم التحقق منها؛ لا تستخدم هذه الحالة الإزاحة."
+  }
+ ],
+ "products": [
+  "GCOV_T044_F017_20260921_20260921",
+  "GCOV_T044_F017_20261003_20261003",
+  "GCOV_T044_F017_20261015_20261015",
+  "GCOV_T023_F073_20261001_20261001",
+  "GCOV_T023_F073_20261013_20261013",
+  "GUNW_T044_F017_20260921_20261003",
+  "GUNW_T044_F017_20261003_20261015",
+  "GUNW_T044_F017_20260909_20260921"
+ ]
+}
