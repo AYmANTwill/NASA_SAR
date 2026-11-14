@@ -2,42 +2,686 @@
  "id": "panama-2026",
  "kind": "earthquake",
  "status": "draft",
- "title": {"fr": "Séisme du Panama, 9 octobre 2026", "en": "Panama earthquake, 9 October 2026", "ar": "زلزال بنما، 9 أكتوبر 2026"},
- "date": "2026-10-09T17:56:06Z",
- "location": {"lat": 7.59, "lon": -80.77, "bbox": [-81.8, 6.8, -79.8, 8.6],
-              "place": {"fr": "Panama", "en": "Panama", "ar": "بنما"}},
- "headline": {"template": "backend.case_draft", "params": {},
-              "text": {"fr": "[BROUILLON] Inversion de la faille à partir des interférogrammes NISAR : en cours.",
-                       "en": "[DRAFT] Fault inversion from the NISAR interferograms: in progress.",
-                       "ar": "[مسودة] انعكاس الصدع انطلاقا من تداخلات NISAR: قيد الإنجاز."}},
+ "title": {
+  "fr": "Séisme du Panama, 9 octobre 2026",
+  "en": "Panama earthquake, 9 October 2026",
+  "ar": "زلزال بنما، 9 أكتوبر 2026"
+ },
+ "date": "2026-10-09T17:56:05Z",
+ "location": {
+  "lat": 7.59,
+  "lon": -80.77,
+  "bbox": [
+   -83.4283,
+   5.3745,
+   -77.7819,
+   10.3628
+  ],
+  "place": {
+   "fr": "Panama",
+   "en": "Panama",
+   "ar": "بنما"
+  }
+ },
+ "headline": {
+  "template": "backend.case_draft",
+  "params": {},
+  "text": {
+   "fr": "[BROUILLON] Inversion de la faille à partir des interférogrammes NISAR : en cours.",
+   "en": "[DRAFT] Fault inversion from the NISAR interferograms: in progress.",
+   "ar": "[مسودة] انعكاس الصدع انطلاقا من تداخلات NISAR: قيد الإنجاز."
+  }
+ },
  "findings": [
-  {"id": "mw", "label": {"fr": "Magnitude de moment", "en": "Moment magnitude", "ar": "قدر العزم"},
-   "nisar": {"value": 0, "uncertainty": 0, "unit": "Mw", "sigma": 1},
-   "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
-   "reference_source": {"name": "USGS us6000u18k (Mww)", "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u18k"},
-   "agreement": "disagree"},
-  {"id": "length", "label": {"fr": "Longueur de rupture", "en": "Rupture length", "ar": "طول التمزق"},
-   "nisar": {"value": 0, "uncertainty": 0, "unit": "km", "sigma": 1},
-   "reference": null, "reference_source": null, "agreement": "no_reference"},
-  {"id": "slip", "label": {"fr": "Glissement moyen", "en": "Mean slip", "ar": "متوسط الانزلاق"},
-   "nisar": {"value": 0, "uncertainty": 0, "unit": "m", "sigma": 1},
-   "reference": null, "reference_source": null, "agreement": "no_reference"},
-  {"id": "top_depth", "label": {"fr": "Profondeur du sommet de la faille", "en": "Fault top depth", "ar": "عمق أعلى الصدع"},
-   "nisar": {"value": 0, "uncertainty": 0, "unit": "km", "sigma": 1},
-   "reference": null, "reference_source": null, "agreement": "no_reference"}
+  {
+   "id": "mw",
+   "label": {
+    "fr": "Magnitude de moment",
+    "en": "Moment magnitude",
+    "ar": "قدر العزم"
+   },
+   "nisar": {
+    "value": 0.0,
+    "uncertainty": 0.0,
+    "unit": "Mw",
+    "sigma": 1.0
+   },
+   "reference": {
+    "value": 7.7,
+    "uncertainty": 0.1,
+    "unit": "Mw",
+    "sigma": 1.0
+   },
+   "reference_source": {
+    "name": "USGS us6000u18k (Mww)",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u18k"
+   },
+   "agreement": "disagree"
+  },
+  {
+   "id": "length",
+   "label": {
+    "fr": "Longueur de rupture",
+    "en": "Rupture length",
+    "ar": "طول التمزق"
+   },
+   "nisar": {
+    "value": 0.0,
+    "uncertainty": 0.0,
+    "unit": "km",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "slip",
+   "label": {
+    "fr": "Glissement moyen",
+    "en": "Mean slip",
+    "ar": "متوسط الانزلاق"
+   },
+   "nisar": {
+    "value": 0.0,
+    "uncertainty": 0.0,
+    "unit": "m",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "top_depth",
+   "label": {
+    "fr": "Profondeur du sommet de la faille",
+    "en": "Fault top depth",
+    "ar": "عمق أعلى الصدع"
+   },
+   "nisar": {
+    "value": 0.0,
+    "uncertainty": 0.0,
+    "unit": "km",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  }
  ],
- "figures": [],
+ "figures": [
+  {
+   "id": "los_T76_20261005_20261017",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 76",
+    "en": "NISAR displacement, track 76",
+    "ar": "إزاحة NISAR، المسار 76"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T76_20261005_20261017.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), ascending, 2026-10-05 → 2026-10-17. Bruit ±2.3 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), ascending, 2026-10-05 → 2026-10-17. Noise ±2.3 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، ascending، 2026-10-05 → 2026-10-17. الضجيج ±2.3 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T76_20261005_20261017",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T76_20261005_20261017.png",
+    "bounds": [
+     -81.82502326081507,
+     7.362774375816697,
+     -78.73425501397708,
+     10.362751305403831
+    ],
+    "unit": "cm",
+    "min": -4.883654594421387,
+    "max": 4.883654594421387,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-10-05",
+     "end": "2026-10-17"
+    },
+    "source": "GUNW_T076_F006_20261005_20261017"
+   }
+  },
+  {
+   "id": "los_T76_20261005_20261017",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 76",
+    "en": "NISAR displacement, track 76",
+    "ar": "إزاحة NISAR، المسار 76"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T76_20261005_20261017.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), ascending, 2026-10-05 → 2026-10-17. Bruit ±0.0 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), ascending, 2026-10-05 → 2026-10-17. Noise ±0.0 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، ascending، 2026-10-05 → 2026-10-17. الضجيج ±0.0 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T76_20261005_20261017",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T76_20261005_20261017.png",
+    "bounds": [
+     -81.34950599410705,
+     5.375876387394481,
+     -78.2766618403152,
+     8.369978909745415
+    ],
+    "unit": "cm",
+    "min": -56.160343170166016,
+    "max": 56.160343170166016,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-10-05",
+     "end": "2026-10-17"
+    },
+    "source": "GUNW_T076_F005_20261005_20261017"
+   }
+  },
+  {
+   "id": "los_T40_20261002_20261014",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 40",
+    "en": "NISAR displacement, track 40",
+    "ar": "إزاحة NISAR، المسار 40"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T40_20261002_20261014.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), descending, 2026-10-02 → 2026-10-14. Bruit ±39.5 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), descending, 2026-10-02 → 2026-10-14. Noise ±39.5 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، descending، 2026-10-02 → 2026-10-14. الضجيج ±39.5 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T40_20261002_20261014",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T40_20261002_20261014.png",
+    "bounds": [
+     -81.32334246825722,
+     5.382076301598085,
+     -78.26354510019455,
+     8.363466362104152
+    ],
+    "unit": "cm",
+    "min": -79.41312408447266,
+    "max": 79.41312408447266,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-10-02",
+     "end": "2026-10-14"
+    },
+    "source": "GUNW_T040_F085_20261002_20261014"
+   }
+  },
+  {
+   "id": "los_T40_20261002_20261014",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 40",
+    "en": "NISAR displacement, track 40",
+    "ar": "إزاحة NISAR، المسار 40"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T40_20261002_20261014.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), descending, 2026-10-02 → 2026-10-14. Bruit ±47.6 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), descending, 2026-10-02 → 2026-10-14. Noise ±47.6 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، descending، 2026-10-02 → 2026-10-14. الضجيج ±47.6 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T40_20261002_20261014",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T40_20261002_20261014.png",
+    "bounds": [
+     -80.86589462119588,
+     7.363653719291856,
+     -77.78394622933071,
+     10.362722948649077
+    ],
+    "unit": "cm",
+    "min": -93.42378234863281,
+    "max": 93.42378234863281,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-10-02",
+     "end": "2026-10-14"
+    },
+    "source": "GUNW_T040_F084_20261002_20261014"
+   }
+  },
+  {
+   "id": "los_T4_20260930_20261012",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 4",
+    "en": "NISAR displacement, track 4",
+    "ar": "إزاحة NISAR، المسار 4"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T4_20260930_20261012.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), ascending, 2026-09-30 → 2026-10-12. Bruit ±15.5 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), ascending, 2026-09-30 → 2026-10-12. Noise ±15.5 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، ascending، 2026-09-30 → 2026-10-12. الضجيج ±15.5 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T4_20260930_20261012",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T4_20260930_20261012.png",
+    "bounds": [
+     -83.42833073091184,
+     5.3760550256618735,
+     -80.36824210183258,
+     8.363466549800501
+    ],
+    "unit": "cm",
+    "min": -17.883716583251953,
+    "max": 17.883716583251953,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-09-30",
+     "end": "2026-10-12"
+    },
+    "source": "GUNW_T004_F005_20260930_20261012"
+   }
+  },
+  {
+   "id": "los_T141_20260927_20261009",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 141",
+    "en": "NISAR displacement, track 141",
+    "ar": "إزاحة NISAR، المسار 141"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T141_20260927_20261009.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), descending, 2026-09-27 → 2026-10-09. Bruit ±73.5 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), descending, 2026-09-27 → 2026-10-09. Noise ±73.5 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، descending، 2026-09-27 → 2026-10-09. الضجيج ±73.5 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T141_20260927_20261009",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T141_20260927_20261009.png",
+    "bounds": [
+     -83.41530370807008,
+     5.37618566005759,
+     -80.34867801662061,
+     8.369978991335135
+    ],
+    "unit": "cm",
+    "min": -226.51422119140625,
+    "max": 226.51422119140625,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-09-27",
+     "end": "2026-10-09"
+    },
+    "source": "GUNW_T141_F085_20260927_20261009"
+   }
+  },
+  {
+   "id": "los_T141_20260927_20261009",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 141",
+    "en": "NISAR displacement, track 141",
+    "ar": "إزاحة NISAR، المسار 141"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T141_20260927_20261009.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), descending, 2026-09-27 → 2026-10-09. Bruit ±37.4 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), descending, 2026-09-27 → 2026-10-09. Noise ±37.4 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، descending، 2026-09-27 → 2026-10-09. الضجيج ±37.4 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T141_20260927_20261009",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T141_20260927_20261009.png",
+    "bounds": [
+     -83.41530370807008,
+     5.37618566005759,
+     -80.34867801662061,
+     8.369978991335135
+    ],
+    "unit": "cm",
+    "min": -265.05487060546875,
+    "max": 265.05487060546875,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-09-27",
+     "end": "2026-10-09"
+    },
+    "source": "GUNW_T141_F085_20260927_20261009"
+   }
+  },
+  {
+   "id": "los_T141_20260927_20261009",
+   "kind": "map",
+   "title": {
+    "fr": "Déplacement NISAR, trace 141",
+    "en": "NISAR displacement, track 141",
+    "ar": "إزاحة NISAR، المسار 141"
+   },
+   "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T141_20260927_20261009.png",
+   "caption": {
+    "template": "backend.case_map_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée (cm), descending, 2026-09-27 → 2026-10-09. Bruit ±45.0 cm. no correction applied.",
+     "en": "Line-of-sight displacement (cm), descending, 2026-09-27 → 2026-10-09. Noise ±45.0 cm. no correction applied.",
+     "ar": "الإزاحة في خط النظر (سم)، descending، 2026-09-27 → 2026-10-09. الضجيج ±45.0 سم. no correction applied."
+    }
+   },
+   "layer": {
+    "id": "case_panama-2026_los_T141_20260927_20261009",
+    "kind": "displacement",
+    "url": "/api/cases/panama-2026/figures/case_panama-2026_los_T141_20260927_20261009.png",
+    "bounds": [
+     -82.95590872124444,
+     7.363142330115931,
+     -79.87147813345607,
+     10.362751076740128
+    ],
+    "unit": "cm",
+    "min": -95.95258331298828,
+    "max": 95.95258331298828,
+    "palette": "diverging_displacement",
+    "sign_convention": "positive_toward_satellite",
+    "period": {
+     "start": "2026-09-27",
+     "end": "2026-10-09"
+    },
+    "source": "GUNW_T141_F084_20260927_20261009"
+   }
+  },
+  {
+   "id": "fault_fit",
+   "kind": "image",
+   "title": {
+    "fr": "Données, modèle et résidu",
+    "en": "Data, model and residual",
+    "ar": "البيانات والنموذج والبواقي"
+   },
+   "url": "/api/cases/panama-2026/figures/panama-2026_fit.png",
+   "caption": {
+    "template": "backend.fault_fit_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée observé, modèle de faille d'Okada et résidu.",
+     "en": "Observed line-of-sight displacement, Okada fault model and residual.",
+     "ar": "الإزاحة المرصودة في خط النظر ونموذج صدع أوكادا والبواقي."
+    }
+   }
+  }
+ ],
  "exposure": null,
  "timeline": [
-  {"label": {"fr": "Séisme (USGS)", "en": "Earthquake (USGS)", "ar": "الزلزال (USGS)"}, "at": "2026-10-09T17:56:06Z"}
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T4 asc.)",
+    "en": "NISAR acquisition (T4 asc.)",
+    "ar": "التقاط NISAR (T4 asc.)"
+   },
+   "at": "2026-09-30T11:04:20Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T40 des.)",
+    "en": "NISAR acquisition (T40 des.)",
+    "ar": "التقاط NISAR (T40 des.)"
+   },
+   "at": "2026-10-02T23:44:44Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T40 des.)",
+    "en": "NISAR acquisition (T40 des.)",
+    "ar": "التقاط NISAR (T40 des.)"
+   },
+   "at": "2026-10-02T23:45:16Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T76 asc.)",
+    "en": "NISAR acquisition (T76 asc.)",
+    "ar": "التقاط NISAR (T76 asc.)"
+   },
+   "at": "2026-10-05T10:56:04Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T76 asc.)",
+    "en": "NISAR acquisition (T76 asc.)",
+    "ar": "التقاط NISAR (T76 asc.)"
+   },
+   "at": "2026-10-05T10:56:32Z"
+  },
+  {
+   "label": {
+    "fr": "Séisme (USGS)",
+    "en": "Earthquake (USGS)",
+    "ar": "الزلزال (USGS)"
+   },
+   "at": "2026-10-09T17:56:05Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T141 des.)",
+    "en": "NISAR acquisition (T141 des.)",
+    "ar": "التقاط NISAR (T141 des.)"
+   },
+   "at": "2026-10-09T23:53:08Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T141 des.)",
+    "en": "NISAR acquisition (T141 des.)",
+    "ar": "التقاط NISAR (T141 des.)"
+   },
+   "at": "2026-10-09T23:53:35Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T141)",
+    "en": "Published by ASF (T141)",
+    "ar": "نشر من طرف ASF (T141)"
+   },
+   "at": "2026-10-12T02:56:52Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T141)",
+    "en": "Published by ASF (T141)",
+    "ar": "نشر من طرف ASF (T141)"
+   },
+   "at": "2026-10-12T03:13:06Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T141)",
+    "en": "Published by ASF (T141)",
+    "ar": "نشر من طرف ASF (T141)"
+   },
+   "at": "2026-10-12T04:55:41Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T4 asc.)",
+    "en": "NISAR acquisition (T4 asc.)",
+    "ar": "التقاط NISAR (T4 asc.)"
+   },
+   "at": "2026-10-12T11:04:20Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T4)",
+    "en": "Published by ASF (T4)",
+    "ar": "نشر من طرف ASF (T4)"
+   },
+   "at": "2026-10-14T07:25:50Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T40 des.)",
+    "en": "NISAR acquisition (T40 des.)",
+    "ar": "التقاط NISAR (T40 des.)"
+   },
+   "at": "2026-10-14T23:44:44Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T40 des.)",
+    "en": "NISAR acquisition (T40 des.)",
+    "ar": "التقاط NISAR (T40 des.)"
+   },
+   "at": "2026-10-14T23:45:16Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T40)",
+    "en": "Published by ASF (T40)",
+    "ar": "نشر من طرف ASF (T40)"
+   },
+   "at": "2026-10-16T22:23:34Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T40)",
+    "en": "Published by ASF (T40)",
+    "ar": "نشر من طرف ASF (T40)"
+   },
+   "at": "2026-10-16T23:48:42Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T76 asc.)",
+    "en": "NISAR acquisition (T76 asc.)",
+    "ar": "التقاط NISAR (T76 asc.)"
+   },
+   "at": "2026-10-17T10:56:04Z"
+  },
+  {
+   "label": {
+    "fr": "Acquisition NISAR (T76 asc.)",
+    "en": "NISAR acquisition (T76 asc.)",
+    "ar": "التقاط NISAR (T76 asc.)"
+   },
+   "at": "2026-10-17T10:56:32Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T76)",
+    "en": "Published by ASF (T76)",
+    "ar": "نشر من طرف ASF (T76)"
+   },
+   "at": "2026-10-19T07:13:22Z"
+  },
+  {
+   "label": {
+    "fr": "Publié par l'ASF (T76)",
+    "en": "Published by ASF (T76)",
+    "ar": "نشر من طرف ASF (T76)"
+   },
+   "at": "2026-10-19T09:34:57Z"
+  }
  ],
  "answer_ids": [],
  "limits": [
-  {"template": "backend.case_draft_limit", "params": {},
-   "text": {"fr": "Brouillon : les valeurs NISAR sont des espaces réservés (0), pas des mesures.",
-            "en": "Draft: the NISAR values are placeholders (0), not measurements.",
-            "ar": "مسودة: قيم NISAR مجرد قيم مؤقتة (0) وليست قياسات."}}
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Glissement uniforme sur un seul rectangle : la vraie rupture est hétérogène ; longueur, largeur et glissement se compensent, la magnitude est mieux contrainte que chacun d'eux.",
+    "en": "Uniform slip on a single rectangle: the real rupture is heterogeneous; length, width and slip trade off, the magnitude is better constrained than each of them.",
+    "ar": "انزلاق منتظم على مستطيل واحد: التمزق الحقيقي غير متجانس؛ الطول والعرض والانزلاق يعوض بعضها بعضا، والقدر أفضل تقييدا من كل منها."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Incertitudes par Monte-Carlo avec le bruit corrélé mesuré sur une paire avant le séisme (variogramme). Elles n'incluent pas l'erreur de modèle (glissement uniforme, module de cisaillement de 30 GPa).",
+    "en": "Uncertainties by Monte Carlo with the correlated noise measured on a pre-event pair (variogram). They do not include the model error (uniform slip, 30 GPa shear modulus).",
+    "ar": "الشكوك بطريقة مونت كارلو مع الضجيج المترابط المقاس على زوج قبل الزلزال (مخطط التباين). لا تشمل خطأ النموذج (انزلاق منتظم، معامل قص 30 جيغاباسكال)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Direction de visée moyenne par trace : l'incidence varie le long de la fauchée.",
+    "en": "One mean line-of-sight direction per track: the incidence angle varies across the swath.",
+    "ar": "اتجاه نظر متوسط لكل مسار: تتغير زاوية السقوط عبر عرض المسح."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Le signe de la ligne de visée n'est pas encore vérifié (NISAR_LOS_SIGN_VERIFIED).",
+    "en": "The line-of-sight sign is not verified yet (NISAR_LOS_SIGN_VERIFIED).",
+    "ar": "لم يتم التحقق بعد من إشارة خط النظر (NISAR_LOS_SIGN_VERIFIED)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Signe de la ligne de visée non tranché par les données (k > 0 at 3σ on 6/7 tracks, k < 0 on 0/7; variance reduction 0.82 (+1) vs 0.82 (−1)) ; convention documentée de NISAR utilisée.",
+    "en": "Line-of-sight sign not settled by the data (k > 0 at 3σ on 6/7 tracks, k < 0 on 0/7; variance reduction 0.82 (+1) vs 0.82 (−1)); the documented NISAR convention is used.",
+    "ar": "لم تحسم البيانات إشارة خط النظر (k > 0 at 3σ on 6/7 tracks, k < 0 on 0/7; variance reduction 0.82 (+1) vs 0.82 (−1))؛ استُخدم الاصطلاح الموثق لـ NISAR."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Magnitude non estimée : l'inversion n'est pas stable (parameters at a search bound: top_depth_km, slip_m).",
+    "en": "Magnitude not estimated: the inversion is not stable (parameters at a search bound: top_depth_km, slip_m).",
+    "ar": "لم يتم تقدير القدر: الانعكاس غير مستقر (parameters at a search bound: top_depth_km, slip_m)."
+   }
+  }
  ],
- "placeholders": ["location.bbox", "findings[mw].nisar", "findings[length].nisar", "findings[slip].nisar",
-                  "findings[top_depth].nisar", "headline", "limits"]
+ "placeholders": [
+  "exposure: cases/out/panama-2026_exposure.json not available",
+  "fault inversion not stable: magnitude not estimated",
+  "headline: no finding to report"
+ ]
 }
