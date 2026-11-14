@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch)",
+      "Bash(git branch --show-current)",
+      "Bash(git grep *)",
+      "Bash(git ls-files *)",
+      "Bash(git rev-parse *)",
+      "Bash(python tests/test_all.py)",
+      "Bash(python backend/tests/test_all.py)"
+    ],
+    "ask": [
+      "Bash(git add *)",
+      "Bash(git restore *)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git stash *)",
+      "Bash(git branch *)",
+      "Bash(git reset *)",
+      "Bash(python download_all.py *)",
+      "Bash(python precompute.py *)",
+      "Bash(python backend/precompute.py *)",
+      "Bash(pip install *)",
+      "Bash(python -m pip install *)"
+    ],
+    "deny": [
+      "Bash(git commit)",
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git revert *)",
+      "Bash(git pull)",
+      "Bash(git pull *)",
+      "Bash(git tag *)",
+      "Bash(git am *)",
+      "Bash(git clean *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr create *)",
+      "Bash(python download_all.py build-plan*)",
+      "Bash(rm -rf *)",
+      "Read(./.earthdata_token)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Edit(./plan_nisar.json)",
+      "Write(./plan_nisar.json)",
+      "Edit(./data/**)",
+      "Write(./data/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_git.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,351 @@
+{
+ "question": "Quelle est l'humidité du sol dans le Gharb ?",
+ "lang": "fr",
+ "type": "soil_moisture",
+ "place": {
+  "lat": 34.5,
+  "lon": -6.0,
+  "name": null
+ },
+ "event_time": null,
+ "data_used": [
+  "SME2_T116_F019_20261020_20261020",
+  "SME2_T095_F071_20261018_20261018",
+  "SME2_T023_F071_20261013_20261013",
+  "SME2_T015_F019_20261013_20261013",
+  "SME2_T116_F019_20261008_20261008",
+  "SME2_T095_F071_20261006_20261006",
+  "SME2_T023_F071_20261001_20261001",
+  "SME2_T015_F019_20261001_20261001",
+  "SME2_T116_F019_20260926_20260926",
+  "SME2_T095_F071_20260924_20260924"
+ ],
+ "layers": [
+  {
+   "url": "/layers/sm_SME2_T116_F019_20261020_20261020.png",
+   "bounds": [
+    [
+     32.95824252218211,
+     -8.589211962655387
+    ],
+    [
+     36.28861666877263,
+     -4.480809006182882
+    ]
+   ],
+   "vmin": 0.0,
+   "vmax": 0.5,
+   "cmap": "YlGnBu",
+   "title": "Soil moisture (m³/m³), 20261020"
+  }
+ ],
+ "evidence": [
+  {
+   "source": "Open-Meteo",
+   "status": "none",
+   "summary": "34.6 mm of rain between 2026-09-20 and 2026-10-20 (max 11.4 mm on 2026-10-19)",
+   "total_mm": 34.6,
+   "items": [
+    {
+     "date": "2026-09-20",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-21",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-22",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-23",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-24",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-25",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-26",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-27",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-28",
+     "mm": 3.8
+    },
+    {
+     "date": "2026-09-29",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-30",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-01",
+     "mm": 0.1
+    },
+    {
+     "date": "2026-10-02",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-03",
+     "mm": 0.1
+    },
+    {
+     "date": "2026-10-04",
+     "mm": 0.4
+    },
+    {
+     "date": "2026-10-05",
+     "mm": 1.5
+    },
+    {
+     "date": "2026-10-06",
+     "mm": 6.0
+    },
+    {
+     "date": "2026-10-07",
+     "mm": 0.2
+    },
+    {
+     "date": "2026-10-08",
+     "mm": 0.1
+    },
+    {
+     "date": "2026-10-09",
+     "mm": 1.1
+    },
+    {
+     "date": "2026-10-10",
+     "mm": 0.2
+    },
+    {
+     "date": "2026-10-11",
+     "mm": 0.1
+    },
+    {
+     "date": "2026-10-12",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-13",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-14",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-15",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-16",
+     "mm": 0.6
+    },
+    {
+     "date": "2026-10-17",
+     "mm": 0.1
+    },
+    {
+     "date": "2026-10-18",
+     "mm": 8.9
+    },
+    {
+     "date": "2026-10-19",
+     "mm": 11.4
+    },
+    {
+     "date": "2026-10-20",
+     "mm": 0.0
+    }
+   ]
+  },
+  {
+   "source": "OpenStreetMap",
+   "status": "unavailable",
+   "summary": "OpenStreetMap unreachable (406 Client Error: Not Acceptable for url: https://overpass-api.de/api/interpreter)",
+   "items": []
+  }
+ ],
+ "steps": [
+  {
+   "step": "question type: soil_moisture",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "step": "NISAR soil moisture (SME2)",
+   "ok": true,
+   "ms": 2210
+  },
+  {
+   "step": "rain in the 30 days before",
+   "ok": true,
+   "ms": 761
+  },
+  {
+   "step": "what is exposed (OpenStreetMap)",
+   "ok": true,
+   "ms": 290
+  }
+ ],
+ "verdict": "Humidité du sol le 20/10/2026 : 0.219 m³/m³ (+0.025 par rapport à la moyenne de 6 passages). Cet écart est dans l'incertitude du produit (0.028) : il ne montre pas de changement réel.",
+ "confidence": "low",
+ "confidence_reasons": [
+  "the change from the mean of the passes (0.025 m³/m³) is within the product's uncertainty (0.028)",
+  "NISAR Level-3 product, provisional calibration: never above medium",
+  "the baseline is the mean of passes from several tracks and dates, not one geometry",
+  "the retrieval quality flag is not used"
+ ],
+ "alert_level": "none",
+ "facts": {
+  "latest_date": "20261020",
+  "latest_m3m3": 0.219,
+  "mean_m3m3": 0.194,
+  "anomaly_m3m3": 0.025,
+  "uncertainty_m3m3": 0.028,
+  "within_uncertainty": true,
+  "n_passes": 6,
+  "series": [
+   {
+    "date": "20260924",
+    "value": 0.169,
+    "track": 95
+   },
+   {
+    "date": "20260926",
+    "value": 0.182,
+    "track": 116
+   },
+   {
+    "date": "20261001",
+    "value": null,
+    "track": 15
+   },
+   {
+    "date": "20261001",
+    "value": null,
+    "track": 23
+   },
+   {
+    "date": "20261006",
+    "value": 0.196,
+    "track": 95
+   },
+   {
+    "date": "20261008",
+    "value": 0.214,
+    "track": 116
+   },
+   {
+    "date": "20261013",
+    "value": null,
+    "track": 15
+   },
+   {
+    "date": "20261013",
+    "value": null,
+    "track": 23
+   },
+   {
+    "date": "20261018",
+    "value": 0.183,
+    "track": 95
+   },
+   {
+    "date": "20261020",
+    "value": 0.219,
+    "track": 116
+   }
+  ],
+  "dataset": "science/LSAR/SME2/grids/soilMoisture",
+  "layer": {
+   "url": "/layers/sm_SME2_T116_F019_20261020_20261020.png",
+   "bounds": [
+    [
+     32.95824252218211,
+     -8.589211962655387
+    ],
+    [
+     36.28861666877263,
+     -4.480809006182882
+    ]
+   ],
+   "vmin": 0.0,
+   "vmax": 0.5,
+   "cmap": "YlGnBu",
+   "title": "Soil moisture (m³/m³), 20261020"
+  }
+ },
+ "cannot_say": "Valeur moyenne des premiers centimètres du sol sur une maille de plusieurs centaines de mètres.",
+ "series": [
+  {
+   "date": "20260924",
+   "value": 0.169,
+   "track": 95
+  },
+  {
+   "date": "20260926",
+   "value": 0.182,
+   "track": 116
+  },
+  {
+   "date": "20261001",
+   "value": null,
+   "track": 15
+  },
+  {
+   "date": "20261001",
+   "value": null,
+   "track": 23
+  },
+  {
+   "date": "20261006",
+   "value": 0.196,
+   "track": 95
+  },
+  {
+   "date": "20261008",
+   "value": 0.214,
+   "track": 116
+  },
+  {
+   "date": "20261013",
+   "value": null,
+   "track": 15
+  },
+  {
+   "date": "20261013",
+   "value": null,
+   "track": 23
+  },
+  {
+   "date": "20261018",
+   "value": 0.183,
+   "track": 95
+  },
+  {
+   "date": "20261020",
+   "value": 0.219,
+   "track": 116
+  }
+ ],
+ "profile": null,
+ "event": {
+  "id": "gharb-soil-moisture",
+  "title": "Humidité du sol, plaine du Gharb"
+ },
+ "status": "ready"
+}

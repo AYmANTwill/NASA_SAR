@@ -1,0 +1,387 @@
+{
+ "question": "Le sol a-t-il changé à Asni lors de la crue éclair du 10 octobre 2026 ?",
+ "lang": "fr",
+ "type": "surface_change",
+ "place": {
+  "lat": 31.25,
+  "lon": -7.983,
+  "name": null
+ },
+ "event_time": {
+  "utc": "20261010T000000",
+  "precision": "day"
+ },
+ "data_used": [
+  "GUNW_T095_F073_20261006_20261018",
+  "GUNW_T044_F018_20261003_20261015",
+  "GUNW_T044_F017_20261003_20261015",
+  "GUNW_T023_F073_20261001_20261013",
+  "GUNW_T023_F072_20261001_20261013",
+  "GUNW_T095_F073_20260924_20261006",
+  "GUNW_T044_F018_20260921_20261003",
+  "GUNW_T044_F017_20260921_20261003",
+  "GUNW_T023_F073_20260919_20261001",
+  "GUNW_T023_F072_20260919_20261001",
+  "GUNW_T044_F018_20260909_20260921",
+  "GUNW_T044_F017_20260909_20260921",
+  "GUNW_T023_F073_20260907_20260919",
+  "GUNW_T023_F072_20260907_20260919",
+  "GUNW_T044_F018_20260828_20260909",
+  "GUNW_T044_F017_20260828_20260909",
+  "GUNW_T023_F073_20260826_20260907",
+  "GUNW_T023_F072_20260826_20260907",
+  "GUNW_T044_F018_20260816_20260828",
+  "GUNW_T044_F017_20260816_20260828",
+  "GUNW_T023_F073_20260814_20260826",
+  "GUNW_T023_F072_20260814_20260826",
+  "GUNW_T044_F018_20260723_20260816",
+  "GUNW_T044_F017_20260723_20260816",
+  "GUNW_T023_F073_20260721_20260814",
+  "GUNW_T023_F072_20260721_20260814",
+  "GUNW_T044_F018_20260711_20260723",
+  "GUNW_T044_F017_20260711_20260723",
+  "GUNW_T023_F073_20260709_20260721",
+  "GUNW_T023_F072_20260709_20260721"
+ ],
+ "layers": [
+  {
+   "url": "/layers/sc_GUNW_T044_F017_20261003_20261015.png",
+   "bounds": [
+    [
+     29.1074574892324,
+     -9.102778422622585
+    ],
+    [
+     32.26455186874061,
+     -5.383079595514234
+    ]
+   ],
+   "vmin": 0.1,
+   "vmax": 0.8,
+   "cmap": "inferno",
+   "title": "Surface change (coherence loss), 20261003→20261015"
+  }
+ ],
+ "evidence": [
+  {
+   "source": "Open-Meteo",
+   "status": "none",
+   "summary": "37.9 mm of rain between 2026-10-03 and 2026-10-15 (max 13.4 mm on 2026-10-09)",
+   "total_mm": 37.9,
+   "items": [
+    {
+     "date": "2026-10-03",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-04",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-05",
+     "mm": 1.5
+    },
+    {
+     "date": "2026-10-06",
+     "mm": 1.1
+    },
+    {
+     "date": "2026-10-07",
+     "mm": 5.5
+    },
+    {
+     "date": "2026-10-08",
+     "mm": 7.8
+    },
+    {
+     "date": "2026-10-09",
+     "mm": 13.4
+    },
+    {
+     "date": "2026-10-10",
+     "mm": 8.1
+    },
+    {
+     "date": "2026-10-11",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-12",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-13",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-14",
+     "mm": 0.5
+    },
+    {
+     "date": "2026-10-15",
+     "mm": 0.0
+    }
+   ]
+  },
+  {
+   "source": "OpenStreetMap",
+   "status": "unavailable",
+   "summary": "OpenStreetMap unreachable (406 Client Error: Not Acceptable for url: https://overpass-api.de/api/interpreter)",
+   "items": []
+  }
+ ],
+ "steps": [
+  {
+   "step": "question type: surface_change",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "step": "found 36 interferograms covering the point",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "step": "surface change (coherence loss)",
+   "ok": true,
+   "ms": 3306
+  },
+  {
+   "step": "rain over the change window (context only)",
+   "ok": true,
+   "ms": 411
+  },
+  {
+   "step": "what is exposed (OpenStreetMap)",
+   "ok": true,
+   "ms": 395
+  }
+ ],
+ "verdict": "Entre le 03/10/2026 et le 15/10/2026 (12 jours, fenêtre qui contient l'événement du 10/10/2026) (produit NISAR provisoire) : la cohérence radar dans un rayon de 5 km a baissé de 0.15 en moyenne, soit 0.12 de plus que la moyenne de toute la scène (0.03) : cas limite, cet excès est juste au-dessus du niveau 0.11 que 1 % des cercles sans événement dépassent, mais sous 0.15 ; 2.69 km² ont perdu plus de 0.3 (0.04 km² dans la paire précédente). Cela ne suffit pas pour dire que la surface a changé, et aucune cause ne peut être donnée. La référence « sans événement » vient d'une seule géométrie de visée, d'une seule saison et de cercles placés au hasard dans la scène.",
+ "confidence": "low",
+ "confidence_reasons": [
+  "mean coherence loss within 5 km 0.147 against 0.028 for the whole frame (excess 0.119; borderline from 0.11, local excess from 0.15)",
+  "100% of the 5 km circle holds valid data, 99% of it was coherent before the event",
+  "2.69 km² above the 0.3 loss, 0.04 km² in the previous pair",
+  "just above the level that 1% of no-event circles exceed: not a detection",
+  "the no-event reference is one viewing geometry (044/17), one season (June to September 2026), circles placed at random anywhere in the frame: its level is approximate",
+  "coherence loss says the surface changed, not why; no independent source tests it"
+ ],
+ "alert_level": "yellow",
+ "facts": {
+  "mode": "event",
+  "event_day": "20261010",
+  "event_precision": "day",
+  "pre_pair": "GUNW_T044_F017_20260921_20261003",
+  "co_pair": "GUNW_T044_F017_20261003_20261015",
+  "direction": "ascending",
+  "track": 44,
+  "frame": 17,
+  "crid": "P05023",
+  "maturity": "provisional",
+  "pre_date_before": "20260921",
+  "pre_date_after": "20261003",
+  "date_before": "20261003",
+  "date_after": "20261015",
+  "window_days": 12,
+  "threshold": 0.3,
+  "radius_m": 5000,
+  "excess_margin": 0.11,
+  "excess_strong": 0.15,
+  "null_false_alarm": 0.01,
+  "null_false_alarm_pct": 1,
+  "null_limits": [
+   "one viewing geometry (044/17)",
+   "one season (June to September 2026)",
+   "circles placed at random anywhere in the frame"
+  ],
+  "n_geometries": 5,
+  "n_usable_geometries": 1,
+  "geometries": [
+   {
+    "direction": "descending",
+    "track": 95,
+    "frame": 73,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T095_F073_20260924_20261006",
+    "co_pair": "GUNW_T095_F073_20261006_20261018",
+    "coverage_5km": 0.0,
+    "coherent_before_fraction_5km": 0.0,
+    "usable": false,
+    "reason": "not usable: the 5 km circle is not covered by valid data; no earlier pair of the same length to use as a baseline; less than half of the valid pixels were coherent before the event",
+    "loss_at_point": null,
+    "loss_mean_5km": null,
+    "changed_km2_5km": null,
+    "baseline_pair": null,
+    "baseline_loss_mean": null,
+    "baseline_changed_km2": null,
+    "frame_loss_mean": null,
+    "frame_frac_changed": null,
+    "excess_over_frame": null,
+    "local_excess": null,
+    "baseline_unreliable": null,
+    "pair_coherence_mean": null,
+    "other_pairs_coherence_median": null,
+    "n_other_pairs": null,
+    "excess_level": null
+   },
+   {
+    "direction": "ascending",
+    "track": 44,
+    "frame": 18,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T044_F018_20260921_20261003",
+    "co_pair": "GUNW_T044_F018_20261003_20261015",
+    "coverage_5km": 0.0,
+    "coherent_before_fraction_5km": 0.0,
+    "usable": false,
+    "reason": "not usable: the 5 km circle is not covered by valid data; the baseline pair cannot be measured (less than half of the circle was coherent in it); less than half of the valid pixels were coherent before the event",
+    "loss_at_point": null,
+    "loss_mean_5km": null,
+    "changed_km2_5km": null,
+    "baseline_pair": null,
+    "baseline_loss_mean": null,
+    "baseline_changed_km2": null,
+    "frame_loss_mean": null,
+    "frame_frac_changed": null,
+    "excess_over_frame": null,
+    "local_excess": null,
+    "baseline_unreliable": null,
+    "pair_coherence_mean": null,
+    "other_pairs_coherence_median": null,
+    "n_other_pairs": null,
+    "excess_level": null
+   },
+   {
+    "direction": "ascending",
+    "track": 44,
+    "frame": 17,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T044_F017_20260921_20261003",
+    "co_pair": "GUNW_T044_F017_20261003_20261015",
+    "coverage_5km": 1.0,
+    "coherent_before_fraction_5km": 0.99,
+    "usable": true,
+    "reason": null,
+    "loss_at_point": 0.13,
+    "loss_mean_5km": 0.147,
+    "changed_km2_5km": 2.69,
+    "baseline_pair": "GUNW_T044_F017_20260909_20260921",
+    "baseline_loss_mean": -0.016,
+    "baseline_changed_km2": 0.04,
+    "frame_loss_mean": 0.028,
+    "frame_frac_changed": 0.0073,
+    "excess_over_frame": 0.119,
+    "local_excess": false,
+    "baseline_unreliable": false,
+    "pair_coherence_mean": 0.8,
+    "other_pairs_coherence_median": 0.77,
+    "n_other_pairs": 6,
+    "excess_level": "borderline"
+   },
+   {
+    "direction": "descending",
+    "track": 23,
+    "frame": 73,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T023_F073_20260919_20261001",
+    "co_pair": "GUNW_T023_F073_20261001_20261013",
+    "coverage_5km": 1.0,
+    "coherent_before_fraction_5km": 0.93,
+    "usable": false,
+    "reason": "not usable: the baseline pair cannot be measured (less than half of the circle was coherent in it)",
+    "loss_at_point": null,
+    "loss_mean_5km": null,
+    "changed_km2_5km": null,
+    "baseline_pair": null,
+    "baseline_loss_mean": null,
+    "baseline_changed_km2": null,
+    "frame_loss_mean": null,
+    "frame_frac_changed": null,
+    "excess_over_frame": null,
+    "local_excess": null,
+    "baseline_unreliable": null,
+    "pair_coherence_mean": null,
+    "other_pairs_coherence_median": null,
+    "n_other_pairs": null,
+    "excess_level": null
+   },
+   {
+    "direction": "descending",
+    "track": 23,
+    "frame": 72,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T023_F072_20260919_20261001",
+    "co_pair": "GUNW_T023_F072_20261001_20261013",
+    "coverage_5km": 0.0,
+    "coherent_before_fraction_5km": 0.0,
+    "usable": false,
+    "reason": "not usable: the 5 km circle is not covered by valid data; the baseline pair cannot be measured (less than half of the circle was coherent in it); less than half of the valid pixels were coherent before the event",
+    "loss_at_point": null,
+    "loss_mean_5km": null,
+    "changed_km2_5km": null,
+    "baseline_pair": null,
+    "baseline_loss_mean": null,
+    "baseline_changed_km2": null,
+    "frame_loss_mean": null,
+    "frame_frac_changed": null,
+    "excess_over_frame": null,
+    "local_excess": null,
+    "baseline_unreliable": null,
+    "pair_coherence_mean": null,
+    "other_pairs_coherence_median": null,
+    "n_other_pairs": null,
+    "excess_level": null
+   }
+  ],
+  "geometries_agree": null,
+  "changed_km2_range": [
+   2.69,
+   2.69
+  ],
+  "ambiguous_pairs": [],
+  "layer": {
+   "url": "/layers/sc_GUNW_T044_F017_20261003_20261015.png",
+   "bounds": [
+    [
+     29.1074574892324,
+     -9.102778422622585
+    ],
+    [
+     32.26455186874061,
+     -5.383079595514234
+    ]
+   ],
+   "vmin": 0.1,
+   "vmax": 0.8,
+   "cmap": "inferno",
+   "title": "Surface change (coherence loss), 20261003→20261015"
+  },
+  "coverage_5km": 1.0,
+  "coherent_before_fraction_5km": 0.99,
+  "loss_at_point": 0.13,
+  "loss_mean_5km": 0.147,
+  "changed_km2_5km": 2.69,
+  "baseline_pair": "GUNW_T044_F017_20260909_20260921",
+  "baseline_loss_mean": -0.016,
+  "baseline_changed_km2": 0.04,
+  "frame_loss_mean": 0.028,
+  "frame_frac_changed": 0.0073,
+  "excess_over_frame": 0.119,
+  "local_excess": false,
+  "baseline_unreliable": false,
+  "pair_coherence_mean": 0.8,
+  "other_pairs_coherence_median": 0.77,
+  "n_other_pairs": 6,
+  "excess_level": "borderline",
+  "routed_from": null
+ },
+ "cannot_say": "Une perte de cohérence montre que la surface a changé, pas pourquoi : eau, boue, éboulement, travaux ou végétation. Ce n'est ni une mesure de dégâts, ni de hauteur ou de durée d'inondation ; la fenêtre dure plusieurs jours.",
+ "series": null,
+ "profile": null,
+ "event": {
+  "id": "haouz-flood-2026-10-10",
+  "title": "Crue éclair d'Al Haouz, 10 octobre 2026 (Asni)"
+ },
+ "status": "ready"
+}

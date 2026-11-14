@@ -1,0 +1,409 @@
+{
+ "question": "Quelle est l'humidité du sol à Asni ?",
+ "lang": "fr",
+ "type": "soil_moisture",
+ "place": {
+  "lat": 31.25,
+  "lon": -7.983,
+  "name": null
+ },
+ "event_time": {
+  "utc": "20261010T000000",
+  "precision": "day"
+ },
+ "data_used": [
+  "SME2_T095_F073_20261018_20261018",
+  "SME2_T044_F018_20261015_20261015",
+  "SME2_T044_F017_20261015_20261015",
+  "SME2_T023_F073_20261013_20261013",
+  "SME2_T023_F073_20261013_20261013",
+  "SME2_T023_F072_20261013_20261013",
+  "SME2_T095_F073_20261006_20261006",
+  "SME2_T044_F018_20261003_20261003",
+  "SME2_T044_F017_20261003_20261003",
+  "SME2_T023_F073_20261001_20261001",
+  "SME2_T023_F073_20261001_20261001",
+  "SME2_T023_F072_20261001_20261001",
+  "SME2_T095_F073_20260924_20260924",
+  "SME2_T044_F018_20260921_20260921",
+  "SME2_T044_F017_20260921_20260921"
+ ],
+ "layers": [
+  {
+   "url": "/layers/sm_SME2_T095_F073_20261018_20261018.png",
+   "bounds": [
+    [
+     29.09761650599211,
+     -8.495850966804772
+    ],
+    [
+     32.288076437648144,
+     -4.761589159453161
+    ]
+   ],
+   "vmin": 0.0,
+   "vmax": 0.5,
+   "cmap": "YlGnBu",
+   "title": "Soil moisture (m³/m³), 20261018"
+  }
+ ],
+ "evidence": [
+  {
+   "source": "Open-Meteo",
+   "status": "agrees",
+   "summary": "59.7 mm of rain between 2026-09-18 and 2026-10-18 (max 13.4 mm on 2026-10-09)",
+   "total_mm": 59.7,
+   "items": [
+    {
+     "date": "2026-09-18",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-19",
+     "mm": 0.7
+    },
+    {
+     "date": "2026-09-20",
+     "mm": 0.1
+    },
+    {
+     "date": "2026-09-21",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-22",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-23",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-24",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-25",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-26",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-27",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-09-28",
+     "mm": 6.9
+    },
+    {
+     "date": "2026-09-29",
+     "mm": 0.3
+    },
+    {
+     "date": "2026-09-30",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-01",
+     "mm": 0.7
+    },
+    {
+     "date": "2026-10-02",
+     "mm": 1.8
+    },
+    {
+     "date": "2026-10-03",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-04",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-05",
+     "mm": 1.5
+    },
+    {
+     "date": "2026-10-06",
+     "mm": 1.1
+    },
+    {
+     "date": "2026-10-07",
+     "mm": 5.5
+    },
+    {
+     "date": "2026-10-08",
+     "mm": 7.8
+    },
+    {
+     "date": "2026-10-09",
+     "mm": 13.4
+    },
+    {
+     "date": "2026-10-10",
+     "mm": 8.1
+    },
+    {
+     "date": "2026-10-11",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-12",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-13",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-14",
+     "mm": 0.5
+    },
+    {
+     "date": "2026-10-15",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-16",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-17",
+     "mm": 5.1
+    },
+    {
+     "date": "2026-10-18",
+     "mm": 6.2
+    }
+   ]
+  },
+  {
+   "source": "OpenStreetMap",
+   "status": "unavailable",
+   "summary": "OpenStreetMap unreachable (406 Client Error: Not Acceptable for url: https://overpass-api.de/api/interpreter)",
+   "items": []
+  }
+ ],
+ "steps": [
+  {
+   "step": "question type: soil_moisture",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "step": "NISAR soil moisture (SME2)",
+   "ok": true,
+   "ms": 4444
+  },
+  {
+   "step": "rain in the 30 days before",
+   "ok": true,
+   "ms": 721
+  },
+  {
+   "step": "what is exposed (OpenStreetMap)",
+   "ok": true,
+   "ms": 293
+  }
+ ],
+ "verdict": "Humidité du sol le 18/10/2026 : 0.174 m³/m³ (-0.027 par rapport à la moyenne de 7 passages). Cet écart est dans l'incertitude du produit (0.028) : il ne montre pas de changement réel.",
+ "confidence": "low",
+ "confidence_reasons": [
+  "the change from the mean of the passes (-0.027 m³/m³) is within the product's uncertainty (0.028)",
+  "NISAR Level-3 product, provisional calibration: never above medium",
+  "the baseline is the mean of passes from several tracks and dates, not one geometry",
+  "the retrieval quality flag is not used"
+ ],
+ "alert_level": "none",
+ "facts": {
+  "latest_date": "20261018",
+  "latest_m3m3": 0.174,
+  "mean_m3m3": 0.201,
+  "anomaly_m3m3": -0.027,
+  "uncertainty_m3m3": 0.028,
+  "within_uncertainty": true,
+  "n_passes": 7,
+  "series": [
+   {
+    "date": "20260921",
+    "value": 0.184,
+    "track": 44
+   },
+   {
+    "date": "20260921",
+    "value": null,
+    "track": 44
+   },
+   {
+    "date": "20260924",
+    "value": null,
+    "track": 95
+   },
+   {
+    "date": "20261001",
+    "value": null,
+    "track": 23
+   },
+   {
+    "date": "20261001",
+    "value": 0.228,
+    "track": 23
+   },
+   {
+    "date": "20261001",
+    "value": 0.227,
+    "track": 23
+   },
+   {
+    "date": "20261003",
+    "value": 0.187,
+    "track": 44
+   },
+   {
+    "date": "20261003",
+    "value": null,
+    "track": 44
+   },
+   {
+    "date": "20261006",
+    "value": null,
+    "track": 95
+   },
+   {
+    "date": "20261013",
+    "value": null,
+    "track": 23
+   },
+   {
+    "date": "20261013",
+    "value": 0.205,
+    "track": 23
+   },
+   {
+    "date": "20261013",
+    "value": 0.203,
+    "track": 23
+   },
+   {
+    "date": "20261015",
+    "value": 0.174,
+    "track": 44
+   },
+   {
+    "date": "20261015",
+    "value": null,
+    "track": 44
+   },
+   {
+    "date": "20261018",
+    "value": null,
+    "track": 95
+   }
+  ],
+  "dataset": "science/LSAR/SME2/grids/soilMoisture",
+  "layer": {
+   "url": "/layers/sm_SME2_T095_F073_20261018_20261018.png",
+   "bounds": [
+    [
+     29.09761650599211,
+     -8.495850966804772
+    ],
+    [
+     32.288076437648144,
+     -4.761589159453161
+    ]
+   ],
+   "vmin": 0.0,
+   "vmax": 0.5,
+   "cmap": "YlGnBu",
+   "title": "Soil moisture (m³/m³), 20261018"
+  }
+ },
+ "cannot_say": "Valeur moyenne des premiers centimètres du sol sur une maille de plusieurs centaines de mètres.",
+ "series": [
+  {
+   "date": "20260921",
+   "value": 0.184,
+   "track": 44
+  },
+  {
+   "date": "20260921",
+   "value": null,
+   "track": 44
+  },
+  {
+   "date": "20260924",
+   "value": null,
+   "track": 95
+  },
+  {
+   "date": "20261001",
+   "value": null,
+   "track": 23
+  },
+  {
+   "date": "20261001",
+   "value": 0.228,
+   "track": 23
+  },
+  {
+   "date": "20261001",
+   "value": 0.227,
+   "track": 23
+  },
+  {
+   "date": "20261003",
+   "value": 0.187,
+   "track": 44
+  },
+  {
+   "date": "20261003",
+   "value": null,
+   "track": 44
+  },
+  {
+   "date": "20261006",
+   "value": null,
+   "track": 95
+  },
+  {
+   "date": "20261013",
+   "value": null,
+   "track": 23
+  },
+  {
+   "date": "20261013",
+   "value": 0.205,
+   "track": 23
+  },
+  {
+   "date": "20261013",
+   "value": 0.203,
+   "track": 23
+  },
+  {
+   "date": "20261015",
+   "value": 0.174,
+   "track": 44
+  },
+  {
+   "date": "20261015",
+   "value": null,
+   "track": 44
+  },
+  {
+   "date": "20261018",
+   "value": null,
+   "track": 95
+  }
+ ],
+ "profile": null,
+ "event": {
+  "id": "haouz-soil-moisture",
+  "title": "Humidité du sol à Asni (Al Haouz)"
+ },
+ "status": "ready"
+}
