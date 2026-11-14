@@ -30,3 +30,11 @@
 - Tests: 151/151 (synthetic; no `.py` changed after the run)
 - Decisions: none recorded (7 candidates listed in the session, awaiting confirmation)
 - Next step: STATUS "Next" #1–#3.
+
+### 2026-11-14 (later) — Anass + Claude — decisions recorded, demo-check
+- Done: D-008, D-009, D-010 recorded; `/demo-check`: NO-GO (H1 token not revoked, H4 sign unverified); cached events checked (newer than the code, none mock, mine "not validated").
+- Not done / carried over: token, Panama, ionosphere criteria, D-005/D-006/D-007, results branch publishing.
+- Files: docs/claude/DECISIONS.md, STATUS.md, SESSIONS.md
+- Tests: 151/151 (re-run during demo-check; no `.py` changed)
+- Decisions: D-008, D-009, D-010 (new, Accepted)
+- Next step: STATUS "Next" #1–#3.
