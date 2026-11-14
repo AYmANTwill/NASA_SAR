@@ -24,6 +24,7 @@ import time
 from dataclasses import dataclass, field
 
 import numpy as np
+from scipy.linalg import solve_triangular
 from scipy.optimize import least_squares
 
 from science.okada import fault_enu
@@ -48,6 +49,7 @@ class Track:
     los: np.ndarray           # cm, positive toward the satellite
     vec: np.ndarray           # (N, 3) ground-to-satellite unit vectors (east, north, up)
     notes: tuple = ()
+    chol: np.ndarray | None = field(default=None, compare=False)   # L of the noise covariance C = L L^T (cm)
 
 
 @dataclass
@@ -58,8 +60,9 @@ class PlaneFit:
     variance_reduction: float
     cov: np.ndarray | None
     at_bound: list = field(default_factory=list)
-    boot: np.ndarray | None = None     # (n_ok, 6) fault parameters of the bootstrap fits
+    boot: np.ndarray | None = None     # (n_ok, 6) fault parameters of the bootstrap / Monte-Carlo fits
     boot_failed: int = 0
+    boot_method: str = "point_bootstrap"
 
 
 def moment_mw(length_km: float, width_km: float, slip_m: float) -> tuple[float, float]:
@@ -100,27 +103,33 @@ def predict(theta: np.ndarray, tracks: list[Track], plane: Plane) -> list[np.nda
             for i, (t, m) in enumerate(zip(tracks, fault_los(theta, tracks, plane)))]
 
 
+def _whiten(t: Track, v: np.ndarray) -> np.ndarray:
+    return v if t.chol is None else solve_triangular(t.chol, v, lower=True)
+
+
 def _ramp_operators(tracks: list[Track]) -> list[tuple[np.ndarray, np.ndarray]]:
-    """(G, pinv(G)) with G = [1, east, north] for each track."""
+    """(Gw, pinv(Gw)) with G = [1, east, north], whitened by the track's noise covariance when it has one."""
     ops = []
     for t in tracks:
-        G = np.column_stack([np.ones_like(t.east), t.east, t.north])
-        ops.append((G, np.linalg.pinv(G)))
+        Gw = _whiten(t, np.column_stack([np.ones_like(t.east), t.east, t.north]))
+        ops.append((Gw, np.linalg.pinv(Gw)))
     return ops
 
 
 def _residuals6(theta6, tracks, plane, ops):
-    """Variable projection: the per-track ramps are solved linearly for each fault model."""
+    """Variable projection: the per-track ramps are solved linearly for each fault model (generalised least
+    squares when the track has a noise covariance)."""
     out = []
-    for (G, Gp), t, m in zip(ops, tracks, fault_los(theta6, tracks, plane)):
-        r = t.los - m
-        out.append(G @ (Gp @ r) - r)
+    for (Gw, Gp), t, m in zip(ops, tracks, fault_los(theta6, tracks, plane)):
+        rw = _whiten(t, t.los - m)
+        out.append(Gw @ (Gp @ rw) - rw)
     return np.concatenate(out)
 
 
 def _ramps(theta6, tracks, plane) -> np.ndarray:
     ops = _ramp_operators(tracks)
-    return np.concatenate([Gp @ (t.los - m) for (_, Gp), t, m in zip(ops, tracks, fault_los(theta6, tracks, plane))])
+    return np.concatenate([Gp @ _whiten(t, t.los - m)
+                           for (_, Gp), t, m in zip(ops, tracks, fault_los(theta6, tracks, plane))])
 
 
 def _solve(theta6_0, tracks, plane):
@@ -138,30 +147,42 @@ def fit_plane(tracks: list[Track], plane: Plane, starts=STARTS) -> PlaneFit:
         res = _solve(np.array([0.0, 0.0, length, width, top, 1.0]), tracks, plane)
         if best is None or res.cost < best.cost:
             best = res
-    r = best.fun
-    n, p = r.size, 6 + 3 * len(tracks)
-    data = np.concatenate([t.los - np.median(t.los) for t in tracks])
-    vr = 1.0 - float(r @ r) / float(data @ data) if data @ data > 0 else 0.0
-    s2 = float(r @ r) / max(n - p, 1)
+    rw = best.fun                                   # whitened when the tracks carry a noise covariance
+    n, p = rw.size, 6 + 3 * len(tracks)
+    s2 = float(rw @ rw) / max(n - p, 1)
+    whitened = all(t.chol is not None for t in tracks)
     try:
-        cov = np.linalg.inv(best.jac.T @ best.jac) * s2
+        # with a noise model, s2 ~ 1 when the model is right; never let a small s2 shrink the model's uncertainty
+        cov = np.linalg.inv(best.jac.T @ best.jac) * (max(s2, 1.0) if whitened else s2)
     except np.linalg.LinAlgError:
         cov = None
     span = UPPER - LOWER
     at_bound = [FAULT_NAMES[i] for i in range(6) if min(best.x[i] - LOWER[i], UPPER[i] - best.x[i]) < 0.01 * span[i]]
     theta = np.concatenate([best.x, _ramps(best.x, tracks, plane)])
-    return PlaneFit(plane, theta, math.sqrt(float(r @ r) / n), vr, cov, at_bound)
+    r = np.concatenate([t.los - m for t, m in zip(tracks, predict(theta, tracks, plane))])   # cm, not whitened
+    data = np.concatenate([t.los - np.median(t.los) for t in tracks])
+    vr = 1.0 - float(r @ r) / float(data @ data) if data @ data > 0 else 0.0
+    return PlaneFit(plane, theta, math.sqrt(float(r @ r) / r.size), vr, cov, at_bound)
 
 
 def bootstrap(fit: PlaneFit, tracks: list[Track], n_runs: int = N_BOOT, seed: int = 0) -> PlaneFit:
-    """Refits on point sets resampled with replacement inside each track, warm-started at the best fit."""
+    """Uncertainty by refitting n_runs perturbed data sets, warm-started at the best fit.
+    - every track has a noise covariance: Monte Carlo, best model + correlated noise L z (spatial correlation in);
+    - otherwise: points resampled with replacement inside each track (assumes independent points: a lower bound)."""
     rng = np.random.default_rng(seed)
     params, failed = [], 0
+    monte_carlo = all(t.chol is not None for t in tracks)
+    best_model = predict(fit.theta, tracks, fit.plane) if monte_carlo else None
+    fit.boot_method = "monte_carlo_correlated_noise" if monte_carlo else "point_bootstrap"
     for _ in range(n_runs):
         sample = []
-        for t in tracks:
-            k = rng.integers(0, t.los.size, t.los.size)
-            sample.append(Track(t.name, t.east[k], t.north[k], t.los[k], t.vec[k]))
+        for i, t in enumerate(tracks):
+            if monte_carlo:
+                noisy = best_model[i] + t.chol @ rng.standard_normal(t.los.size)
+                sample.append(Track(t.name, t.east, t.north, noisy, t.vec, chol=t.chol))
+            else:
+                k = rng.integers(0, t.los.size, t.los.size)
+                sample.append(Track(t.name, t.east[k], t.north[k], t.los[k], t.vec[k]))
         res = _solve(fit.theta[:6], sample, fit.plane)
         if res.success:
             params.append(res.x[:6])
@@ -196,7 +217,8 @@ def summarize(fit: PlaneFit) -> dict:
             "mw": {"value": mw, "sigma_jacobian": mw_cov, "sigma_bootstrap": mw_boot,
                    "sigma": max(sig) if sig else None},
             "rms_cm": fit.rms_cm, "variance_reduction": fit.variance_reduction, "at_bound": fit.at_bound,
-            "bootstrap_runs": int(len(boot)), "bootstrap_failed": fit.boot_failed}
+            "bootstrap_runs": int(len(boot)), "bootstrap_failed": fit.boot_failed,
+            "uncertainty_method": fit.boot_method}
 
 
 def per_track_vr(fit: PlaneFit, tracks: list[Track]) -> dict[str, float]:

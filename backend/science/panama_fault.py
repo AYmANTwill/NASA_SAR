@@ -27,7 +27,7 @@ import catalog
 import raster
 from config import LOS_SIGN
 from recipes import decompose, displacement
-from science import ffm_sign, sign_decision, usgs
+from science import ffm_sign, noise_cov, sign_decision, usgs
 from science.case_models import Finding, Measurement, agreement
 from science.invert_fault import N_BOOT, Track, invert, predict
 
@@ -106,11 +106,45 @@ def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) ->
     return Track(p.id, east, north, vals, np.tile(vec, (vals.size, 1)), tuple(track_notes))
 
 
-def coseismic_tracks(ev: usgs.UsgsEvent, n_target: int = N_TARGET) -> tuple[list[Track], list[str]]:
+def with_noise_models(tracks: list[Track], pairs: list, origin: str, lat0: float, lon0: float,
+                      n_target: int = N_TARGET) -> tuple[list[Track], dict]:
+    """Attaches to each co-seismic track the noise covariance estimated on the latest pre-event pair of the same
+    geometry (track, direction, frame), processed the same way. Returns (tracks, {track: model summary or reason})."""
+    before = catalog.before(catalog.find(lat0, lon0, "GUNW"), origin)
+    out, report = [], {}
+    for t, p in zip(tracks, pairs):
+        same = [q for q in before if (q.track, q.direction, q.frame) == (p.track, p.direction, p.frame)]
+        if not same:
+            report[t.name] = {"status": "no pre-event pair of the same geometry"}
+            out.append(t)
+            continue
+        q = max(same, key=lambda x: x.sec)
+        try:
+            pre = track_from_product(q, lat0, lon0, n_target)
+            if pre is None:
+                raise ValueError("no valid pixel")
+            nm = noise_cov.from_points(pre.east, pre.north, pre.los, q.id)
+            out.append(Track(t.name, t.east, t.north, t.los, t.vec, t.notes + (f"noise covariance from {q.id}",),
+                             chol=nm.cholesky(t.east, t.north)))
+            report[t.name] = {"status": "ok", **nm.summary()}
+        except (ValueError, np.linalg.LinAlgError) as exc:
+            log.warning("%s: noise model from %s failed: %s", t.name, q.id, exc)
+            report[t.name] = {"status": f"failed: {exc}", "pre_event_pair": q.id}
+            out.append(t)
+    return out, report
+
+
+def coseismic_tracks(ev: usgs.UsgsEvent, n_target: int = N_TARGET,
+                     noise: bool = True) -> tuple[list[Track], list[str], dict]:
+    """(tracks, pair ids, noise-model report). noise=True: noise covariance from pre-event pairs when available."""
     origin = datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc).strftime("%Y%m%dT%H%M%S")
     pairs = catalog.straddling(catalog.find(ev.lat, ev.lon, "GUNW"), origin)
-    tracks = [t for t in (track_from_product(p, ev.lat, ev.lon, n_target) for p in pairs) if t is not None]
-    return tracks, [p.id for p in pairs]
+    kept = [(p, t) for p, t in ((p, track_from_product(p, ev.lat, ev.lon, n_target)) for p in pairs) if t is not None]
+    tracks = [t for _, t in kept]
+    report = {}
+    if noise and kept:
+        tracks, report = with_noise_models(tracks, [p for p, _ in kept], origin, ev.lat, ev.lon, n_target)
+    return tracks, [p.id for p in pairs], report
 
 
 # ---------------------------------------------------------------- output
@@ -124,6 +158,13 @@ LIMITS = {
     "noise": {"fr": "Les incertitudes ignorent le bruit corrélé dans l'espace (atmosphère) : ce sont des minorants.",
               "en": "The uncertainties ignore spatially correlated noise (atmosphere): they are lower bounds.",
               "ar": "لا تأخذ الشكوك في الحسبان الضجيج المترابط مكانيا (الغلاف الجوي): فهي حدود دنيا."},
+    "noise_modelled": {
+        "fr": "Incertitudes par Monte-Carlo avec le bruit corrélé mesuré sur une paire avant le séisme (variogramme). "
+              "Elles n'incluent pas l'erreur de modèle (glissement uniforme, module de cisaillement de 30 GPa).",
+        "en": "Uncertainties by Monte Carlo with the correlated noise measured on a pre-event pair (variogram). "
+              "They do not include the model error (uniform slip, 30 GPa shear modulus).",
+        "ar": "الشكوك بطريقة مونت كارلو مع الضجيج المترابط المقاس على زوج قبل الزلزال (مخطط التباين). "
+              "لا تشمل خطأ النموذج (انزلاق منتظم، معامل قص 30 جيغاباسكال)."},
     "losvec": {"fr": "Direction de visée moyenne par trace : l'incidence varie le long de la fauchée.",
                "en": "One mean line-of-sight direction per track: the incidence angle varies across the swath.",
                "ar": "اتجاه نظر متوسط لكل مسار: تتغير زاوية السقوط عبر عرض المسح."},
@@ -184,14 +225,16 @@ def figure(tracks: list[Track], fits, best: int, path: Path) -> None:
 
 
 def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_DIR,
-        n_target: int = N_TARGET, ffm: "ffm_sign.FiniteFault | None" = None) -> dict:
-    """ffm: finite-fault model for the independent sign test (USGS model by default for us6000u18k)."""
+        n_target: int = N_TARGET, ffm: "ffm_sign.FiniteFault | None" = None, noise: bool = True) -> dict:
+    """ffm: finite-fault model for the independent sign test (USGS model by default for us6000u18k).
+    noise: estimate the noise covariance from pre-event pairs (plan_validation.json part 2) when present."""
     if ffm is None and event_id == "us6000u18k":
         ffm = ffm_sign.USGS_FFM_PANAMA
     timing = {}
     t0 = time.perf_counter()
     ev = usgs.event(event_id)
-    tracks, pair_ids = coseismic_tracks(ev, n_target)
+    tracks, pair_ids, noise_report = coseismic_tracks(ev, n_target, noise)
+    modelled = bool(tracks) and all(t.chol is not None for t in tracks)
     timing["load_tracks_s"] = round(time.perf_counter() - t0, 2)
     base = {"case": case_id, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
             "event": {"id": ev.id, "url": ev.url, "lat": ev.lat, "lon": ev.lon, "depth_km": ev.depth_km,
@@ -199,7 +242,9 @@ def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_D
                       "magnitude": ev.magnitude, "magnitude_type": ev.magnitude_type, "mt_source": ev.mt_source,
                       "planes": [vars(p) for p in ev.planes]},
             "pairs": pair_ids, "los_sign": LOS_SIGN, "los_sign_verified": bool(LOS_SIGN_VERIFIED)}
-    limits = [LIMITS["uniform"], LIMITS["noise"], LIMITS["losvec"]] + ([] if LOS_SIGN_VERIFIED else [LIMITS["sign"]])
+    base["noise_models"] = noise_report
+    limits = ([LIMITS["uniform"], LIMITS["noise_modelled"] if modelled else LIMITS["noise"], LIMITS["losvec"]]
+              + ([] if LOS_SIGN_VERIFIED else [LIMITS["sign"]]))
     if not tracks:
         out = {**base, "stable": False, "unstable_reasons": ["no co-seismic GUNW pair with valid pixels"],
                "findings": [], "figures": [], "limits": limits}
@@ -238,6 +283,8 @@ def main() -> None:
     ap.add_argument("--points", type=int, default=N_TARGET, help="target points per track")
     ap.add_argument("--out-dir", type=Path, default=OUT_DIR)
     ap.add_argument("--ffm-top-depth", type=float, default=0.0, help="top depth (km) of the USGS finite-fault model")
+    ap.add_argument("--no-noise-cov", action="store_true",
+                    help="do not use pre-event pairs for the noise covariance (independent points, lower-bound sigma)")
     a = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")     # Windows consoles default to cp1252
@@ -245,7 +292,10 @@ def main() -> None:
     if a.event == "us6000u18k":
         from dataclasses import replace
         ffm = replace(ffm_sign.USGS_FFM_PANAMA, top_depth_km=a.ffm_top_depth)
-    out = run(a.event, a.case, a.boot, a.out_dir, a.points, ffm)
+    out = run(a.event, a.case, a.boot, a.out_dir, a.points, ffm, noise=not a.no_noise_cov)
+    for name, nm in out.get("noise_models", {}).items():
+        print(f"noise model {name}: {nm['status']}" + (f", sigma {nm['sigma_cm']:.2f} cm, range {nm['range_km']:.1f} km"
+                                                       if nm["status"] == "ok" else ""))
     print(f"NISAR_LOS_SIGN = {out['los_sign']}")
     print(json.dumps({k: out.get(k) for k in ("pairs", "stable", "unstable_reasons", "best_plane")}, indent=1))
     if out.get("planes"):

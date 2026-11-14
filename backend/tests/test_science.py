@@ -280,6 +280,40 @@ check("sign decision JSON: k, σ, k/σ and verdict per track, the rule text, bot
 check("sign decision: fewer than 3 tracks can never accept a sign",
       sign_decision.decide(sd_tracks[:2], usgs_planes, lat0, lon0, starts=FAST)["decision"] == "undecided")
 
+# ---------------------------------------------------------------- noise covariance (pre-event pair)
+from science import noise_cov  # noqa: E402
+
+nrng = np.random.default_rng(3)
+true_noise = noise_cov.NoiseModel(sill_cm2=4.0, range_km=15.0, nugget_cm2=0.25, source="synthetic")
+pe, pn = nrng.uniform(-150, 150, 1500), nrng.uniform(-150, 150, 1500)
+pre_field = true_noise.cholesky(pe, pn) @ nrng.standard_normal(1500) + 0.02 * pe     # correlated noise + a ramp
+nm = noise_cov.from_points(pe, pn, pre_field, "pre-event")
+check("noise covariance: the variogram of a pre-event field recovers sill and range within 35 %",
+      abs(nm.sill_cm2 - 4.0) / 4.0 < 0.35 and abs(nm.range_km - 15.0) / 15.0 < 0.35, nm.summary())
+try:
+    noise_cov.from_points(pe, pn, np.zeros(1500), "flat")
+    check("noise covariance: a pre-event map without noise is refused", False)
+except ValueError:
+    check("noise covariance: a pre-event map without noise is refused", True)
+
+# small event: the noise matters; correlated noise must widen the Mw uncertainty
+small_plane = Plane(290, 30, 90)
+st = [Track(n_, nrng.uniform(-60, 60, 300), nrng.uniform(-60, 60, 300), np.zeros(300), np.tile(v, (300, 1)))
+      for n_, v in (("a", [-0.62, -0.11, 0.78]), ("d", [0.62, -0.11, 0.78]))]
+small_theta = np.array([0, 0, 20, 10, 2, 0.3, 0, 0, 0, 0, 0, 0])
+st = [Track(t.name, t.east, t.north, p + true_noise.cholesky(t.east, t.north) @ nrng.standard_normal(300), t.vec)
+      for t, p in zip(st, predict(small_theta, st, small_plane))]
+white, _ = invert(st, (small_plane,), n_boot=8)
+modelled_tracks = [Track(t.name, t.east, t.north, t.los, t.vec, chol=nm.cholesky(t.east, t.north)) for t in st]
+corr, _ = invert(modelled_tracks, (small_plane,), n_boot=8)
+w, c = white["planes"][0], corr["planes"][0]
+check("noise covariance: with the correlated-noise model the formal Mw sigma is larger than with independent points "
+      "(the independent-point sigma is a lower bound); Monte Carlo is used",
+      c["uncertainty_method"] == "monte_carlo_correlated_noise" and w["uncertainty_method"] == "point_bootstrap"
+      and c["mw"]["sigma_jacobian"] > w["mw"]["sigma_jacobian"], (w["mw"], c["mw"]))
+check("noise covariance: the true Mw lies within 3 sigma of the correlated-noise estimate",
+      abs(c["mw"]["value"] - moment_mw(20, 10, 0.3)[1]) < 3 * c["mw"]["sigma"], c["mw"])
+
 from science.panama_fault import block_means  # noqa: E402
 
 grid = np.arange(100 * 80, dtype=float).reshape(100, 80)
