@@ -1,0 +1,18 @@
+                 Avancement — dossier D:\project\NASA_SAR\data                 
++-----------------------------------------------------------------------------+
+|           Partie | Fichiers |   Taille | Finis | Partiels |   Reste |     % |
+|------------------+----------+----------+-------+----------+---------+-------|
+| 1 (palier 1 : Al |       31 |  16.3 Go |    31 |        0 |    0 Mo | 100 % |
+| Haouz + SME2 aux |          |          |       |          |         |       |
+| sites + dernière |          |          |       |          |         |       |
+| paire VALIDATED) |          |          |       |          |         |       |
+|    2 (palier 2 : |       47 | 111.4 Go |    47 |        0 |    0 Mo | 100 % |
+|          chaînes |          |          |       |          |         |       |
+|    complètes des |          |          |       |          |         |       |
+|  cadres minimaux |          |          |       |          |         |       |
+| (ponts de lacune |          |          |       |          |         |       |
+|         inclus)) |          |          |       |          |         |       |
+|    3 (palier 3 : |      432 |  32.7 Go |     0 |        0 | 32.7 Go |   0 % |
+| reste du SME2 de |          |          |       |          |         |       |
+|  la boîte Maroc) |          |          |       |          |         |       |
++-----------------------------------------------------------------------------+
