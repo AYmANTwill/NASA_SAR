@@ -36,6 +36,14 @@ def rejects(data) -> bool:
     return False
 
 
+def raises(fn, exc_type) -> bool:
+    try:
+        fn()
+    except exc_type:
+        return True
+    return False
+
+
 def m(value, unc, unit="Mw", sigma=1):
     return Measurement(value=value, uncertainty=unc, unit=unit, sigma=sigma)
 
@@ -501,6 +509,27 @@ check("cases: unstable fault -> draft, 'Magnitude not estimated' with the reason
       pan2["status"] == "draft" and any("Magnitude not estimated" in lim["text"]["en"] and "0.3 < 0.5" in lim["text"]["en"]
                                         for lim in pan2["limits"]), pan2["placeholders"])
 
+sign_ok = {"decision": "+1", "los_sign_env": 1.0,
+           "ffm": {"n_tracks": 3, "n_k_positive_3sigma": 3, "n_k_negative_3sigma": 0},
+           "inversion": {"variance_reduction_plus1": 0.81, "variance_reduction_minus1": 0.42}}
+s_lim, s_ph = cs.sign_part(sign_ok)
+check("cases: ffm sign verdict +1 with the run's sign -> a limit with the counts and VR, no placeholder",
+      s_ph == [] and "Line-of-sight sign tested: +1" in s_lim[0]["text"]["en"]
+      and "3/3 tracks" in s_lim[0]["text"]["en"] and "0.81 (+1) vs 0.42" in s_lim[0]["text"]["en"], s_lim)
+_, s_ph2 = cs.sign_part({**sign_ok, "decision": "-1"})
+u_lim, u_ph = cs.sign_part({**sign_ok, "decision": "undecided"})
+n_lim, n_ph = cs.sign_part(None)
+check("cases: a sign verdict opposite to the run's sign keeps the case a draft; undecided / untested are limits only",
+      len(s_ph2) == 1 and "NISAR_LOS_SIGN=-1" in s_ph2[0] and u_ph == [] and "not settled" in u_lim[0]["text"]["en"]
+      and n_ph == [] and "not tested" in n_lim[0]["text"]["en"], (s_ph2, u_lim, n_lim))
+check("cases: a sign_check with an unknown decision or missing keys is refused",
+      raises(lambda: cs.sign_part({**sign_ok, "decision": "yes"}), cs.CaseInputError)
+      and raises(lambda: cs.sign_part({"decision": "+1"}), cs.CaseInputError))
+(work / "out" / "panama-2026.json").write_text(json.dumps({**fault_out, "sign_check": {**sign_ok, "decision": "-1"}}),
+                                              encoding="utf-8")
+pan3 = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("cases: Panama with a contradicting sign verdict stays a draft and says how to rerun",
+      pan3["status"] == "draft" and any("NISAR_LOS_SIGN=-1" in x for x in pan3["placeholders"]), pan3["placeholders"])
 res_dir = tmp / "results"
 for label, offset in (("none", 6.0), ("iono", 1.0)):
     d = res_dir / "gps" / f"gps_{label}"

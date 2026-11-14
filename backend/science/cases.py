@@ -159,12 +159,52 @@ def exposure_part(case_id: str) -> tuple[dict | None, list]:
     return data["exposure"], []
 
 
+SIGN_DECISIONS = {"+1": 1, "-1": -1, "undecided": 0}
+NO_SIGN_CHECK = {"fr": "Signe de la ligne de visée non testé contre le modèle de faille finie de l'USGS.",
+                 "en": "Line-of-sight sign not tested against the USGS finite-fault model.",
+                 "ar": "لم يتم اختبار إشارة خط النظر مقابل نموذج الصدع المحدود لـ USGS."}
+
+
+def sign_part(sign: dict | None) -> tuple[list, list]:
+    """(limits, placeholders) from the 'sign_check' of panama_fault (science.sign_decision.decide).
+
+    The verdict is reported as a limit with the numbers of the run. A decided sign opposite to the sign the run
+    used means the findings were computed with the wrong sign: the case stays a draft."""
+    if sign is None:
+        return [_limit(NO_SIGN_CHECK)], []
+    decision = sign.get("decision")
+    if decision not in SIGN_DECISIONS:
+        raise CaseInputError(f"sign_check.decision must be one of {sorted(SIGN_DECISIONS)}, got {decision!r}")
+    try:
+        ffm, inv, used = sign["ffm"], sign["inversion"], float(sign["los_sign_env"])
+        n_pos, n_neg, n = ffm["n_k_positive_3sigma"], ffm["n_k_negative_3sigma"], ffm["n_tracks"]
+        vr_p, vr_m = float(inv["variance_reduction_plus1"]), float(inv["variance_reduction_minus1"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise CaseInputError(f"sign_check: missing or invalid key ({exc})") from exc
+    facts = (f"k > 0 at 3σ on {n_pos}/{n} tracks, k < 0 on {n_neg}/{n}; "
+             f"variance reduction {vr_p:.2f} (+1) vs {vr_m:.2f} (−1)")
+    if decision == "undecided":
+        return [_limit({"fr": f"Signe de la ligne de visée non tranché par les données ({facts}) ; "
+                              "convention documentée de NISAR utilisée.",
+                        "en": f"Line-of-sight sign not settled by the data ({facts}); "
+                              "the documented NISAR convention is used.",
+                        "ar": f"لم تحسم البيانات إشارة خط النظر ({facts})؛ استُخدم الاصطلاح الموثق لـ NISAR."})], []
+    limits = [_limit({"fr": f"Signe de la ligne de visée testé : {decision} ({facts}).",
+                      "en": f"Line-of-sight sign tested: {decision} ({facts}).",
+                      "ar": f"تم اختبار إشارة خط النظر: {decision} ({facts})."})]
+    if SIGN_DECISIONS[decision] * used < 0:
+        return limits, [f"LOS sign: the data say {decision} but the run used {used:+g}; "
+                        f"rerun panama_fault with NISAR_LOS_SIGN={SIGN_DECISIONS[decision]}"]
+    return limits, []
+
+
 def fault_part(case_id: str) -> tuple[list, list, list, list]:
     """(findings, figures, limits, placeholders) from science.panama_fault's output."""
     data = _read(out_dir() / f"{case_id}.json")
     if data is None:
         return [], [], [], [f"fault inversion: cases/out/{case_id}.json not available"]
-    limits = [_limit(l3) for l3 in data.get("limits", [])]
+    sign_limits, sign_missing = sign_part(data.get("sign_check"))
+    limits = [_limit(l3) for l3 in data.get("limits", [])] + sign_limits
     figures = []
     for f in data.get("figures", []):
         figures.append({"id": f["id"], "kind": f.get("kind", "image"), "url": copy_figure(case_id, out_dir() / f["path"]),
@@ -179,8 +219,8 @@ def fault_part(case_id: str) -> tuple[list, list, list, list]:
         limits.append(_limit({"fr": f"Magnitude non estimée : l'inversion n'est pas stable ({reasons}).",
                               "en": f"Magnitude not estimated: the inversion is not stable ({reasons}).",
                               "ar": f"لم يتم تقدير القدر: الانعكاس غير مستقر ({reasons})."}))
-        return [], figures, limits, ["fault inversion not stable: magnitude not estimated"]
-    return data["findings"], figures, limits, []
+        return [], figures, limits, ["fault inversion not stable: magnitude not estimated"] + sign_missing
+    return data["findings"], figures, limits, sign_missing
 
 
 def _rms_measure(n: int, rms: float) -> dict:

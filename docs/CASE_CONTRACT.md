@@ -116,6 +116,9 @@ Exposure units are fixed: `people` is in `people`, `buildings` in `count`, `area
   map should be a backscatter-change raster (`kind: "backscatter_change"`, `unit: "dB"`), not the 0/1 mask.
 - Figure files and rasters sit next to `findings.json`. The PNGs are copied or rendered into
   `backend/cases/figures/<id>/` and served at `GET /api/cases/{id}/figures/{file}`.
+- Panama's line-of-sight sign verdict (`sign_check` in `cases/out/panama-2026.json`, rule of
+  `science/sign_decision.py`) becomes a `limits` item with its track counts and variance reductions. A decided sign
+  opposite to the `NISAR_LOS_SIGN` of the run keeps the case a draft until panama_fault is rerun with that sign.
 - A file that breaks this format stops the build with an error. It is never patched silently.
 
 ## Checking
