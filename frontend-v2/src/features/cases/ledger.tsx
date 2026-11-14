@@ -2,7 +2,6 @@ import type { CaseExposure, CaseStatus, CaseStudy, Figure, Finding } from "@/api
 import { AgreementMark } from "@/components/science/AgreementMark";
 import { ComparisonStrip, NisarGlyph, ReferenceGlyph } from "@/components/science/ComparisonStrip";
 import { MeasurementView } from "@/components/science/MeasurementView";
-import { formatDate } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
 import { measurementState } from "@/science/measurement";
 
@@ -83,21 +82,6 @@ export function ExposureView({ exposure, status }: { exposure: CaseExposure | nu
         </a>
       </p>
     </>
-  );
-}
-
-export function TimelineList({ study }: { study: CaseStudy }) {
-  const { t, lang, localized } = useText();
-  if (study.timeline.length === 0) return <p className="not-measured">{t("case.timelineNone")}</p>;
-  return (
-    <ol className="timeline-list">
-      {study.timeline.map((item, i) => (
-        <li key={i}>
-          <time dateTime={item.at}>{formatDate(item.at, lang)}</time>
-          <span>{localized(item.label)}</span>
-        </li>
-      ))}
-    </ol>
   );
 }
 

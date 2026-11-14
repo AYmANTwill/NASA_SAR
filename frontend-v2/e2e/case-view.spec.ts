@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { LANGS, requireBackend } from "./backend";
+import { LANGS, pageScreenshot, requireBackend, waitForMap } from "./backend";
 
 const API = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
 const LIMITS = { fr: "Ce que le radar ne peut pas dire ici", en: "What the radar cannot tell here", ar: "ما لا يستطيع الرادار قوله هنا" };
@@ -36,9 +36,10 @@ test.describe("case view, live backend", () => {
         if (id === ids[0]) {
           for (const width of [1440, 1024, 390]) {
             await page.setViewportSize({ width, height: 900 });
+            await waitForMap(page);
             const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
             expect(overflow, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
-            await page.screenshot({ path: `e2e/__screenshots__/case-${id}-${lang}-${width}.png`, fullPage: true });
+            await pageScreenshot(page, `e2e/__screenshots__/case-${id}-${lang}-${width}.png`);
           }
           await page.setViewportSize({ width: 1440, height: 900 });
         }

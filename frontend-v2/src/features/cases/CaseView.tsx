@@ -2,12 +2,13 @@ import { Link, useParams } from "react-router-dom";
 import type { CaseStudy } from "@/api/contract";
 import { useCaseStudy } from "@/api/queries";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
-import { LocatorMap } from "@/components/map/LocatorMap";
+import { MapPanel, type MapEntry } from "@/components/map/MapPanel";
 import { QueryView } from "@/components/QueryView";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDate } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
-import { ExposureView, FigureList, FindingView, LimitsView, SourcesView, TimelineList } from "./ledger";
+import { ExposureView, FigureList, FindingView, LimitsView, SourcesView } from "./ledger";
+import { PassTimeline } from "./PassTimeline";
 import "./CaseView.css";
 
 export function CaseView() {
@@ -30,6 +31,9 @@ function CaseBody({ study }: { study: CaseStudy }) {
   const { t, lang, text, localized } = useText();
   const draft = study.status === "draft";
   useDocumentTitle(`${draft ? `[${t("caseStatus.draft")}] ` : ""}${localized(study.title)}`);
+  // Figures with a raster layer go on the map; the others (charts, images) stay in the ledger.
+  const mapEntries: MapEntry[] = study.figures.flatMap((f) => (f.layer ? [{ layer: f.layer, title: f.title, caption: f.caption }] : []));
+  const otherFigures = study.figures.filter((f) => !f.layer);
 
   return (
     <article className="case" aria-labelledby="case-title">
@@ -50,9 +54,9 @@ function CaseBody({ study }: { study: CaseStudy }) {
       </header>
 
       <div className="case-layout">
-        <div className="case-map" aria-label={t("case.mapLabel")} role="region">
-          <LocatorMap bbox={study.location.bbox} point={study.location} />
-          <p className="case-map-note">{t("case.mapPending")}</p>
+        <div className="case-map-column">
+          <MapPanel frame={study.location.bbox} point={study.location} entries={mapEntries} label={t("case.mapLabel", { place: localized(study.location.place) })} />
+          <PassTimeline study={study} />
         </div>
 
         <div className="ledger">
@@ -72,14 +76,9 @@ function CaseBody({ study }: { study: CaseStudy }) {
             <ExposureView exposure={study.exposure} status={study.status} />
           </section>
 
-          <section className="ledger-section" aria-labelledby="timeline-title">
-            <h2 id="timeline-title">{t("case.timeline")}</h2>
-            <TimelineList study={study} />
-          </section>
-
           <section className="ledger-section" aria-labelledby="figures-title">
             <h2 id="figures-title">{t("case.figures")}</h2>
-            <FigureList figures={study.figures} />
+            <FigureList figures={otherFigures} />
           </section>
 
           <LimitsView study={study} />

@@ -1,0 +1,38 @@
+.radar-map {
+  position: relative;
+  /* A map is never mirrored: north up, west on the left, controls where MapLibre puts them. */
+  direction: ltr;
+  /* Height from the viewport, not an aspect ratio: a minimum height must never force a width (phone overflow). */
+  block-size: clamp(16rem, 42vw, calc(100vh - 14rem));
+  inline-size: 100%;
+  background: var(--sea);
+}
+
+.radar-map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.radar-map .maplibregl-canvas:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -4px;
+}
+
+.radar-map .maplibregl-ctrl-group {
+  border-radius: 2px;
+  box-shadow: none;
+  border: 1px solid var(--ink-2);
+}
+
+.radar-map .maplibregl-ctrl button:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.radar-map-failure {
+  position: absolute;
+  inset-inline: var(--space-4);
+  inset-block-start: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--sheet);
+  border: 1px solid var(--ink);
+}

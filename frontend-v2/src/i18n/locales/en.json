@@ -96,8 +96,7 @@
   "case": {
     "back": "All case studies",
     "draftBand": "This case is not a result: its NISAR values are not measured yet.",
-    "mapLabel": "Map",
-    "mapPending": "Study area and event point. Radar maps will show here.",
+    "mapLabel": "Radar map: {{place}}",
     "findings": "NISAR measurements and reference",
     "findingsNone": "No measurement yet.",
     "exposureTitle": "Exposure",
@@ -134,5 +133,35 @@
     "people": "people",
     "count": "",
     "deg": "°"
+  },
+  "map": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "attribution": "Show map credits",
+    "layers": "Map shown",
+    "noRaster": "No radar map for this case yet: only the study area and the event point are drawn.",
+    "noWebgl": "This browser cannot show the interactive map (WebGL unavailable).",
+    "imageFailed": "The radar image could not be loaded from the server."
+  },
+  "legend": {
+    "sign": "Sign",
+    "period": "Period",
+    "source": "Source",
+    "range": "Scale from {{min}} to {{max}} {{unit}}"
+  },
+  "sign": {
+    "positive_toward_satellite": "positive values (red end): the ground moves toward the satellite",
+    "positive_away_from_satellite": "positive values (red end): the ground moves away from the satellite",
+    "positive_up": "positive values: uplift",
+    "positive_east": "positive values: eastward motion"
+  },
+  "layerKind": {
+    "displacement": "Line-of-sight displacement",
+    "velocity": "Line-of-sight velocity",
+    "coherence": "Coherence",
+    "coherence_loss": "Coherence loss",
+    "soil_moisture": "Soil moisture",
+    "backscatter_change": "Backscatter change",
+    "offset": "Offset"
   }
 }

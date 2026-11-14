@@ -96,8 +96,7 @@
   "case": {
     "back": "Toutes les études de cas",
     "draftBand": "Ce cas n’est pas un résultat : ses valeurs NISAR ne sont pas encore mesurées.",
-    "mapLabel": "Carte",
-    "mapPending": "Zone d’étude et point de l’événement. Les cartes radar s’afficheront ici.",
+    "mapLabel": "Carte radar : {{place}}",
     "findings": "Mesures NISAR et référence",
     "findingsNone": "Aucune mesure pour l’instant.",
     "exposureTitle": "Exposition",
@@ -134,5 +133,35 @@
     "people": "personnes",
     "count": "",
     "deg": "°"
+  },
+  "map": {
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "attribution": "Afficher les crédits de la carte",
+    "layers": "Carte affichée",
+    "noRaster": "Pas encore de carte radar pour ce cas : seuls la zone d’étude et le point de l’événement sont tracés.",
+    "noWebgl": "Ce navigateur ne peut pas afficher la carte interactive (WebGL indisponible).",
+    "imageFailed": "L’image radar n’a pas pu être chargée depuis le serveur."
+  },
+  "legend": {
+    "sign": "Signe",
+    "period": "Période",
+    "source": "Source",
+    "range": "Échelle de {{min}} à {{max}} {{unit}}"
+  },
+  "sign": {
+    "positive_toward_satellite": "valeurs positives (extrémité rouge) : le sol se rapproche du satellite",
+    "positive_away_from_satellite": "valeurs positives (extrémité rouge) : le sol s’éloigne du satellite",
+    "positive_up": "valeurs positives : soulèvement",
+    "positive_east": "valeurs positives : déplacement vers l’est"
+  },
+  "layerKind": {
+    "displacement": "Déplacement en ligne de visée",
+    "velocity": "Vitesse en ligne de visée",
+    "coherence": "Cohérence",
+    "coherence_loss": "Perte de cohérence",
+    "soil_moisture": "Humidité du sol",
+    "backscatter_change": "Changement de rétrodiffusion",
+    "offset": "Décalage"
   }
 }

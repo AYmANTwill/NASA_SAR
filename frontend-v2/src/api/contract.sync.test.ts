@@ -1,29 +1,37 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * frontend-v2 keeps a copy of the team's contract (frontend/src/api/contract.ts).
- * The copy must not drift: run `npm run sync:contract` when this test fails.
+ * frontend-v2 keeps copies of the team's sources of truth. They must not drift:
+ * run `npm run sync:contract` when this test fails.
  * Only line endings are normalised (git may check files out with CRLF on Windows).
+ * Vitest runs from frontend-v2/.
  */
-const read = (relative: string) =>
-  readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8").replace(/\r\n/g, "\n");
+const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8").replace(/\r\n/g, "\n");
 
-describe("API contract copy", () => {
-  it("is identical to frontend/src/api/contract.ts", () => {
-    const source = read("../../../frontend/src/api/contract.ts");
-    const copy = read("./contract.ts");
-    if (copy !== source) {
-      const a = source.split("\n");
-      const b = copy.split("\n");
-      const line = a.findIndex((text, i) => text !== b[i]);
-      throw new Error(
-        `contract.ts differs from frontend/src/api/contract.ts from line ${line + 1}:\n` +
-          `  frontend:    ${a[line] ?? "<end of file>"}\n  frontend-v2: ${b[line] ?? "<end of file>"}\n` +
-          "Run `npm run sync:contract`.",
-      );
-    }
-    expect(copy).toBe(source);
+function expectIdentical(sourcePath: string, copyPath: string) {
+  const source = read(sourcePath);
+  const copy = read(copyPath);
+  if (copy !== source) {
+    const a = source.split("\n");
+    const b = copy.split("\n");
+    const line = a.findIndex((text, i) => text !== b[i]);
+    throw new Error(
+      `${copyPath} differs from ${sourcePath} from line ${line + 1}:\n` +
+        `  source: ${a[line] ?? "<end of file>"}\n  copy:   ${b[line] ?? "<end of file>"}\n` +
+        "Run `npm run sync:contract`.",
+    );
+  }
+  expect(copy).toBe(source);
+}
+
+describe("shared sources of truth", () => {
+  it("API contract is identical to frontend/src/api/contract.ts", () => {
+    expectIdentical("../frontend/src/api/contract.ts", "src/api/contract.ts");
+  });
+
+  it("map palettes are identical to backend/palettes.json", () => {
+    expectIdentical("../backend/palettes.json", "src/design/palettes.json");
   });
 });
