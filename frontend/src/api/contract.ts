@@ -428,7 +428,7 @@ export type Localized = z.infer<typeof Localized>;
 const caseDate = z.union([isoDate, isoDateTime]);
 const Source = z.object({ name: z.string().min(1), url: z.string().url() });
 
-export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps"]);
+export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps", "bin-el-ouidane-2026"]);
 export type CaseId = z.infer<typeof CaseId>;
 
 export const CaseKind = z.enum(["earthquake", "flood", "method"]);
