@@ -1,11 +1,17 @@
 """Al Haouz (Asni, 10 Oct 2026): a candidate surface-change area, NOT a flood map.
 
 Three indicators, each with its σ, all from computed outputs:
-- coherence-loss excess over the frame within 5 km: results/events/haouz-flood-2026-10-10.json (recipes/damage.py).
-  σ from the no-event test of the same recipe: a share `null_false_alarm` (1 %) of random circles exceeds
-  `excess_margin` (0.11), so σ = excess_margin / z(1 − null_false_alarm) under a Gaussian assumption (said in limits);
-- backscatter change (dB): the `backscatter_change` finding of results/haouz-flood-2026/findings.json (Anass, GCOV);
+- coherence loss and backscatter change (dB) in the 5 km circle, from results/haouz-flood-2026/findings.json (Anass).
+  Encoded against the no-event null, without a contract change:
+    nisar      = the change measured at the site, with its own measurement uncertainty (standard error with an
+                 effective number of looks);
+    reference  = the no-event baseline: mean of the 2,000 random circles, uncertainty = their spread (sigma 1);
+    reference_source = {name: "No-event baseline: 2,000 random circles, ...", url: the result file or the docs};
+    agreement  = recomputed by the usual rule, so "agree" reads "not different from no change".
+  The spread of the random circles is never used as the measurement error. A finding without its own uncertainty
+  or without the baseline is left out and said in the limits.
 - soil-moisture anomaly (m³/m³): results/events/haouz-soil-moisture.json (SME2 anomaly ± the product uncertainty).
+results/events/haouz-flood-2026-10-10.json gives the passes, the dates and the CRID.
 
 The three share the same NISAR passes, so they are not independent. No flooded surface (km²) is given: a
 `flooded_area` finding or any km² finding in the inputs is dropped.
@@ -16,18 +22,21 @@ import json
 import logging
 from datetime import date
 from pathlib import Path
-from statistics import NormalDist
 
 log = logging.getLogger(__name__)
 CASE_ID = "haouz-flood-2026"
 FLOOD_EVENT = "haouz-flood-2026-10-10"
 SOIL_EVENT = "haouz-soil-moisture"
-CLEAR_SIGMAS = 2.0                 # an indicator is a clear change when |value| > 2σ (coherence: recipe level "strong")
+CLEAR_SIGMAS = 2.0                 # soil moisture: a clear change when |anomaly| > 2σ
+BASELINE_IDS = ("coherence_loss_excess", "backscatter_change")      # compared with the no-event baseline
+BASELINE_UNITS = {"coherence_loss_excess": "coherence", "backscatter_change": "dB"}
 LABELS = {
-    "coherence_loss_excess": {"fr": "Excès de perte de cohérence (5 km, par rapport à la scène)",
-                              "en": "Coherence-loss excess (5 km, over the frame)",
-                              "ar": "فائض فقدان التماسك (5 كم، مقارنة بالمشهد)"},
-    "backscatter_change": {"fr": "Changement de rétrodiffusion", "en": "Backscatter change", "ar": "تغير الانتثار الخلفي"},
+    "coherence_loss_excess": {"fr": "Perte de cohérence (cercle de 5 km), comparée à la référence sans événement",
+                              "en": "Coherence loss (5 km circle), compared with the no-event baseline",
+                              "ar": "فقدان التماسك (دائرة 5 كم)، مقارنة بخط الأساس دون حدث"},
+    "backscatter_change": {"fr": "Changement de rétrodiffusion (cercle de 5 km), comparé à la référence sans événement",
+                           "en": "Backscatter change (5 km circle), compared with the no-event baseline",
+                           "ar": "تغير الانتثار الخلفي (دائرة 5 كم)، مقارنة بخط الأساس دون حدث"},
     "soil_moisture_anomaly": {"fr": "Anomalie d'humidité du sol", "en": "Soil-moisture anomaly",
                               "ar": "شذوذ رطوبة التربة"},
 }
@@ -57,45 +66,45 @@ def _not_computed(fid: str, reason: str) -> dict:
                   f"{lab['ar']}: لم يُحسب ({reason}).")
 
 
-def coherence_indicator(facts: dict) -> tuple[dict, dict]:
-    """(finding, extra facts) from the damage recipe's facts. KeyError / ValueError if a key is missing."""
-    excess, margin, nfa = float(facts["excess_over_frame"]), float(facts["excess_margin"]), float(facts["null_false_alarm"])
-    z = NormalDist().inv_cdf(1.0 - nfa)
-    sigma = round(margin / z, 3)
-    if not sigma > 0:
-        raise ValueError("no-event level must be > 0")
-    return (_finding("coherence_loss_excess", round(excess, 3), sigma, "coherence"),
-            {"clear": facts.get("excess_level") == "strong", "margin": margin, "nfa": nfa, "z": round(z, 2)})
+def baseline_finding(fid: str, raw: dict | None) -> tuple[dict | None, str | None]:
+    """(finding, None) or (None, reason) for a finding compared with the no-event baseline."""
+    from science.case_models import Measurement, agreement
+    if raw is None:
+        return None, f"not in results/{CASE_ID}/findings.json"
+    n, r, src = raw.get("nisar") or {}, raw.get("reference"), raw.get("reference_source")
+    if n.get("value") is None or not n.get("uncertainty"):
+        return None, "no measurement uncertainty at the site (standard error with an effective number of looks)"
+    if not r or r.get("value") is None or not r.get("uncertainty") or not src:
+        return None, "no no-event baseline (mean and spread of the random circles) with its source"
+    unit = BASELINE_UNITS[fid]
+    if n.get("unit") != unit or r.get("unit") != unit:
+        return None, f"unit must be {unit} for the site and the baseline"
+    nisar = {"value": n["value"], "uncertainty": n["uncertainty"], "unit": unit, "sigma": n.get("sigma", 1)}
+    reference = {"value": r["value"], "uncertainty": r["uncertainty"], "unit": unit, "sigma": r.get("sigma", 1)}
+    return ({"id": fid, "label": LABELS[fid], "nisar": nisar, "reference": reference,
+             "reference_source": {"name": src["name"], "url": src["url"]},
+             "agreement": agreement(Measurement(**nisar), Measurement(**reference))}, None)
 
 
 def indicators(results: Path, anass_findings: list[dict]) -> tuple[list[dict], list[dict], dict]:
     """(findings, limits for what is not computed, facts used by the headline and the limits)."""
     findings, missing, info = [], [], {"clear": [], "products": [], "crids": []}
     flood = _read(results / "events" / f"{FLOOD_EVENT}.json")
-    if flood is None:
-        missing.append(_not_computed("coherence_loss_excess", f"results/events/{FLOOD_EVENT}.json not available"))
-    else:
-        f = flood.get("facts") or {}
-        try:
-            fin, extra = coherence_indicator(f)
-            findings.append(fin)
-            info.update(extra_coherence=extra, flood_facts=f)
-            if extra["clear"]:
-                info["clear"].append("coherence_loss_excess")
-            info["products"] += [p for p in (f.get("pre_pair"), f.get("co_pair")) if p]
-            if f.get("crid"):
-                info["crids"].append((f["crid"], f.get("maturity", "unknown")))
-        except (KeyError, TypeError, ValueError) as exc:
-            missing.append(_not_computed("coherence_loss_excess", f"missing value in the recipe output: {exc}"))
-    bs = next((x for x in anass_findings if x.get("id") == "backscatter_change"), None)
-    if bs is None or not (bs.get("nisar") or {}).get("uncertainty"):
-        missing.append(_not_computed("backscatter_change", f"not in results/{CASE_ID}/findings.json" if bs is None
-                                     else "no uncertainty in results/haouz-flood-2026/findings.json"))
-    else:
-        m = bs["nisar"]
-        findings.append(_finding("backscatter_change", m["value"], m["uncertainty"], "dB"))
-        if abs(m["value"]) > CLEAR_SIGMAS * m["uncertainty"]:
-            info["clear"].append("backscatter_change")
+    f = (flood or {}).get("facts") or {}
+    info["flood_facts"] = f
+    info["products"] += [p for p in (f.get("pre_pair"), f.get("co_pair")) if p]
+    if f.get("crid"):
+        info["crids"].append((f["crid"], f.get("maturity", "unknown")))
+    by_id = {x.get("id"): x for x in anass_findings}
+    for fid in BASELINE_IDS:
+        fin, why = baseline_finding(fid, by_id.get(fid))
+        if fin is None:
+            missing.append(_not_computed(fid, why))
+            continue
+        findings.append(fin)
+        info.setdefault("baseline_sources", []).append(fin["reference_source"]["name"])
+        if fin["agreement"] == "disagree":
+            info["clear"].append(fid)
     soil = _read(results / "events" / f"{SOIL_EVENT}.json")
     sf = (soil or {}).get("facts") or {}
     if sf.get("anomaly_m3m3") is None or not sf.get("uncertainty_m3m3"):
@@ -155,15 +164,13 @@ def not_a_flood_map_limits(info: dict) -> list[dict]:
                           f"First NISAR pass after the flood: {after}, {days} days after the event ({ev}); the water "
                           "may have receded by then.",
                           f"أول مرور لـ NISAR بعد الفيضان: {after}، بعد {days} أيام من الحدث ({ev})؛ ربما انحسرت المياه قبله."))
-    c = info.get("extra_coherence")
-    if c:
-        pct = round(100 * c["nfa"], 2)
-        out.append(_limit(f"σ de l'excès de cohérence tiré du test sans événement : {pct:g} % des cercles aléatoires "
-                          f"dépassent {c['margin']}, σ = {c['margin']} / {c['z']} (hypothèse gaussienne).",
-                          f"σ of the coherence-loss excess from the no-event test: {pct:g} % of random circles exceed "
-                          f"{c['margin']}, σ = {c['margin']} / {c['z']} (Gaussian assumption).",
-                          f"σ لفائض التماسك مأخوذ من اختبار غياب الحدث: {pct:g} % من الدوائر العشوائية تتجاوز "
-                          f"{c['margin']}، σ = {c['margin']} / {c['z']} (افتراض غاوسي)."))
+    for name in sorted(set(info.get("baseline_sources", []))):
+        out.append(_limit(f"Référence sans événement : {name}. Son ± est la dispersion des cercles, pas une erreur de "
+                          "mesure ; « en accord » signifie « pas différent d'une absence de changement ».",
+                          f"No-event baseline: {name}. Its ± is the spread of the circles, not a measurement error; "
+                          "'agree' means 'not different from no change'.",
+                          f"خط الأساس دون حدث: {name}. قيمة ± هي تشتت الدوائر وليست خطأ قياس؛ "
+                          "'متفق' تعني 'لا يختلف عن غياب التغير'."))
     return out
 
 

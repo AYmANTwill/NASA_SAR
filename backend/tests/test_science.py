@@ -637,38 +637,61 @@ check("haouz: no flooded surface: the flooded_area / km2 finding is dropped, no 
       and "Flooded area" not in json.dumps(flood), [f["id"] for f in flood["findings"]])
 (res_dir / "events").mkdir()
 (res_dir / "events" / "haouz-flood-2026-10-10.json").write_text(json.dumps({"facts": {
-    "excess_over_frame": 0.119, "excess_margin": 0.11, "null_false_alarm": 0.01, "excess_level": "borderline",
     "event_day": "20261010", "date_before": "20261003", "date_after": "20261015", "crid": "P05023",
     "maturity": "provisional", "co_pair": "GUNW_T044_F017_20261003_20261015"}}), encoding="utf-8")
 (res_dir / "events" / "haouz-soil-moisture.json").write_text(json.dumps({"facts": {
     "anomaly_m3m3": -0.027, "uncertainty_m3m3": 0.028, "latest_date": "20261018"}}), encoding="utf-8")
-bs_finding = {"id": "backscatter_change", "label": {"fr": "b", "en": "b", "ar": "b"},
-              "nisar": {"value": 0.4, "uncertainty": 0.5, "unit": "dB", "sigma": 1}, "reference": None,
-              "reference_source": None, "agreement": "no_reference"}
-(res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [
-    json.loads(json.dumps(bs_finding)), {"id": "flooded_area", "label": {"fr": "a", "en": "a", "ar": "a"},
-     "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
-     "reference_source": None, "agreement": "no_reference"}], "limits": []}), encoding="utf-8")
+null_src = {"name": "No-event baseline: 2,000 random circles, 21 Sep–3 Oct 2026",
+            "url": "https://example.org/results/haouz-flood-2026/findings.json"}
+
+
+def circle_finding(fid, unit, site, site_se, base_mean, base_spread):
+    return {"id": fid, "label": {"fr": "x", "en": "x", "ar": "x"},
+            "nisar": {"value": site, "uncertainty": site_se, "unit": unit, "sigma": 1},
+            "reference": {"value": base_mean, "uncertainty": base_spread, "unit": unit, "sigma": 1},
+            "reference_source": null_src,
+            "agreement": agreement(Measurement(value=site, uncertainty=site_se, unit=unit),
+                                   Measurement(value=base_mean, uncertainty=base_spread, unit=unit))}
+
+
+def write_haouz(findings):
+    (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": findings + [
+        {"id": "flooded_area", "label": {"fr": "a", "en": "a", "ar": "a"},
+         "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
+         "reference_source": None, "agreement": "no_reference"}], "limits": []}), encoding="utf-8")
+
+
+write_haouz([circle_finding("coherence_loss_excess", "coherence", 0.147, 0.01, 0.028, 0.06),
+             circle_finding("backscatter_change", "dB", 0.4, 0.1, 0.0, 0.5)])
 hz = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
-hz_by = {f["id"]: f["nisar"] for f in hz["findings"]}
+hz_f = {f["id"]: f for f in hz["findings"]}
 hz_lim = " | ".join(x["text"]["en"] for x in hz["limits"])
-check("haouz: three indicators with their σ (coherence σ = 0.11 / z(0.99) = 0.047, backscatter dB, soil m3/m3)",
-      set(hz_by) == {"coherence_loss_excess", "backscatter_change", "soil_moisture_anomaly"}
-      and hz_by["coherence_loss_excess"] == {"value": 0.119, "uncertainty": 0.047, "unit": "coherence", "sigma": 1}
-      and hz_by["backscatter_change"]["unit"] == "dB" and hz_by["soil_moisture_anomaly"]["uncertainty"] == 0.028, hz_by)
-check("haouz: headline 'Candidate surface-change area: no clear change' (borderline coherence, |x| <= 2σ elsewhere)",
+coh = hz_f.get("coherence_loss_excess", {})
+check("haouz: circle findings = site value ± its own standard error vs the no-event baseline (mean ± spread)",
+      set(hz_f) == {"coherence_loss_excess", "backscatter_change", "soil_moisture_anomaly"}
+      and coh["nisar"] == {"value": 0.147, "uncertainty": 0.01, "unit": "coherence", "sigma": 1}
+      and coh["reference"]["uncertainty"] == 0.06 and coh["reference_source"]["name"].startswith("No-event baseline")
+      and "compared with the no-event baseline" in coh["label"]["en"]
+      and hz_f["backscatter_change"]["nisar"]["unit"] == "dB", hz_f)
+check("haouz: agreement recomputed by the usual rule ('agree' = not different from no change)",
+      coh["agreement"] == "agree" and hz_f["backscatter_change"]["agreement"] == "agree"
+      and "'agree' means 'not different from no change'" in hz_lim, [f["agreement"] for f in hz["findings"]])
+check("haouz: headline 'Candidate surface-change area: no clear change' when every indicator agrees with no change",
       hz["headline"]["text"]["en"].startswith("Candidate surface-change area: no clear change"), hz["headline"])
-check("haouz: limits say why it is not a flood map (same passes, not independent, 5 days after, no km2, σ method)",
-      "not independent" in hz_lim and "not a flood map" in hz_lim and "5 days after the event (2026-10-10)" in hz_lim
-      and "Gaussian assumption" in hz_lim, hz_lim)
+check("haouz: limits say why it is not a flood map (same passes, not independent, 5 days after, no km2)",
+      "not independent" in hz_lim and "not a flood map" in hz_lim and "5 days after the event (2026-10-10)" in hz_lim,
+      hz_lim)
 check("every case: 'Provisional NISAR products (CRID P05023)' limit taken from the product CRIDs",
       "Provisional NISAR products (CRID P05023)" in hz_lim, hz_lim)
-(res_dir / "events" / "haouz-flood-2026-10-10.json").write_text(json.dumps({"facts": {
-    "excess_over_frame": 0.3, "excess_margin": 0.11, "null_false_alarm": 0.01, "excess_level": "strong"}}),
-    encoding="utf-8")
+spread_only = circle_finding("coherence_loss_excess", "coherence", 0.147, 0.0, 0.028, 0.06)
+write_haouz([spread_only, circle_finding("backscatter_change", "dB", 3.0, 0.1, 0.0, 0.5)])
 hz2 = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
-check("haouz: a 'strong' coherence excess turns the headline into a clear change on that indicator",
-      "clear change in Coherence-loss excess" in hz2["headline"]["text"]["en"], hz2["headline"])
+hz2_lim = " | ".join(x["text"]["en"] for x in hz2["limits"])
+check("haouz: a circle finding without its own measurement uncertainty is left out and said in the limits",
+      "coherence_loss_excess" not in {f["id"] for f in hz2["findings"]}
+      and "no measurement uncertainty at the site" in hz2_lim and hz2["status"] == "draft", hz2_lim)
+check("haouz: a site value that disagrees with the no-event baseline is a clear change in the headline",
+      "clear change in Backscatter change" in hz2["headline"]["text"]["en"], hz2["headline"])
 
 # --- no 0.0 for a missing value ---------------------------------------------------------------------------------
 kept, nc_lim, nc_ph = cs.split_computed([mw_finding, {**mw_finding, "id": "slip",
