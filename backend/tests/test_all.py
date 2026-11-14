@@ -1045,6 +1045,9 @@ check("docs: sign_verified, iono_screen, crosses_data_gap, reference_same_compon
                                    "uncertainty_m3m3", "within_uncertainty", "not validated", "NISAR_DISCOVERIES_ENABLED",
                                    "unvalidated candidate", "fringes")))
 
+from datetime import date as _dt_date  # noqa: E402
+
+
 def _raises(fn, exc=ValueError):
     try:
         fn()
@@ -1166,6 +1169,52 @@ check("noise_report: a correction that does not lower the noise is not recommend
                           "applied": {"tropo": True}, "sigma_cm_opposite_sign": {}}])["tropo"]["recommended"])
 check(".gitignore ignores results_out/ (local outputs, never committed)",
       "results_out/" in (ROOT.parent / ".gitignore").read_text(encoding="utf-8"))
+
+# --- 3. GPS validation (NGL tenv3), offline sample ---------------------------------------------------------------
+import validate_gps as _vg  # noqa: E402
+
+gps_dir = Path(os.environ["NISAR_DATA"]) / "GPS_sample"
+tv = _vg.parse_tenv3((gps_dir / "RABT.tenv3").read_text())
+hold = {s["station"]: s for s in _vg.parse_holdings((gps_dir / "DataHoldings.txt").read_text())}
+check("NGL parsing: tenv3 dates (26JUL04), E/N/U = integer + fractional columns, coordinates from the file; "
+      "DataHoldings longitudes 0..360 -> -180..180",
+      tv["station"] == "RABT" and abs(tv["lat"] - 33.9981) < 1e-3 and abs(tv["lon"] + 6.8543) < 1e-3
+      and tv["epochs"][0][0] == _dt_date(2026, 6, 1) and 4222.9 < tv["epochs"][0][1] < 4223.1
+      and abs(hold["RABT"]["lon"] + 6.8543) < 1e-3 and hold["OLDX"]["end"] == _dt_date(2009, 8, 12)
+      and _vg.TENV3_URL.startswith("https://geodesy.unr.edu/") and "{sta}" in _vg.TENV3_URL)
+gout = tmp / "gps_out"
+g_rc = _vg.main(["--offline-sample", "--out", str(gout)])
+gj = json.loads((gout / "gps_RABT.json").read_text(encoding="utf-8"))
+gs = gj["summary"]["all"]
+check("GPS validation recovers the synthetic displacement at RABT: 6 pairs, RMS < 1.5 mm raw and after mean removal, "
+      "correlation > 0.95, same sign; json + md + png written",
+      g_rc == 0 and gj["status"] == "compared" and gs["n_pairs"] == 6 and gs["rms_mm"] < 1.5
+      and gs["rms_after_removing_mean_mm"] < 1.5 and gs["correlation"] > 0.95 and gj["summary"]["sign_hint"] == "same sign as GPS"
+      and (gout / "gps_RABT.md").exists() and (gout / "gps_RABT.png").stat().st_size > 1000, gs)
+check("GPS validation: InSAR is relative -> raw and mean-removed comparisons both reported; a reversed sign is hinted",
+      "mean_difference_mm" in gs and _vg.summarise([{**r, "nisar_los_mm": -r["nisar_los_mm"]} for r in gj["pairs"]])["sign_hint"]
+      .startswith("anti-correlated"))
+a_rc = _vg.main(["--offline-sample", "--auto", "--out", str(gout)])
+found = {s["station"]: s for s in json.loads((gout / "gps_stations.json").read_text(encoding="utf-8"))}
+check("GPS --auto: stations inside the frames are listed (RABT with data in the window, OLDX without), FARX outside is not",
+      a_rc == 0 and found["RABT"]["overlaps_nisar"] is True and found["OLDX"]["overlaps_nisar"] is False and "FARX" not in found)
+far_dir = tmp / "gps_far"
+far_dir.mkdir()
+far_txt = (gps_dir / "RABT.tenv3").read_text().replace("RABT ", "FARX ").replace("33.9981036600   -6.8542892180", "10.0000000000   10.0000000000")
+(far_dir / "FARX.tenv3").write_text(far_txt)
+old_txt = "\n".join(l.replace(" 26", " 24", 1) if l.startswith("RABT") else l for l in (gps_dir / "RABT.tenv3").read_text().splitlines())
+(far_dir / "RABT.tenv3").write_text(old_txt)
+f_rc = _vg.main(["--offline-sample", str(far_dir), "--station", "FARX", "--out", str(gout)])
+fj = json.loads((gout / "gps_FARX.json").read_text(encoding="utf-8"))
+o_rc = _vg.main(["--offline-sample", str(far_dir), "--station", "RABT", "--out", str(gout / "old")])
+oj = json.loads((gout / "old" / "gps_RABT.json").read_text(encoding="utf-8"))
+m_rc = _vg.main(["--offline-sample", str(far_dir), "--station", "NONE", "--out", str(gout)])
+check("GPS validation never crashes: station in no frame -> 'no_coverage', GPS ending before NISAR -> 'no_gps_in_window', "
+      "unknown station -> 'no_gps'; exit code 2 and the files still say why",
+      f_rc == 2 and fj["status"] == "no_coverage" and "inside none" in fj["message"] and (gout / "gps_FARX.md").exists()
+      and o_rc == 2 and oj["status"] == "no_gps_in_window" and "2024" in oj["gps_last_date"]
+      and m_rc == 2 and json.loads((gout / "gps_NONE.json").read_text(encoding="utf-8"))["status"] == "no_gps",
+      (fj["status"], oj["status"]))
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 
