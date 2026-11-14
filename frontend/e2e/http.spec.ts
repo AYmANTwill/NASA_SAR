@@ -12,7 +12,7 @@ test.use({ serviceWorkers: "block" });
 const json = (route: Route, body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 
 type Override = { status: number; body: unknown };
-async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveriesError?: Override; proofError?: Override } = {}) {
+async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveriesError?: Override; proofError?: Override; cases?: unknown } = {}) {
   const answers = new Map(fx.fixtureAnswers.map((a) => [a.id, a]));
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
@@ -28,7 +28,7 @@ async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveri
     }
     if (path === "/notifications") return json(route, fx.initialNotifications);
     if (path === "/library") return json(route, fx.library);
-    if (path === "/cases") return json(route, fx.caseSummaries);
+    if (path === "/cases") return json(route, overrides.cases ?? fx.caseSummaries);
     if (path.startsWith("/cases/")) {
       const c = fx.caseStudies.find((x) => x.id === decodeURIComponent(path.slice("/cases/".length)));
       return c ? json(route, c) : json(route, { code: "not_found", message: { template: "error.not_found", params: {} } }, 404);
@@ -130,5 +130,17 @@ test("case studies: first page, draft banner, findings with agreement and limits
   await expect(page.getByRole("table")).toContainText("Pas de référence");
   await expect(page.getByRole("heading", { name: "Ce que le radar ne peut pas dire ici" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Ouvrir dans l’enquêteur" })).toHaveAttribute("href", /\/investigate\//);
+  expect(errors).toEqual([]);
+});
+
+test("a fifth case served by the API gets its own card", async ({ page }) => {
+  const errors = watchConsole(page);
+  // Test-only summary: same shape as the API's, title marked as a test.
+  const fifth = { ...fx.caseSummaries[0], id: "bin-el-ouidane-2026", title: { fr: "Cas de test 5", en: "Test case 5", ar: "Test case 5" } };
+  await mockApi(page, { cases: [...fx.caseSummaries, fifth] });
+  await page.goto("/");
+  const cards = page.getByRole("list", { name: "Études de cas", exact: true }).getByRole("listitem");
+  await expect(cards).toHaveCount(fx.caseSummaries.length + 1);
+  await expect(page.getByRole("link", { name: "Cas de test 5" })).toHaveAttribute("href", "/cases/bin-el-ouidane-2026");
   expect(errors).toEqual([]);
 });
