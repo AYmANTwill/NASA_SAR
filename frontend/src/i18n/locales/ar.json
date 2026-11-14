@@ -573,6 +573,7 @@
     "answers": "أجوبة الوكيل",
     "enlarge": "تكبير الشكل: {{title}}",
     "imageMissing": "الصورة غير متاحة حالياً.",
+    "baselineHelp": "المرجع: خط الأساس دون حدث. هنا، «اتفاق» يعني «لا يختلف عن غياب التغيّر».",
     "notMeasuredYet": "لم يُقَس بعد",
     "afterHours_zero": "بعد {{count}} ساعة",
     "afterHours_one": "بعد ساعة واحدة",

@@ -514,6 +514,7 @@
     "answers": "Réponses de l’agent",
     "enlarge": "Agrandir la figure : {{title}}",
     "imageMissing": "Image indisponible pour le moment.",
+    "baselineHelp": "Référence : ligne de base sans événement. Ici, « accord » veut dire « pas différent de l’absence de changement ».",
     "notMeasuredYet": "pas encore mesuré",
     "afterHours_one": "{{count}} heure plus tard",
     "afterHours_other": "{{count}} heures plus tard"
