@@ -1,0 +1,43 @@
+{
+ "id": "panama-2026",
+ "kind": "earthquake",
+ "status": "draft",
+ "title": {"fr": "Séisme du Panama, 9 octobre 2026", "en": "Panama earthquake, 9 October 2026", "ar": "زلزال بنما، 9 أكتوبر 2026"},
+ "date": "2026-10-09T17:56:06Z",
+ "location": {"lat": 7.59, "lon": -80.77, "bbox": [-81.8, 6.8, -79.8, 8.6],
+              "place": {"fr": "Panama", "en": "Panama", "ar": "بنما"}},
+ "headline": {"template": "backend.case_draft", "params": {},
+              "text": {"fr": "[BROUILLON] Inversion de la faille à partir des interférogrammes NISAR : en cours.",
+                       "en": "[DRAFT] Fault inversion from the NISAR interferograms: in progress.",
+                       "ar": "[مسودة] انعكاس الصدع انطلاقا من تداخلات NISAR: قيد الإنجاز."}},
+ "findings": [
+  {"id": "mw", "label": {"fr": "Magnitude de moment", "en": "Moment magnitude", "ar": "قدر العزم"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "Mw", "sigma": 1},
+   "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
+   "reference_source": {"name": "USGS us6000u18k (Mww)", "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u18k"},
+   "agreement": "disagree"},
+  {"id": "length", "label": {"fr": "Longueur de rupture", "en": "Rupture length", "ar": "طول التمزق"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "km", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"},
+  {"id": "slip", "label": {"fr": "Glissement moyen", "en": "Mean slip", "ar": "متوسط الانزلاق"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "m", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"},
+  {"id": "top_depth", "label": {"fr": "Profondeur du sommet de la faille", "en": "Fault top depth", "ar": "عمق أعلى الصدع"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "km", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"}
+ ],
+ "figures": [],
+ "exposure": null,
+ "timeline": [
+  {"label": {"fr": "Séisme (USGS)", "en": "Earthquake (USGS)", "ar": "الزلزال (USGS)"}, "at": "2026-10-09T17:56:06Z"}
+ ],
+ "answer_ids": [],
+ "limits": [
+  {"template": "backend.case_draft_limit", "params": {},
+   "text": {"fr": "Brouillon : les valeurs NISAR sont des espaces réservés (0), pas des mesures.",
+            "en": "Draft: the NISAR values are placeholders (0), not measurements.",
+            "ar": "مسودة: قيم NISAR مجرد قيم مؤقتة (0) وليست قياسات."}}
+ ],
+ "placeholders": ["location.bbox", "findings[mw].nisar", "findings[length].nisar", "findings[slip].nisar",
+                  "findings[top_depth].nisar", "headline", "limits"]
+}
