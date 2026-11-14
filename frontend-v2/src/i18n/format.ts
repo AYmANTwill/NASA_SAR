@@ -23,7 +23,8 @@ export function formatDate(iso: string, lang: Lang): string {
   const day = new Intl.DateTimeFormat(LOCALE[lang], { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(date);
   if (DATE_ONLY.test(iso) || isMidnightUtc(iso)) return day;
   const time = new Intl.DateTimeFormat(LOCALE[lang], { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }).format(date);
-  return `${day}, ${time} UTC`;
+  // In Arabic the Latin "17:56 UTC" is isolated (LRI…PDI) so the bidi algorithm cannot reorder it.
+  return lang === "ar" ? `${day}، ⁦${time} UTC⁩` : `${day}, ${time} UTC`;
 }
 
 /** Day-precision events are sent as T00:00:00Z: showing "00:00" would invent a time. */

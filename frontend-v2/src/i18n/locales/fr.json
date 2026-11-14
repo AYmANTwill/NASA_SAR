@@ -64,5 +64,18 @@
     "title": "Page introuvable",
     "body": "Cette adresse ne correspond à aucune page.",
     "back": "Revenir aux études de cas"
+  },
+  "cases": {
+    "lede": "Des événements où NISAR a mesuré le sol, comparés quand c’est possible à une référence indépendante.",
+    "draftNote": "Ces études de cas sont des brouillons : leurs valeurs NISAR ne sont pas encore mesurées. Rien ici n’est un résultat."
+  },
+  "caseKind": {
+    "earthquake": "Séisme",
+    "flood": "Crue",
+    "method": "Méthode"
+  },
+  "caseStatus": {
+    "draft": "Brouillon",
+    "final": "Résultat final"
   }
 }

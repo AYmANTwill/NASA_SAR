@@ -64,5 +64,18 @@
     "title": "Page not found",
     "body": "This address does not match any page.",
     "back": "Back to the case studies"
+  },
+  "cases": {
+    "lede": "Events where NISAR measured the ground, compared with an independent reference where one exists.",
+    "draftNote": "These case studies are drafts: their NISAR values are not measured yet. Nothing here is a result."
+  },
+  "caseKind": {
+    "earthquake": "Earthquake",
+    "flood": "Flood",
+    "method": "Method"
+  },
+  "caseStatus": {
+    "draft": "Draft",
+    "final": "Final result"
   }
 }

@@ -11,6 +11,11 @@
   --rule: #d5dadd;
   --hatch: rgb(21 26 30 / 12%);
 
+  /* Basemap: greys only, so the data palettes are the only colour on a map. */
+  --sea: #e9ecee;
+  --land: #fbfbfb;
+  --coast: #a9b2b8;
+
   --font-latin: "IBM Plex Sans", system-ui, sans-serif;
   --font-arabic: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif;
   --font: var(--font-latin);

@@ -1,0 +1,95 @@
+.cases-intro {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.cases-draft-note {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--ink);
+  background: repeating-linear-gradient(-45deg, var(--sheet) 0 6px, var(--hatch) 6px 8px), var(--sheet);
+  font-weight: 500;
+}
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  block-size: 100%;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.case-card:hover {
+  border-color: var(--ink-2);
+}
+
+.case-card:focus-within {
+  border-color: var(--ink);
+}
+
+.case-card-map {
+  aspect-ratio: 16 / 9;
+  background: var(--sea);
+  border-block-end: 1px solid var(--rule);
+}
+
+.case-card-body {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.case-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
+.case-card-title {
+  font-size: var(--step-1);
+}
+
+.case-card-title a {
+  text-decoration: none;
+}
+
+/* The whole card is the link's target area; the link itself stays the only tab stop. */
+.case-card-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.case-card-title a:focus-visible {
+  box-shadow: none;
+}
+
+.case-card:has(a:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+.case-card-place {
+  color: var(--ink-2);
+}
+
+.case-card-status {
+  margin-block-start: var(--space-2);
+}
+
+/* Errors inside a card stay usable (their retry button sits above the card link). */
+.case-card .notice {
+  position: relative;
+  z-index: 1;
+}

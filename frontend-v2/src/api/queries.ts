@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useApi } from "./ApiProvider";
 
 /** One hook per read endpoint. Every value they return has passed the zod contract. */
@@ -16,6 +16,14 @@ export function useCases() {
 export function useCaseStudy(id: string) {
   const api = useApi();
   return useQuery({ queryKey: ["case", id], queryFn: ({ signal }) => api.caseStudy(id, signal) });
+}
+
+/** Several cases at once, sharing the cache of useCaseStudy. */
+export function useCaseStudies(ids: string[]) {
+  const api = useApi();
+  return useQueries({
+    queries: ids.map((id) => ({ queryKey: ["case", id], queryFn: ({ signal }: { signal: AbortSignal }) => api.caseStudy(id, signal) })),
+  });
 }
 
 export function useAnswer(id: string) {

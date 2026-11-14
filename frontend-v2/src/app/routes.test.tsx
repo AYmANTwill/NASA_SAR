@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+import { ApiProvider } from "@/api/ApiProvider";
+import { createHttpClient } from "@/api/client";
+import { recorded, recordedFetch, recordedNames } from "@/test/recorded";
 import { AppRoutes } from "./routes";
 
 let location = "";
@@ -9,12 +12,20 @@ function Spy() {
   return null;
 }
 
+const BASE = "http://test/api";
+const { fetcher } = recordedFetch({
+  [`${BASE}/cases`]: recorded("cases.json"),
+  ...Object.fromEntries(recordedNames("case-").map((n) => [`${BASE}${recorded(n).path}`, recorded(n)])),
+});
+
 function renderAt(path: string) {
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <AppRoutes />
-      <Spy />
-    </MemoryRouter>,
+    <ApiProvider client={createHttpClient(BASE, fetcher)}>
+      <MemoryRouter initialEntries={[path]}>
+        <AppRoutes />
+        <Spy />
+      </MemoryRouter>
+    </ApiProvider>,
   );
 }
 

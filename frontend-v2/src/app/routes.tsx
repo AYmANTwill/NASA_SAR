@@ -2,6 +2,7 @@ import { useLayoutEffect } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { Link, Navigate, useParams, useRoutes, type RouteObject } from "react-router-dom";
 import { applyDocumentLang, i18nFor, isLang, preferredLang, type Lang } from "@/i18n";
+import { CasesPage } from "@/features/cases/CasesPage";
 import { StatusPage } from "@/features/status/StatusPage";
 import { AppShell } from "./AppShell";
 import { useDocumentTitle } from "./useDocumentTitle";
@@ -63,7 +64,8 @@ export const routes: RouteObject[] = [
     path: "/:lang",
     element: <LangLayout />,
     children: [
-      { index: true, element: <LangGate><Pending titleKey="nav.cases" /></LangGate> },
+      { index: true, element: <LangGate><CasesPage /></LangGate> },
+      { path: "cases/:id", element: <LangGate><Pending titleKey="nav.cases" /></LangGate> },
       { path: "ask", element: <LangGate><Pending titleKey="nav.ask" /></LangGate> },
       { path: "library", element: <LangGate><Pending titleKey="nav.library" /></LangGate> },
       { path: "watches", element: <LangGate><Pending titleKey="nav.watches" /></LangGate> },

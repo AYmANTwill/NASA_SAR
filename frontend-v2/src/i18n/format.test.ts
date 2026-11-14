@@ -20,6 +20,10 @@ describe("formatDate", () => {
     expect(formatDate("2026-10-09T17:56:06Z", "en")).toBe("9 Oct 2026, 17:56 UTC");
   });
 
+  it("keeps the UTC time in one left-to-right piece in Arabic", () => {
+    expect(formatDate("2026-10-09T17:56:06Z", "ar")).toBe("9 أكتوبر 2026، ⁦17:56 UTC⁩");
+  });
+
   it("does not invent a time for a day-precision event", () => {
     expect(formatDate("2026-10-10T00:00:00Z", "en")).toBe("10 Oct 2026");
     expect(formatDate("2026-10-10", "fr")).toMatch(/^10 oct\.? 2026$/);
