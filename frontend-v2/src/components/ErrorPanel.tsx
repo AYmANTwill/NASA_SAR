@@ -43,7 +43,7 @@ export function ErrorPanel({ error, onRetry }: { error: unknown; onRetry?: () =>
     title = t("errors.offline.title");
     body = t("errors.offline.body");
   } else if (error instanceof ApiError) {
-    title = t("errors.api.title");
+    title = error.status === 404 ? t("errors.api.notFound") : t("errors.api.title");
     body = error.body ? text(error.body) : t("errors.api.noBody");
     detail = (
       <p className="notice-code" dir="ltr">

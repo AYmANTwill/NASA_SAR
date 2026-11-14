@@ -18,7 +18,8 @@
   },
   "common": {
     "loading": "Chargement…",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "newTab": "(s’ouvre dans un nouvel onglet)"
   },
   "errors": {
     "offline": {
@@ -32,7 +33,8 @@
     },
     "api": {
       "title": "Le serveur a refusé la demande",
-      "noBody": "Le serveur n'a pas donné de raison."
+      "noBody": "Le serveur n'a pas donné de raison.",
+      "notFound": "Introuvable"
     },
     "unexpected": {
       "title": "Erreur inattendue",
@@ -77,5 +79,60 @@
   "caseStatus": {
     "draft": "Brouillon",
     "final": "Résultat final"
+  },
+  "measure": {
+    "notMeasured": "pas encore mesuré",
+    "plusMinus": "plus ou moins",
+    "sigmaMultiple": "({{k}} σ)",
+    "noSigma": "(sans incertitude fournie)"
+  },
+  "agreement": {
+    "agree": "Concorde : écart dans 2σ combinés",
+    "partial": "Concorde en partie : écart entre 2σ et 4σ combinés",
+    "disagree": "Ne concorde pas : écart au-delà de 4σ combinés",
+    "no_reference": "Pas de référence indépendante",
+    "pending": "Comparaison possible une fois la valeur NISAR mesurée"
+  },
+  "case": {
+    "back": "Toutes les études de cas",
+    "draftBand": "Ce cas n’est pas un résultat : ses valeurs NISAR ne sont pas encore mesurées.",
+    "mapLabel": "Carte",
+    "mapPending": "Zone d’étude et point de l’événement. Les cartes radar s’afficheront ici.",
+    "findings": "Mesures NISAR et référence",
+    "findingsNone": "Aucune mesure pour l’instant.",
+    "exposureTitle": "Exposition",
+    "exposureNone": "Exposition pas encore calculée",
+    "exposure": {
+      "people": "Personnes",
+      "buildings": "Bâtiments",
+      "area": "Surface touchée"
+    },
+    "source": "Source :",
+    "timeline": "Chronologie",
+    "timelineNone": "Chronologie pas encore établie",
+    "figures": "Figures",
+    "figuresNone": "Aucune figure pour l’instant",
+    "limits": "Ce que le radar ne peut pas dire ici",
+    "sources": "Sources",
+    "sourcesNone": "Aucune source externe pour l’instant"
+  },
+  "unit": {
+    "mm": "mm",
+    "cm": "cm",
+    "m": "m",
+    "mm/yr": "mm/an",
+    "cm/yr": "cm/an",
+    "mm/yr2": "mm/an²",
+    "m3/m3": "m³/m³",
+    "dB": "dB",
+    "ha": "ha",
+    "km2": "km²",
+    "percent": "%",
+    "coherence": "",
+    "km": "km",
+    "Mw": "Mw",
+    "people": "personnes",
+    "count": "",
+    "deg": "°"
   }
 }

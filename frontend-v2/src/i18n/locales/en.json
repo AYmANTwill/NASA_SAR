@@ -18,7 +18,8 @@
   },
   "common": {
     "loading": "Loading…",
-    "retry": "Try again"
+    "retry": "Try again",
+    "newTab": "(opens in a new tab)"
   },
   "errors": {
     "offline": {
@@ -32,7 +33,8 @@
     },
     "api": {
       "title": "The server refused the request",
-      "noBody": "The server gave no reason."
+      "noBody": "The server gave no reason.",
+      "notFound": "Not found"
     },
     "unexpected": {
       "title": "Unexpected error",
@@ -77,5 +79,60 @@
   "caseStatus": {
     "draft": "Draft",
     "final": "Final result"
+  },
+  "measure": {
+    "notMeasured": "not measured yet",
+    "plusMinus": "plus or minus",
+    "sigmaMultiple": "({{k}} σ)",
+    "noSigma": "(no uncertainty given)"
+  },
+  "agreement": {
+    "agree": "Agrees: gap within 2σ combined",
+    "partial": "Partly agrees: gap between 2σ and 4σ combined",
+    "disagree": "Disagrees: gap beyond 4σ combined",
+    "no_reference": "No independent reference",
+    "pending": "Compared once the NISAR value is measured"
+  },
+  "case": {
+    "back": "All case studies",
+    "draftBand": "This case is not a result: its NISAR values are not measured yet.",
+    "mapLabel": "Map",
+    "mapPending": "Study area and event point. Radar maps will show here.",
+    "findings": "NISAR measurements and reference",
+    "findingsNone": "No measurement yet.",
+    "exposureTitle": "Exposure",
+    "exposureNone": "Exposure not computed yet",
+    "exposure": {
+      "people": "People",
+      "buildings": "Buildings",
+      "area": "Affected area"
+    },
+    "source": "Source:",
+    "timeline": "Timeline",
+    "timelineNone": "Timeline not established yet",
+    "figures": "Figures",
+    "figuresNone": "No figure yet",
+    "limits": "What the radar cannot tell here",
+    "sources": "Sources",
+    "sourcesNone": "No external source yet"
+  },
+  "unit": {
+    "mm": "mm",
+    "cm": "cm",
+    "m": "m",
+    "mm/yr": "mm/yr",
+    "cm/yr": "cm/yr",
+    "mm/yr2": "mm/yr²",
+    "m3/m3": "m³/m³",
+    "dB": "dB",
+    "ha": "ha",
+    "km2": "km²",
+    "percent": "%",
+    "coherence": "",
+    "km": "km",
+    "Mw": "Mw",
+    "people": "people",
+    "count": "",
+    "deg": "°"
   }
 }

@@ -1,0 +1,235 @@
+.case-view {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--gutter) var(--space-7);
+}
+
+.case-back a {
+  color: var(--ink-2);
+}
+
+.case {
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* DRAFT: full width, hatched, in the page language. It cannot be scrolled past without being seen. */
+.draft-band {
+  max-inline-size: none;
+  padding: var(--space-3) var(--space-5);
+  border: 2px solid var(--ink);
+  background: repeating-linear-gradient(-45deg, var(--sheet) 0 8px, var(--hatch) 8px 11px), var(--sheet);
+  font-weight: 500;
+}
+
+.draft-band strong {
+  margin-inline-end: var(--space-2);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.case-header {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+.case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  color: var(--ink-2);
+}
+
+/* Map first (~62 %), ledger docked to the end side: right in FR/EN, left in AR. */
+.case-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 62fr) minmax(22rem, 38fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.case-map {
+  position: sticky;
+  inset-block-start: var(--space-4);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.case-map-note {
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--rule);
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
+.ledger {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.headline {
+  font-size: var(--step-1);
+  line-height: 1.4;
+}
+
+.ledger-section {
+  display: grid;
+  gap: var(--space-3);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--rule);
+}
+
+.ledger-section h2 {
+  font-size: var(--step-1);
+}
+
+.finding {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-3);
+}
+
+.finding + .finding {
+  border-block-start: 1px dashed var(--rule);
+}
+
+.finding-label {
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+/* One grid for all rows of a finding, so NISAR's and the reference's values line up. */
+.finding-rows {
+  display: grid;
+  grid-template-columns: minmax(7rem, max-content) 1fr;
+  gap: var(--space-1) var(--space-4);
+  align-items: baseline;
+  margin: 0;
+}
+
+.finding-row {
+  display: contents;
+}
+
+.finding-row dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink-2);
+}
+
+.finding-row dd {
+  margin: 0;
+}
+
+.finding-agreement {
+  margin-block-start: var(--space-1);
+}
+
+.exposure {
+  border-collapse: collapse;
+}
+
+.exposure th,
+.exposure td {
+  padding: var(--space-1) 0;
+  text-align: start;
+  vertical-align: baseline;
+}
+
+.exposure th {
+  padding-inline-end: var(--space-5);
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.source-line {
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
+.timeline-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-list li {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) 1fr;
+  gap: var(--space-4);
+}
+
+.timeline-list time {
+  color: var(--ink-2);
+}
+
+.figure-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.figure {
+  margin: 0;
+}
+
+.figure img {
+  display: block;
+  max-inline-size: 100%;
+  border: 1px solid var(--rule);
+}
+
+.figure figcaption {
+  margin-block-start: var(--space-2);
+  font-size: var(--step--1);
+}
+
+/* Limits close the ledger and are never collapsible. */
+.limits {
+  padding: var(--space-4);
+  border: 1px solid var(--ink);
+}
+
+.limits ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+
+.sources {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+
+@media (max-width: 960px) {
+  .case-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .case-map {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .ledger {
+    padding: var(--space-4);
+  }
+
+  .finding-rows,
+  .timeline-list li {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .finding-row dd + dt {
+    margin-block-start: var(--space-2);
+  }
+}
