@@ -1,16 +1,16 @@
 # NISAR data on disk: plain-language report
 
-Generated 2026-11-14 15:15 from `D:\project\NASA_SAR\data`. Read-only: nothing in the data folder was changed. Every figure below is read from the files.
+Generated 2026-11-14 19:54 from `D:\project\NASA_SAR\data`. Read-only: nothing in the data folder was changed. Every figure below is read from the files.
 
 ## 1. In short
 
 | Dataset | What it is | Products | Size on disk |
 |---|---|---|---|
-| GUNW | Interferogram pairs (two radar passes, 12 days apart or more). Used for ground motion and, through coherence, for surface change. One product = one pair. | 62 | 167.0 GB |
+| GUNW | Interferogram pairs (two radar passes, 12 days apart or more). Used for ground motion and, through coherence, for surface change. One product = one pair. | 103 | 200.6 GB |
 | GCOV | Radar backscatter (how bright the ground looks to the radar). Used for water, soil and vegetation change. One product = one pass. | 9 | 27.9 GB |
 | SME2 | Soil moisture estimates (Level 3, 200 m). One product = one pass. Provisional, not fully calibrated. | 82 | 7.5 GB |
 
-Total on disk: **202.5 GB** (free space on that drive: 259 GB).
+Total on disk: **236.0 GB** (free space on that drive: 225 GB).
 
 Health checks: 0 product(s) with no completion marker; 0 product(s) that reported a missing layer.
 
@@ -33,11 +33,19 @@ Health checks: 0 product(s) with no completion marker; 0 product(s) that reporte
 
 ### Panama
 
-- **GUNW**: 9 product(s), 16.0 GB, from 2026-09-27 to 2026-10-17.
+- **GUNW**: 17 product(s), 34.5 GB, from 2026-09-11 to 2026-10-17.
   - Maturity (CRID): PROVISIONAL P05023
-  - Viewing geometries: track 141 frame 84 descending (1); track 141 frame 85 descending (2); track 4 frame 5 ascending (1); track 4 frame 6 ascending (1); track 40 frame 84 descending (1); track 40 frame 85 descending (1); track 76 frame 5 ascending (1); track 76 frame 6 ascending (1)
-  - Pair length: 12 days: 9
-  - Original file kept for 9 of 9 products; geometry extras: old (no axes/tide).
+  - Viewing geometries: track 141 frame 84 descending (2); track 141 frame 85 descending (3); track 4 frame 5 ascending (2); track 4 frame 6 ascending (2); track 40 frame 84 descending (2); track 40 frame 85 descending (2); track 76 frame 5 ascending (2); track 76 frame 6 ascending (2)
+  - Pair length: 12 days: 16, 24 days: 1
+  - Original file kept for 17 of 17 products; geometry extras: axes+tide.
+
+### other
+
+- **GUNW**: 33 product(s), 15.1 GB, from 2026-06-13 to 2026-10-18.
+  - Maturity (CRID): PROVISIONAL P05023
+  - Viewing geometries: track 126 frame 83 descending (1); track 126 frame 84 descending (1); track 15 frame 20 ascending (8); track 162 frame 6 ascending (1); track 162 frame 7 ascending (1); track 54 frame 83 descending (1); track 61 frame 6 ascending (1); track 61 frame 7 ascending (1); track 95 frame 70 descending (18)
+  - Pair length: 12 days: 30, 24 days: 3
+  - Original file kept for 0 of 33 products; geometry extras: axes+tide.
 
 ## 3. Which products straddle each event
 
