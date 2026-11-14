@@ -1,0 +1,32 @@
+{
+ "id": "venezuela-2026",
+ "kind": "earthquake",
+ "status": "draft",
+ "title": {"fr": "Séismes du Venezuela, 24 juin 2026", "en": "Venezuela earthquakes, 24 June 2026", "ar": "زلازل فنزويلا، 24 يونيو 2026"},
+ "date": "2026-06-24T00:00:00Z",
+ "location": {"lat": 10.60, "lon": -66.93, "bbox": [-67.9, 9.9, -66.0, 11.2],
+              "place": {"fr": "Venezuela", "en": "Venezuela", "ar": "فنزويلا"}},
+ "headline": {"template": "backend.case_draft", "params": {},
+              "text": {"fr": "[BROUILLON] Déplacement NISAR comparé au traitement indépendant de l'UCSD : en cours.",
+                       "en": "[DRAFT] NISAR displacement compared with UCSD's independent processing: in progress.",
+                       "ar": "[مسودة] مقارنة إزاحة NISAR بالمعالجة المستقلة لجامعة UCSD: قيد الإنجاز."}},
+ "findings": [
+  {"id": "los_max", "label": {"fr": "Déplacement maximal en ligne de visée", "en": "Peak line-of-sight displacement", "ar": "أقصى إزاحة في خط النظر"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "cm", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"}
+ ],
+ "figures": [],
+ "exposure": null,
+ "timeline": [
+  {"label": {"fr": "Séismes", "en": "Earthquakes", "ar": "الزلازل"}, "at": "2026-06-24T00:00:00Z"}
+ ],
+ "answer_ids": [],
+ "limits": [
+  {"template": "backend.case_draft_limit", "params": {},
+   "text": {"fr": "Brouillon : les valeurs NISAR sont des espaces réservés (0) et la référence UCSD n'est pas encore lue.",
+            "en": "Draft: the NISAR values are placeholders (0) and the UCSD reference has not been read yet.",
+            "ar": "مسودة: قيم NISAR مؤقتة (0) ولم تتم بعد قراءة مرجع UCSD."}}
+ ],
+ "placeholders": ["date (day only, origin time from USGS to come)", "location.bbox", "findings[los_max].nisar",
+                  "findings[los_max].reference (UCSD)", "timeline[0].at", "headline", "limits"]
+}

@@ -1,0 +1,32 @@
+{
+ "id": "haouz-flood-2026",
+ "kind": "flood",
+ "status": "draft",
+ "title": {"fr": "Crue éclair d'Al Haouz près d'Asni, 10 octobre 2026", "en": "Al Haouz flash flood near Asni, 10 October 2026", "ar": "سيول الحوز قرب أسني، 10 أكتوبر 2026"},
+ "date": "2026-10-10T00:00:00Z",
+ "location": {"lat": 31.25, "lon": -7.983, "bbox": [-8.2, 31.05, -7.75, 31.45],
+              "place": {"fr": "Asni, Al Haouz (Maroc)", "en": "Asni, Al Haouz (Morocco)", "ar": "أسني، الحوز (المغرب)"}},
+ "headline": {"template": "backend.case_draft", "params": {},
+              "text": {"fr": "[BROUILLON] Zone inondée cartographiée par NISAR (GCOV) : en cours.",
+                       "en": "[DRAFT] Flooded area mapped by NISAR (GCOV): in progress.",
+                       "ar": "[مسودة] خريطة المنطقة المغمورة من NISAR (GCOV): قيد الإنجاز."}},
+ "findings": [
+  {"id": "flooded_area", "label": {"fr": "Surface inondée", "en": "Flooded area", "ar": "المساحة المغمورة"},
+   "nisar": {"value": 0, "uncertainty": 0, "unit": "km2", "sigma": 1},
+   "reference": null, "reference_source": null, "agreement": "no_reference"}
+ ],
+ "figures": [],
+ "exposure": null,
+ "timeline": [
+  {"label": {"fr": "Crue", "en": "Flood", "ar": "الفيضان"}, "at": "2026-10-10T00:00:00Z"}
+ ],
+ "answer_ids": [],
+ "limits": [
+  {"template": "backend.case_draft_limit", "params": {},
+   "text": {"fr": "Brouillon : la surface inondée est un espace réservé (0), pas une mesure.",
+            "en": "Draft: the flooded area is a placeholder (0), not a measurement.",
+            "ar": "مسودة: المساحة المغمورة قيمة مؤقتة (0) وليست قياسا."}}
+ ],
+ "placeholders": ["date (day only)", "location.bbox", "findings[flooded_area].nisar", "timeline[0].at", "headline",
+                  "limits"]
+}

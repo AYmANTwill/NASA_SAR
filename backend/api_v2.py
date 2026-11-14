@@ -18,7 +18,7 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 
 import agent
 import catalog
@@ -26,6 +26,7 @@ import discoveries
 import events
 import watch
 from config import CACHE_DIR, LOS_SIGN
+from science import case_store
 
 router = APIRouter(prefix="/api")
 STORE = CACHE_DIR / "answers_v2"
@@ -746,3 +747,32 @@ def simulate_pass(wid: str, level: str = "orange"):
 @router.get("/health")
 def health():
     return {"status": "ok", "version": "nisar-pulse-backend", "data": "live" if catalog.load() else "cache"}
+
+
+# ---------------------------------------------------------------------------
+# case studies (docs/CASE_CONTRACT.md); the logic lives in science/case_store.py
+# ---------------------------------------------------------------------------
+@router.get("/cases")
+def list_cases():
+    return case_store.summaries()
+
+
+@router.get("/cases/{cid}")
+def get_case(cid: str):
+    try:
+        case = case_store.load(cid)
+    except case_store.CaseFileError:
+        return api_error("case_invalid", 500, "Ce cas d'étude est invalide côté serveur.",
+                         "This case study is invalid on the server.", "دراسة الحالة هذه غير صالحة على الخادم.")
+    if case is None:
+        return api_error("case_not_found", 404, "Cas d'étude introuvable.", "Case study not found.",
+                         "دراسة الحالة غير موجودة.")
+    return case_store.to_json(case)
+
+
+@router.get("/cases/{cid}/figures/{name}")
+def get_case_figure(cid: str, name: str):
+    path = case_store.figure_path(cid, name)
+    if path is None:
+        return api_error("figure_not_found", 404, "Figure introuvable.", "Figure not found.", "الشكل غير موجود.")
+    return FileResponse(path, media_type=case_store.MEDIA[path.suffix.lower().lstrip(".")])
