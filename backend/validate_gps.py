@@ -266,7 +266,13 @@ def validate(sta: str, source: Source, products, window: int, out: Path) -> dict
         return rep
     rep["station"] = {k: st[k] for k in ("station", "lat", "lon", "height")}
     rep["gps_first_date"], rep["gps_last_date"] = str(st["epochs"][0][0]), str(st["epochs"][-1][0])
-    covering = [p for p in products if p.covers(st["lat"], st["lon"])]
+    import quality
+    covering, rep["rejected_pairs"] = quality.split([p for p in products if p.covers(st["lat"], st["lon"])])
+    if not covering and rep["rejected_pairs"]:
+        rep.update(status="no_usable_pair", message=f"Every NISAR pair covering {sta} was rejected by the quality filter "
+                                                    "(flat phase or median coherence < 0.15): nothing to compare.")
+        write(rep, out)
+        return rep
     if not covering:
         rep.update(status="no_coverage",
                    message=f"Station {sta} ({st['lat']:.4f}, {st['lon']:.4f}) is inside none of the {len(products)} "

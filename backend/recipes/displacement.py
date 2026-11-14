@@ -11,7 +11,7 @@ import numpy as np
 import raster
 from catalog import Product
 from recipes import corrections as corrections_mod
-from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, WAVELENGTH_M
+from config import COHERENCE_MIN, LOS_SIGN, POINT_RADIUS_M, SIGN_BASIS, WAVELENGTH_M
 from uncertainty import robust_sigma
 
 REF_DISTANCE_M = 25_000      # reference area = pixels farther than this from the point
@@ -114,6 +114,7 @@ def analyze(p: Product, lat: float, lon: float, make_layer: bool = True) -> dict
         "corrections_requested": list(names),
         "corrections_applied": [n for n in names if report.get(n, {}).get("applied")],
         "corrections": report,
+        "sign_basis": SIGN_BASIS,
         "meaning": "positive = ground moved toward the satellite" if LOS_SIGN > 0 else
                    "positive = ground moved away from the satellite",
     }

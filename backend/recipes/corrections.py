@@ -31,6 +31,10 @@ AXES = ("heightAboveEllipsoid", "yCoordinates", "xCoordinates")
 ATTR_DATASETS = ("unwrappedPhase", "ionospherePhaseScreen", *TROPO_KEYS, TIDE_KEY, "losUnitVectorX", "losUnitVectorY")
 GLO30_URL = "https://copernicus-dem-30m.s3.amazonaws.com/{n}/{n}.tif"
 MAX_EVAL = 400                                    # cube evaluated on at most ~400x400 points, then upsampled
+# Ionosphere: pixels whose ionospherePhaseScreenUncertainty exceeds this (radians) are masked when the screen is
+# subtracted. Real files: subtracting lowers the noise 2-40x on 10 of 12 Panama/Morocco pairs (Phase A report).
+IONO_UNC_MAX_RAD = float(os.environ.get("NISAR_IONO_UNC_MAX_RAD", "1.0"))
+SIGMA_SUBSAMPLE = 4                               # every 4th pixel for the frame-wide robust sigma
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -74,6 +78,30 @@ def subtract_screen(phase: np.ndarray, screen: np.ndarray, sign: int = 1) -> np.
 
 def correct_iono(phase: np.ndarray, iono: np.ndarray, sign: int = 1) -> np.ndarray:
     return subtract_screen(phase, iono, sign)
+
+
+def uncertainty_mask(unc: np.ndarray | None, max_rad: float = IONO_UNC_MAX_RAD) -> np.ndarray | None:
+    """True where the ionosphere screen is too uncertain to be trusted (uncertainty > max_rad)."""
+    if unc is None:
+        return None
+    with np.errstate(invalid="ignore"):
+        return np.isfinite(unc) & (unc > max_rad)
+
+
+def frame_sigma(phase: np.ndarray, exclude: np.ndarray | None = None) -> float:
+    """Robust sigma (rad) of the phase over the whole frame (every 4th pixel), excluded pixels left out."""
+    from uncertainty import robust_sigma
+    sl = (slice(None, None, SIGMA_SUBSAMPLE), slice(None, None, SIGMA_SUBSAMPLE))
+    v = phase[sl]
+    if exclude is not None:
+        v = v[~exclude[sl]]
+    v = v[np.isfinite(v)]
+    return robust_sigma(v - np.median(v)) if v.size else float("nan")
+
+
+def keep_raw_phase(sigma_raw: float, sigma_subtracted: float) -> bool:
+    """Per pair: keep the raw phase unless subtracting the screen lowers the frame-wide robust sigma."""
+    return not (np.isfinite(sigma_subtracted) and np.isfinite(sigma_raw) and sigma_subtracted < sigma_raw)
 
 
 def correct_tropo(phase: np.ndarray, hydrostatic: np.ndarray, wet: np.ndarray, sign: int = 1) -> np.ndarray:
@@ -323,6 +351,9 @@ def _base(name: str, attrs: dict, dataset: str) -> dict:
 
 
 def _apply_iono(p, phase, attrs, wavelength_m, sign):
+    """Subtracts the ionosphere screen, masks the pixels where its uncertainty is above IONO_UNC_MAX_RAD, and keeps
+    the raw phase for a pair where subtracting does not lower the frame-wide robust sigma. sign -1 (the noise
+    report's convention test) forces the subtraction."""
     r = _base("iono", attrs, "ionospherePhaseScreen")
     if r["already_applied_flag"]:
         return phase, {**r, "reason": "the product says the ionosphere is already corrected: not applied again"}
@@ -333,7 +364,22 @@ def _apply_iono(p, phase, attrs, wavelength_m, sign):
     if iono.shape != phase.shape:
         return phase, {**r, "reason": f"ionospherePhaseScreen shape {iono.shape} differs from the phase {phase.shape}"}
     scr, units = to_radians(iono, r["units_attribute"], wavelength_m)
-    return correct_iono(phase, scr, sign), {**r, "applied": True, "reason": "applied", "sign": sign, "units": units}
+    unc = raster.read(p.files["iono_unc"])[0] if "iono_unc" in p.files else None
+    mask = uncertainty_mask(unc if unc is not None and unc.shape == phase.shape else None)
+    sub = correct_iono(phase, scr, sign)
+    s_raw, s_sub = frame_sigma(phase, mask), frame_sigma(sub, mask)
+    info = {"units": units, "sign": sign, "frame_sigma_raw_rad": None if not np.isfinite(s_raw) else round(s_raw, 4),
+            "frame_sigma_subtracted_rad": None if not np.isfinite(s_sub) else round(s_sub, 4),
+            "uncertainty_layer": "present" if mask is not None else "absent (not extracted for this product)",
+            "uncertainty_max_rad": IONO_UNC_MAX_RAD,
+            "uncertainty_masked_fraction": None if mask is None else round(float(mask.mean()), 4)}
+    if sign == 1 and keep_raw_phase(s_raw, s_sub):
+        return phase, {**r, **info, "kept_raw": True,
+                       "reason": f"kept the raw phase: subtracting the screen did not lower the robust sigma "
+                                 f"({info['frame_sigma_raw_rad']} -> {info['frame_sigma_subtracted_rad']} rad)"}
+    if mask is not None:
+        sub = np.where(mask, np.nan, sub)
+    return sub, {**r, **info, "kept_raw": False, "applied": True, "reason": "applied"}
 
 
 def _apply_cube(name, p, phase, prof, attrs, wavelength_m, sign, z, height):

@@ -12,6 +12,7 @@ import time
 import numpy as np
 
 import catalog
+import quality
 import evidence
 import config as _cfg
 from config import ANTHROPIC_API_KEY, GAZETTEER, LLM_MODEL, MIN_RATE_DAYS, SM_UNCERTAINTY
@@ -142,10 +143,16 @@ def find_event_date(q: str) -> str | None:
 # Running the recipes
 # ---------------------------------------------------------------------------
 class Steps(list):
+    rejected: list = []
+
     def run(self, name, fn, *a, **k):
         t = time.time()
         try:
             out = fn(*a, **k)
+            if isinstance(out, dict) and out.get("status") == "unavailable":     # an evidence source that failed
+                self.append({"step": name, "ok": False, "error": out.get("summary") or "unavailable",
+                             "ms": int((time.time() - t) * 1000)})
+                return out
             self.append({"step": name, "ok": True, "ms": int((time.time() - t) * 1000)})
             return out
         except Exception as e:
@@ -166,7 +173,21 @@ def _one_per_direction(ps):
 
 
 def run_sudden(lat, lon, event, precision, steps):
-    ps = catalog.find(lat, lon, "GUNW")
+    out, used = _run_sudden(lat, lon, event, precision, steps)
+    return {**out, "rejected_pairs": steps.rejected}, used
+
+
+def _quality_split(ps, steps):
+    """Drops the pairs rejected by the quality filter (flat phase, median coherence < 0.15) and records them."""
+    good, rejected = quality.split(ps)
+    steps.rejected = rejected
+    if rejected:
+        steps.append({"step": f"{len(rejected)} pair(s) rejected by the quality filter", "ok": True, "ms": 0})
+    return good
+
+
+def _run_sudden(lat, lon, event, precision, steps):
+    ps = _quality_split(catalog.find(lat, lon, "GUNW"), steps)
     steps.append({"step": f"found {len(ps)} interferograms covering the point", "ok": bool(ps), "ms": 0})
     if not event:
         return {"error": "a sudden-event question needs the event: name it or give its date (YYYY-MM-DD)"}, ps
@@ -195,7 +216,7 @@ def run_sudden(lat, lon, event, precision, steps):
     out.update(value_cm=main["los_cm"], noise_cm=main["noise_cm"], coherence=main["coherence"],
                masked=main["masked_fraction_10km"], date_before=min(r["date_before"] for r in res),
                date_after=max(r["date_after"] for r in res), event_day=event[:8], event_precision=precision,
-               sign_verified=_cfg.LOS_SIGN_VERIFIED,
+               sign_verified=_cfg.LOS_SIGN_VERIFIED, sign_basis=_cfg.SIGN_BASIS,
                troposphere_corrected="tropo" in main.get("corrections_applied", []),
                tide_corrected="tide" in main.get("corrections_applied", []),
                corrections_requested=main.get("corrections_requested", []),
@@ -207,7 +228,14 @@ def run_sudden(lat, lon, event, precision, steps):
 
 
 def run_slow(lat, lon, steps):
-    ps = catalog.find(lat, lon, "GUNW")
+    out, used = _run_slow(lat, lon, steps)
+    if out is not None:
+        out = {**out, "rejected_pairs": steps.rejected}
+    return out, used
+
+
+def _run_slow(lat, lon, steps):
+    ps = _quality_split(catalog.find(lat, lon, "GUNW"), steps)
     steps.append({"step": f"found {len(ps)} interferograms covering the point", "ok": bool(ps), "ms": 0})
     if not ps:
         return None, []
@@ -229,7 +257,8 @@ def run_slow(lat, lon, steps):
                min_rate_days=main.get("min_rate_days", MIN_RATE_DAYS), crid=main["crid"], maturity=main["maturity"],
                chain_connected=main["chain_connected"], n_components=main["n_components"],
                unmeasured_dates=main["unmeasured_dates"], acceleration=main.get("acceleration_mm_yr2"),
-               sign_verified=_cfg.LOS_SIGN_VERIFIED, troposphere_corrected=main.get("troposphere_corrected", False),
+               sign_verified=_cfg.LOS_SIGN_VERIFIED, sign_basis=_cfg.SIGN_BASIS,
+               troposphere_corrected=main.get("troposphere_corrected", False),
                tide_corrected=main.get("tide_corrected", False), corrections_requested=main.get("corrections_requested", []),
                corrections_applied=main.get("corrections_applied", []), iono_screen=main["iono_screen"],
                reference_same_component=main["reference_same_component"],

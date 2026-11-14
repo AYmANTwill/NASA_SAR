@@ -1219,6 +1219,100 @@ check("GPS validation never crashes: station in no frame -> 'no_coverage', GPS e
       and o_rc == 2 and oj["status"] == "no_gps_in_window" and "2024" in oj["gps_last_date"]
       and m_rc == 2 and json.loads((gout / "gps_NONE.json").read_text(encoding="utf-8"))["status"] == "no_gps",
       (fj["status"], oj["status"]))
+
+# --- addendum (Phase A real-data report): sign basis, ionosphere rules, pair quality, User-Agent, failed steps ------
+import quality as _q  # noqa: E402
+
+check("sign basis: every signed answer carries the documented convention (ARIA-tools, MintPy prep_nisar); still "
+      "'sign unverified' until NISAR_LOS_SIGN_VERIFIED=1",
+      "ARIA-tools" in pv["facts"]["sign_basis"] and "MintPy prep_nisar" in pv["facts"]["sign_basis"]
+      and "ARIA-tools" in rg["en"]["facts"]["sign_basis"] and "ARIA-tools" in pv["facts"]["pairs"][0]["sign_basis"]
+      and pv["facts"]["sign_verified"] is False and pv["confidence"] == "low" and pv["alert_level"] == "none")
+IS = (29.60, -9.00)
+ips = sorted([p for p in catalog.find(*IS, "GUNW") if p.track == 173], key=lambda p: p.ref)
+ig, ib = (_disp.los_cm_full(p)[4]["iono"] for p in ips)
+dg = _disp.los_cm(ips[0])[0]
+check("ionosphere: the screen is subtracted where it lowers the robust sigma, and pixels whose screen uncertainty is "
+      "above the setting are masked (4 % corner), all recorded in the facts",
+      ig["applied"] and ig["kept_raw"] is False and ig["frame_sigma_subtracted_rad"] < ig["frame_sigma_raw_rad"]
+      and ig["uncertainty_layer"] == "present" and ig["uncertainty_max_rad"] == _corr.IONO_UNC_MAX_RAD
+      and abs(ig["uncertainty_masked_fraction"] - 0.04) < 0.005 and _np.isnan(dg[:100, :100]).all()
+      and _np.isfinite(dg[300:400, 300:400]).mean() > 0.9, ig)
+check("ionosphere: per pair the RAW phase is kept when subtracting does not lower the robust sigma (said, not masked)",
+      ib["applied"] is False and ib["kept_raw"] is True and "kept the raw phase" in ib["reason"]
+      and ib["frame_sigma_subtracted_rad"] > ib["frame_sigma_raw_rad"]
+      and _disp.analyze(ips[1], *IS, make_layer=False)["iono_applied"] is False
+      and _np.isfinite(_disp.los_cm(ips[1])[0][:100, :100]).mean() > 0.9)
+check("ionosphere rules are pure functions: uncertainty mask threshold, keep-raw decision",
+      _corr.uncertainty_mask(_np.array([0.5, 1.5, _np.nan]), 1.0).tolist() == [False, True, False]
+      and _corr.uncertainty_mask(None) is None and _corr.keep_raw_phase(1.0, 1.2) and not _corr.keep_raw_phase(1.0, 0.5)
+      and _corr.keep_raw_phase(1.0, float("nan")))
+nr_out2 = tmp / "results_out_iono"
+_nr.main(["--out", str(nr_out2), "--match", "T173"])
+nri = json.loads((nr_out2 / "noise_report.json").read_text(encoding="utf-8"))
+dec = {r["id"]: r["iono_decision"] for r in nri["products"]}
+check("noise_report: the ionosphere decision is reported per pair (subtracted / kept raw, both sigmas, masked share)",
+      [d["kept_raw"] for d in dec.values()] == [False, True] and all("frame_sigma_raw_rad" in d for d in dec.values())
+      and "kept raw" in (nr_out2 / "noise_report.md").read_text(encoding="utf-8")
+      and nri["summary"]["iono"]["n_products"] == 2, dec)
+QS = (29.00, -10.00)
+qps = sorted([p for p in catalog.find(*QS, "GUNW") if p.track == 174], key=lambda p: p.ref)
+qgood, qbad = _q.split(qps)
+bad_ids = {b["product"] for b in qbad}
+check("pair quality: a flat unwrapped phase and a median coherence < 0.15 are rejected with the reason; good pairs kept",
+      len(qgood) == 2 and bad_ids == {qps[1].id, qps[2].id}
+      and any("flat unwrapped phase" in x for b in qbad for x in b["reasons"])
+      and any("median coherence 0.10 < 0.15" in x for b in qbad for x in b["reasons"])
+      and _q.assess(_np.zeros((50, 50)), None)["ok"] is False and _q.assess(_np.random.default_rng(1).normal(0, 1, (50, 50)),
+                                                                           _np.full((50, 50), 0.5))["ok"] is True)
+qs = _ts.point_series(qps, *QS)
+qsd = _damage.analyze(qps, *QS, qps[3].ref[:8] + "T120000", "exact")
+qsd_txt = json.dumps({k: v for k, v in qsd.items() if k != "rejected_pairs"}, default=str)
+check("pair quality: rejected pairs are left out of the series and of the surface-change before/baseline pairs, and listed",
+      all(s["n_pairs"] <= 2 for s in qs) and {r["product"] for r in qs[0]["rejected_pairs"]} == bad_ids
+      and {r["product"] for r in qsd["rejected_pairs"]} == bad_ids and not any(b in qsd_txt for b in bad_ids)
+      and _ts.velocity_map(qps) is None, (qs[0]["n_pairs"], qsd.get("error")))
+qa = agent.investigate("Le sol bouge-t-il ici ?", *QS, "fr")
+check("pair quality: the answer lists the rejected pairs in facts and a step says so",
+      qa["type"] == "slow_motion" and {r["product"] for r in qa["facts"]["rejected_pairs"]} == bad_ids
+      and any("rejected by the quality filter" in s["step"] for s in qa["steps"]), qa["facts"].get("error"))
+_config.DISCOVERIES_ENABLED = True
+dq = _disc.scan(with_exposure=False)
+_config.DISCOVERIES_ENABLED = False
+check("pair quality: discoveries never scan a rejected pair and list them",
+      bad_ids <= {r["product"] for r in dq["rejected_pairs"]} and not any(b in json.dumps(dq["zones"]) for b in bad_ids))
+seen_headers = []
+
+
+class _FakeReq:
+    class RequestException(Exception):
+        pass
+
+    @staticmethod
+    def get(url, **kw):
+        seen_headers.append(kw.get("headers"))
+        raise _FakeReq.RequestException("blocked in the tests")
+
+    @staticmethod
+    def post(url, **kw):
+        seen_headers.append(kw.get("headers"))
+        raise _FakeReq.RequestException("406 Not Acceptable")
+
+
+_real_req, _real_off, _real_key = _evidence.requests, _evidence.OFFLINE, _evidence.FIRMS_MAP_KEY
+_evidence.requests, _evidence.OFFLINE, _evidence.FIRMS_MAP_KEY = _FakeReq, False, "test"
+try:
+    ev_out = [_evidence.earthquakes(7.59, -80.77, "20260927", "20261009"), _evidence.rainfall(31.25, -7.98, "20261001", "20261013"),
+              _evidence.fires(31.25, -7.98, "20261013"), _evidence.exposure(31.25, -7.98)]
+    st_ = agent.Steps()
+    st_.run("buildings and roads around the point", _evidence.exposure, 31.25, -7.98)
+finally:
+    _evidence.requests, _evidence.OFFLINE, _evidence.FIRMS_MAP_KEY = _real_req, _real_off, _real_key
+check("evidence: every outside request (USGS, Open-Meteo, FIRMS, Overpass) sends a User-Agent header",
+      len(seen_headers) >= 4 and all(h and h.get("User-Agent", "").startswith("NISAR-Pulse") for h in seen_headers)
+      and all(e["status"] == "unavailable" for e in ev_out), seen_headers)
+check("agent steps: an evidence source that returns 'unavailable' is recorded ok: false with its error",
+      st_[0]["ok"] is False and "406" in st_[0]["error"] and agent.Steps().run("x", lambda: {"status": "agrees"}) == {"status": "agrees"})
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 

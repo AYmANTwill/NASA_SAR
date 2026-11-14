@@ -19,6 +19,7 @@ from scipy import ndimage
 import catalog
 import config
 import evidence
+import quality
 import raster
 from config import CACHE_DIR, FRINGE_CM
 from recipes import displacement, timeseries
@@ -145,9 +146,9 @@ def scan(with_exposure: bool = True, top: int = 20, force: bool = False) -> dict
     if not (config.DISCOVERIES_ENABLED or force):
         return disabled()
     groups = defaultdict(list)
-    for p in catalog.load():
-        if p.level == "GUNW":
-            groups[p.series_key].append(p)      # geometry AND CRID: never mix product versions
+    good, rejected = quality.split([p for p in catalog.load() if p.level == "GUNW"])
+    for p in good:                              # pairs rejected by the quality filter are never scanned
+        groups[p.series_key].append(p)          # geometry AND CRID: never mix product versions
     zones, infos = [], []
     for geom, ps in groups.items():
         twelve = [p for p in ps if p.span_days in (12, 24)]
@@ -176,7 +177,8 @@ def scan(with_exposure: bool = True, top: int = 20, force: bool = False) -> dict
             z["exposure"] = e.get("counts") if e["status"] != "unavailable" else None
             z["exposed"] = e.get("exposed")
         z["id"] = f"zone-{rank}"
-    out = {"enabled": True, "label": LABEL, "schema": SCHEMA, "zones": zones, "n_geometries": len(groups), "note":
+    out = {"enabled": True, "label": LABEL, "schema": SCHEMA, "zones": zones, "n_geometries": len(groups),
+           "rejected_pairs": rejected, "note":
            "Every zone is an unvalidated candidate (confidence low, never an alert above yellow). Velocity maps need a record "
            "of at least 12 months; with less, the latest single pair is used, in cm, and a zone of one fringe (11.92 cm) or "
            "more in one pair is not physical."}

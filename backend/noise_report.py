@@ -46,7 +46,12 @@ def product_noise(p, displacement) -> dict:
         sigma = displacement.referenced(p, lat, lon, names)[3]
         rep = displacement.los_cm_full(p, names)[4]
         row["sigma_cm"][label] = _r(sigma)
-        row["applied"][label] = all(rep.get(n, {}).get("applied") for n in names)
+        # the ionosphere rule counts as applied when it kept the raw phase on purpose (subtraction did not help)
+        row["applied"][label] = all(rep.get(n, {}).get("applied") or rep.get(n, {}).get("kept_raw") for n in names)
+        if label == "iono" and "iono" in rep:
+            row["iono_decision"] = {k: rep["iono"].get(k) for k in (
+                "applied", "kept_raw", "reason", "frame_sigma_raw_rad", "frame_sigma_subtracted_rad",
+                "uncertainty_layer", "uncertainty_max_rad", "uncertainty_masked_fraction")}
         for n in names:
             row["reasons"].setdefault(n, rep.get(n, {}).get("reason"))
             for k in ("units", "height_source", "attributes_from", "already_applied_flag", "description"):
@@ -114,6 +119,15 @@ def markdown(rep: dict) -> str:
         sc = rep["summary"].get(n, {}).get("sign_check")
         lines.append(f"- **{n}**: " + (f"{sc['verdict']} ({sc['share_subtract_better']} of {sc['n_products']} products)"
                                        if sc else "not tested (never applicable)"))
+    lines += ["", "## Ionosphere, per pair (uncertainty mask + keep the raw phase when subtracting does not help)", "",
+              "| product | decision | frame sigma raw (rad) | frame sigma subtracted (rad) | masked by uncertainty |",
+              "|---|---|---|---|---|"]
+    for r in rep["products"]:
+        d = r.get("iono_decision") or {}
+        decision = ("subtracted" if d.get("applied") else "kept raw" if d.get("kept_raw") else
+                    f"not applied ({d.get('reason')})" if d else "—")
+        lines.append(f"| {r['id']} | {decision} | {d.get('frame_sigma_raw_rad', '—')} | "
+                     f"{d.get('frame_sigma_subtracted_rad', '—')} | {d.get('uncertainty_masked_fraction', '—')} |")
     lines += ["", f"**Recommended setting:** `NISAR_CORRECTIONS={rep['recommended_setting']}` "
                   "(current default: `iono`). Corrections that do not lower the noise stay off.", "",
               "## Per product", "", "| product | " + " | ".join(SETS) + " | not applied because |",

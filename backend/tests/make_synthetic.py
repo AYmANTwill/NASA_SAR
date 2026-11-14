@@ -41,7 +41,8 @@ def stamp(d: date, hhmmss="053852"):
     return d.strftime("%Y%m%d") + "T" + hhmmss
 
 
-def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg, crid="P05023", extra_phase=None, extra_npz=None):
+def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg, crid="P05023", extra_phase=None, extra_npz=None,
+         extra_tifs=None, noise=True):
     a = "A" if direction == "ascending" else "D"
     hh = "053852" if a == "A" else "235308"      # descending passes are in the evening
     name = (f"NISAR_L2_PR_GUNW_030_{track:03d}_{a}_{frame:03d}_031_4000_SH_{stamp(d1, hh)}_{stamp(d1,'235330')}_"
@@ -50,12 +51,15 @@ def gunw(track, direction, frame, d1, d2, los_m, coh, lat, lon, epsg, crid="P050
     f.mkdir(parents=True, exist_ok=True)
     t, *_ = grid(lat, lon, epsg)
     phase = (los_m / (-WAVELENGTH_M / (4 * np.pi))).astype("float32")
-    phase += rng.normal(0, 0.15, phase.shape).astype("float32")          # ~3 mm noise
+    if noise:
+        phase += rng.normal(0, 0.15, phase.shape).astype("float32")      # ~3 mm noise
     if extra_phase is not None:                                          # e.g. a tropospheric ramp (radians)
         phase += extra_phase.astype("float32")
     tif(f / "unwrappedInterferogram_HH_unwrappedPhase.tif", phase, t, epsg)
     tif(f / "unwrappedInterferogram_HH_coherenceMagnitude.tif", coh.astype("float32"), t, epsg)
     tif(f / "unwrappedInterferogram_HH_connectedComponents.tif", np.ones((N, N), "uint16"), t, epsg)
+    for layer, arr in (extra_tifs or {}).items():                        # e.g. ionospherePhaseScreen(Uncertainty)
+        tif(f / f"unwrappedInterferogram_HH_{layer}.tif", arr.astype("float32"), t, epsg)
     v = _nominal(direction)
     np.savez_compressed(f / "radar_geometry.npz", science__LSAR__GUNW__metadata__radarGrid__losUnitVectorX=np.full((3, 5, 5), v[0]),
                         science__LSAR__GUNW__metadata__radarGrid__losUnitVectorY=np.full((3, 5, 5), v[1]), **(extra_npz or {}))
@@ -188,6 +192,8 @@ def main():
     chain(68, "ascending", 39, bad_baseline=True)                 # the baseline pair cannot be measured
     corrections_site()
     gps_site()
+    iono_site()
+    quality_site()
     print("synthetic data written to", OUT.resolve())
 
 
@@ -227,6 +233,36 @@ def corrections_site():
         d1 = date(2026, 8, 1) + timedelta(days=12 * k)
         gunw(172, "descending", 52, d1, d1 + timedelta(days=12), np.zeros((N, N)),
              np.clip(rng.normal(0.8, 0.05, (N, N)), 0, 1), *TROPO_SITE, 32629, extra_phase=tropo + tide, extra_npz=npz)
+
+
+# --- ionosphere: one pair where the product's screen explains the phase (subtracted, uncertain corner masked) and one
+#     where the screen is unrelated noise (subtracting raises the noise: the raw phase is kept) ----------------------
+IONO_SITE = (29.60, -9.00)
+
+
+def iono_site():
+    yy, xx = np.mgrid[:N, :N]
+    ramp = 3.0 * (xx / N - 0.5) + 2.0 * (yy / N - 0.5)                # radians
+    unc = np.full((N, N), 0.2)
+    unc[:N // 5, :N // 5] = 2.0                                        # uncertain corner: 4 % of the frame
+    good_pair = {"ionospherePhaseScreen": ramp, "ionospherePhaseScreenUncertainty": unc}
+    bad_pair = {"ionospherePhaseScreen": rng.normal(0, 1.0, (N, N)), "ionospherePhaseScreenUncertainty": unc}
+    for k, (extra, tifs) in enumerate([(ramp, good_pair), (None, bad_pair)]):
+        d1 = date(2026, 8, 3) + timedelta(days=12 * k)
+        gunw(173, "descending", 53, d1, d1 + timedelta(days=12), np.zeros((N, N)),
+             np.clip(rng.normal(0.8, 0.05, (N, N)), 0, 1), *IONO_SITE, 32629, extra_phase=extra, extra_tifs=tifs)
+
+
+# --- pair quality filter: a 4-pair chain with one flat pair (phase exactly 0) and one incoherent pair (0.1) -----------
+QUALITY_SITE = (29.00, -10.00)
+
+
+def quality_site():
+    for k in range(4):
+        d1 = date(2026, 8, 5) + timedelta(days=12 * k)
+        coh = np.full((N, N), 0.1) if k == 2 else np.clip(rng.normal(0.8, 0.05, (N, N)), 0, 1)
+        gunw(174, "ascending", 54, d1, d1 + timedelta(days=12), np.zeros((N, N)), coh, *QUALITY_SITE, 32628,
+             noise=(k != 1))
 
 
 # --- GPS validation: a NISAR stack over the RABT station and an NGL-format sample of its daily positions -----------

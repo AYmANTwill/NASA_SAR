@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import numpy as np
 
+import quality
 import raster
 from catalog import Product, after, ambiguous, before, straddling
 from config import POINT_RADIUS_M
@@ -175,6 +176,14 @@ def _geometry(products, b, c, lat, lon):
 
 def analyze(products: list[Product], lat: float, lon: float, event: str | None = None,
             precision: str = "exact") -> dict:
+    """Pairs rejected by the quality filter (flat phase, median coherence < 0.15) are never used, not even as a
+    baseline; they are listed in facts["rejected_pairs"]."""
+    good, rejected = quality.split(products)
+    return {**_analyze(good, lat, lon, event, precision), "rejected_pairs": rejected}
+
+
+def _analyze(products: list[Product], lat: float, lon: float, event: str | None = None,
+             precision: str = "exact") -> dict:
     cands = _candidates(products, event, precision)
     amb = [p.id for p in ambiguous(products, event, precision)] if event else []
     if not cands:
