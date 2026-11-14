@@ -15,6 +15,8 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.optimize import curve_fit
 
+from science.invert_fault import ramp_design
+
 MAX_PAIRS = 300_000
 N_BINS = 20
 MIN_PAIRS_PER_BIN = 30
@@ -45,8 +47,9 @@ class NoiseModel:
                 "sigma_cm": self.sigma_cm, "source": self.source, "variogram_bins": list(self.bins)}
 
 
-def deramp(east: np.ndarray, north: np.ndarray, v: np.ndarray) -> np.ndarray:
-    G = np.column_stack([np.ones_like(east), east, north])
+def deramp(east: np.ndarray, north: np.ndarray, v: np.ndarray, comp: np.ndarray | None = None) -> np.ndarray:
+    """v minus its best ramp (one offset per connected component, as in the inversion)."""
+    G = ramp_design(east, north, comp)
     return v - G @ np.linalg.lstsq(G, v, rcond=None)[0]
 
 
@@ -96,8 +99,9 @@ def fit_variogram(h: np.ndarray, gamma: np.ndarray, counts: np.ndarray, source: 
     return NoiseModel(float(sill), float(rng_km), float(nug), source, bins)
 
 
-def from_points(east: np.ndarray, north: np.ndarray, los: np.ndarray, source: str) -> NoiseModel:
-    v = deramp(east, north, los)
+def from_points(east: np.ndarray, north: np.ndarray, los: np.ndarray, source: str,
+                comp: np.ndarray | None = None) -> NoiseModel:
+    v = deramp(east, north, los, comp)
     if float(np.std(v)) < 1e-6:
         raise ValueError(f"{source}: the pre-event map has no measurable noise (constant field?)")
     return fit_variogram(*semivariogram(east, north, v), source=source)

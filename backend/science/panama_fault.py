@@ -17,6 +17,7 @@ import logging
 import math
 import sys
 import time
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,6 +36,7 @@ log = logging.getLogger(__name__)
 COH_MIN = 0.3
 N_TARGET = 1500
 MIN_VALID_SHARE = 0.5        # a block is kept when at least half of its pixels are valid
+MIN_COMPONENT_BLOCKS = 20    # a connected component needs this many blocks to get its own offset
 MW_REF_SIGMA = 0.1           # USGS gives no magnitude uncertainty
 KM_PER_DEG_LAT = 110.574
 KM_PER_DEG_LON_EQ = 111.320
@@ -50,13 +52,20 @@ def local_km(lat, lon, lat0: float, lon0: float) -> tuple[np.ndarray, np.ndarray
             (np.asarray(lat) - lat0) * KM_PER_DEG_LAT)
 
 
-def block_means(values: np.ndarray, n_target: int = N_TARGET) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """(row centres, column centres, block means) of square blocks sized to leave about n_target valid blocks."""
+def block_size(n_valid: int, n_target: int = N_TARGET) -> int:
+    """Side (pixels) of the square blocks that leave about n_target valid blocks."""
+    return max(1, int(math.ceil(math.sqrt(n_valid / n_target))))
+
+
+def block_means(values: np.ndarray, n_target: int = N_TARGET,
+                block: int | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(row centres, column centres, block means) of square blocks sized to leave about n_target valid blocks
+    (or of side `block` pixels when given)."""
     valid = np.isfinite(values)
     n_valid = int(valid.sum())
     if n_valid == 0:
         return np.array([]), np.array([]), np.array([])
-    b = max(1, int(math.ceil(math.sqrt(n_valid / n_target))))
+    b = block or block_size(n_valid, n_target)
     h, w = values.shape
     H, W = math.ceil(h / b) * b, math.ceil(w / b) * b
     pad = np.full((H, W), np.nan, dtype="float64")
@@ -69,30 +78,41 @@ def block_means(values: np.ndarray, n_target: int = N_TARGET) -> tuple[np.ndarra
     return rows * b + b / 2.0, cols * b + b / 2.0, mean[keep]
 
 
-def largest_component(disp: np.ndarray, cc: np.ndarray | None) -> tuple[np.ndarray, str]:
-    """Keeps only the connected component with the most valid pixels: 2π jumps between components would not be
-    absorbed by the per-track ramp. Returns (masked displacement, note)."""
-    if cc is None:
-        return disp, "no connected-component layer: unwrapping jumps between components are not handled"
-    if cc.shape != disp.shape:
-        return disp, f"connected-component layer shape {cc.shape} != {disp.shape}: not used"
+def component_blocks(disp: np.ndarray, cc: np.ndarray | None, n_target: int = N_TARGET):
+    """Block means computed inside each connected component (a block never mixes two components) and the index of
+    its component, so that the inversion fits one offset per component (2π jumps between components).
+    Components with fewer than MIN_COMPONENT_BLOCKS blocks are dropped; the largest one is always kept.
+    Returns (rows, cols, values, comp or None, note)."""
+    if cc is None or cc.shape != disp.shape:
+        rows, cols, vals = block_means(disp, n_target)
+        why = "no connected-component layer" if cc is None else f"connected-component layer shape {cc.shape} != {disp.shape}"
+        return rows, cols, vals, None, f"{why}: unwrapping jumps between components are not handled"
     valid = np.isfinite(disp) & np.isfinite(cc) & (cc > 0)
+    empty = np.array([])
     if not valid.any():
-        return np.full_like(disp, np.nan), "no valid pixel in any connected component"
+        return empty, empty, empty, None, "no valid pixel in any connected component"
     labels, counts = np.unique(cc[valid], return_counts=True)
-    main = labels[np.argmax(counts)]
-    kept = float(counts.max() / counts.sum())
-    return (np.where(valid & (cc == main), disp, np.nan),
-            f"largest connected component kept (label {int(main)}, {kept:.0%} of the valid pixels, "
-            f"{len(labels) - 1} other component(s) dropped)")
+    b = block_size(int(valid.sum()), n_target)
+    parts, dropped, kept_px = [], 0, 0
+    for label, n_px in sorted(zip(labels, counts), key=lambda lc: -lc[1]):
+        r, c, v = block_means(np.where(valid & (cc == label), disp, np.nan), block=b)
+        if parts and v.size < MIN_COMPONENT_BLOCKS:
+            dropped += 1
+            continue
+        parts.append((r, c, v))
+        kept_px += int(n_px)
+    comp = np.concatenate([np.full(v.size, i) for i, (_, _, v) in enumerate(parts)])
+    rows, cols, vals = (np.concatenate([p[j] for p in parts]) for j in range(3))
+    note = (f"{len(parts)} connected component(s) kept with one offset each ({kept_px / counts.sum():.0%} of the valid "
+            f"pixels); {dropped} smaller component(s) (< {MIN_COMPONENT_BLOCKS} blocks) dropped")
+    return rows, cols, vals, comp, note
 
 
 def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) -> Track | None:
     disp, coh, prof, notes, report = displacement.los_cm_full(p, corrections=("iono",))
     disp = np.where(coh >= COH_MIN, disp, np.nan)
     cc = raster.read(p.files["conncomp"])[0] if "conncomp" in p.files else None
-    disp, cc_note = largest_component(disp, cc)
-    rows, cols, vals = block_means(disp, n_target)
+    rows, cols, vals, comp, cc_note = component_blocks(disp, cc, n_target)
     if vals.size == 0:
         log.warning("%s: no valid pixel after masking", p.id)
         return None
@@ -103,7 +123,7 @@ def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) ->
     track_notes = list(notes) + [f"LOS vector: track mean ({vec_source})", cc_note]
     if not report.get("iono", {}).get("applied"):
         track_notes.append(f"ionospheric correction NOT applied: {report.get('iono', {}).get('reason', 'unknown')}")
-    return Track(p.id, east, north, vals, np.tile(vec, (vals.size, 1)), tuple(track_notes))
+    return Track(p.id, east, north, vals, np.tile(vec, (vals.size, 1)), tuple(track_notes), comp=comp)
 
 
 def with_noise_models(tracks: list[Track], pairs: list, origin: str, lat0: float, lon0: float,
@@ -123,9 +143,8 @@ def with_noise_models(tracks: list[Track], pairs: list, origin: str, lat0: float
             pre = track_from_product(q, lat0, lon0, n_target)
             if pre is None:
                 raise ValueError("no valid pixel")
-            nm = noise_cov.from_points(pre.east, pre.north, pre.los, q.id)
-            out.append(Track(t.name, t.east, t.north, t.los, t.vec, t.notes + (f"noise covariance from {q.id}",),
-                             chol=nm.cholesky(t.east, t.north)))
+            nm = noise_cov.from_points(pre.east, pre.north, pre.los, q.id, pre.comp)
+            out.append(replace(t, notes=t.notes + (f"noise covariance from {q.id}",), chol=nm.cholesky(t.east, t.north)))
             report[t.name] = {"status": "ok", **nm.summary()}
         except (ValueError, np.linalg.LinAlgError) as exc:
             log.warning("%s: noise model from %s failed: %s", t.name, q.id, exc)

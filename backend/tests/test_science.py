@@ -249,20 +249,44 @@ top_c = model[0][np.argmin(np.hypot(ff_tracks[0].east - (-80.769 - lon0) * 111.3
 check("FFM forward model: centre given as the surface projection of the fault-plane centre, non-zero signal there",
       abs(top_c) > 1.0, top_c)
 
-from science.panama_fault import largest_component  # noqa: E402
+from science.panama_fault import MIN_COMPONENT_BLOCKS, component_blocks  # noqa: E402
 
-dmap = np.ones((10, 10))
-ccmap = np.ones((10, 10))
-ccmap[:, 7:] = 2                    # a smaller component, offset by one fringe in the data
-dmap[:, 7:] += 11.9
-ccmap[0, 0] = 0                     # unwrapping failed there
-kept, note = largest_component(dmap, ccmap)
-check("largest connected component: the smaller component and label 0 are dropped, the note says so",
-      np.isfinite(kept[:, :7]).sum() == 69 and not np.isfinite(kept[:, 7:]).any() and "1 other" in note, note)
-check("largest connected component: no layer -> data unchanged and the limitation is noted",
-      largest_component(dmap, None)[0] is dmap and "not handled" in largest_component(dmap, None)[1])
+dmap = np.ones((40, 40))
+ccmap = np.ones((40, 40))
+ccmap[:, 28:] = 2                   # a second component, one fringe (11.9 cm) higher in the data
+dmap[:, 28:] += 11.9
+ccmap[:3, :3] = 3                   # a tiny third component: too few blocks for its own offset
+ccmap[0, 39] = 0                    # unwrapping failed there
+r_cc, c_cc, v_cc, comp_cc, note = component_blocks(dmap, ccmap, n_target=400)
+check("connected components: block means never mix two components; each block carries its component index",
+      comp_cc is not None and set(np.unique(comp_cc)) == {0, 1}
+      and np.allclose(v_cc[comp_cc == 0], 1.0) and np.allclose(v_cc[comp_cc == 1], 12.9)
+      and "2 connected component(s) kept" in note and "1 smaller component(s)" in note, note)
+nd = component_blocks(dmap, None, n_target=400)
+check("connected components: no layer -> one component, the limitation is noted",
+      nd[3] is None and nd[2].size > 0 and "not handled" in nd[4], nd[4])
+check("connected components: the largest one is kept even when it is small", MIN_COMPONENT_BLOCKS > 1
+      and set(np.unique(component_blocks(dmap, ccmap, n_target=4)[3])) == {0})
 
+jump = [Track(t.name, t.east, t.north, t.los + np.where(t.east > 40, 11.9, 0.0), t.vec,
+              comp=(t.east > 40).astype(int)) for t in synth]
+res_j, _ = invert(jump, (true_plane,), n_boot=5)
+res_n, _ = invert([Track(t.name, t.east, t.north, t.los, t.vec) for t in jump], (true_plane,), n_boot=5)
+bj, bn = res_j["planes"][0], res_n["planes"][0]
+check("component offsets: a one-fringe jump between components is absorbed (Mw within 0.05, RMS at the noise); "
+      "without them it is not",
+      abs(bj["mw"]["value"] - moment_mw(120, 40, 2.5)[1]) < 0.05 and 0.8 < bj["rms_cm"] < 1.2
+      and bn["rms_cm"] > 2.0, (bj["mw"]["value"], bj["rms_cm"], bn["rms_cm"]))
+fj = ffm_sign.scale_fit(jump[0].los, predict(true_theta, synth, true_plane)[0], jump[0].east, jump[0].north,
+                        jump[0].comp)
+check("component offsets: the finite-fault sign test uses them too (k = 1 on the model the data were built from)",
+      abs(fj["k"] - 1.0) < 0.05, fj)
 from science import sign_decision  # noqa: E402
+
+fl = sign_decision.flipped([Track("x", np.zeros(3), np.zeros(3), np.ones(3), np.zeros((3, 3)), chol=np.eye(3),
+                                  comp=np.array([0, 0, 1]))])[0]
+check("sign decision: flipping the sign keeps the noise covariance and the components",
+      fl.chol is not None and fl.comp is not None and np.all(fl.los == -1))
 
 usgs_planes = (Plane(25.21, 74.77, -155.3), Plane(288.32, 66.22, -16.68))
 FAST = [(30.0, 15.0, 1.0), (80.0, 25.0, 8.0)]   # two starts instead of six, to keep the tests fast

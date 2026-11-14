@@ -11,6 +11,8 @@ is set to: the -1 hypothesis is the same data with the opposite sign.
 """
 from __future__ import annotations
 
+from dataclasses import replace
+
 import numpy as np
 
 from science import ffm_sign
@@ -37,7 +39,7 @@ def plane_matches(p: Plane, ref: Plane = EXPECTED_PLANE) -> bool:
 
 
 def flipped(tracks: list[Track]) -> list[Track]:
-    return [Track(t.name, t.east, t.north, -t.los, t.vec, t.notes) for t in tracks]
+    return [replace(t, los=-t.los) for t in tracks]      # keeps the noise model and the components
 
 
 def _best(fits: list[PlaneFit]) -> PlaneFit:

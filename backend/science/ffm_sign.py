@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from science.invert_fault import Track
+from science.invert_fault import Track, ramp_design
 from science.okada import fault_enu
 
 SIGNIFICANCE = 3.0
@@ -63,9 +63,11 @@ def _deramp(v: np.ndarray, ramp: np.ndarray) -> np.ndarray:
     return v - ramp @ np.linalg.lstsq(ramp, v, rcond=None)[0]
 
 
-def scale_fit(obs: np.ndarray, model: np.ndarray, east: np.ndarray, north: np.ndarray) -> dict:
-    """k, sigma_k, partial correlation (ramps removed) and verdict of obs ≈ k·model + ramp."""
-    ramp = np.column_stack([np.ones_like(model), east, north])
+def scale_fit(obs: np.ndarray, model: np.ndarray, east: np.ndarray, north: np.ndarray,
+              comp: np.ndarray | None = None) -> dict:
+    """k, sigma_k, partial correlation (ramps removed) and verdict of obs ≈ k·model + ramp (one offset per
+    connected component)."""
+    ramp = ramp_design(east, north, comp)
     G = np.column_stack([model, ramp])
     coef, *_ = np.linalg.lstsq(G, obs, rcond=None)
     resid = obs - G @ coef
@@ -87,7 +89,8 @@ def scale_fit(obs: np.ndarray, model: np.ndarray, east: np.ndarray, north: np.nd
 def sign_check(tracks: list[Track], lat0: float, lon0: float, los_sign: float,
                ff: FiniteFault = USGS_FFM_PANAMA) -> dict:
     """Per-track verdicts and an overall one (unanimous among the conclusive tracks, else 'mixed')."""
-    per = {t.name: scale_fit(t.los, m, t.east, t.north) for t, m in zip(tracks, forward(ff, tracks, lat0, lon0))}
+    per = {t.name: scale_fit(t.los, m, t.east, t.north, t.comp)
+           for t, m in zip(tracks, forward(ff, tracks, lat0, lon0))}
     conclusive = {v["verdict"] for v in per.values()} - {"inconclusive"}
     overall = conclusive.pop() if len(conclusive) == 1 else ("inconclusive" if not conclusive else "mixed")
     return {"model": vars(ff), "los_sign_tested": los_sign, "per_track": per, "overall": overall,

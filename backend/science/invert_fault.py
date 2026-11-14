@@ -6,7 +6,7 @@ Free:
 - the position of the top-edge centre, along strike and across strike, relative to the USGS epicentre (km);
 - length, width and top depth (km);
 - uniform slip (m);
-- a linear ramp a + b·east + c·north per track (cm).
+- a linear ramp a + b·east + c·north per track (cm), with one offset a per connected component.
 
 Model in LOS: d_los = u · ê, with ê the ground-to-satellite unit vector, so positive = toward the satellite
 (LOS_SIGN = 1).
@@ -50,6 +50,7 @@ class Track:
     vec: np.ndarray           # (N, 3) ground-to-satellite unit vectors (east, north, up)
     notes: tuple = ()
     chol: np.ndarray | None = field(default=None, compare=False)   # L of the noise covariance C = L L^T (cm)
+    comp: np.ndarray | None = field(default=None, compare=False)   # connected-component index 0..k-1 per sample
 
 
 @dataclass
@@ -97,10 +98,28 @@ def fault_los(theta6: np.ndarray, tracks: list[Track], plane: Plane) -> list[np.
     return out
 
 
+def ramp_design(east: np.ndarray, north: np.ndarray, comp: np.ndarray | None = None) -> np.ndarray:
+    """Columns [offset of each connected component, east, north]: one offset per component absorbs the 2π (one
+    fringe) jumps between components; the gradient is shared by the whole track. comp None = one component."""
+    if comp is None:
+        offsets = np.ones((east.size, 1))
+    else:
+        offsets = (np.asarray(comp)[:, None] == np.arange(int(np.max(comp)) + 1)[None, :]).astype(float)
+    return np.column_stack([offsets, east, north])
+
+
+def n_ramp(t: Track) -> int:
+    return 3 if t.comp is None else int(np.max(t.comp)) + 3
+
+
 def predict(theta: np.ndarray, tracks: list[Track], plane: Plane) -> list[np.ndarray]:
-    """Fault LOS + the ramp a + b·east + c·north of each track (theta[6 + 3i: 9 + 3i])."""
-    return [m + theta[6 + 3 * i] + theta[7 + 3 * i] * t.east + theta[8 + 3 * i] * t.north
-            for i, (t, m) in enumerate(zip(tracks, fault_los(theta, tracks, plane)))]
+    """Fault LOS + the ramp of each track: theta[6:] holds, track after track, the ramp_design coefficients."""
+    out, k = [], 6
+    for t, m in zip(tracks, fault_los(theta, tracks, plane)):
+        n = n_ramp(t)
+        out.append(m + ramp_design(t.east, t.north, t.comp) @ theta[k:k + n])
+        k += n
+    return out
 
 
 def _whiten(t: Track, v: np.ndarray) -> np.ndarray:
@@ -108,10 +127,10 @@ def _whiten(t: Track, v: np.ndarray) -> np.ndarray:
 
 
 def _ramp_operators(tracks: list[Track]) -> list[tuple[np.ndarray, np.ndarray]]:
-    """(Gw, pinv(Gw)) with G = [1, east, north], whitened by the track's noise covariance when it has one."""
+    """(Gw, pinv(Gw)) with G = ramp_design, whitened by the track's noise covariance when it has one."""
     ops = []
     for t in tracks:
-        Gw = _whiten(t, np.column_stack([np.ones_like(t.east), t.east, t.north]))
+        Gw = _whiten(t, ramp_design(t.east, t.north, t.comp))
         ops.append((Gw, np.linalg.pinv(Gw)))
     return ops
 
@@ -148,7 +167,7 @@ def fit_plane(tracks: list[Track], plane: Plane, starts=STARTS) -> PlaneFit:
         if best is None or res.cost < best.cost:
             best = res
     rw = best.fun                                   # whitened when the tracks carry a noise covariance
-    n, p = rw.size, 6 + 3 * len(tracks)
+    n, p = rw.size, 6 + sum(n_ramp(t) for t in tracks)
     s2 = float(rw @ rw) / max(n - p, 1)
     whitened = all(t.chol is not None for t in tracks)
     try:
@@ -165,6 +184,11 @@ def fit_plane(tracks: list[Track], plane: Plane, starts=STARTS) -> PlaneFit:
     return PlaneFit(plane, theta, math.sqrt(float(r @ r) / r.size), vr, cov, at_bound)
 
 
+def _relabel(comp: np.ndarray) -> np.ndarray:
+    """Component labels 0..k-1 again after resampling (a component may have no point left)."""
+    return np.unique(comp, return_inverse=True)[1]
+
+
 def bootstrap(fit: PlaneFit, tracks: list[Track], n_runs: int = N_BOOT, seed: int = 0) -> PlaneFit:
     """Uncertainty by refitting n_runs perturbed data sets, warm-started at the best fit.
     - every track has a noise covariance: Monte Carlo, best model + correlated noise L z (spatial correlation in);
@@ -179,10 +203,11 @@ def bootstrap(fit: PlaneFit, tracks: list[Track], n_runs: int = N_BOOT, seed: in
         for i, t in enumerate(tracks):
             if monte_carlo:
                 noisy = best_model[i] + t.chol @ rng.standard_normal(t.los.size)
-                sample.append(Track(t.name, t.east, t.north, noisy, t.vec, chol=t.chol))
+                sample.append(Track(t.name, t.east, t.north, noisy, t.vec, chol=t.chol, comp=t.comp))
             else:
                 k = rng.integers(0, t.los.size, t.los.size)
-                sample.append(Track(t.name, t.east[k], t.north[k], t.los[k], t.vec[k]))
+                sample.append(Track(t.name, t.east[k], t.north[k], t.los[k], t.vec[k],
+                                    comp=None if t.comp is None else _relabel(t.comp[k])))
         res = _solve(fit.theta[:6], sample, fit.plane)
         if res.success:
             params.append(res.x[:6])
