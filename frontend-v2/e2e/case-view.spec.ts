@@ -57,7 +57,7 @@ test.describe("case view, live backend", () => {
 
 test("preview of a final case: the comparison strip (API values, NISAR set to the reference by the test)", async ({ page, request }) => {
   await requireBackend();
-  const study = (await (await request.get(`${API}/api/cases/panama-2026`)).json()) as Study & { findings: { reference: object | null }[] };
+  const study = (await (await request.get(`${API}/api/cases/panama-2026`)).json()) as Study;
   study.status = "final";
   study.findings = study.findings.filter((f) => f.reference).map((f) => ({ ...f, nisar: f.reference, agreement: "agree" }));
   await page.route("**/api/cases/panama-2026", (route) => route.fulfill({ json: study }));
