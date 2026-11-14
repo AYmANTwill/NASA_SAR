@@ -79,6 +79,33 @@ Exposure units are fixed: `people` is in `people`, `buildings` in `count`, `area
 5. **Demo gate.** `NISAR_DEMO=1 npx tsx validate.ts <dump>` fails on any `draft` case, so the demo cannot ship with
    one.
 
+## Inputs for `science/cases.py`
+
+`python -m science.cases` builds the four cases. Anything missing is listed in `placeholders`, and the case stays a
+`draft`. Run it with `--dry-run` to see what is missing without writing anything.
+
+| case | inputs |
+|---|---|
+| panama-2026 | `backend/cases/out/panama-2026.json` + `_fit.png` (`python -m science.panama_fault`); `backend/cases/out/panama-2026_exposure.json` (`python -m science.exposure_run --case panama-2026 --event us6000u18k --iso3 PAN`); USGS event; co-seismic pairs in the catalog |
+| venezuela-2026 | `results/venezuela-2026/findings.json` (UCSD comparison); `--venezuela-event <USGS id>`; exposure via `exposure_run --event <id> --iso3 VEN` |
+| haouz-flood-2026 | `results/haouz-flood-2026/findings.json` with `date`, `timeline`, `bbox`; `results/haouz-flood-2026/flood_mask.tif` (1 = flooded, 0 = dry) for `exposure_run --flood-mask … --iso3 MAR` |
+| ionosphere-gps | `results/gps/gps_none/gps_*.json` and `results/gps/gps_iono/gps_*.json` (`validate_gps.py` without / with the ionospheric correction) |
+
+`results/<id>/findings.json`, written by Anass:
+
+```
+{
+  "findings": [Finding, ...],                  // exactly the Finding of this contract, agreement computed by the rule
+  "figures":  [{ "id", "kind": "map"|"chart"|"image", "title": {fr,en,ar}, "file": "name.png", "caption": TemplatedText }],
+  "limits":   [{fr,en,ar}, ...],
+  "date": ISO UTC, "timeline": [{label:{fr,en,ar}, at: ISO UTC}], "bbox": [w,s,e,n]   // flood case
+}
+```
+
+- Figure files sit next to `findings.json`. They are copied to `backend/cases/figures/<id>/` and served at
+  `GET /api/cases/{id}/figures/{file}`.
+- A file that breaks this format stops the build with an error. It is never patched silently.
+
 ## Checking
 
 From `backend/`:

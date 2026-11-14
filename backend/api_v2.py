@@ -18,7 +18,7 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 
 import agent
 import catalog
@@ -768,3 +768,11 @@ def get_case(cid: str):
         return api_error("case_not_found", 404, "Cas d'étude introuvable.", "Case study not found.",
                          "دراسة الحالة غير موجودة.")
     return case_store.to_json(case)
+
+
+@router.get("/cases/{cid}/figures/{name}")
+def get_case_figure(cid: str, name: str):
+    path = case_store.figure_path(cid, name)
+    if path is None:
+        return api_error("figure_not_found", 404, "Figure introuvable.", "Figure not found.", "الشكل غير موجود.")
+    return FileResponse(path, media_type=case_store.MEDIA[path.suffix.lower().lstrip(".")])

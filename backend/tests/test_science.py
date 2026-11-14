@@ -345,6 +345,88 @@ try:
 except ex.ExposureError:
     check("exposure: no population raster offline raises ExposureError", True)
 
+# ---------------------------------------------------------------- case assembly (science/cases.py)
+import shutil  # noqa: E402
+from types import SimpleNamespace  # noqa: E402
+
+from config import CACHE_DIR  # noqa: E402
+from science import cases as cs  # noqa: E402
+
+work = tmp / "cases_work"
+shutil.copytree(case_store.CASES_DIR, work, ignore=shutil.ignore_patterns("out", "figures"))
+cs.CASES_DIR = work
+(work / "out").mkdir()
+(CACHE_DIR / "usgs").mkdir(parents=True, exist_ok=True)
+(CACHE_DIR / "usgs" / "us6000u18k.json").write_text(json.dumps({**usgs_fixture, "id": "us6000u18k"}), encoding="utf-8")
+(CACHE_DIR / "asf").mkdir(parents=True, exist_ok=True)
+(CACHE_DIR / "asf" / "GUNW_TEST.json").write_text(json.dumps({"processingDate": "2026-10-13T08:00:00Z"}),
+                                                  encoding="utf-8")
+cs._coseismic_pairs = lambda eid: [SimpleNamespace(sec="20261012T110301", name="GUNW_TEST",
+                                                   bbox=(-81.6, 6.9, -80.0, 8.4))] if eid else []
+mw_finding = {"id": "mw", "label": {"fr": "Mw", "en": "Mw", "ar": "Mw"},
+              "nisar": {"value": 7.62, "uncertainty": 0.08, "unit": "Mw", "sigma": 1},
+              "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
+              "reference_source": {"name": "USGS", "url": "https://earthquake.usgs.gov/"}, "agreement": "agree"}
+(work / "out" / "panama-2026_fit.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+fault_out = {"stable": True, "findings": [mw_finding], "limits": [{"fr": "l", "en": "l", "ar": "l"}],
+             "figures": [{"id": "fault_fit", "path": "panama-2026_fit.png", "kind": "image"}]}
+(work / "out" / "panama-2026.json").write_text(json.dumps(fault_out), encoding="utf-8")
+(work / "out" / "panama-2026_exposure.json").write_text(json.dumps({"exposure": case_exp}), encoding="utf-8")
+pan = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("cases: Panama with fault, exposure, USGS and ASF inputs becomes FINAL with no placeholder",
+      pan["status"] == "final" and pan["placeholders"] == [], pan["placeholders"])
+check("cases: Panama timeline = USGS origin, first NISAR acquisition, ASF publication; date from USGS",
+      [t["at"] for t in pan["timeline"]] == ["2026-10-09T17:56:06Z", "2026-10-12T11:03:01Z", "2026-10-13T08:00:00Z"]
+      and pan["date"] == "2026-10-09T17:56:06Z", pan["timeline"])
+check("cases: headline numbers come from the Mw finding; figure copied and served under /api/cases",
+      "7.62 ± 0.08" in pan["headline"]["text"]["en"]
+      and pan["figures"][0]["url"] == "/api/cases/panama-2026/figures/panama-2026_fit.png"
+      and case_store.figure_path("panama-2026", "panama-2026_fit.png", work) is not None)
+check("cases: unsafe figure names are refused (traversal, other case, unknown extension)",
+      case_store.figure_path("panama-2026", "../panama-2026.json", work) is None
+      and case_store.figure_path("nope", "panama-2026_fit.png", work) is None
+      and case_store.figure_path("panama-2026", "x.exe", work) is None)
+(work / "out" / "panama-2026.json").write_text(json.dumps({**fault_out, "stable": False, "findings": [],
+                                                           "unstable_reasons": ["variance reduction 0.3 < 0.5"]}),
+                                              encoding="utf-8")
+pan2 = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("cases: unstable fault -> draft, 'Magnitude not estimated' with the reason in limits",
+      pan2["status"] == "draft" and any("Magnitude not estimated" in lim["text"]["en"] and "0.3 < 0.5" in lim["text"]["en"]
+                                        for lim in pan2["limits"]), pan2["placeholders"])
+
+res_dir = tmp / "results"
+for label, offset in (("none", 6.0), ("iono", 1.0)):
+    d = res_dir / "gps" / f"gps_{label}"
+    d.mkdir(parents=True)
+    gps_pairs = [{"gps_los_mm": g, "nisar_los_mm": g + (offset if i % 2 else -offset), "date_after": f"202610{10 + i}"}
+                 for i, g in enumerate([1.0, 5.0, -3.0, 8.0, 2.0, -1.0, 4.0, 0.0])]
+    (d / "gps_CEU1.json").write_text(json.dumps({"station": {"station": "CEU1", "lat": 35.89, "lon": -5.31},
+                                                 "pairs": gps_pairs}), encoding="utf-8")
+iono = cs.build_iono(res_dir)
+by = {f["id"]: f["nisar"] for f in iono["findings"]}
+check("cases: ionosphere-gps RMS before/after from the GPS reports, uncertainty RMS/sqrt(2n), FINAL",
+      iono["status"] == "final" and by["rms_before"]["value"] == 6.0 and by["rms_after"]["value"] == 1.0
+      and abs(by["rms_before"]["uncertainty"] - 6.0 / 4.0) < 0.01, (iono["placeholders"], by))
+check("cases: ionosphere-gps location around the stations, date = latest NISAR acquisition",
+      abs(iono["location"]["lat"] - 35.89) < 1e-6 and iono["date"] == "2026-10-17T00:00:00Z", iono["date"])
+
+(res_dir / "haouz-flood-2026").mkdir()
+(res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [
+    {"id": "flooded_area", "label": {"fr": "a", "en": "a", "ar": "a"},
+     "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
+     "reference_source": None, "agreement": "no_reference"}], "limits": [{"fr": "l", "en": "l", "ar": "l"}]}),
+    encoding="utf-8")
+flood = cs.build_flood("haouz-flood-2026", res_dir)
+check("cases: a flood case missing date / timeline / bbox / exposure stays a draft and says what is missing",
+      flood["status"] == "draft" and any("'date'" in p for p in flood["placeholders"])
+      and any("exposure" in p for p in flood["placeholders"]), flood["placeholders"])
+(res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [{"id": "x"}]}), encoding="utf-8")
+try:
+    cs.build_flood("haouz-flood-2026", res_dir)
+    check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", False)
+except cs.CaseInputError:
+    check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", True)
+
 passed = sum(ok for _, ok in results)
 print(f"\n{passed}/{len(results)} checks passed")
 sys.exit(0 if passed == len(results) else 1)

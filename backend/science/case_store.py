@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -57,3 +58,16 @@ def summaries(cases_dir: Path | None = None) -> list[dict]:
 
 def to_json(case: CaseStudy) -> dict:
     return case.model_dump(mode="json")
+
+
+FIGURE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}\.(png|jpg|jpeg|webp)$")
+MEDIA = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp"}
+
+
+def figure_path(case_id: str, name: str, cases_dir: Path | None = None) -> Path | None:
+    """The figure file of a case, or None (unknown case, unsafe name, missing file, or outside the folder)."""
+    if case_id not in CASE_KIND or not FIGURE_NAME.match(name) or ".." in name:
+        return None
+    folder = ((cases_dir or CASES_DIR) / "figures" / case_id).resolve()
+    path = (folder / name).resolve()
+    return path if path.parent == folder and path.is_file() else None
