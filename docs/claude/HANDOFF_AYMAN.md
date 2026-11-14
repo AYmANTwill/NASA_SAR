@@ -1,11 +1,8 @@
 # Handoff: Ayman's science and API work (session of 14 Nov 2026)
 
-Branch `ayman/science` (origin/main merged in). Gates on 14 Nov:
-- `python backend/tests/test_all.py`: 196/196;
-- `python backend/tests/test_science.py`: 84/84 (about 3 min);
-- `tools/frontend_contract` against `frontend/src/api/contract.ts`: 85/85, including two complete final cases built by
-  the tests.
-Nothing below has run on real NISAR data yet: the GUNW pairs are on Anass's machine A.
+Branch `ayman/science` (origin/main merged in). Gates on 14 Nov: `test_all.py` 196/196, `test_science.py` 84/84
+(~3 min), `tools/frontend_contract` 85/85 incl. two final cases built by the tests. Not yet run on real NISAR data
+(the GUNW pairs are on Anass's machine A).
 
 ## Done, and where
 | what | files | commit |
@@ -25,35 +22,25 @@ Nothing below has run on real NISAR data yet: the GUNW pairs are on Anass's mach
 | Wavelength λ = c / centerFrequency (proposal for Anass, branch `ayman/wavelength`) | `recipes/wavelength.py`, `recipes/displacement.py`, `tests/test_wavelength.py` | c41e315 |
 
 ## Decisions
-- **Case contract:** CASE_CONTRACT.md is the source. The backend validates with pydantic, the frontend with zod.
-  - Dates are ISO UTC. `exposure.source` is `{name, url}`.
-  - New units: `Mw`, `people`, `count`, `deg`.
-  - A case is `final` only when `placeholders` is empty, it has at least one map with a layer and a full timeline, and
-    every finding has a non-zero σ.
-- **Agreement rule:** S = sqrt(σn² + σr²) with 1-sigma values. `agree` if |n − r| ≤ 2S, `partial` if ≤ 4S, otherwise
-  `disagree`; `no_reference` if there is no reference. It is recomputed on both sides, never typed by hand.
-- **Sign decision rule:**
-  - +1 needs all three: USGS finite-fault model k > 0 at > 3σ on ≥ 3 tracks with none < 0 at 3σ; variance reduction(+1)
-    − VR(−1) ≥ 0.10; and the best plane is the left-lateral 288/66/−17 (within ±15° in strike and dip, ±30° in rake).
-  - −1 follows the mirrored rule; anything else is "undecided".
-  - Written to `cases/out/<case>_sign.json`.
-- **Okada / inversion settings:**
-  - Elastic half-space with ν = 0.25. Strike, dip and rake fixed from each nodal plane in turn; the lower RMS wins.
-  - Free parameters and bounds: along and across position of the top-edge centre ±100 km, length 5–400 km, width
-    3–80 km, top depth 0–40 km, slip 0.01–20 m. The per-track ramp is solved linearly.
-  - 6 starting points. μ = 30 GPa and Mw = 2/3 (log10 M0 − 9.1).
-  - Masks: coherence ≥ 0.3 and the largest connected component per track. About 1500 block means per track. The
-    ionospheric correction is requested.
-  - Stable only if: bootstrap σ(Mw) ≤ 0.15, no parameter at a bound, ≥ 80 % of the bootstrap fits converge, VR ≥ 0.5.
-    Otherwise the case says "magnitude not estimated" with the reason.
-  - USGS reference: Mww 7.7 with σ 0.1.
-- **Finite-fault model:** strike 295°, dip 60°, rake −16°, 55 × 33.6 km, centre at 7.54 N, 80.769 W, taken as the
-  surface projection of the fault-plane centre. The top depth is assumed to be 0 km (`--ffm-top-depth`).
-- **Exposure:**
-  - Earthquake zone |LOS| > 10 cm; the spread comes from the threshold at ±1σ of the noise. Flood zone = the mask, with
-    a ±1-pixel edge.
-  - Population: WorldPop 100 m by default, or a GHSL raster placed in `data/aux/pop/`. Buildings: OSM Overpass in 0.25°
-    tiles. Every download is cached under `data/aux/`.
+- **Case contract:** CASE_CONTRACT.md is the source (pydantic in the backend, zod in the frontend). Dates are ISO UTC;
+  `exposure.source` is `{name, url}`; new units `Mw`, `people`, `count`, `deg`. A case is `final` only with no
+  placeholder, ≥ 1 map with a layer, a full timeline, and a non-zero σ on every finding.
+- **Agreement rule:** S = sqrt(σn² + σr²) (1-sigma). `agree` if |n − r| ≤ 2S, `partial` if ≤ 4S, else `disagree`;
+  `no_reference` without a reference. Recomputed on both sides, never typed by hand.
+- **Sign decision rule:** +1 needs finite-fault k > 0 at > 3σ on ≥ 3 tracks with none < 0 at 3σ, AND VR(+1) − VR(−1)
+  ≥ 0.10, AND best plane = left-lateral 288/66/−17 (±15° strike/dip, ±30° rake). −1 by the mirrored rule, otherwise
+  "undecided". Written to `cases/out/<case>_sign.json`.
+- **Okada / inversion:** ν = 0.25. Strike, dip and rake fixed per nodal plane; the lower RMS wins. Bounds: top-edge
+  centre ±100 km along and across, length 5–400 km, width 3–80 km, top depth 0–40 km, slip 0.01–20 m. Ramps solved
+  linearly; 6 starts. μ = 30 GPa, Mw = 2/3 (log10 M0 − 9.1). Coherence ≥ 0.3, largest connected component, ~1500
+  block means per track, ionospheric correction requested. Stable only if σ(Mw) ≤ 0.15, no parameter at a bound,
+  ≥ 80 % of the bootstrap fits converge and VR ≥ 0.5; otherwise "magnitude not estimated" with the reason. USGS
+  reference Mww 7.7 ± 0.1.
+- **Finite-fault model:** 295/60/−16, 55 × 33.6 km, centre 7.54 N 80.769 W (surface projection of the plane centre),
+  top depth assumed 0 km (`--ffm-top-depth`).
+- **Exposure:** earthquake zone |LOS| > 10 cm, spread from the threshold at ±1σ of the noise; flood zone = mask, ±1-pixel
+  edge. WorldPop 100 m (or a GHSL raster in `data/aux/pop/`); OSM Overpass buildings in 0.25° tiles; all cached in
+  `data/aux/`.
 
 ## Known limits
 - Uniform slip on one rectangle. The Mw σ from noise is small at Mw 7.7; the model error (μ, uniform slip) dominates
@@ -73,13 +60,9 @@ Nothing below has run on real NISAR data yet: the GUNW pairs are on Anass's mach
    (0409bf2). A per-component offset is not done.
 3. **ffm_sign JSON and decision rule:** done in `science/sign_decision.py` → `cases/out/panama-2026_sign.json`.
    Needs Anass's real run: `NISAR_LOS_SIGN=1 python -m science.panama_fault --boot 5`.
-4. **api_v2 fixes from Houssam's notes** (open, `backend/api_v2.py`):
-   - numbers as Measurement params;
-   - no `uncertainty: 0`;
-   - fill `tracks`;
-   - omit layers without a PNG;
-   - list the precomputed library events;
-   - User-Agent on Overpass (`evidence.py` already has one: check where Houssam saw it missing).
+4. **api_v2 fixes from Houssam's notes** (open, `backend/api_v2.py`): numbers as Measurement params; no
+   `uncertainty: 0`; fill `tracks`; omit layers without a PNG; list the precomputed library events; User-Agent on
+   Overpass (`evidence.py` already has one: check where Houssam saw it missing).
 5. **Ionosphere case:** a before/after chart per pair from Anass's noise CSV (open, `science/cases.py` `build_iono`,
    input `results/noise_with_without_iono_*.csv`).
 6. **Noise covariance from the Panama pre-event pairs:** done in `science/noise_cov.py` (e6f44ef), on by default
@@ -87,11 +70,8 @@ Nothing below has run on real NISAR data yet: the GUNW pairs are on Anass's mach
 7. **Sunday: "Use of AI" README section** (open, `README.md`).
 
 ## Inputs still missing for final cases
-- Anass:
-  - `cases/out/panama-2026*.json` (panama_fault, exposure_run);
-  - `results/haouz-flood-2026/findings.json` with `products`, `date` and a backscatter-change raster, plus
-    `flood_mask.tif`;
-  - `results/venezuela-2026/findings.json`.
+- Anass: `cases/out/panama-2026*.json` (panama_fault, exposure_run); `results/haouz-flood-2026/findings.json` with
+  `products`, `date` and a backscatter-change raster, plus `flood_mask.tif`; `results/venezuela-2026/findings.json`.
 - Houssam: `results/gps/gps_none/` and `results/gps/gps_iono/`.
-- Ayman: the USGS id of the Venezuela mainshock (`--venezuela-event`). Then run
-  `python -m science.cases --dry-run` to see what is still missing.
+- Ayman: the USGS id of the Venezuela mainshock (`--venezuela-event`). `python -m science.cases --dry-run` lists what
+  is still missing.
