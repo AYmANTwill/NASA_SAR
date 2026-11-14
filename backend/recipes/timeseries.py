@@ -128,7 +128,11 @@ def point_series(products: list[Product], lat: float, lon: float) -> list[dict]:
         crossed = [[a, b] for a, b in DATA_GAPS if any(p.ref[:8] < a and p.sec[:8] > b for p in upairs)]
         res.update(
             iono_screen="subtracted" if n_iono == len(ufacts) else "not applied" if n_iono == 0 else "partly subtracted",
-            iono_applied_pairs=n_iono, troposphere_corrected=False,
+            iono_applied_pairs=n_iono,
+            troposphere_corrected=bool(ufacts) and all("tropo" in f.get("corrections_applied", []) for f in ufacts),
+            tide_corrected=bool(ufacts) and all("tide" in f.get("corrections_applied", []) for f in ufacts),
+            corrections_requested=ufacts[0].get("corrections_requested", []) if ufacts else [],
+            corrections_applied=sorted({n for f in ufacts for n in f.get("corrections_applied", [])}),
             reference_same_component=False if any(x is False for x in flags) else None if any(x is None for x in flags) else True,
             n_pairs_reference_other_component=sum(1 for x in flags if x is False),
             n_pairs_reference_unknown=sum(1 for x in flags if x is None),

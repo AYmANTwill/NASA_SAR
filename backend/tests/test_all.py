@@ -1045,6 +1045,14 @@ check("docs: sign_verified, iono_screen, crosses_data_gap, reference_same_compon
                                    "uncertainty_m3m3", "within_uncertainty", "not validated", "NISAR_DISCOVERIES_ENABLED",
                                    "unvalidated candidate", "fringes")))
 
+def _raises(fn, exc=ValueError):
+    try:
+        fn()
+    except exc:
+        return True
+    return False
+
+
 # =============================================================================================================
 # Validation and corrections (feat/validation-corrections). Synthetic data: logic only, not physics.
 # =============================================================================================================
@@ -1073,6 +1081,91 @@ check("plan_validation.json (committed) = the builder's output, same row format,
       [r["name"] for r in vplan["files"]] == [r["name"] for r in vrows] and da.plan_parts(vplan) == [1]
       and set(json.loads(PLAN_NISAR.read_text())["files"][0]) <= set(vplan["files"][0]))
 
+# --- 2. corrections: optional, measured, each one a separate tested function ----------------------------------------
+from recipes import corrections as _corr  # noqa: E402
+
+import noise_report as _nr  # noqa: E402
+
+check("corrections setting: default = iono (the old behaviour), 'none' = nothing, canonical order, unknown name fails",
+      _corr.parse_setting(None) == ("iono",) and _corr.parse_setting("none") == () and _corr.parse_setting("") == ()
+      and _corr.parse_setting("tide, tropo,iono") == ("iono", "tropo", "tide") and _corr.active() == ("iono",)
+      and _raises(lambda: _corr.parse_setting("tropo,magic")))
+_ph = _np.zeros((4, 4))
+_scr = _np.full((4, 4), 2.0)
+_scr[0, 0] = _np.nan
+check("corrections: each screen is SUBTRACTED by its own function (iono, tropo = hydrostatic + wet, tide); NaN leaves the "
+      "phase unchanged; sign -1 adds; the input is never modified",
+      _np.allclose(_corr.correct_iono(_ph, _scr)[1:, 1:], -2.0) and _corr.correct_iono(_ph, _scr)[0, 0] == 0.0
+      and _np.allclose(_corr.correct_tropo(_ph, _np.full((4, 4), 1.5), _np.full((4, 4), 0.5)), -2.0)
+      and _np.allclose(_corr.correct_tide(_ph, _np.full((4, 4), 0.25), sign=-1), 0.25) and not _ph.any())
+check("corrections units: radians kept, metres of delay converted with -4*pi/lambda, unknown units = radians ASSUMED and said",
+      _corr.to_radians(_np.ones(2), "radians", 0.2384)[1] == "radians"
+      and _np.allclose(_corr.to_radians(_np.full(2, 0.2384 / (4 * _np.pi)), "meters", 0.2384)[0], -1.0)
+      and "assumed" in _corr.to_radians(_np.ones(2), None, 0.2384)[1])
+_hs, _ys, _xs = _np.array([0.0, 1000.0]), _np.array([20.0, 10.0, 0.0]), _np.array([0.0, 10.0])
+_cube = _np.stack([_np.add.outer(_ys, _xs), _np.add.outer(_ys, _xs) + 100.0])     # value = y + x (+100 at 1000 m)
+check("cube interpolation: exact at the nodes, linear in height, descending axes handled, clipped (no extrapolation)",
+      _np.isclose(_corr.interp_cube(_cube, _hs, _ys, _xs, _np.array([0.0]), _np.array([10.0]), _np.array([10.0]))[0], 20.0)
+      and _np.isclose(_corr.interp_cube(_cube, _hs, _ys, _xs, _np.array([500.0]), _np.array([5.0]), _np.array([2.0]))[0], 57.0)
+      and _np.isclose(_corr.interp_cube(_cube, _hs, _ys, _xs, _np.array([5000.0]), _np.array([99.0]), _np.array([0.0]))[0], 120.0))
+check("terrain height: Copernicus GLO-30 public tile names; offline -> the documented constant, said in the source",
+      _corr.glo30_tiles(-80.9, 7.4, -80.6, 7.8) == [_corr.GLO30_URL.format(n="Copernicus_DSM_COG_10_N07_00_W081_00_DEM")]
+      and len(_corr.glo30_tiles(-7.2, 33.9, -6.5, 34.1)) == 4 and "constant 0 m" in _corr.terrain_height(_prof())[1])
+TS = (30.40, -9.55)
+tps = [p for p in catalog.find(*TS, "GUNW") if p.track == 172]
+sig = {n: _disp.referenced(tps[0], *TS, names)[3] for n, names in
+       (("none", ()), ("tropo", ("tropo",)), ("tide", ("tide",)), ("both", ("tropo", "tide")))}
+rep_tt = _disp.los_cm_full(tps[0], ("tropo", "tide"))[4]
+check("corrections reduce a synthetic tropospheric ramp (+ tide ramp): noise floor none > tropo > tropo+tide, close to the "
+      "pixel noise once both are removed",
+      sig["none"] > 3 * sig["tropo"] and sig["tropo"] > sig["both"] and sig["tide"] < sig["none"] and sig["both"] < 0.4, sig)
+check("corrections report: applied, convention, units 'assumed' without a raw .h5, terrain-height source, cube EPSG",
+      rep_tt["tropo"]["applied"] and rep_tt["tide"]["applied"] and rep_tt["tropo"]["convention"] == "subtracted from unwrappedPhase"
+      and "assumed" in rep_tt["tropo"]["units"] and "no raw .h5" in rep_tt["tropo"]["attributes_from"]
+      and "constant" in rep_tt["tropo"]["height_source"] and rep_tt["tropo"]["cube_epsg"] == 32629
+      and rep_tt["tropo"]["already_applied_flag"] is None, rep_tt["tropo"])
+rep_none = _disp.los_cm_full(AL_ps[0], ("tropo", "tide"))[4]
+check("corrections: a product without cubes (no extra layers) is left alone and says why",
+      not rep_none["tropo"]["applied"] and "lacks the cube" in rep_none["tropo"]["reason"])
+fa = _disp.analyze(tps[0], *TS, make_layer=False)
+check("default setting: facts list the requested and applied corrections; tropo/tide stay off by default",
+      fa["corrections_requested"] == ["iono"] and fa["corrections_applied"] == [] and "iono" in fa["corrections"]
+      and "tropo" not in fa["corrections"])
+# raw .h5 kept: attributes are read, and a product flag saying "already applied" stops a second correction
+raw_dir = tmp / "raw_attrs"
+raw_dir.mkdir()
+with h5py.File(raw_dir / "x.h5", "w") as hf:
+    dset = hf.create_dataset("science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/unwrappedPhase", data=_np.zeros(2))
+    dset.attrs["description"] = b"Unwrapped interferometric phase"
+    dset.attrs["units"] = b"radians"
+    w_ = hf.create_dataset("science/LSAR/GUNW/metadata/radarGrid/wetTroposphericPhaseScreen", data=_np.zeros((2, 2, 2)))
+    w_.attrs["units"] = b"radians"
+    hf.create_dataset("science/LSAR/GUNW/metadata/processingInformation/parameters/troposphereCorrectionApplied", data=True)
+attrs = _corr.product_attributes(str(raw_dir))
+check("raw .h5 attributes: description/units read, processingInformation flag read; 'already applied' -> never applied twice",
+      attrs["datasets"]["unwrappedPhase"]["units"] == "radians" and _corr.already_applied("tropo", attrs) is True
+      and _corr.already_applied("tide", attrs) is False and _corr.already_applied("tide", {"source": None}) is None
+      and _corr._apply_cube("tropo", tps[0], _np.zeros((2, 2)), None, attrs, 0.2384, 1, {}, None)[1]["applied"] is False)
+f_tr = {**rg["en"]["facts"], "troposphere_corrected": True, "tide_corrected": True, "iono_screen": "subtracted"}
+tt = {lg: agent.template("slow_motion", f_tr, lg) for lg in ("fr", "en", "ar")}
+check("sentences: when tropo/tide are applied the verdict says so (FR/EN/AR, not validated); default wording unchanged",
+      "troposphere: the product's weather-model screen is subtracted (not validated)" in tt["en"]
+      and "Solid-earth tide" in tt["en"] and "troposphère : écran du modèle météo" in tt["fr"] and "المد الأرضي" in tt["ar"]
+      and "troposphere: not corrected" in agent.template("slow_motion", f_iono, "en")
+      and "troposphere: the product's weather-model screen is subtracted" in " ".join(agent.assess("slow_motion", {**f_tr, "sign_verified": True}, [])[1]))
+nr_out = tmp / "results_out"
+nr_rc = _nr.main(["--out", str(nr_out), "--match", "T172"])
+nr = json.loads((nr_out / "noise_report.json").read_text(encoding="utf-8"))
+check("noise_report: writes json + md; tropo recommended on the ramp, iono never applicable here, sign check consistent",
+      nr_rc == 0 and (nr_out / "noise_report.md").exists() and nr["summary"]["tropo"]["recommended"]
+      and nr["summary"]["iono"]["n_products"] == 0 and not nr["summary"]["iono"]["recommended"]
+      and "convention consistent" in nr["summary"]["tropo"]["sign_check"]["verdict"] and "tropo" in nr["recommended_setting"],
+      nr["recommended_setting"])
+check("noise_report: a correction that does not lower the noise is not recommended (stays off)",
+      not _nr.summarise([{"sigma_cm": {"none": 1.0, "tropo": 1.2, **{k: None for k in _nr.SETS if k not in ("none", "tropo")}},
+                          "applied": {"tropo": True}, "sigma_cm_opposite_sign": {}}])["tropo"]["recommended"])
+check(".gitignore ignores results_out/ (local outputs, never committed)",
+      "results_out/" in (ROOT.parent / ".gitignore").read_text(encoding="utf-8"))
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 
