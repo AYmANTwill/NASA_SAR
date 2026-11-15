@@ -473,6 +473,7 @@
     "intro": "Events and methods where NISAR is checked against an independent reference, with what the radar cannot say.",
     "list": "Case studies",
     "draft": "DRAFT, in progress: the measurements of this case are not computed or validated by the team yet.",
+    "finalShort": "Final result",
     "draftShort": "Draft",
     "final": "Validated",
     "kind": {

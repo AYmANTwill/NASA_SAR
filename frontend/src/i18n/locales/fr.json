@@ -473,6 +473,7 @@
     "intro": "Événements et méthodes où NISAR est confronté à une référence indépendante, avec ce que le radar ne peut pas dire.",
     "list": "Études de cas",
     "draft": "BROUILLON, en cours : les mesures de cette étude ne sont pas encore calculées ni validées par l’équipe.",
+    "finalShort": "Résultat final",
     "draftShort": "Brouillon",
     "final": "Validée",
     "kind": {

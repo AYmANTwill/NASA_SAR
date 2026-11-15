@@ -6,7 +6,8 @@ import { EmptyState, ErrorState, Loading } from "@/components/states";
 import { useText } from "@/i18n/useText";
 import { formatDate } from "@/lib/format";
 import { CaseView } from "./CaseView";
-import { DraftBadge } from "./parts";
+import { cn } from "@/lib/utils";
+import { DraftBadge, FinalBadge } from "./parts";
 
 export const KIND_ICON: Record<CaseKind, typeof Radio> = { earthquake: Radio, flood: CloudRainWind, method: FlaskConical };
 
@@ -50,25 +51,41 @@ export function localized(v: Localized | string, lang: keyof Localized): string 
 function CaseCard({ c }: { c: CaseSummary }) {
   const { t, lang } = useText();
   const Icon = KIND_ICON[c.kind];
+  // The complete, validated case leads the page: full row, its figure shown whole next to the title.
+  const featured = c.status === "final" && !!c.thumbnail_url;
   return (
-    <li className="case-card relative flex flex-col gap-3 rounded-md border border-line bg-surface p-5 focus-within:border-accent hover:border-line-strong">
-      {c.thumbnail_url && <img src={c.thumbnail_url} alt="" className="aspect-[16/9] w-full rounded-sm object-cover" />}
-      <div className="flex items-center gap-2 text-sm text-ink-2">
-        <Icon className="size-4 text-accent" aria-hidden />
-        <span>{t(`cases.kind.${c.kind}`)}</span>
-        <span aria-hidden>·</span>
-        <time dateTime={c.date}>{formatDate(c.date, lang)}</time>
-        {c.status === "draft" && <DraftBadge className="ms-auto" />}
+    <li
+      className={cn(
+        "case-card relative flex flex-col gap-3 rounded-md border border-line bg-surface p-5 focus-within:border-accent hover:border-line-strong",
+        featured && "sm:col-span-2 lg:flex-row lg:items-center lg:gap-6",
+      )}
+    >
+      {c.thumbnail_url && (
+        <img
+          src={c.thumbnail_url}
+          alt=""
+          className={cn("w-full rounded-sm bg-surface-2", featured ? "aspect-[5/2] object-contain lg:w-3/5" : "aspect-[16/9] object-cover")}
+        />
+      )}
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-ink-2">
+          <Icon className="size-4 text-accent" aria-hidden />
+          <span>{t(`cases.kind.${c.kind}`)}</span>
+          <span aria-hidden>·</span>
+          <time dateTime={c.date}>{formatDate(c.date, lang)}</time>
+          {c.status === "draft" ? <DraftBadge className="ms-auto" /> : <FinalBadge className="ms-auto" />}
+        </div>
+        <h2 className={cn("font-semibold text-balance", featured ? "text-xl sm:text-2xl" : "text-lg")}>
+          <Link to={`/cases/${encodeURIComponent(c.id)}`} className="after:absolute after:inset-0 focus-visible:outline-none">
+            {localized(c.title, lang)}
+          </Link>
+        </h2>
+        {c.place && <p className="text-sm text-ink-2">{localized(c.place, lang)}</p>}
+        <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-accent">
+          {t("cases.open")}
+          <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
+        </span>
       </div>
-      <h2 className="text-lg font-semibold text-balance">
-        <Link to={`/cases/${encodeURIComponent(c.id)}`} className="after:absolute after:inset-0 focus-visible:outline-none">
-          {localized(c.title, lang)}
-        </Link>
-      </h2>
-      <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-accent">
-        {t("cases.open")}
-        <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
-      </span>
     </li>
   );
 }

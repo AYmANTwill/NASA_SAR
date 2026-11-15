@@ -54,7 +54,7 @@ function CaseBody({ c }: { c: CaseStudy }) {
       {/* 2. Timeline */}
       {c.timeline.length > 0 && <Timeline items={c.timeline} />}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         {/* 3. Map */}
         <section aria-label={t("cases.map")} className="space-y-2">
         <div className="relative h-[52vh] min-h-72 overflow-hidden rounded-md border border-line">
@@ -225,7 +225,7 @@ function Findings({ c }: { c: CaseStudy }) {
             <tbody>
               {c.findings.map((f) => (
                 <tr key={f.id} className="border-t border-line align-top">
-                  <th scope="row" className="px-3 py-2 text-start font-medium">{localized(f.label, lang)}</th>
+                  <th scope="row" className="min-w-44 px-3 py-2 text-start font-medium text-pretty">{localized(f.label, lang)}</th>
                   <td className="px-3 py-2">
                     {/* A NISAR value without uncertainty is a draft placeholder (a final case requires one): never shown as a measurement. */}
                     {f.nisar.uncertainty > 0 ? <MeasurementText m={f.nisar} /> : <span className="text-ink-2">{t("cases.notMeasuredYet")}</span>}

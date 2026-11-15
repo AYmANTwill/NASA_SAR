@@ -13,6 +13,17 @@ export function DraftBadge({ className }: { className?: string }) {
   );
 }
 
+/** A validated case: said in words with an icon, never by colour alone. */
+export function FinalBadge({ className }: { className?: string }) {
+  const { t } = useText();
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-sm border border-ok bg-surface px-1.5 py-0.5 text-xs font-semibold text-ok", className)}>
+      <CircleCheck className="size-3.5" aria-hidden />
+      {t("cases.finalShort")}
+    </span>
+  );
+}
+
 export function DraftBanner() {
   const { t } = useText();
   return (
