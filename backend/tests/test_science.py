@@ -2,6 +2,7 @@
 Usage (from backend/):  python tests/test_science.py"""
 import copy
 import json
+from dataclasses import replace
 import os
 import sys
 import tempfile
@@ -67,10 +68,19 @@ except ValueError:
 
 # ---------------------------------------------------------------- the four draft fixtures
 cases, errors = case_store.load_all()
-check("the 4 fixtures load and validate", [c.id for c in cases] == list(case_store.ORDER) and not errors, errors)
+REQUIRED = [c for c in case_store.ORDER if c not in case_store.OPTIONAL_CASES]
+check("the 4 fixtures load and validate (the optional 5th case is absent, not an error)",
+      [c.id for c in cases] == REQUIRED and not errors, errors)
 check("all fixtures are drafts with their placeholders listed",
       all(c.status == "draft" and c.placeholders for c in cases))
 base = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
+_lab = {"fr": "x", "en": "x", "ar": "x"}
+base["findings"] = [      # synthetic findings for the contract tests below (the fixtures no longer hold any)
+    {"id": "mw", "label": _lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "Mw", "sigma": 1},
+     "reference": {"value": 7.7, "uncertainty": 0.1, "unit": "Mw", "sigma": 1},
+     "reference_source": {"name": "USGS", "url": "https://earthquake.usgs.gov/"}, "agreement": "disagree"},
+    {"id": "length", "label": _lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "km", "sigma": 1},
+     "reference": None, "reference_source": None, "agreement": "no_reference"}]
 
 # ---------------------------------------------------------------- the contract refuses broken cases
 final_with_placeholders = {**base, "status": "final"}
@@ -120,13 +130,17 @@ except ValidationError as exc:
 # ---------------------------------------------------------------- API
 c = TestClient(api.app)
 r = c.get("/api/cases")
-check("GET /api/cases lists the 4 cases in order",
-      r.status_code == 200 and [s["id"] for s in r.json()] == list(case_store.ORDER), r.text[:300])
-check("summaries have exactly the contract keys",
-      all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url"} for s in r.json()))
+check("GET /api/cases lists the 4 cases in order; the absent 5th case is not listed",
+      r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED, r.text[:300])
+check("GET /api/cases/bin-el-ouidane-2026 without its file: 404 case_not_found",
+      c.get("/api/cases/bin-el-ouidane-2026").status_code == 404)
+check("summaries have exactly the contract keys, plus the optional bbox and place (the map extent)",
+      all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url", "bbox", "place"}
+          and len(s["bbox"]) == 4 and set(s["place"]) == {"fr", "en", "ar"} for s in r.json()))
 r = c.get("/api/cases/panama-2026")
-check("GET /api/cases/panama-2026 returns the case",
-      r.status_code == 200 and r.json()["findings"][0]["reference"]["value"] == 7.7, r.text[:300])
+check("GET /api/cases/panama-2026 returns the draft case: no placeholder value, what is missing is in limits",
+      r.status_code == 200 and r.json()["id"] == "panama-2026" and r.json()["findings"] == []
+      and "not computed yet" in r.json()["limits"][0]["text"]["en"], r.text[:300])
 r = c.get("/api/cases/nope")
 check("unknown case: 404 with an ApiErrorBody", r.status_code == 404 and r.json()["code"] == "case_not_found")
 
@@ -302,6 +316,15 @@ check("sign decision: left-lateral data in the +1 convention -> '+1' with all th
       dec["decision"] == "+1" and all(dec["criteria_plus1"].values()) and dec["ffm"]["n_k_positive_3sigma"] >= 3,
       (dec["criteria_plus1"], dec["inversion"]))
 dec_m = sign_decision.decide(sign_decision.flipped(sd_tracks), usgs_planes, lat0, lon0, starts=FAST)
+check("sign decision: the (a)(b)(c) verdicts are saved, (a) decides",
+      dec["decided_by"] == "a_finite_fault" and dec["verdicts"]["a_finite_fault"] == "+1"
+      and set(dec["verdicts"]) == {"a_finite_fault", "b_variance_reduction", "c_left_lateral_plane"}, dec["verdicts"])
+weak_fit = [replace(f, variance_reduction=0.824) for f in [sign_decision.fit_plane(sd_tracks, pl, FAST) for pl in usgs_planes]]
+weak_fit_m = [replace(f, variance_reduction=0.818) for f in [sign_decision.fit_plane(sign_decision.flipped(sd_tracks), pl, FAST)
+                                                             for pl in usgs_planes]]
+dec_w = sign_decision.decide(sd_tracks, usgs_planes, lat0, lon0, fits_plus=weak_fit, fits_minus=weak_fit_m, starts=FAST)
+check("sign decision: VR +1 0.824 vs -1 0.818 -> (b) inconclusive, (a) still decides +1",
+      dec_w["verdicts"]["b_variance_reduction"] == "inconclusive" and dec_w["decision"] == "+1", dec_w["verdicts"])
 check("sign decision: the same data with the opposite sign -> '-1'", dec_m["decision"] == "-1", dec_m["criteria_minus1"])
 noise_tracks = [Track(t.name, t.east, t.north, rng.normal(0, 1.0, t.los.size), t.vec) for t in sd_tracks]
 check("sign decision: noise -> 'undecided'",
@@ -510,6 +533,9 @@ check("cases: full timeline, sorted: USGS origin, every NISAR acquisition time o
                                               "2026-10-09T23:15:20Z", "2026-10-10T02:00:00Z", "2026-10-12T11:03:01Z",
                                               "2026-10-13T08:00:00Z"]
       and pan["date"] == "2026-10-09T17:56:06Z", [t["at"] for t in pan["timeline"]])
+check("timeline items carry their optional kind: event, acquisition, publication",
+      [t.get("kind") for t in pan["timeline"]].count("event") == 1
+      and {t.get("kind") for t in pan["timeline"]} == {"event", "acquisition", "publication"}, pan["timeline"])
 maps = [f for f in pan["figures"] if f.get("layer")]
 lay = maps[0]["layer"] if maps else {}
 check("cases: one map figure with a RasterLayer per co-seismic pair (PNG rendered with the frontend palette, served)",
@@ -612,13 +638,243 @@ check("cases: a flood case without date / products / map / exposure stays a draf
       flood["status"] == "draft" and any("'date'" in p for p in flood["placeholders"])
       and any("'products'" in p for p in flood["placeholders"])
       and "figures: no map with a layer" in flood["placeholders"]
-      and any("exposure" in p for p in flood["placeholders"]), flood["placeholders"])
+      and flood["exposure"] is None, flood["placeholders"])
+check("haouz: no flooded surface: the flooded_area / km2 finding is dropped, no exposure, title is not a flood map",
+      all(f["nisar"]["unit"] != "km2" and f["id"] != "flooded_area" for f in flood["findings"])
+      and flood["exposure"] is None and "Candidate surface-change area" in flood["title"]["en"]
+      and "Flooded area" not in json.dumps(flood), [f["id"] for f in flood["findings"]])
+(res_dir / "events").mkdir()
+(res_dir / "events" / "haouz-flood-2026-10-10.json").write_text(json.dumps({"facts": {
+    "event_day": "20261010", "date_before": "20261003", "date_after": "20261015", "crid": "P05023",
+    "maturity": "provisional", "co_pair": "GUNW_T044_F017_20261003_20261015"}}), encoding="utf-8")
+(res_dir / "events" / "haouz-soil-moisture.json").write_text(json.dumps({"facts": {
+    "anomaly_m3m3": -0.027, "uncertainty_m3m3": 0.028, "latest_date": "20261018"}}), encoding="utf-8")
+null_src = {"name": "No-event baseline: 2,000 random circles, 21 Sep–3 Oct 2026",
+            "url": "https://example.org/results/haouz-flood-2026/findings.json"}
+
+
+def circle_finding(fid, unit, site, site_se, base_mean, base_spread):
+    return {"id": fid, "label": {"fr": "x", "en": "x", "ar": "x"},
+            "nisar": {"value": site, "uncertainty": site_se, "unit": unit, "sigma": 1},
+            "reference": {"value": base_mean, "uncertainty": base_spread, "unit": unit, "sigma": 1},
+            "reference_source": null_src,
+            "agreement": agreement(Measurement(value=site, uncertainty=site_se, unit=unit),
+                                   Measurement(value=base_mean, uncertainty=base_spread, unit=unit))}
+
+
+def write_haouz(findings):
+    (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": findings + [
+        {"id": "flooded_area", "label": {"fr": "a", "en": "a", "ar": "a"},
+         "nisar": {"value": 3.2, "uncertainty": 0.4, "unit": "km2", "sigma": 1}, "reference": None,
+         "reference_source": None, "agreement": "no_reference"}], "limits": []}), encoding="utf-8")
+
+
+write_haouz([circle_finding("coherence_loss_excess", "coherence", 0.147, 0.01, 0.028, 0.06),
+             circle_finding("backscatter_change", "dB", 0.4, 0.1, 0.0, 0.5)])
+hz = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+hz_f = {f["id"]: f for f in hz["findings"]}
+hz_lim = " | ".join(x["text"]["en"] for x in hz["limits"])
+coh = hz_f.get("coherence_loss_excess", {})
+check("haouz: circle findings = site value ± its own standard error vs the no-event baseline (mean ± spread)",
+      set(hz_f) == {"coherence_loss_excess", "backscatter_change", "soil_moisture_anomaly"}
+      and coh["nisar"] == {"value": 0.147, "uncertainty": 0.01, "unit": "coherence", "sigma": 1}
+      and coh["reference"]["uncertainty"] == 0.06 and coh["reference_source"]["name"].startswith("No-event baseline")
+      and "compared with the no-event baseline" in coh["label"]["en"]
+      and hz_f["backscatter_change"]["nisar"]["unit"] == "dB", hz_f)
+check("haouz: agreement recomputed by the usual rule ('agree' = not different from no change)",
+      coh["agreement"] == "agree" and hz_f["backscatter_change"]["agreement"] == "agree"
+      and "'agree' means 'not different from no change'" in hz_lim, [f["agreement"] for f in hz["findings"]])
+check("haouz: headline 'Candidate surface-change area: no clear change' when every indicator agrees with no change",
+      hz["headline"]["text"]["en"].startswith("Candidate surface-change area: no clear change"), hz["headline"])
+check("haouz: limits say why it is not a flood map (same passes, not independent, 5 days after, no km2)",
+      "not independent" in hz_lim and "not a flood map" in hz_lim and "5 days after the event (2026-10-10)" in hz_lim,
+      hz_lim)
+check("every case: 'Provisional NISAR products (CRID P05023)' limit taken from the product CRIDs",
+      "Provisional NISAR products (CRID P05023)" in hz_lim, hz_lim)
+spread_only = circle_finding("coherence_loss_excess", "coherence", 0.147, 0.0, 0.028, 0.06)
+write_haouz([spread_only, circle_finding("backscatter_change", "dB", 3.0, 0.1, 0.0, 0.5)])
+hz2 = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+hz2_lim = " | ".join(x["text"]["en"] for x in hz2["limits"])
+check("haouz: a circle finding without its own measurement uncertainty is left out and said in the limits",
+      "coherence_loss_excess" not in {f["id"] for f in hz2["findings"]}
+      and "no measurement uncertainty at the site" in hz2_lim and hz2["status"] == "draft", hz2_lim)
+check("haouz: a site value that disagrees with the no-event baseline is a clear change in the headline",
+      "clear change in Backscatter change" in hz2["headline"]["text"]["en"], hz2["headline"])
+
+# --- answers: no English inside FR / AR, the period searched (Adam's requests 4 and 5) ---------------------------
+import api_v2  # noqa: E402
+from science import answer_text  # noqa: E402
+
+nd = api_v2.to_answer({"type": "surface_change", "facts": {"error": "needs an earlier pair and a pair of the same "
+                                                           "length on the same track, frame and CRID"},
+                       "place": {}, "data_used": [], "event_time": {"utc": "20261010", "precision": "day"},
+                       "steps": [{"step": "found 0 interferograms covering the point", "ok": True},
+                                 {"step": "surface change (coherence loss)", "ok": False,
+                                  "error": "the before and event pairs do not share the same grid"}]},
+                      "a-nd", "q", "fr")
+txt = nd["verdict"]["text"]
+english = ("needs an earlier", "same length", "interferograms covering", "found ", "failed", "do not share",
+           "coherence loss")
+fr_ar = [txt["fr"], txt["ar"]] + [st["summary"]["text"][L] for st in nd["steps"] if "text" in st["summary"]
+                                  for L in ("fr", "ar")] +         [st["error"]["text"][L] for st in nd["steps"] if st["error"] for L in ("fr", "ar")]
+check("answers: a no-data verdict is a template with a reason code; no English sentence in its FR / AR text",
+      nd["verdict"]["template"] == "backend.verdict.no_data"
+      and nd["verdict"]["params"]["reason"] == {"term": "reason.needs_baseline_pair"}
+      and not any(w in t for t in fr_ar for w in english), fr_ar)
+steps_by = {st["summary"]["template"]: st for st in nd["steps"]}
+check("answers: step summaries and errors are templates with params (count, reason), not the English name",
+      steps_by.get("backend.step.found_products", {}).get("summary", {}).get("params") == {"count": 0}
+      and steps_by["backend.step.surface_change_coherence_loss"]["error"]["params"]["reason"]
+      == {"term": "reason.grid_mismatch"}, list(steps_by))
+check("answers: no product -> the period searched (the event day), not today",
+      nd["period"] == {"start": "2026-10-10", "end": "2026-10-11"} and nd["acquisitions"] == [], nd["period"])
+nd2 = api_v2.to_answer({"type": "soil_moisture", "facts": {"error": "something new went wrong"}, "place": {},
+                        "data_used": []}, "a-nd2", "q", "fr")
+check("answers: an unknown reason keeps its English only in 'en'; empty catalog -> today with a limit saying so",
+      "something new" not in nd2["verdict"]["text"]["fr"] and "something new" in nd2["verdict"]["text"]["en"]
+      and any(lim["template"] == "backend.limit.no_catalog" for lim in nd2["limits"]), nd2["verdict"])
+check("answers: displacement step keeps its dates and direction as params",
+      answer_text.step_summary("displacement ascending 20261003→20261015")["params"]
+      == {"direction": {"term": "direction.ascending"}, "date": {"date": "2026-10-03"}, "date2": {"date": "2026-10-15"}})
+
+fl = api_v2.to_answer({"type": "flood", "facts": {"open_water_ha": 12.0, "flooded_vegetation_ha": 3.0}, "place": {},
+                       "data_used": []}, "a-fl", "q", "fr")
+df = api_v2.to_answer({"type": "deforestation", "facts": {"vegetation_loss_ha": 40.0}, "place": {}, "data_used": []},
+                      "a-df", "q", "fr")
+check("answers: flood / forest areas without a computed sigma are not sent (no hand-set 20 %), a limit says why",
+      not any(m["id"] in ("flooded_area", "forest_loss") for m in fl["metrics"] + df["metrics"])
+      and any(x["template"] == "backend.limit.no_sigma" for x in fl["limits"])
+      and any(x["template"] == "backend.limit.no_sigma" for x in df["limits"]), (fl["metrics"], df["metrics"]))
+fl2 = api_v2._metrics("flood", {"open_water_ha": 12.0, "flooded_vegetation_ha": 3.0, "flooded_area_sigma_ha": 2.5})
+check("answers: with a sigma computed by the recipe the flooded area is a measurement",
+      fl2 == [{"id": "flooded_area", "measurement": {"value": 15.0, "uncertainty": 2.5, "unit": "ha", "sigma": 1}}])
+check("answers: no hand-set 0.1 m on the largest pixel offset either",
+      api_v2._metrics("large_displacement", {"magnitude_m": 1.2}) == [])
+
+# --- Youkaoui's water outputs: the optional 5th case, Haouz open water, /api/water ------------------------------
+from science import water  # noqa: E402
+
+wdir = tmp / "water_outputs"
+(wdir / "figures").mkdir(parents=True)
+(wdir / "rasters").mkdir()
+water.WATER_DIR = wdir
+(wdir / "figures" / "reservoir_area.png").write_bytes(bytes([0x89]) + b"PNG")
+(tmp / "secret.png").write_bytes(bytes([0x89]) + b"PNG")
+check("water: files under rasters/ and figures/ only, unsafe names and other folders refused",
+      water.water_path("figures", "reservoir_area.png") is not None
+      and water.water_path("figures", "../../secret.png") is None and water.water_path("outputs", "x.png") is None
+      and water.water_path("figures", "x.exe") is None and water.water_path("figures", "missing.png") is None)
+wc = TestClient(api.app)
+r_w = wc.get("/api/water/figures/reservoir_area.png")
+check("GET /api/water/figures/<file> serves the image; traversal and unknown folders -> 404",
+      r_w.status_code == 200 and r_w.headers["content-type"] == "image/png"
+      and wc.get("/api/water/figures/..%2F..%2Fsecret.png").status_code == 404
+      and wc.get("/api/water/data/reservoir_area.png").status_code == 404)
+check("5th case: no reservoir_case.json -> not built, no error", cs.build_reservoir() is None)
+res_lab = {"fr": "r", "en": "r", "ar": "r"}
+reservoir = {**json.loads((case_store.CASES_DIR / "ionosphere-gps.json").read_text(encoding="utf-8")),
+             "id": "bin-el-ouidane-2026", "kind": "method", "status": "final", "placeholders": [],
+             "findings": [{"id": "volume", "label": res_lab, "nisar": {"value": 0.9, "uncertainty": 0.1, "unit": "km2",
+                                                                       "sigma": 1},
+                           "reference": None, "reference_source": None, "agreement": "no_reference"},
+                          {"id": "level", "label": res_lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "m",
+                                                                      "sigma": 1},
+                           "reference": None, "reference_source": None, "agreement": "no_reference"}],
+             "figures": [{"id": "area", "kind": "chart", "title": res_lab, "url": "/api/water/figures/reservoir_area.png",
+                          "caption": {"template": "x", "params": {}}}]}
+(wdir / "reservoir_case.json").write_text(json.dumps(reservoir), encoding="utf-8")
+res5 = cs.build_reservoir()
+check("5th case: built from reservoir_case.json; a value without sigma is left out, so it stays a draft",
+      res5["id"] == "bin-el-ouidane-2026" and [f["id"] for f in res5["findings"]] == ["volume"]
+      and res5["status"] == "draft" and any("not computed" in x["text"]["en"] for x in res5["limits"]),
+      res5["placeholders"])
+(wdir / "reservoir_case.json").write_text(json.dumps({**reservoir, "figures": [
+    {**reservoir["figures"][0], "url": "/etc/passwd"}]}), encoding="utf-8")
+check("5th case: a figure url outside /api/water or /api/cases stops the build",
+      raises(cs.build_reservoir, cs.CaseInputError))
+(wdir / "reservoir_case.json").unlink()
+(wdir / "haouz_open_water.json").write_text(json.dumps({
+    "findings": [{"id": "change_km2", "label": res_lab, "nisar": {"value": 0.02, "uncertainty": 0.05, "unit": "km2",
+                                                                  "sigma": 1},
+                  "reference": None, "reference_source": None, "agreement": "no_reference"}],
+    "figures": [{"id": "unet_water", "kind": "chart", "title": res_lab, "url": "/api/water/figures/reservoir_area.png",
+                 "caption": {"template": "x", "params": {}}}]}), encoding="utf-8")
+hz_ow = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+ow = [f for f in hz_ow["findings"] if f["id"].startswith("open_water")]
+check("haouz: U-Net open water added as 'Persistent open water (U-Net)'; the headline does not change",
+      len(ow) == 1 and ow[0]["label"]["en"] == "Persistent open water (U-Net)"
+      and any(f["id"] == "unet_water" for f in hz_ow["figures"]) and hz_ow["headline"] == hz2["headline"],
+      [f["id"] for f in hz_ow["findings"]])
+(wdir / "haouz_open_water.json").unlink()
+
+# --- no 0.0 for a missing value ---------------------------------------------------------------------------------
+kept, nc_lim, nc_ph = cs.split_computed([mw_finding, {**mw_finding, "id": "slip",
+                                                      "nisar": {"value": 0, "uncertainty": 0, "unit": "m", "sigma": 1}}])
+check("no 0.0: a finding without its uncertainty is left out, said in limits and listed as missing",
+      [f["id"] for f in kept] == ["mw"] and "not computed" in nc_lim[0]["text"]["en"] and nc_ph == ["findings[slip]: not computed"])
+(work / "out" / "panama-2026.json").unlink()
+pan0 = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("no 0.0: Panama without a fault inversion has no Mw finding, never '0 vs 7.7 disagree', and says why",
+      pan0["findings"] == [] and pan0["status"] == "draft"
+      and any(x["text"]["en"].startswith("Magnitude not estimated: cases/out/panama-2026.json not available")
+              for x in pan0["limits"]), [f["id"] for f in pan0["findings"]])
+fixture_pan = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
+check("no 0.0: the served draft fixtures hold no placeholder value (no finding with uncertainty 0)",
+      all(f["nisar"]["uncertainty"] > 0 for cid in ("panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps")
+          for f in json.loads((case_store.CASES_DIR / f"{cid}.json").read_text(encoding="utf-8"))["findings"]))
+from science import provenance  # noqa: E402
+wl = provenance.wavelength_limits([SimpleNamespace(id="X", folder=tmp / "no_such_folder")])
+check("wavelength: a product without centerFrequency gets the 'λ = 0.2384 m from the config' limit",
+      len(wl) == 1 and "1 of 1 product(s) have no centerFrequency" in wl[0]["text"]["en"] and "0.2384" in wl[0]["text"]["en"], wl)
 (res_dir / "haouz-flood-2026" / "findings.json").write_text(json.dumps({"findings": [{"id": "x"}]}), encoding="utf-8")
 try:
     cs.build_flood("haouz-flood-2026", res_dir, offline=True)
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", False)
 except cs.CaseInputError:
     check("cases: a results/<id>/findings.json that breaks the Finding contract is refused", True)
+
+# --- panama_fault: track ids with the mode, excluded frames, no 0.0 for a missing sigma -------------------------
+from science import panama_fault as pf  # noqa: E402
+
+p2000 = SimpleNamespace(id="GUNW_T141_F085_20260927_20261009", track=141, frame=85,
+                        name="NISAR_L2_PR_GUNW_030_141_D_085_031_2000_SH_20260927T235308_20260927T235330_20261009T235308_"
+                             "20261009T235330_P05023_N_F_J_001")
+p4000 = SimpleNamespace(**{**vars(p2000), "name": p2000.name.replace("_031_2000_", "_031_4000_")})
+check("panama_fault: the 20 / 40 MHz variants of one pair get distinct track ids (mode in the id)",
+      pf.track_id(p2000) == "GUNW_T141_F085_20260927_20261009_2000" and pf.track_id(p4000).endswith("_4000"))
+check("panama_fault: --exclude-frame parses TRACK/FRAME and refuses anything else",
+      pf.parse_frame("141/85") == (141, 85) and raises(lambda: pf.parse_frame("141-85"), Exception))
+_orig = (pf.catalog.find, pf.catalog.straddling, pf.track_from_product)
+pf.catalog.find = lambda lat, lon, level: [p2000, p4000, SimpleNamespace(**{**vars(p2000), "frame": 84, "id": "F84",
+                                                                                "name": "x"})]
+pf.catalog.straddling = lambda ps, origin: ps
+pf.track_from_product = lambda p, lat0, lon0, n: Track(pf.track_id(p), np.zeros(3), np.zeros(3), np.zeros(3),
+                                                         np.zeros((3, 3)))
+ex_tracks, ex_ids, _ = pf.coseismic_tracks(SimpleNamespace(lat=7.6, lon=-80.8, time_ms=1791568566000), 10, noise=False,
+                                           exclude=((141, 85),))
+pf.catalog.find, pf.catalog.straddling, pf.track_from_product = _orig
+check("panama_fault: an excluded track/frame is out of the inversion and of the sign test (same track list)",
+      ex_ids == ["F84"] and [t.name for t in ex_tracks] == ["F84"], ex_ids)
+check("panama_fault: a missing or zero sigma gives no Measurement (never 0.0)",
+      pf._m({"value": 30.0, "sigma": None}, "km") is None and pf._m({"value": 30.0, "sigma": 0.0}, "km") is None
+      and pf._m({"value": 30.0, "sigma": 2.0}, "km")["uncertainty"] == 2.0)
+best_nc = {"params": {"length_km": {"value": 50.0, "sigma": 4.0}, "slip_m": {"value": 2.0, "sigma": None},
+                      "top_depth_km": {"value": 1.0, "sigma": 0.5}}, "mw": {"value": 7.6, "sigma": 0.05}}
+f_ok, f_nc = pf.findings_from(best_nc, parse(usgs_fixture))
+check("panama_fault: a parameter without sigma is left out of the findings and listed in not_computed",
+      [f["id"] for f in f_ok] == ["mw", "length", "top_depth"] and [x["id"] for x in f_nc] == ["slip"], (f_ok, f_nc))
+
+import noise_report  # noqa: E402
+
+nr_rows = [{"id": "P1", "sigma_cm": {k: 1.0 for k in noise_report.SETS}, "reasons": {},
+            "really_applied": ["iono"], "skipped_product_flag": ["tropo"]},
+           {"id": "P2", "sigma_cm": {k: 1.0 for k in noise_report.SETS}, "reasons": {},
+            "really_applied": [], "skipped_product_flag": []}]
+nr_md = noise_report.markdown({"summary": {}, "recommended_setting": "iono", "products": nr_rows,
+                               "created": "x", "data_dir": "x", "n_products": 2})
+check("noise_report: per pair, the corrections really applied and those skipped on the product flag, plus a warning",
+      "| really applied | skipped (product flag) |" in nr_md and "| iono | tropo |" in nr_md
+      and "| none | — |" in nr_md and "on 1 of 2 products a correction was skipped" in nr_md, nr_md[-600:])
 
 # --- api_v2: Houssam's notes (frontend/docs/API_CONTRACT.md, "What I noticed") ------------------------------
 import api_v2  # noqa: E402

@@ -27,6 +27,7 @@ from pyproj import Transformer
 import catalog
 import raster
 from config import LOS_SIGN
+from recipes import corrections as corrections_mod
 from recipes import decompose, displacement
 from science import ffm_sign, noise_cov, sign_decision, usgs
 from science.case_models import Finding, Measurement, agreement
@@ -108,8 +109,32 @@ def component_blocks(disp: np.ndarray, cc: np.ndarray | None, n_target: int = N_
     return rows, cols, vals, comp, note
 
 
+def product_mode(p) -> str:
+    """Acquisition mode field of a NISAR file name (e.g. 2000 / 4000 = 20 / 40 MHz), '' if absent. Two products of
+    the same pair and frame can differ only by it (frame 141/85), so it is part of the track id."""
+    parts = str(getattr(p, "name", "")).split("_")
+    return parts[9] if len(parts) > 9 and parts[9].isdigit() else ""
+
+
+def track_id(p) -> str:
+    mode = product_mode(p)
+    return f"{p.id}_{mode}" if mode else p.id
+
+
+def parse_frame(text: str) -> tuple[int, int]:
+    """'141/85' -> (141, 85): a track / frame to exclude."""
+    try:
+        track, frame = text.split("/")
+        return int(track), int(frame)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"expected TRACK/FRAME such as 141/85, got {text!r}") from exc
+
+
 def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) -> Track | None:
-    disp, coh, prof, notes, report = displacement.los_cm_full(p, corrections=("iono",))
+    # Corrections from NISAR_CORRECTIONS (default "iono"), as everywhere else. Per the NISAR L2 GUNW product
+    # specification the ionosphere phase screen is shipped with the product but NOT applied to the unwrapped phase,
+    # and Anass's noise test (with / without the screen) confirms that subtracting it is right.
+    disp, coh, prof, notes, report = displacement.los_cm_full(p, corrections=corrections_mod.active())
     disp = np.where(coh >= COH_MIN, disp, np.nan)
     cc = raster.read(p.files["conncomp"])[0] if "conncomp" in p.files else None
     rows, cols, vals, comp, cc_note = component_blocks(disp, cc, n_target)
@@ -123,7 +148,7 @@ def track_from_product(p, lat0: float, lon0: float, n_target: int = N_TARGET) ->
     track_notes = list(notes) + [f"LOS vector: track mean ({vec_source})", cc_note]
     if not report.get("iono", {}).get("applied"):
         track_notes.append(f"ionospheric correction NOT applied: {report.get('iono', {}).get('reason', 'unknown')}")
-    return Track(p.id, east, north, vals, np.tile(vec, (vals.size, 1)), tuple(track_notes), comp=comp)
+    return Track(track_id(p), east, north, vals, np.tile(vec, (vals.size, 1)), tuple(track_notes), comp=comp)
 
 
 def with_noise_models(tracks: list[Track], pairs: list, origin: str, lat0: float, lon0: float,
@@ -153,17 +178,19 @@ def with_noise_models(tracks: list[Track], pairs: list, origin: str, lat0: float
     return out, report
 
 
-def coseismic_tracks(ev: usgs.UsgsEvent, n_target: int = N_TARGET,
-                     noise: bool = True) -> tuple[list[Track], list[str], dict]:
-    """(tracks, pair ids, noise-model report). noise=True: noise covariance from pre-event pairs when available."""
+def coseismic_tracks(ev: usgs.UsgsEvent, n_target: int = N_TARGET, noise: bool = True,
+                     exclude: tuple = ()) -> tuple[list[Track], list[str], dict]:
+    """(tracks, pair ids, noise-model report). noise=True: noise covariance from pre-event pairs when available.
+    exclude: (track, frame) pairs left out of the inversion and of the sign test."""
     origin = datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc).strftime("%Y%m%dT%H%M%S")
-    pairs = catalog.straddling(catalog.find(ev.lat, ev.lon, "GUNW"), origin)
+    pairs = [p for p in catalog.straddling(catalog.find(ev.lat, ev.lon, "GUNW"), origin)
+             if (p.track, p.frame) not in set(exclude)]
     kept = [(p, t) for p, t in ((p, track_from_product(p, ev.lat, ev.lon, n_target)) for p in pairs) if t is not None]
     tracks = [t for _, t in kept]
     report = {}
     if noise and kept:
         tracks, report = with_noise_models(tracks, [p for p, _ in kept], origin, ev.lat, ev.lon, n_target)
-    return tracks, [p.id for p in pairs], report
+    return tracks, [track_id(p) for p in pairs], report
 
 
 # ---------------------------------------------------------------- output
@@ -193,31 +220,39 @@ LIMITS = {
 }
 
 
-def _m(p: dict, unit: str) -> dict:
-    return {"value": round(p["value"], 3), "uncertainty": round(p["sigma"] or 0.0, 3), "unit": unit, "sigma": 1}
+def _m(p: dict, unit: str) -> dict | None:
+    """A Measurement, or None when the value or its uncertainty was not computed (never a 0.0 stand-in)."""
+    v, s = p.get("value"), p.get("sigma")
+    if v is None or s is None or not math.isfinite(v) or not math.isfinite(s) or s <= 0:
+        return None
+    return {"value": round(v, 3), "uncertainty": round(s, 3), "unit": unit, "sigma": 1}
 
 
-def findings_from(best: dict, ev: usgs.UsgsEvent) -> list[dict]:
-    """Finding dicts, validated against case_models.Finding. Only called when the fit is stable."""
+def findings_from(best: dict, ev: usgs.UsgsEvent) -> tuple[list[dict], list[dict]]:
+    """(Finding dicts validated against case_models.Finding, [{id, label, reason}] for the values without an
+    uncertainty, which are left out). Only called when the fit is stable."""
     prm = best["params"]
     ref = None
     if ev.magnitude_type.lower().startswith("mw"):
         ref = {"value": ev.magnitude, "uncertainty": MW_REF_SIGMA, "unit": "Mw", "sigma": 1}
-    mw = {"value": round(best["mw"]["value"], 3), "uncertainty": round(best["mw"]["sigma"], 3), "unit": "Mw",
-          "sigma": 1}
+    mw = _m(best["mw"], "Mw")
     rows = [("mw", ("Magnitude de moment", "Moment magnitude", "قدر العزم"), mw, ref),
             ("length", ("Longueur de rupture", "Rupture length", "طول التمزق"), _m(prm["length_km"], "km"), None),
             ("slip", ("Glissement moyen", "Mean slip", "متوسط الانزلاق"), _m(prm["slip_m"], "m"), None),
             ("top_depth", ("Profondeur du sommet de la faille", "Fault top depth", "عمق أعلى الصدع"),
              _m(prm["top_depth_km"], "km"), None)]
-    out = []
+    out, not_computed = [], []
     for fid, (fr, en, ar), nisar, reference in rows:
+        if nisar is None:
+            not_computed.append({"id": fid, "label": {"fr": fr, "en": en, "ar": ar},
+                                 "reason": "no uncertainty from the Jacobian or the bootstrap"})
+            continue
         src = {"name": f"USGS {ev.id} ({ev.magnitude_type})", "url": ev.url} if reference else None
         agr = agreement(Measurement(**nisar), Measurement(**reference) if reference else None)
         f = {"id": fid, "label": {"fr": fr, "en": en, "ar": ar}, "nisar": nisar, "reference": reference,
              "reference_source": src, "agreement": agr}
         out.append(Finding.model_validate(f).model_dump(mode="json"))
-    return out
+    return out, not_computed
 
 
 def figure(tracks: list[Track], fits, best: int, path: Path) -> None:
@@ -244,7 +279,8 @@ def figure(tracks: list[Track], fits, best: int, path: Path) -> None:
 
 
 def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_DIR,
-        n_target: int = N_TARGET, ffm: "ffm_sign.FiniteFault | None" = None, noise: bool = True) -> dict:
+        n_target: int = N_TARGET, ffm: "ffm_sign.FiniteFault | None" = None, noise: bool = True,
+        exclude: tuple = ()) -> dict:
     """ffm: finite-fault model for the independent sign test (USGS model by default for us6000u18k).
     noise: estimate the noise covariance from pre-event pairs (plan_validation.json part 2) when present."""
     if ffm is None and event_id == "us6000u18k":
@@ -252,10 +288,11 @@ def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_D
     timing = {}
     t0 = time.perf_counter()
     ev = usgs.event(event_id)
-    tracks, pair_ids, noise_report = coseismic_tracks(ev, n_target, noise)
+    tracks, pair_ids, noise_report = coseismic_tracks(ev, n_target, noise, tuple(exclude))
     modelled = bool(tracks) and all(t.chol is not None for t in tracks)
     timing["load_tracks_s"] = round(time.perf_counter() - t0, 2)
-    base = {"case": case_id, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+    base = {"case": case_id, "excluded_frames": [f"{t}/{f}" for t, f in exclude],
+            "corrections": list(corrections_mod.active()), "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
             "event": {"id": ev.id, "url": ev.url, "lat": ev.lat, "lon": ev.lon, "depth_km": ev.depth_km,
                       "time_utc": datetime.fromtimestamp(ev.time_ms / 1000, tz=timezone.utc).isoformat(),
                       "magnitude": ev.magnitude, "magnitude_type": ev.magnitude_type, "mt_source": ev.mt_source,
@@ -286,7 +323,8 @@ def run(event_id: str, case_id: str, n_boot: int = N_BOOT, out_dir: Path = OUT_D
             timing["sign_decision_s"] = round(time.perf_counter() - t0, 2)
         fig_path = out_dir / f"{case_id}_fit.png"
         figure(tracks, fits, result["best_plane"], fig_path)
-        out = {**base, **result, "sign_check": sign, "findings": findings_from(best, ev) if result["stable"] else [],
+        found, not_computed = findings_from(best, ev) if result["stable"] else ([], [])
+        out = {**base, **result, "sign_check": sign, "findings": found, "not_computed": not_computed,
                "figures": [{"id": "fault_fit", "path": fig_path.name, "kind": "image"}], "limits": limits}
     out["timing"] = timing
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -304,6 +342,8 @@ def main() -> None:
     ap.add_argument("--ffm-top-depth", type=float, default=0.0, help="top depth (km) of the USGS finite-fault model")
     ap.add_argument("--no-noise-cov", action="store_true",
                     help="do not use pre-event pairs for the noise covariance (independent points, lower-bound sigma)")
+    ap.add_argument("--exclude-frame", type=parse_frame, action="append", default=[], metavar="TRACK/FRAME",
+                    help="leave a track/frame out of the inversion and the sign test, e.g. 141/85 (repeatable)")
     a = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")     # Windows consoles default to cp1252
@@ -311,7 +351,8 @@ def main() -> None:
     if a.event == "us6000u18k":
         from dataclasses import replace
         ffm = replace(ffm_sign.USGS_FFM_PANAMA, top_depth_km=a.ffm_top_depth)
-    out = run(a.event, a.case, a.boot, a.out_dir, a.points, ffm, noise=not a.no_noise_cov)
+    out = run(a.event, a.case, a.boot, a.out_dir, a.points, ffm, noise=not a.no_noise_cov,
+              exclude=a.exclude_frame)
     for name, nm in out.get("noise_models", {}).items():
         print(f"noise model {name}: {nm['status']}" + (f", sigma {nm['sigma_cm']:.2f} cm, range {nm['range_km']:.1f} km"
                                                        if nm["status"] == "ok" else ""))
@@ -324,11 +365,13 @@ def main() -> None:
     if sc:
         print(f"LOS sign decision: {sc['decision']}   (written to {a.out_dir / (a.case + '_sign.json')})")
         for name, v in sc["ffm"]["per_track"].items():
-            print(f"  FFM {name}: k = {v['k']:.3g} +/- {v['sigma_k']:.2g} ({v['k_over_sigma'] or 0:+.1f} sigma), "
+            print(f"  FFM {name}: k = {v['k']:.3g} +/- {v['sigma_k']:.2g} ({'n/a' if v['k_over_sigma'] is None else format(v['k_over_sigma'], '+.1f')} sigma), "
                   f"r = {v['partial_r']:.2f} -> {v['verdict']}")
         inv = sc["inversion"]
         print(f"  inversion VR +1 = {inv['variance_reduction_plus1']:.3f}, -1 = {inv['variance_reduction_minus1']:.3f}")
-        print("  criteria +1:", sc["criteria_plus1"])
+        for key, verdict in sc["verdicts"].items():
+            print(f"  ({key}) -> {verdict}")
+        print(f"  decided by: {sc['decided_by']}; notes: {sc['notes'] or 'none'}")
     print_timing(out, a.boot)
 
 

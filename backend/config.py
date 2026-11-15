@@ -23,6 +23,8 @@ SIGN_BASIS = ("documented convention (ARIA-tools, MintPy prep_nisar): GUNW unwra
 # STATUS H4: the sign has not been checked on real data. While False, every signed line-of-sight answer says "sign
 # unverified", has confidence low and no alert. Set NISAR_LOS_SIGN_VERIFIED=1 only after the Panama check.
 LOS_SIGN_VERIFIED = os.environ.get("NISAR_LOS_SIGN_VERIFIED", "0") == "1"
+# OBSOLETE: one fringe is lambda / 2 of the product, not of the config value (11.92 cm at 20 MHz, 12.10 cm at
+# 40 MHz). TODO: discoveries.py should use recipes.wavelength.wavelength_m(p)[0] / 2 * 100 per product.
 FRINGE_CM = WAVELENGTH_M / 2 * 100      # 11.92 cm of line-of-sight change per fringe (one 2*pi of phase)
 
 COHERENCE_MIN = 0.3          # pixels below are masked
