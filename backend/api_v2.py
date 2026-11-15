@@ -854,6 +854,19 @@ def get_case(cid: str):
     return case_store.to_json(case)
 
 
+@router.get("/water/raster-index")
+def get_water_raster_index():
+    """The 3 water map layers (RGBA PNG, EPSG:4326, [west, south, east, north]) with their served urls."""
+    try:
+        index = water.raster_index()
+    except water.WaterInputError:
+        return api_error("water_invalid", 500, "Index des couches d'eau invalide.", "Invalid water layer index.",
+                         "فهرس طبقات المياه غير صالح.")
+    if index is None:
+        return api_error("water_not_found", 404, "Pas de couches d'eau.", "No water layers.", "لا توجد طبقات مياه.")
+    return index
+
+
 @router.get("/water/{kind}/{name}")
 def get_water_file(kind: str, name: str):
     """Youkaoui's water rasters and figures (backend/water/outputs/rasters|figures), same checks as case figures."""

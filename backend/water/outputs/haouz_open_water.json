@@ -1,0 +1,86 @@
+{
+  "case_id": "haouz-flood-2026",
+  "source": "backend/water (Water U-Net)",
+  "date": "2026-10-10T00:00:00Z",
+  "bbox": [
+    -8.2,
+    31.05,
+    -7.75,
+    31.45
+  ],
+  "products": [
+    "GCOV_T023_F073_20261013_20261013",
+    "GCOV_T023_F073_20261001_20261001",
+    "GCOV_T044_F017_20261015_20261015",
+    "GCOV_T044_F017_20261003_20261003"
+  ],
+  "findings": [
+    {
+      "id": "open_water_change",
+      "label": {
+        "fr": "Eau libre persistante après l'orage (U-Net)",
+        "en": "Persistent open water after the storm (U-Net)",
+        "ar": "المياه المفتوحة المستمرة بعد العاصفة (U-Net)"
+      },
+      "nisar": {
+        "value": 4.7968,
+        "uncertainty": 7.364,
+        "unit": "km2",
+        "sigma": 1.0
+      },
+      "reference": null,
+      "reference_source": null,
+      "agreement": "no_reference"
+    }
+  ],
+  "figures": [
+    {
+      "id": "water_radar_vs_clouds",
+      "kind": "image",
+      "title": {
+        "fr": "Le radar voit l'eau à travers les nuages",
+        "en": "Radar sees water through clouds",
+        "ar": "الرادار يرى المياه عبر السحب"
+      },
+      "url": "water/outputs/figures/clouds.png",
+      "caption": {
+        "template": "backend.water_clouds",
+        "params": {},
+        "text": {
+          "en": "Same day: the optical water map (OPERA DSWx) is masked by clouds; the NISAR U-Net map is not.",
+          "fr": "Même jour : la carte optique de l'eau (OPERA DSWx) est masquée par les nuages ; la carte NISAR U-Net ne l'est pas.",
+          "ar": "في اليوم نفسه: خريطة المياه البصرية (OPERA DSWx) محجوبة بالسحب، أما خريطة NISAR U-Net فلا."
+        }
+      }
+    }
+  ],
+  "limits": [
+    {
+      "en": "The value is consistent with zero at 1σ uncertainty: no flooded area is claimed.",
+      "fr": "La valeur est compatible avec zéro compte tenu de l'incertitude (1σ) : aucune surface inondée n'est revendiquée.",
+      "ar": "القيمة متوافقة مع الصفر ضمن هامش عدم اليقين (1σ): لا يُدّعى وجود مساحة مغمورة."
+    },
+    {
+      "fr": "Revisite de 12 jours par trace : les passages utilisés sont le 1er/3 octobre (avant) et le 13/15 octobre (après), soit 3 à 5 jours après la crue éclair du 10 octobre. Une crue éclair se retire en quelques heures; ce résultat mesure uniquement l'eau ouverte encore présente au passage, pas l'emprise maximale.",
+      "en": "12-day revisit per track: the passes used are 1/3 October (before) and 13/15 October (after), 3 to 5 days after the 10 October flash flood. Flash floods recede within hours; this result measures only open water still present at the pass, not the peak extent.",
+      "ar": "إعادة الزيارة كل 12 يوماً لكل مسار: المرورات المستخدمة 1/3 أكتوبر (قبل) و13/15 أكتوبر (بعد)، أي بعد 3 إلى 5 أيام من السيل المفاجئ في 10 أكتوبر. تنحسر السيول المفاجئة خلال ساعات؛ تقيس النتيجة المياه المفتوحة الباقية وقت المرور فقط."
+    },
+    {
+      "fr": "Vallées étroites : les lits d'oued du Haouz (Imlil, Asni, Moulay Brahim) font quelques dizaines de mètres de large, comparables aux pixels GCOV de 10 à 20 m après filtre de Lee 5x5 (environ 50 à 100 m effectifs); une eau résiduelle dans ces lits est en grande partie sous la résolution effective.",
+      "en": "Narrow valleys: the Haouz wadi beds (Imlil, Asni, Moulay Brahim) are a few tens of metres wide, comparable to the 10-20 m GCOV pixels after the 5x5 Lee filter (about 50-100 m effective); residual water in these beds is largely below the effective resolution.",
+      "ar": "أودية ضيقة: مجاري الأودية في الحوز (إمليل، أسني، مولاي إبراهيم) بعرض بضع عشرات من الأمتار، وهو ما يقارب بكسلات GCOV من 10 إلى 20 م بعد مرشح لي 5x5 (حوالي 50 إلى 100 م فعلياً)؛ المياه المتبقية في هذه المجاري أدنى غالباً من الدقة الفعلية."
+    },
+    {
+      "fr": "Repliement et ombre radar : sur les versants raides du Haut Atlas, le repliement mélange le fond de vallée avec le versant face au radar, et l'ombre produit une rétrodiffusion faible qui ressemble à de l'eau; les deux traces (23 descendante, 44 ascendante) voient des versants différents, d'où l'écart entre elles.",
+      "en": "Radar layover and shadow: on steep High Atlas slopes, layover mixes the valley floor with the radar-facing slope, and shadow produces low backscatter that resembles water; the two tracks (23 descending, 44 ascending) see different slopes, which is why they disagree.",
+      "ar": "التراكب والظل الراداري: على منحدرات الأطلس الكبير الشديدة يخلط التراكب قاع الوادي بالمنحدر المواجه للرادار، ويُنتج الظل تشتتاً خلفياً ضعيفاً يشبه الماء؛ يرى المساران (23 الهابط و44 الصاعد) منحدرات مختلفة، ولذلك يختلفان."
+    },
+    {
+      "fr": "Aucune paire DSWx claire avant/après n'existe; la valeur n'a donc pas de référence et l'accord n'est pas évalué.",
+      "en": "No clear DSWx pre/post pair exists, so the value has no reference and agreement is not evaluated.",
+      "ar": "لا يوجد زوج DSWx واضح قبل/بعد، لذلك لا مرجع للقيمة ولا يُقيَّم التوافق."
+    }
+  ],
+  "interpretation": "no detectable persistent flood extent",
+  "method": "U-Net (ResNet-34) + AdaBN on NISAR GCOV HH/HV; new water = post AND NOT pre, same track; 1σ = MC-dropout area std and half the ascending/descending range, in quadrature"
+}
