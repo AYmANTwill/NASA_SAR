@@ -320,7 +320,10 @@ def already_applied(name: str, attrs: dict) -> bool | None:
         return True
     # only a flag that says APPLIED counts: "...enabled" may only mean the screen was estimated, and skipping the
     # subtraction on that basis would silently change the default answer
-    hits = [v for k, v in (attrs.get("flags") or {}).items() if name in k.lower() and "applied" in k.lower()]
+    # parameters/geocoding/*CorrectionApplied flags say the correction was used to improve the GEOLOCATION, not that the
+    # unwrapped phase was corrected ("azimuthIonosphericCorrectionApplied" contains "iono"): they do not count
+    hits = [v for k, v in (attrs.get("flags") or {}).items()
+            if name in k.lower() and "applied" in k.lower() and "/geocoding/" not in k.lower()]
     if any(v.strip().lower() in _TRUE for v in hits):
         return True
     return None if attrs.get("source") is None else False
