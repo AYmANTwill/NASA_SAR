@@ -147,6 +147,176 @@
         167
       ],
       "dswx_outliers_removed": 8
+    },
+    "Lalla_Takerkoust": {
+      "reservoir": "Lalla_Takerkoust",
+      "osm": "relation/2815662",
+      "osm_name": "Barrage Yacoub el Mansour",
+      "osm_bounds": [
+        -8.1051177,
+        31.1454708,
+        -8.0778895,
+        31.1911241
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -8.1251,
+        31.1255,
+        -8.0579,
+        31.2111
+      ],
+      "n_dates": 17,
+      "tracks": [
+        23,
+        44
+      ],
+      "dswx_outliers_removed": 2
+    },
+    "Abdelmoumen": {
+      "reservoir": "Abdelmoumen",
+      "osm": "relation/5741081",
+      "osm_name": "R\u00e9servoir du Barrage Abdelmoumen",
+      "osm_bounds": [
+        -9.2259888,
+        30.6696043,
+        -9.1835779,
+        30.7129436
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -9.246,
+        30.6496,
+        -9.1636,
+        30.7329
+      ],
+      "n_dates": 10,
+      "tracks": [
+        23,
+        145
+      ],
+      "dswx_outliers_removed": 25
+    },
+    "Youssef_Ben_Tachfine": {
+      "reservoir": "Youssef_Ben_Tachfine",
+      "osm": "relation/1354186",
+      "osm_name": "Barrage Youssef Ben Tachfine",
+      "osm_bounds": [
+        -9.4954665,
+        29.7735298,
+        -9.4386788,
+        29.8550421
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -9.5155,
+        29.7535,
+        -9.4187,
+        29.875
+      ],
+      "n_dates": 18,
+      "tracks": [
+        23,
+        145
+      ],
+      "dswx_outliers_removed": 25
+    },
+    "Mansour_Eddahbi": {
+      "reservoir": "Mansour_Eddahbi",
+      "osm": "relation/1431015",
+      "osm_name": "Barrage Al Mansour Ad Dahbi \u0633\u062f \u0627\u0644\u0645\u0646\u0635\u0648\u0631 \u0627\u0644\u0630\u0647\u0628\u064a",
+      "osm_bounds": [
+        -6.8579471,
+        30.8764631,
+        -6.68334,
+        30.9744958
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -6.8779,
+        30.8565,
+        -6.6633,
+        30.9945
+      ],
+      "n_dates": 16,
+      "tracks": [
+        44,
+        95
+      ],
+      "dswx_outliers_removed": 5
+    },
+    "Hassan_Addakhil": {
+      "reservoir": "Hassan_Addakhil",
+      "osm": "relation/1268663",
+      "osm_name": "R\u00e9servoir du Barrage Al Hassan Addakhil",
+      "osm_bounds": [
+        -4.4848846,
+        31.9878436,
+        -4.4056621,
+        32.0400603
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -4.5049,
+        31.9678,
+        -4.3857,
+        32.0601
+      ],
+      "n_dates": 16,
+      "tracks": [
+        15,
+        116,
+        167
+      ],
+      "dswx_outliers_removed": 4
+    },
+    "El_Kansera": {
+      "reservoir": "El_Kansera",
+      "osm": "way/152627967",
+      "osm_name": null,
+      "osm_bounds": [
+        -5.9169222,
+        33.9422828,
+        -5.8795123,
+        34.0519706
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -5.9369,
+        33.9223,
+        -5.8595,
+        34.072
+      ],
+      "n_dates": 13,
+      "tracks": [
+        95,
+        116
+      ],
+      "dswx_outliers_removed": 5
+    },
+    "Allal_El_Fassi": {
+      "reservoir": "Allal_El_Fassi",
+      "osm": "relation/3280908",
+      "osm_name": "Barrage Idriss I \u0633\u062f \u0627\u062f\u0631\u0628\u0633 \u0627\u0644\u0623\u0648\u0644",
+      "osm_bounds": [
+        -4.7599107,
+        34.0853571,
+        -4.5119854,
+        34.1671891
+      ],
+      "buffer_deg": 0.02,
+      "bbox": [
+        -4.7799,
+        34.0654,
+        -4.492,
+        34.1872
+      ],
+      "n_dates": 15,
+      "tracks": [
+        15,
+        95,
+        167
+      ],
+      "dswx_outliers_removed": 2
     }
   }
 }

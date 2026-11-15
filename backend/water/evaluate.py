@@ -28,7 +28,48 @@ METHODS = {
     "U-Net + per-scene norm": ("unet_s1.pt", "scene"),
     "U-Net + AdaBN": ("unet_s1_adabn_s1norm.pt", "s1"),
     "U-Net + AdaBN + per-scene norm": ("unet_s1_adabn_scenenorm.pt", "scene"),
+    # v2: U-Net + AdaBN fine-tuned on NISAR with DSWx labels of 5 other Moroccan reservoirs (finetune/, run v2);
+    # its probability threshold was chosen on the validation reservoir (Al Massira), never on the case reservoir.
 }
+FT_V2 = "U-Net + AdaBN + NISAR fine-tune"  # name kept for every fine-tune run (v2, v3)
+
+
+def ft_run() -> str:
+    """Active fine-tune run: $WATER_FT_RUN, else outputs/finetune/active_run.txt, else none (v2 off)."""
+    import os
+
+    from common import OUTPUTS
+    f = OUTPUTS / "finetune" / "active_run.txt"
+    return os.environ.get("WATER_FT_RUN") or (f.read_text().strip() if f.exists() else "")
+
+
+def _ft_choice() -> dict:
+    import json
+
+    from common import OUTPUTS
+    return json.loads((OUTPUTS / "finetune" / ft_run() / "choice.json").read_text())
+
+
+def ft_train_after() -> str | None:
+    """Site-adapted run: case-reservoir dates strictly after this date were training data (never reported)."""
+    return _ft_choice().get("case_dates_in_training_after") if ft_run() else None
+
+
+if ft_run():
+    _c = _ft_choice()
+    _inc = any(v.get("incidence_input") for v in _c["variants"] if v.get("checkpoint") == _c["chosen_checkpoint"])
+    METHODS[FT_V2] = (_c["chosen_checkpoint"], "s1inc" if _inc else "s1")
+
+
+def method_threshold(m: str) -> float:
+    """Probability threshold of a U-Net variant: S1-validation value (thresholds.json), except the NISAR fine-tune,
+    whose threshold was chosen on its validation reservoir (outputs/finetune/v2/choice.json)."""
+    import json
+
+    from common import OUTPUTS
+    if m == FT_V2:
+        return float(_ft_choice()["chosen_threshold"])
+    return float(json.loads((OUTPUTS / "thresholds.json").read_text())["unet_probability_threshold"])
 MIN_DSWX_VALID = 0.95
 OTSU = "Otsu (HV dB, per scene)"
 GLOBAL = "Global HV threshold (fit on S1 train VH)"
@@ -74,11 +115,11 @@ def main() -> None:
         preds = {OTSU: otsu_scene(x_db[1], valid_sar),
                  GLOBAL: (np.nan_to_num(x_db[1], nan=0) < gthr) & valid_sar}
         for m, (_, mode) in METHODS.items():
-            xn, _ = norm_scene(x_db, mode, s1)
+            xn, _ = norm_scene(x_db, mode, s1, src=sc["nisar_tif"])
             prob, _ = predict_scene(models[m], xn, device)
             prob[~valid_sar] = np.nan
             # Fixed on the Sentinel-1 validation split; never tune on NISAR.
-            preds[m] = (prob > pthr) & valid_sar
+            preds[m] = (prob > method_threshold(m)) & valid_sar
         row = {"tag": sc["tag"], "date": sc["date"], "track": sc["track"], "direction": sc["direction"],
                "dswx_date": sc.get("dswx_date"), "sar_valid_frac": float(valid_sar.mean()),
                "dswx_valid_frac": float(ref_valid.sum() / valid_sar.sum()) if ref is not None else np.nan,
@@ -102,7 +143,7 @@ def main() -> None:
     n_ref = sum(r["dswx_flag"] == "" and pd.notna(r["dswx_valid_frac"]) for r in per_date)
     rows = [{"domain": f"NISAR {reservoir}", "method": m, **scores(*acc[m]), "n_pixels": npx,
              "notes": (f"vs DSWx-HLS (weak optical ref, |dt|<=5 d), {n_ref} dates pooled, "
-                       f">=95% DSWx valid; HH->VV, HV->VH; U-Net p>{pthr:.2f} fixed on S1 validation")}
+                       f">=95% DSWx valid; HH->VV, HV->VH; U-Net p>{pthr:.2f} fixed on S1 validation" + (f" (fine-tune {ft_run()}: p>{method_threshold(FT_V2):.2f} fixed on its validation reservoir)" if ft_run() else ""))}
             for m in acc]
     for r in rows:
         print(r)
@@ -125,7 +166,7 @@ def main() -> None:
     for _, sc in scenes.iterrows():
         x_db, prof = load_scene(sc["nisar_tif"])
         valid = np.all(np.isfinite(x_db), 0)
-        xn, _ = norm_scene(x_db, mode, s1)
+        xn, _ = norm_scene(x_db, mode, s1, src=sc["nisar_tif"])
         prob, _ = predict_scene(models[best], xn, device)
         prob[~valid] = np.nan
         write_tif(BIG_OUT / f"prob_{slug(best)}_{sc['tag']}.tif", prob, prof["crs"].to_epsg(), prof["transform"],

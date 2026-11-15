@@ -23,8 +23,8 @@
         "ar": "المياه المفتوحة المستمرة بعد العاصفة (U-Net)"
       },
       "nisar": {
-        "value": 4.7968,
-        "uncertainty": 7.364,
+        "value": 0.0014,
+        "uncertainty": 0.0075,
         "unit": "km2",
         "sigma": 1.0
       },
@@ -82,5 +82,5 @@
     }
   ],
   "interpretation": "no detectable persistent flood extent",
-  "method": "U-Net (ResNet-34) + AdaBN on NISAR GCOV HH/HV; new water = post AND NOT pre, same track; 1σ = MC-dropout area std and half the ascending/descending range, in quadrature"
+  "method": "Water U-Net, variant 'U-Net + AdaBN + NISAR fine-tune' (ResNet-34) on NISAR GCOV HH/HV; new water = post AND NOT pre, same track; 1σ = MC-dropout area std and half the ascending/descending range, in quadrature"
 }

@@ -50,7 +50,7 @@ def main() -> None:
     out = {"case_id": "haouz-flood-2026", "source": "backend/water (Water U-Net)", "date": src["date"], "bbox": src["bbox"],
            "products": src.get("products", []), "findings": [finding], "figures": [clouds], "limits": limits,
            "interpretation": src.get("interpretation"),
-           "method": "U-Net (ResNet-34) + AdaBN on NISAR GCOV HH/HV; new water = post AND NOT pre, same track; "
+           "method": f"Water U-Net, variant '{__import__('timeseries').best_method()}' (ResNet-34) on NISAR GCOV HH/HV; new water = post AND NOT pre, same track; "
                      "1σ = MC-dropout area std and half the ascending/descending range, in quadrature"}
     (OUTPUTS / "haouz_open_water.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"open_water_change: {n.value:.2f} ± {n.uncertainty:.2f} km2 (1σ), {zero['en']}; figures: clouds.png")

@@ -31,7 +31,7 @@ def main() -> None:
     for _, sc in scenes.iterrows():
         x_db, prof = load_scene(sc["nisar_tif"])
         valid = np.all(np.isfinite(x_db), 0)
-        prob, _ = predict_scene(model, norm_scene(x_db, mode, s1)[0], device)
+        prob, _ = predict_scene(model, norm_scene(x_db, mode, s1, src=sc["nisar_tif"])[0], device)
         prob[~valid] = np.nan
         write_tif(BIG_OUT / f"{keep}{sc['tag']}.tif", prob, prof["crs"].to_epsg(), prof["transform"],
                   np.nan, "float32", ["water_probability"])

@@ -15,7 +15,7 @@ from rasterio.warp import Resampling, calculate_default_transform, reproject, tr
 from scipy.ndimage import binary_dilation, binary_erosion
 
 from common import BIG_OUT, OUTPUTS
-from evaluate import slug
+from evaluate import method_threshold, slug
 from timeseries import best_method
 
 FIGURES = OUTPUTS / "figures"
@@ -58,7 +58,7 @@ def raster_assets():
     RASTERS.mkdir(parents=True, exist_ok=True)
     scenes = pd.read_csv(OUTPUTS / "nisar_scenes.csv")
     method = best_method()
-    thr = json.loads((OUTPUTS / "thresholds.json").read_text())["unet_probability_threshold"]
+    thr = method_threshold(method)
     pair = json.loads((OUTPUTS / "change_pair.json").read_text())
     ts = pd.read_csv(OUTPUTS / "water_area_timeseries.csv")
     # DSWx references excluded from comparisons (outlier / partial coverage) are not offered as map layers
@@ -118,13 +118,59 @@ def raster_assets():
         "[west,south,east,north] pixel outer edges", "layers": entries}, indent=2), encoding="utf-8")
 
 
-def basemap(ax, bounds):
+def hls_rgb(tag):
+    """Same-period optical background for a NISAR scene: true colour of the HLS acquisition that its matched DSWx
+    map was computed from (diagnose_mask.hls_on_grid, cached), reprojected to EPSG:4326.
+    Returns (rgb HxWx3 in 0-1, bounds, label) or None. The Esri mosaic is NOT used for case figures: it is
+    WorldView-3 2025-04-27 / WorldView-2 2023-01-05 (drought-time lake), not the NISAR period."""
+    import rasterio as _rio
+
+    from common import dpath, https_fs
+    from diagnose_mask import hls_on_grid, truecolor
+    from nisar_prep import write_tif
+
+    try:
+        aoi = json.loads((OUTPUTS / "aoi.json").read_text())
+        res = aoi["chosen"]["reservoir"]
+        sc = pd.read_csv(OUTPUTS / "nisar_scenes.csv").set_index("tag").loc[tag]
+        cand = pd.read_csv(OUTPUTS / "candidate_scenes.csv")
+        row = cand[(cand["reservoir"] == res) & cand["usable"] & (cand["date"] == sc["date"])
+                   & (cand["track"] == sc["track"])].iloc[0]
+        if not isinstance(row.get("dswx_date"), str) or row["dswx_date"] in ("", "none"):
+            return None
+        out = BIG_OUT / f"hls_rgb_{tag}.tif"
+        if not out.exists():
+            with _rio.open(dpath(sc["nisar_tif"])) as s:
+                crs, tr, shape = s.crs, s.transform, (s.height, s.width)
+            bands, _ = hls_on_grid(tag, row, https_fs(), crs, tr, shape, aoi["aois"][res]["bbox"])
+            rgb = truecolor(bands).astype(np.float32)
+            write_tif(out, np.moveaxis(rgb, 2, 0), crs.to_epsg(), tr, np.nan, "float32", ["red", "green", "blue"])
+        chans = [warp(out, band=k, resampling=Resampling.bilinear) for k in (1, 2, 3)]
+        rgb = np.clip(np.nan_to_num(np.dstack([c[0] for c in chans])), 0, 1)
+        sensor = {"L8": "Landsat 8", "L9": "Landsat 9", "S2A": "Sentinel-2A", "S2B": "Sentinel-2B",
+                  "S2C": "Sentinel-2C"}.get(str(row["sensor"]), str(row["sensor"]))
+        return rgb, chans[0][2], f"HLS {sensor} {row['dswx_date']}"
+    except Exception as e:  # never silently swap the background: say it
+        print(f"WARNING same-period optical background unavailable for {tag} ({type(e).__name__}: {e})")
+        return None
+
+
+def basemap(ax, bounds, tag=None):
+    """Background: the same-period HLS optical image of `tag` when given (returns its label), else the Esri mosaic."""
     ax.set_xlim(bounds[0], bounds[2]); ax.set_ylim(bounds[1], bounds[3])
+    if tag is not None:
+        h = hls_rgb(tag)
+        if h is not None:
+            rgb, hb, label = h
+            ax.imshow(rgb, extent=(hb[0], hb[2], hb[1], hb[3]), origin="upper", zorder=0, interpolation="bilinear")
+            ax.set_xlim(bounds[0], bounds[2]); ax.set_ylim(bounds[1], bounds[3])
+            return label
     try:
         import contextily as cx
         cx.add_basemap(ax, crs="EPSG:4326", source=cx.providers.Esri.WorldImagery, attribution=False, zorder=0)
     except Exception as e:  # never silently ship a figure without its basemap
         print(f"WARNING basemap unavailable ({type(e).__name__}: {e}); figure has no satellite background")
+    return "Esri World Imagery (2023-2025 mosaic, not the NISAR period)"
 
 
 def decorate(ax, bounds, title):
@@ -169,17 +215,19 @@ def figures():
     w1, _, b1 = warp(BIG_OUT / "water_post.tif")
     ch, _, bc = warp(BIG_OUT / "change.tif")
     fig, ax = plt.subplots(1, 3, figsize=(16, 5.6))
-    for a, w, b, lab in ((ax[0], w0, b0, f"Before: {pair['pre']['date']} ({pair['water_pre_km2']:.1f} km²)"),
-                         (ax[1], w1, b1, f"After: {pair['post']['date']} ({pair['water_post_km2']:.1f} km²)")):
-        basemap(a, b); overlay(a, w, b, {1: BLUE}); decorate(a, b, lab)
-    basemap(ax[2], bc); overlay(ax[2], ch, bc, {1: (0.12, 0.47, 0.71, 0.95), 2: RED})
+    bg = []
+    for a, w, b, lab, tg in ((ax[0], w0, b0, f"Before: {pair['pre']['date']} ({pair['water_pre_km2']:.1f} km²)", pair["pre"]["tag"]),
+                             (ax[1], w1, b1, f"After: {pair['post']['date']} ({pair['water_post_km2']:.1f} km²)", pair["post"]["tag"])):
+        bg.append(basemap(a, b, tg)); overlay(a, w, b, {1: BLUE}); decorate(a, b, lab)
+    basemap(ax[2], bc, pair["post"]["tag"]); overlay(ax[2], ch, bc, {1: (0.12, 0.47, 0.71, 0.95), 2: RED})
     decorate(ax[2], bc, f"Change: gain {pair['gain_km2']:.2f} km², loss {pair['loss_km2']:.2f} km²")
     ax[0].legend(handles=[Patch(color=BLUE, label="NISAR water (U-Net)")], loc="upper left", fontsize=8)
     ax[2].legend(handles=[Patch(color=(0.12, 0.47, 0.71), label="gain (water after, not before)"),
                           Patch(color=RED[:3], label="loss (water before, not after)")], loc="upper left", fontsize=8)
     fig.suptitle(f"{reservoir}: NISAR L-band water extent, track {pair['pre']['tag'].split('_T')[1][:4]}", fontsize=12)
-    fig.text(.01, .01, "Basemap: Esri World Imagery · " + CREDIT, fontsize=8)
-    fig.tight_layout(rect=[0, .03, 1, .95]); fig.savefig(FIGURES / "hero.png", dpi=300); plt.close(fig)
+    fig.text(.01, .01, f"Background: same-period optical images ({bg[0]}; {bg[1]}, also under the change panel) · "
+             + CREDIT, fontsize=8)
+    fig.tight_layout(rect=[0, .04, 1, .95]); fig.savefig(FIGURES / "hero.png", dpi=300); plt.close(fig)
 
     ts = pd.read_csv(OUTPUTS / "water_area_timeseries.csv")
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -194,6 +242,10 @@ def figures():
     d = ts.dropna(subset=["dswx_water_km2"]).drop_duplicates("dswx_date").sort_values("dswx_date")
     ax.plot(pd.to_datetime(d.dswx_date), d.dswx_water_km2, "ks--", alpha=.65, label="OPERA DSWx (clear, outliers removed)")
     ax.scatter([], [], s=180, facecolors="none", edgecolors="red", label="possible wind effect (>20% drop)")
+    if held.get("evaluation_dates_until"):  # site-adapted model: its training dates are shaded, never scored
+        t0 = pd.Timestamp(held["evaluation_dates_until"]) + pd.Timedelta(days=1)
+        ax.axvspan(t0, pd.to_datetime(ts["date"]).max() + pd.Timedelta(days=3), color="0.85", alpha=.6, zorder=0,
+                   label=f"dates used in training (after {held['evaluation_dates_until']}), not scored")
     b = held["area_bias"]["held-out raw"]
     ax.set(ylabel="water area (km²)",
            title=f"{reservoir} water area by orbit ({held['variant_selected_on_selection_track']}); "
@@ -215,14 +267,14 @@ def figures():
     view = np.zeros(pred.shape, np.uint8)
     view[truth & pred & rv] = 1; view[truth & ~pred & rv] = 2; view[~truth & pred & rv] = 3
     fig, ax = plt.subplots(figsize=(8, 6.5))
-    basemap(ax, bounds)
+    bg = basemap(ax, bounds, row.tag)
     overlay(ax, view, bounds, {1: (1, 1, 1, .85), 2: (0.84, 0.15, 0.16, .95), 3: (1, 0.55, 0, .95)})
     decorate(ax, bounds, f"{reservoir} {row.date}, held-out track {int(row.track)}: U-Net vs OPERA DSWx "
                          f"{row.dswx_date}\nIoU {row[f'iou|{method}']:.3f} (median held-out date)")
     ax.legend(handles=[Patch(color="white", label="agreement (water in both)"), Patch(color="#d62728", label="miss (DSWx only)"),
                        Patch(color="#ff8c00", label="false alarm (NISAR only)")], loc="upper left", fontsize=8)
-    fig.text(.01, .01, "Basemap: Esri World Imagery · " + CREDIT, fontsize=8)
-    fig.tight_layout(rect=[0, .03, 1, 1]); fig.savefig(FIGURES / "validation.png", dpi=300); plt.close(fig)
+    fig.text(.01, .01, f"Background: {bg} (the optical scene DSWx was computed from) · " + CREDIT, fontsize=8)
+    fig.tight_layout(rect=[0, .04, 1, 1]); fig.savefig(FIGURES / "validation.png", dpi=300); plt.close(fig)
 
     frames = []
     ordered = scenes.reset_index().query("track == @held['selection_track']").sort_values("date")

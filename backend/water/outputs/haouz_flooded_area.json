@@ -21,8 +21,8 @@
         "ar": "مساحة المياه المفتوحة الجديدة المستمرة"
       },
       "nisar": {
-        "value": 4.7968,
-        "uncertainty": 7.364,
+        "value": 0.0014,
+        "uncertainty": 0.0075,
         "unit": "km2",
         "sigma": 1.0
       },
@@ -88,16 +88,16 @@
   ],
   "interpretation": "no detectable persistent flood extent",
   "diagnostics": {
-    "method": "U-Net + AdaBN + per-scene norm",
-    "probability_threshold": 0.4,
+    "method": "U-Net + AdaBN + NISAR fine-tune",
+    "probability_threshold": 0.35,
     "tracks": [
       {
         "track": 23,
         "direction": "DESCENDING",
         "pre_date": "2026-10-01",
         "post_date": "2026-10-13",
-        "area_km2": 6.2064,
-        "mc_area_std_km2": 13.621932779640806,
+        "area_km2": 0.0028,
+        "mc_area_std_km2": 0.01465819691647323,
         "mask": "$NASA_DATA/outputs/haouz/flood_mask_T023D.tif"
       },
       {
@@ -105,16 +105,16 @@
         "direction": "ASCENDING",
         "pre_date": "2026-10-03",
         "post_date": "2026-10-15",
-        "area_km2": 3.3872,
-        "mc_area_std_km2": 4.838240978789927,
+        "area_km2": 0.0,
+        "mc_area_std_km2": 0.0005890223836332985,
         "mask": "$NASA_DATA/outputs/haouz/flood_mask_T044A.tif"
       }
     ],
-    "value_km2": 4.7968,
-    "mc_sigma_km2": 7.2278217400177835,
-    "orbit_sigma_km2": 1.4096000000000002,
-    "uncertainty_km2": 7.363992073968691,
+    "value_km2": 0.0014,
+    "mc_sigma_km2": 0.007335013364175392,
+    "orbit_sigma_km2": 0.0014,
+    "uncertainty_km2": 0.007467423990415409,
     "uncertainty_formula": "sqrt(mc_sigma_of_track_mean^2 + half_asc_desc_range^2)",
-    "backscatter_change": "$NASA_DATA/outputs/haouz/backscatter_change_T023D.tif"
+    "backscatter_change": "C:\\Users\\simoo\\nasa_data\\outputs\\haouz\\backscatter_change_T023D.tif"
   }
 }

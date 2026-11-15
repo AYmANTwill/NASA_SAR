@@ -1,8 +1,8 @@
 {
   "claim": "Water U-Net beats the fixed global cross-pol threshold on pooled DSWx comparison",
   "passes": true,
-  "best_unet_method": "U-Net + AdaBN + per-scene norm",
-  "best_unet_iou": 0.8110801508465064,
+  "best_unet_method": "U-Net + AdaBN + NISAR fine-tune",
+  "best_unet_iou": 0.9413426594568977,
   "global_threshold_iou": 0.11065072445575265,
-  "difference": 0.7004294263907538
+  "difference": 0.830691935001145
 }

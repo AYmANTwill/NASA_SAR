@@ -37,14 +37,23 @@ N_BOOT, SEED = 1000, 0
 
 
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--run", default="", help="fine-tuning run (e.g. v2): reads and writes outputs/finetune/<run>/")
+    run = ap.parse_args().run
+    global FT_OUT
+    FT_OUT = FT_OUT / run if run else FT_OUT
+    pref = f"prob_ft_{run}_" if run else "prob_ft_"
     choice = json.loads((FT_OUT / "choice.json").read_text())
     held = json.loads((OUTPUTS / "heldout_eval.json").read_text())
     wl = json.loads((OUTPUTS / "water_level_eval.json").read_text())
     T, thr, op = wl["T_chosen_on_selection_m"], held["probability_threshold"], held["variant_selected_on_selection_track"]
+    ft_thr = choice.get("chosen_threshold") or thr  # v2: threshold chosen on the validation site, never here
     hp = pd.read_csv(OUTPUTS / "heldout_per_date.csv")
     hp = hp[hp["use"]] if "use" in hp else hp
     scenes = pd.read_csv(OUTPUTS / "nisar_scenes.csv").set_index("tag")
-    out = {"held_out_reservoir": held["reservoir"], "T_m": T, "probability_threshold": thr,
+    out = {"run": run, "held_out_reservoir": held["reservoir"], "T_m": T, "probability_threshold": thr,
+           "finetuned_probability_threshold": ft_thr,
            "current_model": op, "finetuned_checkpoint": choice.get("chosen_checkpoint"), "n_dates": len(hp),
            "rule": "replace only if held-out |area bias| is lower AND IoU is not lower (no constraint)"}
     if not choice.get("chosen_checkpoint"):
@@ -57,7 +66,7 @@ def main() -> None:
     model = load_model(MODELS / choice["chosen_checkpoint"], device)
     s1, mode = load_stats(), choice["input_norm"]
     for tag in hp["tag"]:
-        p = BIG_OUT / f"prob_ft_{tag}.tif"
+        p = BIG_OUT / f"{pref}{tag}.tif"
         if p.exists():
             continue
         x, prof = load_scene(scenes.loc[tag].nisar_tif)
@@ -67,8 +76,8 @@ def main() -> None:
         write_tif(p, prob, prof["crs"].to_epsg(), prof["transform"], np.nan, "float32", ["water_probability"])
     grid = [T, 1000]
     cur = per_date_counts(op, thr, hp, scenes, grid=grid).sort_values("tag").reset_index(drop=True)
-    ft = per_date_counts(op, thr, hp, scenes, grid=grid,
-                         prob_path=lambda tag: BIG_OUT / f"prob_ft_{tag}.tif").sort_values("tag").reset_index(drop=True)
+    ft = per_date_counts(op, ft_thr, hp, scenes, grid=grid,
+                         prob_path=lambda tag: BIG_OUT / f"{pref}{tag}.tif").sort_values("tag").reset_index(drop=True)
     assert list(cur["tag"]) == list(ft["tag"])
     rng = np.random.default_rng(SEED)
     clean = lambda d: {k: v for k, v in d.items() if not k.startswith("_")}

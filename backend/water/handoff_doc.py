@@ -97,7 +97,7 @@ def main(fig_base: str = "outputs/figures", out: Path = DOC) -> None:
     orbit = r[r["method"].astype(str).str.startswith("Orbit consistency")].iloc[0]
     bias, biasc = held["area_bias"]["held-out raw"], held["area_bias"]["held-out after multiplicative correction"]
     hz = json.loads((OUTPUTS / "haouz_open_water.json").read_text(encoding="utf-8"))["findings"][0]["nisar"]
-    rcf = rc["findings"][0]
+    rcf = next(f for f in rc["findings"] if f["id"] == "water_area_change")
     figs = sorted(p.name for p in (OUTPUTS / "figures").glob("*.*") if p.suffix in (".png", ".gif"))
     layers = pd.Series([l.get("layer", l["id"]) for l in ri["layers"]]).value_counts().to_dict()
     resname = res.replace("_", " ")
@@ -160,9 +160,10 @@ no reservoir changed by more than 10% after DSWx outlier removal (largest:
 ## 3. The model, briefly
 
 U-Net with a ResNet-34 encoder; input HH and HV backscatter in dB (2 channels); output a per-pixel water
-probability, thresholded at {held['probability_threshold']} (fixed on Sentinel-1 validation). Trained on Sentinel-1 hand-labelled
-chips (Sen1Floods11), transferred to NISAR with per-scene normalization and AdaBN (BatchNorm statistics re-estimated
-on unlabelled NISAR tiles); no NISAR labels used. Operational variant: **{best}**, chosen on track {sel_tracks} only.
+probability, thresholded at {held['probability_threshold']} (fixed on the {held.get('threshold_source', 'Sentinel-1 validation split')}). Trained on Sentinel-1 hand-labelled
+chips (Sen1Floods11), transferred to NISAR with AdaBN (BatchNorm statistics re-estimated on unlabelled NISAR tiles){
+', then fine-tuned on NISAR with OPERA DSWx labels of other Moroccan reservoirs (never the case reservoir; validation reservoir Al Massira; details in WATER_UNET.md)' if 'fine-tune' in best else '; no NISAR labels used'}.
+Operational variant: **{best}**, chosen among the candidate variants on track {sel_tracks} only.
 Evaluated against OPERA DSWx-HLS (optical, weak reference). Details: [WATER_UNET.md](WATER_UNET.md).
 
 ## 4. What is ready to use
@@ -228,7 +229,7 @@ Shapes (abbreviated, real keys):
 - NISAR GCOV products are provisional; calibration may change.
 - Sentinel-1 C-band VV/VH → NISAR L-band HH/HV is an assumed mapping (HH↔VV, HV↔VH), checked only against DSWx.
 - A 12-day revisit misses short floods: Haouz measures persistent water 3-5 days after the event, not the peak.
-- Area is biased high near shorelines; with AdaBN, strips of very dark, homogeneous water are sometimes missed.
+- Area bias on held-out tracks: {bias['mean_km2']:+.2f} km² {ci(*bias['ci95_km2'], 2)} (model minus DSWx); the shoreline is where most errors are.
 
 ## 8. How to check our work
 
