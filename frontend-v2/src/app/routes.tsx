@@ -1,6 +1,8 @@
 import { useLayoutEffect } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
-import { Link, Navigate, useParams, useRoutes, type RouteObject } from "react-router-dom";
+import { Link, Navigate, useParams, useRoutes, useLocation, type RouteObject } from "react-router-dom";
+import { DiscoverPage } from "@/features/discover/DiscoverPage";
+import { ProofPage } from "@/features/proof/ProofPage";
 import { applyDocumentLang, i18nFor, isLang, preferredLang, type Lang } from "@/i18n";
 import { CasesPage } from "@/features/cases/CasesPage";
 import { CaseView } from "@/features/cases/CaseView";
@@ -47,6 +49,12 @@ function RootRedirect() {
   return <Navigate to={`/${preferredLang()}/`} replace />;
 }
 
+function LegacyRoute() {
+  const { pathname, search, hash } = useLocation();
+  const path = pathname.replace(/^\/investigate(?=\/|$)/, pathname.split("/")[2] ? "/answers" : "/ask").replace(/^\/watch$/, "/watches");
+  return <Navigate to={`/${preferredLang()}${path}${search}${hash}`} replace />;
+}
+
 function LangGate({ children }: { children: React.ReactNode }) {
   const { lang } = useParams();
   return isLang(lang) ? <>{children}</> : <NotFound />;
@@ -54,6 +62,7 @@ function LangGate({ children }: { children: React.ReactNode }) {
 
 export const routes: RouteObject[] = [
   { path: "/", element: <RootRedirect /> },
+  ...["discover", "proof", "watch", "library", "investigate", "investigate/:id", "cases/:id"].map((path) => ({ path: `/${path}`, element: <LegacyRoute /> })),
   {
     path: "/:lang",
     element: <LangLayout />,
@@ -65,6 +74,9 @@ export const routes: RouteObject[] = [
       { path: "library", element: <LangGate><LibraryPage /></LangGate> },
       { path: "watches", element: <LangGate><WatchesPage /></LangGate> },
       { path: "status", element: <LangGate><StatusPage /></LangGate> },
+      { path: "discover", element: <LangGate><DiscoverPage /></LangGate> },
+      { path: "proof", element: <LangGate><ProofPage /></LangGate> },
+      { path: "cases/:id/sheet", element: <LangGate><CaseView /></LangGate> },
       { path: "*", element: <NotFound /> },
     ],
   },

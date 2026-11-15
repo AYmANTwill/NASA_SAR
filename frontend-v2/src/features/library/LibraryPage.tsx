@@ -29,7 +29,7 @@ export function LibraryPage() {
             <p className="not-measured">{t("library.empty")}</p>
           ) : (
             <ol className="library-list">
-              {events.map((event) => (
+              {[...events].sort((a, b) => b.date.localeCompare(a.date)).map((event) => (
                 <li key={event.id}>
                   <LibraryCard event={event} />
                 </li>

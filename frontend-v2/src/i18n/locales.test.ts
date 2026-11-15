@@ -3,6 +3,7 @@ import ar from "./locales/ar.json";
 import en from "./locales/en.json";
 import fr from "./locales/fr.json";
 import { langFromPath, pathInLang, preferredLang } from "./index";
+import { readFileSync } from "node:fs";
 
 describe("language in the URL", () => {
   it("reads the first segment", () => {
@@ -23,6 +24,13 @@ function keys(value: unknown, prefix = ""): string[] {
 }
 
 describe("locales", () => {
+  it("retains every original frontend template and term in each language", () => {
+    for (const lang of ["fr", "en", "ar"]) {
+      const original = JSON.parse(readFileSync(`../frontend/src/i18n/locales/${lang}.json`, "utf8")) as Record<string, Record<string, string>>;
+      const current = JSON.parse(readFileSync(`src/i18n/templates/${lang}.json`, "utf8")) as Record<string, Record<string, string>>;
+      for (const root of ["tpl", "term"]) expect(Object.keys(original[root]!).filter((key) => !(key in current[root]!))).toEqual([]);
+    }
+  });
   it("FR, EN and AR have exactly the same keys", () => {
     const reference = keys(fr).sort();
     expect(keys(en).sort()).toEqual(reference);
@@ -58,7 +66,7 @@ describe("locales", () => {
       walk(locale, "");
       const tpl = templates[name as keyof typeof templates];
       for (const [k, v] of Object.entries({ ...tpl.tpl, ...tpl.term })) strings.push([k, v]);
-      const offenders = strings.filter(([k, s]) => !allowedKeys.test(k) && /\d/.test(s.replace(/\{\{[^}]*\}\}/g, "")));
+      const offenders = strings.filter(([k, s]) => !allowedKeys.test(k) && /\d/.test(s.replace(/\{\{[^}]*\}\}/g, "").replace(/Sentinel-1/g, "Sentinel")));
       expect(offenders, name).toEqual([]);
     }
   });

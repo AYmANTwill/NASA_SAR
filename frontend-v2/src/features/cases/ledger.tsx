@@ -7,6 +7,7 @@ import { useAnswers } from "@/api/queries";
 import { ErrorPanel } from "@/components/ErrorPanel";
 import { useText } from "@/i18n/useText";
 import { measurementState } from "@/science/measurement";
+import { FigureViewer } from "@/components/FigureViewer";
 
 /** One finding: NISAR's value, the reference's, the strip when both are measured, the API's agreement. */
 export function FindingView({ finding, status, caseId }: { finding: Finding; status: CaseStatus; caseId?: CaseStudy["id"] }) {
@@ -96,17 +97,12 @@ export function ExposureView({ exposure, status }: { exposure: CaseExposure | nu
 }
 
 export function FigureList({ figures }: { figures: Figure[] }) {
-  const { t, text, localized } = useText();
+  const { t } = useText();
   if (figures.length === 0) return <p className="not-measured">{t("case.figuresNone")}</p>;
   return (
     <div className="figure-list">
       {figures.map((f) => (
-        <figure key={f.id} className="figure">
-          <img src={f.url} alt={localized(f.title)} loading="lazy" />
-          <figcaption>
-            <strong>{localized(f.title)}</strong> {text(f.caption)}
-          </figcaption>
-        </figure>
+        <FigureViewer key={f.id} figure={f} />
       ))}
     </div>
   );

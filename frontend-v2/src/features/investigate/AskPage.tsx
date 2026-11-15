@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useRef, useId, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useApi } from "@/api/ApiProvider";
 import type { Bounds } from "@/api/contract";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
@@ -22,9 +23,19 @@ export function AskPage() {
   useDocumentTitle(t("nav.ask"));
   const api = useApi();
   const demo = useQuery({ queryKey: ["demo"], queryFn: ({ signal }) => api.demo(signal) });
-  const { state, ask } = useAsk();
-  const [question, setQuestion] = useState("");
-  const [point, setPoint] = useState<Point | null>(null);
+  const { state, ask, reset } = useAsk();
+  const [params] = useSearchParams();
+  const [question, setQuestion] = useState(params.get("q") ?? "");
+  const [point, setPoint] = useState<Point | null>(() => {
+    const lat = Number(params.get("lat")), lon = Number(params.get("lon"));
+    return params.has("lat") && params.has("lon") && Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat, lon } : null;
+  });
+  const autoAsked = useRef(false);
+  useEffect(() => {
+    if (!params.get("q") || params.get("auto") !== "1" || autoAsked.current) return;
+    const timer = setTimeout(() => { autoAsked.current = true; void ask({ question: params.get("q")!, lang, location: point }); }, 0);
+    return () => clearTimeout(timer);
+  }, [params, lang, ask, point]);
   const fieldId = useId();
 
   const suggestions = demo.data?.entries.flatMap((e) => e.questions.filter((q) => q.lang === lang).map((q) => q.text)) ?? [];
@@ -81,6 +92,7 @@ export function AskPage() {
             <button type="submit" className="button button-primary" disabled={running || question.trim() === ""}>
               {running ? t("ask.running") : t("ask.submit")}
             </button>
+            {running && <button type="button" className="button" onClick={reset}>{t("parity.cancel")}</button>}
           </p>
           {suggestions.length > 0 && (
             <div className="ask-suggestions">
@@ -106,6 +118,7 @@ export function AskPage() {
           onPick={setPoint}
           label={t("ask.mapLabel")}
           emptyText={t("ask.mapHelp")}
+          activity={running}
         />
       </div>
 

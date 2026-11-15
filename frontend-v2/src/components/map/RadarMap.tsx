@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import type { Bounds, RasterLayer } from "@/api/contract";
 import { prefersReducedMotion } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
+import { formatNumber } from "@/i18n/format";
 import { basemapStyle, loadBasemap } from "./basemap";
 import "./RadarMap.css";
+
+export interface MapMarker { id: string; lat: number; lon: number; title: string; href?: string }
 
 export interface RadarMapProps {
   /** The area to frame (the API's bbox). */
@@ -19,6 +22,11 @@ export interface RadarMapProps {
   onPick?: (point: { lat: number; lon: number }) => void;
   /** Whether to draw the study-area rectangle (off for a world view). */
   showArea?: boolean;
+  markers?: MapMarker[];
+  earthquakes?: import("@/api/contract").Earthquake[];
+  opacity?: number;
+  resetKey?: number;
+  activity?: boolean;
 }
 
 const RASTER_OPACITY = 0.88;
@@ -51,14 +59,20 @@ function areaFeature(b: Bounds): GeoJSON.Feature {
  * canonical palette, placed at its bounds). North up and left to right in
  * every language. Keyboard: arrows pan, + / - zoom (MapLibre).
  */
-export default function RadarMap({ frame, point, layer, label, onPick, showArea = true }: RadarMapProps) {
-  const { t } = useText();
+export default function RadarMap({ frame, point, layer, label, onPick, showArea = true, markers = [], earthquakes = [], opacity = RASTER_OPACITY, resetKey = 0, activity = false }: RadarMapProps) {
+  const { t, lang } = useText();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const pick = useRef(onPick);
   pick.current = onPick;
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<"webgl" | "image" | null>(null);
+  const markerRefs = useRef<maplibregl.Marker[]>([]);
+  const currentFrame = useRef(frame);
+  currentFrame.current = frame;
+  // Leave room for marker hit areas beside MapLibre's corner controls.
+  const framePadding = useRef(32);
+  framePadding.current = markers.length || earthquakes.length ? 64 : 32;
 
   // Create the map once.
   useEffect(() => {
@@ -68,9 +82,10 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
       try {
         const m = new maplibregl.Map({
           container: container.current,
+          canvasContextAttributes: { preserveDrawingBuffer: true },
           style: basemapStyle(basemap),
           bounds: toLngLat(frame),
-          fitBoundsOptions: { padding: 32 },
+          fitBoundsOptions: { padding: framePadding.current },
           dragRotate: false,
           pitchWithRotate: false,
           touchPitch: false,
@@ -88,7 +103,10 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
         // "idle" = everything drawn (tests and screenshots wait for it).
         m.on("idle", () => container.current?.setAttribute("data-idle", "true"));
         m.on("movestart", () => container.current?.setAttribute("data-idle", "false"));
-        m.on("resize", () => container.current?.setAttribute("data-idle", "false"));
+        m.on("resize", () => {
+          container.current?.setAttribute("data-idle", "false");
+          m.fitBounds(toLngLat(currentFrame.current), { padding: framePadding.current, duration: 0 });
+        });
         m.on("error", (event) => {
           if ((event as { sourceId?: string }).sourceId === "radar") setFailure("image");
         });
@@ -137,10 +155,38 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
     });
     const key = frame.join(",");
     if (framed.current !== null && framed.current !== key) {
-      m.fitBounds(toLngLat(frame), { padding: 32, duration: prefersReducedMotion() ? 0 : 900 });
+      m.fitBounds(toLngLat(frame), { padding: framePadding.current, duration: prefersReducedMotion() ? 0 : 900 });
     }
     framed.current = key;
   }, [frame, point, ready, showArea]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
+    markerRefs.current.forEach((marker) => marker.remove());
+    const locations = [...markers, ...earthquakes.map((q) => ({ id: q.id, lat: q.lat, lon: q.lon, title: `${q.magnitude.type} ${formatNumber(q.magnitude.value, lang)}`, href: q.url ?? undefined }))];
+    markerRefs.current = locations.map((location) => {
+      const element = document.createElement(location.href ? "a" : "span");
+      element.className = "map-location-marker";
+      element.textContent = "●";
+      element.title = location.title;
+      element.setAttribute("aria-label", location.title);
+      if (element instanceof HTMLAnchorElement && location.href) {
+        element.href = location.href;
+        if (/^https?:/.test(location.href)) { element.target = "_blank"; element.rel = "noreferrer"; }
+      }
+      return new maplibregl.Marker({ element }).setLngLat([location.lon, location.lat]).addTo(m);
+    });
+    return () => { markerRefs.current.forEach((marker) => marker.remove()); };
+  }, [markers, earthquakes, ready, lang]);
+
+  useEffect(() => {
+    if (ready && map.current?.getLayer("radar")) map.current.setPaintProperty("radar", "raster-opacity", opacity);
+  }, [opacity, ready, layer]);
+
+  useEffect(() => {
+    if (resetKey && ready) map.current?.fitBounds(toLngLat(frame), { padding: framePadding.current, duration: 0 });
+  }, [resetKey, ready, frame]);
 
   // The radar raster.
   useEffect(() => {
@@ -162,12 +208,16 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
         [w, s],
       ],
     });
-    m.addLayer({ id: "radar", type: "raster", source: "radar", paint: { "raster-opacity": RASTER_OPACITY, "raster-fade-duration": 0 } }, "area");
+    m.addLayer({ id: "radar", type: "raster", source: "radar", paint: { "raster-opacity": opacity, "raster-fade-duration": 0 } }, "area");
+    // Opacity is updated separately without refetching the PNG.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layer, ready]);
 
   return (
     <div className="radar-map" role="region" aria-label={label}>
       <div ref={container} className="radar-map-canvas" />
+      {activity && <span className="map-sweep is-scanning" aria-hidden="true" />}
+      {!activity && layer && ready && <span key={layer.url} className="map-sweep" aria-hidden="true" />}
       {failure === "webgl" && <p className="radar-map-failure">{t("map.noWebgl")}</p>}
       {failure === "image" && (
         <p className="radar-map-failure" role="alert">

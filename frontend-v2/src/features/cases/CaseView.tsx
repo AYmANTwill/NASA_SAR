@@ -10,6 +10,7 @@ import { formatDate } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
 import { ExposureView, FigureList, FindingView, LimitsView, LinkedAnswers, SourcesView } from "./ledger";
 import { PassTimeline } from "./PassTimeline";
+import { ReportTools } from "@/components/ReportTools";
 import "./CaseView.css";
 
 export function CaseView() {
@@ -55,6 +56,7 @@ function CaseBody({ study }: { study: CaseStudy }) {
         </p>
         <h1 id="case-title">{localized(study.title)}</h1>
         <StatusTag status={study.status} />
+        <ReportTools data={study} name={study.id} />
       </header>
 
       <div className="case-layout">

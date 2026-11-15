@@ -42,8 +42,9 @@ test.describe("watches, live backend", () => {
 
   test("watch an answer, see it listed, stop watching it", async ({ page, request }) => {
     const events = (await (await request.get(`${API}/api/library`)).json()) as LibraryEvent[];
-    const answerId = events.find((e) => e.answer_id)!.answer_id!;
-    const before = ((await (await request.get(`${API}/api/watches`)).json()) as Watch[]).some((w) => w.answer_id === answerId);
+    const initialWatches = (await (await request.get(`${API}/api/watches`)).json()) as Watch[];
+    const answerId = (events.find((e) => e.answer_id && !initialWatches.some((w) => w.answer_id === e.answer_id)) ?? events.find((e) => e.answer_id))!.answer_id!;
+    const before = initialWatches.some((w) => w.answer_id === answerId);
 
     await page.goto(`/en/answers/${answerId}`);
     await page.getByRole("button", { name: "Watch this place" }).click();
@@ -65,7 +66,13 @@ test.describe("watches, live backend", () => {
     await expect.poll(() => simulated).toMatch(/level=orange$/);
 
     await pageScreenshot(page, "e2e/__screenshots__/watches-en-1440.png");
+    await card.getByRole("button", { name: "Stop watching" }).click();
+    await expect(card.getByText("Stop watching this place?")).toBeVisible();
+    await card.getByRole("button", { name: "Cancel" }).click();
+    await expect(card.locator(".watch-confirm")).toHaveCount(0);
     if (!before) {
+      await card.getByRole("button", { name: "Stop watching" }).click();
+      await expect(card.getByText("Stop watching this place?")).toBeVisible();
       await card.getByRole("button", { name: "Stop watching" }).click();
       await expect(card).toHaveCount(0);
     }

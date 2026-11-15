@@ -53,8 +53,18 @@ export async function reviewScreen(page: Page, name: string, widths = [1440, 390
     await expect(page.getByRole("alert")).toHaveCount(0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `${name}: horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
+    for (const card of await page.locator(".case-card").all()) {
+      const clips = await card.evaluate((element) => {
+        const frame = element.getBoundingClientRect();
+        return [...element.querySelectorAll(".case-card-body, .case-card-status")].some((child) => {
+          const rect = child.getBoundingClientRect();
+          return rect.left < frame.left || rect.right > frame.right || rect.bottom > frame.bottom;
+        });
+      });
+      expect(clips, `${name}: case title or status clipped at ${width}px`).toBe(false);
+    }
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-    expect(results.violations.map((v) => `${name}/${width} ${v.id}: ${v.help}`)).toEqual([]);
+    expect(results.violations.map((v) => `${name}/${width} ${v.id}: ${v.help} (${v.nodes.map((node) => node.target.join(" ")).join(", ")})`)).toEqual([]);
     await pageScreenshot(page, `e2e/__screenshots__/${name}-${width}.png`);
   }
 }

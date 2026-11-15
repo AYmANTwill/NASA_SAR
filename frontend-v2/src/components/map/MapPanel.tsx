@@ -4,6 +4,9 @@ import { useText } from "@/i18n/useText";
 import { formatDate } from "@/i18n/format";
 import { MapBoundary } from "./MapBoundary";
 import { RasterLegend } from "./RasterLegend";
+import type { MapMarker } from "./RadarMap";
+import type { Earthquake } from "@/api/contract";
+import { useRef } from "react";
 import "./MapPanel.css";
 
 /** MapLibre is large: it loads as its own chunk, after the page text. */
@@ -36,6 +39,9 @@ export function MapPanel({
   onPick,
   showArea,
   emptyText,
+  markers,
+  earthquakes,
+  activity = false,
 }: {
   frame: Bounds;
   point?: { lat: number; lon: number };
@@ -45,22 +51,35 @@ export function MapPanel({
   showArea?: boolean;
   /** What the side panel says when there is no raster (default: no radar map yet). */
   emptyText?: string;
+  markers?: MapMarker[];
+  earthquakes?: Earthquake[];
+  activity?: boolean;
 }) {
   const { t, lang, text, localized } = useText();
   const [index, setIndex] = useState(0);
+  const [opacity, setOpacity] = useState(0.88);
+  const [resetKey, setResetKey] = useState(0);
+  const [showLayer, setShowLayer] = useState(true);
+  const [showQuakes, setShowQuakes] = useState(true);
+  const panel = useRef<HTMLDivElement>(null);
   const name = useId();
   const active = entries[index] ?? entries[0] ?? null;
 
   return (
-    <div className="map-panel">
+    <div className="map-panel" ref={panel}>
       <MapBoundary fallback={<div className="radar-map-loading">{t("map.noWebgl")}</div>}>
         <Suspense fallback={<div className="radar-map-loading">{t("common.loading")}</div>}>
           {/* key: MapLibre sets its control labels once, so the map is rebuilt in a new language. */}
-          <RadarMap key={lang} frame={frame} point={point} layer={active?.layer ?? active?.image ?? null} label={label} onPick={onPick} showArea={showArea} />
+          <RadarMap key={lang} frame={frame} point={point} layer={showLayer ? active?.layer ?? active?.image ?? null : null} label={label} onPick={onPick} showArea={showArea} markers={markers} earthquakes={showQuakes ? earthquakes : undefined} opacity={opacity} resetKey={resetKey} activity={activity} />
         </Suspense>
       </MapBoundary>
 
       <div className="map-panel-side">
+        <div className="map-tools"><button type="button" className="button" onClick={() => setResetKey((key) => key + 1)}>{t("parity.recenter")}</button>
+          <button type="button" className="button" onClick={() => { if (document.fullscreenElement) void document.exitFullscreen(); else void panel.current?.requestFullscreen?.().catch(() => {}); }}>{t("parity.fullscreen")}</button>
+          {active && <><label className="map-toggle"><input type="checkbox" checked={showLayer} onChange={(e) => setShowLayer(e.target.checked)} />{t("parity.showLayer")}</label><label className="opacity-control">{t("parity.opacity")}<input type="range" min="0" max="1" step="0.01" value={opacity} disabled={!showLayer} onChange={(e) => setOpacity(Number(e.target.value))} /></label></>}
+          {!!earthquakes?.length && <label className="map-toggle"><input type="checkbox" checked={showQuakes} onChange={(e) => setShowQuakes(e.target.checked)} />{t("answer.earthquakes")}</label>}
+        </div>
         {entries.length > 1 && (
           <fieldset className="layer-choice">
             <legend>{t("map.layers")}</legend>

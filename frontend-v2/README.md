@@ -1,6 +1,7 @@
 # NISAR Pulse v2 interface
 
-A second, independent interface for NISAR Pulse (Adam). Design: [DESIGN.md](DESIGN.md). Plan and progress:
+A second, independent interface for NISAR Pulse (Adam). Current visual direction and feature parity:
+[PARITY.md](PARITY.md). Scientific design principles: [DESIGN.md](DESIGN.md). Plan and progress:
 [PLAN.md](PLAN.md). What the interface needs from the backend: [API_REQUESTS.md](API_REQUESTS.md).
 
 ## Run it
@@ -20,6 +21,17 @@ npm run dev
 
 Open http://127.0.0.1:5310. The language is in the address: `/fr/`, `/en/`, `/ar/`.
 
+V2 includes the first interface's discovery, investigation, library, watches and L/C comparison pages, alongside
+the case ledger and service status. The workspace uses a dark navigation column on desktop and a collapsible
+menu on phones. Every page supports FR/EN/AR, including mirrored Arabic layouts. Figures open in a keyboard
+accessible viewer. Map tools include recentering, full screen, image visibility, opacity and earthquake markers.
+Reports can be printed to PDF or exported as API JSON; presentation mode is available from the menu or with `P`.
+
+`/discover` shows the API's ranked candidates and exposure sort when enabled, or observed library locations when
+the backend explicitly disables discovery. `/proof` keeps the explanatory L/C diagram visible when the real
+comparison is unavailable; actual coherence maps, forest bins, sources and limits appear only when the API supplies
+them. Synthetic UI scenarios live only in tests. Legacy links such as `/investigate/:id` and `/watch` redirect to V2.
+
 The case list uses optional summary bounds and place names, with a detail fallback for older backends. Timeline
 kinds separate events, acquisitions and publications; dates without a kind remain unclassified.
 
@@ -36,6 +48,12 @@ finding is absent. Haouz `open_water_change` explicitly reads "no clear change i
 `no_reference` badge; an agreement without a reference is rejected by the contract.
 
 ## Offline demo
+
+The normal production build (`npm run build`, then `npm run preview`) also retains its app shell, validated
+responses and images for reports already opened. Demo answers are prepared automatically from `/api/demo`.
+Saved API responses and report images expire after a week; health and write actions are never replayed. On a
+first visit, report images are saved once the service worker takes control. The offline indicator identifies
+saved data. Development keeps the response cache but does not register a service worker.
 
 The demo laptop needs neither the backend nor the internet once the build is made.
 
@@ -67,6 +85,7 @@ npm run preview:demo      # serves dist-demo/ on http://127.0.0.1:4311, no backe
 | `npm test` | unit and component tests (Vitest): contract and palette copies, recorded live responses, token contrast, no number typed in interface strings |
 | `npm run e2e` | Playwright on the live backend with the installed Chrome, axe accessibility checks, screenshots in `e2e/__screenshots__/` |
 | `npm run e2e:demo` | the rehearsal build of the last snapshot, with every request outside the demo server blocked |
+| `npm run e2e:offline` | normal production build: first visit, network loss, reload, figures, Arabic navigation and a prepared answer (run `npm run build` first) |
 | `npm run sync:contract` | copy `frontend/src/api/contract.ts` and `backend/palettes.json` again when they change |
 | `npm run snapshot` | record the live backend for the offline demo |
 
