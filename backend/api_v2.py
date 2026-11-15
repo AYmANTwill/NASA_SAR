@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import threading
 import time
@@ -26,7 +27,7 @@ import discoveries
 import events
 import watch
 from config import CACHE_DIR, LOS_SIGN
-from science import case_store, water
+from science import answer_text, case_store, water
 
 router = APIRouter(prefix="/api")
 STORE = CACHE_DIR / "answers_v2"
@@ -35,6 +36,7 @@ WATCHES = CACHE_DIR / "watches_v2.json"
 NOTES = CACHE_DIR / "notifications_v2.json"
 _lock = threading.Lock()
 LANGS = ("fr", "en", "ar")
+log = logging.getLogger(__name__)
 
 # The frontend's Recipe enum has no "surface_change": Anass renamed "damage" to "surface_change" on purpose.
 # Until the frontend adds it, surface change is shown under the "damage" recipe (ask Houssam to add it).
@@ -384,26 +386,50 @@ def _steps(raw_steps: list[dict], recipe: str, n_used: int, period: dict | None)
                 params.update(start={"date": period["start"]}, end={"date": period["end"]})
                 summ = tt("step.search_scenes", params)
             else:
-                summ = same3("backend.step", name)
+                summ = answer_text.step_summary(name)
             kind, tool = "search_scenes", "catalog.find"
         elif any(k in low for k in ("usgs", "rain", "firms", "openstreetmap", "exposed")):
-            kind, tool, summ = "cross_evidence", "evidence", same3("backend.step", name)
+            kind, tool, summ = "cross_evidence", "evidence", answer_text.step_summary(name)
         elif "rejected" in low or "quality" in low:
-            kind, tool, summ = "uncertainty_checks", "quality.split", same3("backend.step", name)
+            kind, tool, summ = "uncertainty_checks", "quality.split", answer_text.step_summary(name)
         elif "no gcov" in low:
-            kind, tool, summ = "select_recipe", "agent.route", same3("backend.step", name)
+            kind, tool, summ = "select_recipe", "agent.route", answer_text.step_summary(name)
         elif "vertical / east-west" in low:
             kind, tool, summ = "compute", "decompose.combine", tt("step.compute.decompose")
         else:
-            kind, tool, summ = "compute", f"recipe.{recipe}", same3("backend.step", name)
+            kind, tool, summ = "compute", f"recipe.{recipe}", answer_text.step_summary(name)
         ok = s.get("ok", True)
         out.append({"id": f"s{i}", "kind": kind, "tool": tool, "status": "done" if ok else "failed", "params": {},
                     "started_at": (t0 + timedelta(milliseconds=i)).replace(microsecond=0).isoformat(),
                     "duration_ms": s.get("ms", 0), "summary": summ,
-                    "error": None if ok else same3("backend.step.error", s.get("error") or "failed")})
+                    "error": None if ok else answer_text.step_error(s.get("error"))})
     out.append({"id": f"s{len(out) + 1}", "kind": "verdict", "tool": "agent.template", "status": "done", "params": {},
                 "started_at": now_iso(), "duration_ms": 0, "summary": tt("step.verdict"), "error": None})
     return out
+
+
+def searched_period(resp: dict) -> tuple[dict, dict | None]:
+    """(period, limit) of an answer without any NISAR product: the window that was searched, never "today" as if
+    something had been measured. The event window when the question has an event, else the dates the local catalog
+    covers; today only when the catalog is empty, and then a limit says so."""
+    ev = resp.get("event_time") or {}
+    if ev.get("utc"):
+        start, end = catalog.event_window(str(ev["utc"]), ev.get("precision") or "exact")
+        if iso(start) and iso(end):
+            return {"start": iso(start), "end": iso(end)}, None
+    try:
+        products = catalog.load()
+    except (OSError, ValueError) as exc:
+        products = []
+        log.warning("catalog unavailable for the searched period: %s", exc)
+    if products:
+        return {"start": iso(min(p.ref for p in products)), "end": iso(max(p.sec for p in products))}, None
+    today = date.today().isoformat()
+    return {"start": today, "end": today}, tt(
+        "backend.limit.no_catalog", {}, "Aucun produit NISAR dans le catalogue local : la période affichée est la "
+        "date de la demande, rien n'a été mesuré.", "No NISAR product in the local catalog: the period shown is the "
+        "date of the request, nothing was measured.", "لا يوجد أي منتج NISAR في الفهرس المحلي: الفترة المعروضة هي "
+        "تاريخ الطلب، ولم يُقس أي شيء.")
 
 
 def answer_id(question: str, lat, lon, lang: str, date_: str | None) -> str:
@@ -425,7 +451,7 @@ def to_answer(resp: dict, aid: str, question: str, lang: str, name_i18n: dict | 
     acq = sorted({d for p in used for d in (iso(p.ref), iso(p.sec)) if d})
     if not used and ok:                       # products not in the local catalog: what the facts say
         tracks, acq = geometry_from_facts(f, resp.get("data_used") or [])
-    period = {"start": acq[0], "end": acq[-1]} if acq else {"start": date.today().isoformat(), "end": date.today().isoformat()}
+    period, period_limit = ({"start": acq[0], "end": acq[-1]}, None) if acq else searched_period(resp)
     place = resp.get("place") or {}
     v = _verdicts(qtype, f, ok)
     ev, quakes = _evidence(resp.get("evidence"))
@@ -439,13 +465,14 @@ def to_answer(resp: dict, aid: str, question: str, lang: str, name_i18n: dict | 
         "recipe": recipe, "product": product,
         "product_status": "validated" if f.get("maturity") == "validated" else "provisional",
         "period": period, "acquisitions": acq, "tracks": tracks,
-        "verdict": tt(f"backend.verdict.{qtype}", {}, v.get("fr") or resp.get("verdict"), v.get("en") or resp.get("verdict"),
-                      v.get("ar") or resp.get("verdict")),
+        "verdict": (tt(f"backend.verdict.{qtype}", {}, v.get("fr") or resp.get("verdict"),
+                       v.get("en") or resp.get("verdict"), v.get("ar") or resp.get("verdict")) if ok
+                    else answer_text.no_data_verdict(qtype, f.get("error"))),
         "confidence": resp.get("confidence", "low"), "stable_in_noise": _stable(qtype, f) if ok else False,
         "metrics": _metrics(qtype, f) if ok else [], "series": _series(qtype, f) if ok else [],
         "checks": _checks(qtype, f) if ok else [], "evidence": ev,
         "layers": _layers(resp.get("layers"), period), "earthquakes": quakes,
-        "limits": _limits(qtype, f, tracks),
+        "limits": _limits(qtype, f, tracks) + ([period_limit] if period_limit else []),
         "indication": None, "classifier": None,
         "next_pass": passes[0]["next_pass"] if passes else None, "cached": cached,
         "steps": _steps(resp.get("steps"), recipe, len(used), period if acq else None),

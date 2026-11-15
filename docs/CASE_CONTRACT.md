@@ -23,7 +23,8 @@ GET /api/cases/{id}   -> CaseStudy       404 ApiErrorBody {code: "case_not_found
 ## Types
 
 ```
-CaseSummary { id, kind, title: {fr,en,ar}, date: ISO UTC, status, thumbnail_url: string | null }
+CaseSummary { id, kind, title: {fr,en,ar}, date: ISO UTC, status, thumbnail_url: string | null,
+              bbox?: [w,s,e,n], place?: {fr,en,ar} }        // optional: the case's map extent and place
 
 CaseStudy {
   id: "panama-2026" | "venezuela-2026" | "haouz-flood-2026" | "ionosphere-gps"
@@ -38,7 +39,7 @@ CaseStudy {
                agreement: "agree" | "partial" | "disagree" | "no_reference" }]
   figures: [{ id, kind: "map" | "chart" | "image", title: {fr,en,ar}, url, caption: TemplatedText, layer?: Layer }]
   exposure: { people: Measurement, buildings: Measurement, area_km2: Measurement, source: {name, url} } | null
-  timeline: [{ label: {fr,en,ar}, at: ISO UTC }]
+  timeline: [{ label: {fr,en,ar}, at: ISO UTC, kind?: "event" | "acquisition" | "publication" }]
   answer_ids: string[]
   limits: TemplatedText[]          // at least one
 }

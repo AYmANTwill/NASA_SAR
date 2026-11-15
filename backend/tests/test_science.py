@@ -134,8 +134,9 @@ check("GET /api/cases lists the 4 cases in order; the absent 5th case is not lis
       r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED, r.text[:300])
 check("GET /api/cases/bin-el-ouidane-2026 without its file: 404 case_not_found",
       c.get("/api/cases/bin-el-ouidane-2026").status_code == 404)
-check("summaries have exactly the contract keys",
-      all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url"} for s in r.json()))
+check("summaries have exactly the contract keys, plus the optional bbox and place (the map extent)",
+      all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url", "bbox", "place"}
+          and len(s["bbox"]) == 4 and set(s["place"]) == {"fr", "en", "ar"} for s in r.json()))
 r = c.get("/api/cases/panama-2026")
 check("GET /api/cases/panama-2026 returns the draft case: no placeholder value, what is missing is in limits",
       r.status_code == 200 and r.json()["id"] == "panama-2026" and r.json()["findings"] == []
@@ -532,6 +533,9 @@ check("cases: full timeline, sorted: USGS origin, every NISAR acquisition time o
                                               "2026-10-09T23:15:20Z", "2026-10-10T02:00:00Z", "2026-10-12T11:03:01Z",
                                               "2026-10-13T08:00:00Z"]
       and pan["date"] == "2026-10-09T17:56:06Z", [t["at"] for t in pan["timeline"]])
+check("timeline items carry their optional kind: event, acquisition, publication",
+      [t.get("kind") for t in pan["timeline"]].count("event") == 1
+      and {t.get("kind") for t in pan["timeline"]} == {"event", "acquisition", "publication"}, pan["timeline"])
 maps = [f for f in pan["figures"] if f.get("layer")]
 lay = maps[0]["layer"] if maps else {}
 check("cases: one map figure with a RasterLayer per co-seismic pair (PNG rendered with the frontend palette, served)",
@@ -696,6 +700,42 @@ check("haouz: a circle finding without its own measurement uncertainty is left o
       and "no measurement uncertainty at the site" in hz2_lim and hz2["status"] == "draft", hz2_lim)
 check("haouz: a site value that disagrees with the no-event baseline is a clear change in the headline",
       "clear change in Backscatter change" in hz2["headline"]["text"]["en"], hz2["headline"])
+
+# --- answers: no English inside FR / AR, the period searched (Adam's requests 4 and 5) ---------------------------
+import api_v2  # noqa: E402
+from science import answer_text  # noqa: E402
+
+nd = api_v2.to_answer({"type": "surface_change", "facts": {"error": "needs an earlier pair and a pair of the same "
+                                                           "length on the same track, frame and CRID"},
+                       "place": {}, "data_used": [], "event_time": {"utc": "20261010", "precision": "day"},
+                       "steps": [{"step": "found 0 interferograms covering the point", "ok": True},
+                                 {"step": "surface change (coherence loss)", "ok": False,
+                                  "error": "the before and event pairs do not share the same grid"}]},
+                      "a-nd", "q", "fr")
+txt = nd["verdict"]["text"]
+english = ("needs an earlier", "same length", "interferograms covering", "found ", "failed", "do not share",
+           "coherence loss")
+fr_ar = [txt["fr"], txt["ar"]] + [st["summary"]["text"][L] for st in nd["steps"] if "text" in st["summary"]
+                                  for L in ("fr", "ar")] +         [st["error"]["text"][L] for st in nd["steps"] if st["error"] for L in ("fr", "ar")]
+check("answers: a no-data verdict is a template with a reason code; no English sentence in its FR / AR text",
+      nd["verdict"]["template"] == "backend.verdict.no_data"
+      and nd["verdict"]["params"]["reason"] == {"term": "reason.needs_baseline_pair"}
+      and not any(w in t for t in fr_ar for w in english), fr_ar)
+steps_by = {st["summary"]["template"]: st for st in nd["steps"]}
+check("answers: step summaries and errors are templates with params (count, reason), not the English name",
+      steps_by.get("backend.step.found_products", {}).get("summary", {}).get("params") == {"count": 0}
+      and steps_by["backend.step.surface_change_coherence_loss"]["error"]["params"]["reason"]
+      == {"term": "reason.grid_mismatch"}, list(steps_by))
+check("answers: no product -> the period searched (the event day), not today",
+      nd["period"] == {"start": "2026-10-10", "end": "2026-10-11"} and nd["acquisitions"] == [], nd["period"])
+nd2 = api_v2.to_answer({"type": "soil_moisture", "facts": {"error": "something new went wrong"}, "place": {},
+                        "data_used": []}, "a-nd2", "q", "fr")
+check("answers: an unknown reason keeps its English only in 'en'; empty catalog -> today with a limit saying so",
+      "something new" not in nd2["verdict"]["text"]["fr"] and "something new" in nd2["verdict"]["text"]["en"]
+      and any(lim["template"] == "backend.limit.no_catalog" for lim in nd2["limits"]), nd2["verdict"])
+check("answers: displacement step keeps its dates and direction as params",
+      answer_text.step_summary("displacement ascending 20261003→20261015")["params"]
+      == {"direction": {"term": "direction.ascending"}, "date": {"date": "2026-10-03"}, "date2": {"date": "2026-10-15"}})
 
 # --- Youkaoui's water outputs: the optional 5th case, Haouz open water, /api/water ------------------------------
 from science import water  # noqa: E402
