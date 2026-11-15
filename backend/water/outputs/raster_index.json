@@ -1,0 +1,60 @@
+{
+  "case_id": "bin-el-ouidane-2026",
+  "crs": "EPSG:4326",
+  "bounds_order": "[west, south, east, north], pixel outer edges",
+  "format": "RGBA PNG, north-up, transparent = no data",
+  "layers": [
+    {
+      "id": "water_before",
+      "file": "rasters/water_before.png",
+      "url": "water/outputs/rasters/water_before.png",
+      "bounds": [
+        -6.488862,
+        32.052841,
+        -6.340939,
+        32.142782
+      ],
+      "date": "2026-06-17",
+      "legend": {
+        "water": "#2684ff"
+      },
+      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN)"
+    },
+    {
+      "id": "water_after",
+      "file": "rasters/water_after.png",
+      "url": "water/outputs/rasters/water_after.png",
+      "bounds": [
+        -6.488862,
+        32.052841,
+        -6.340939,
+        32.142782
+      ],
+      "date": "2026-09-21",
+      "legend": {
+        "water": "#2684ff"
+      },
+      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN)"
+    },
+    {
+      "id": "water_change",
+      "file": "rasters/water_change.png",
+      "url": "water/outputs/rasters/water_change.png",
+      "bounds": [
+        -6.488862,
+        32.052841,
+        -6.340939,
+        32.142782
+      ],
+      "period": {
+        "start": "2026-06-17",
+        "end": "2026-09-21"
+      },
+      "legend": {
+        "gain": "#1f77b4",
+        "loss": "#d62728"
+      },
+      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN)"
+    }
+  ]
+}

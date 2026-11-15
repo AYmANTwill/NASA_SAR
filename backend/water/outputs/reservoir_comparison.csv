@@ -1,0 +1,4 @@
+reservoir,usable_nisar_dates,clear_dswx_acquisitions,dswx_outliers,outlier_dates,dswx_km2_min,dswx_km2_median,dswx_km2_max,genuine_change_frac,minmax_change_after_outliers,raw_change_frac_before_outlier_check,clear_matched_nisar_dates,tracks,main_track,main_frame,main_direction,main_track_change_frac
+Al_Massira,22,29,0,,64.6,73.3,75.3,0.06,0.142,0.142,19,T23D f72: 10; T44A f18: 9,23,72,DESCENDING,0.108
+Bin_El_Ouidane,32,47,2,2026-06-26;2026-06-29,27.4,30.7,32.5,0.062,0.157,0.502,28,T44A f18: 10; T95D f72: 10; T116A f18: 8,44,18,ASCENDING,0.065
+Al_Wahda,21,18,1,2026-07-23,105.5,111.6,114.4,0.049,0.078,0.183,17,T95D f71: 9; T15A f19: 8,95,71,DESCENDING,0.043

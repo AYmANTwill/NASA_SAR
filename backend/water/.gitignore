@@ -1,0 +1,17 @@
+# large files stay in NASA_DATA, never in git
+*.tif
+*.tiff
+*.pt
+*.pth
+*.ckpt
+*.npz
+*.h5
+data/
+nasa_data/
+outputs/figures/gallery/
+outputs/net_bench/*.log
+__pycache__/
+# credentials
+*netrc*
+*token*
+.earthdata*

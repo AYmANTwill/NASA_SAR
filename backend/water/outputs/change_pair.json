@@ -1,0 +1,21 @@
+{
+  "method": "U-Net + AdaBN",
+  "probability_threshold": 0.4,
+  "threshold_fitted_on": "Sen1Floods11 validation split",
+  "pair_rule": "largest DSWx water-area difference",
+  "mc_passes": 20,
+  "pre": {
+    "date": "2026-06-17",
+    "tag": "Bin_El_Ouidane_T044A_2026-06-17",
+    "dswx_water_km2": 32.7993
+  },
+  "post": {
+    "date": "2026-09-21",
+    "tag": "Bin_El_Ouidane_T044A_2026-09-21",
+    "dswx_water_km2": 30.8241
+  },
+  "gain_km2": 0.45170000000000005,
+  "loss_km2": 2.3632,
+  "water_pre_km2": 35.8793,
+  "water_post_km2": 33.967800000000004
+}

@@ -1,0 +1,6 @@
+{
+  "band": "VH",
+  "threshold_db": -23.6,
+  "train_iou": 0.4653,
+  "fitted_on": "Sen1Floods11 train split (hand labels)"
+}

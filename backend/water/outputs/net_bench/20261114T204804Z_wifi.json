@@ -1,0 +1,94 @@
+{
+  "label": "wifi",
+  "utc": "20261114T204804Z",
+  "granule": "NISAR_L2_PR_GCOV_023_044_A_018_4005_DHDH_A_20260617T054643_20260617T054718_P05023_F_F_J_001.h5",
+  "window": [
+    22889,
+    23854,
+    31444,
+    32818
+  ],
+  "metadata_seconds": 9.81,
+  "results": [
+    {
+      "run": 1,
+      "test": "nisar_window_default_blocks",
+      "seconds": 68.7,
+      "payload_mb": 10.61,
+      "fetched_mb": 149.07,
+      "block_misses": 27,
+      "mb_per_s_payload": 0.154,
+      "mb_per_s_fetched": 2.17
+    },
+    {
+      "run": 1,
+      "test": "nisar_window_16MB_blockcache",
+      "seconds": 26.55,
+      "payload_mb": 10.61,
+      "fetched_mb": 150.99,
+      "block_misses": 9,
+      "mb_per_s_payload": 0.4,
+      "mb_per_s_fetched": 5.688
+    },
+    {
+      "run": 1,
+      "test": "dswx_wtr_tile",
+      "seconds": 7.44,
+      "payload_mb": 0.09,
+      "fetched_mb": null,
+      "block_misses": null,
+      "mb_per_s_payload": 0.012,
+      "mb_per_s_fetched": null
+    },
+    {
+      "run": 1,
+      "test": "dswx_dem_layer",
+      "seconds": 4.81,
+      "payload_mb": 33.65,
+      "fetched_mb": null,
+      "block_misses": null,
+      "mb_per_s_payload": 6.999,
+      "mb_per_s_fetched": null
+    },
+    {
+      "run": 2,
+      "test": "nisar_window_default_blocks",
+      "seconds": 64.12,
+      "payload_mb": 10.61,
+      "fetched_mb": 149.07,
+      "block_misses": 27,
+      "mb_per_s_payload": 0.165,
+      "mb_per_s_fetched": 2.325
+    },
+    {
+      "run": 2,
+      "test": "nisar_window_16MB_blockcache",
+      "seconds": 26.7,
+      "payload_mb": 10.61,
+      "fetched_mb": 150.99,
+      "block_misses": 9,
+      "mb_per_s_payload": 0.397,
+      "mb_per_s_fetched": 5.654
+    },
+    {
+      "run": 2,
+      "test": "dswx_wtr_tile",
+      "seconds": 7.2,
+      "payload_mb": 0.09,
+      "fetched_mb": null,
+      "block_misses": null,
+      "mb_per_s_payload": 0.012,
+      "mb_per_s_fetched": null
+    },
+    {
+      "run": 2,
+      "test": "dswx_dem_layer",
+      "seconds": 5.41,
+      "payload_mb": 33.65,
+      "fetched_mb": null,
+      "block_misses": null,
+      "mb_per_s_payload": 6.22,
+      "mb_per_s_fetched": null
+    }
+  ]
+}

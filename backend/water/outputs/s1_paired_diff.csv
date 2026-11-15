@@ -1,0 +1,13 @@
+domain,comparison,metric,diff,ci95_lo,ci95_hi,p_le_0
+S1 test,"U-Net (source-only, p>0.5) minus Global VH threshold (fit on train)",iou,0.14244666302138076,0.09887806727449107,0.18941806533263322,0.0
+S1 test,"U-Net (source-only, p>0.5) minus Global VH threshold (fit on train)",precision,0.09584238010893087,0.04122373801316401,0.17671937077773572,0.0
+S1 test,"U-Net (source-only, p>0.5) minus Global VH threshold (fit on train)",recall,0.12243380537954551,0.07521851378284065,0.15919483181290703,0.0
+S1 test,"U-Net (source-only, p>0.40 tuned on val) minus Global VH threshold (fit on train)",iou,0.14166004154227174,0.10053373106838642,0.18456001390738458,0.0
+S1 test,"U-Net (source-only, p>0.40 tuned on val) minus Global VH threshold (fit on train)",precision,0.07777854199465595,0.025459278544231377,0.15534325402278232,0.004
+S1 test,"U-Net (source-only, p>0.40 tuned on val) minus Global VH threshold (fit on train)",recall,0.13719240654502896,0.09419288877812336,0.17304938729105834,0.0
+S1 Bolivia hold-out,"U-Net (source-only, p>0.5) minus Global VH threshold (fit on train)",iou,0.1510837736294114,0.09646537984465689,0.17601643268126885,0.0
+S1 Bolivia hold-out,"U-Net (source-only, p>0.5) minus Global VH threshold (fit on train)",precision,-0.0024969073093474847,-0.073343988226507,0.11308221354533944,0.545
+S1 Bolivia hold-out,"U-Net (source-only, p>0.5) minus Global VH threshold (fit on train)",recall,0.18487677610804132,0.08013028906593826,0.24918557930637947,0.0
+S1 Bolivia hold-out,"U-Net (source-only, p>0.40 tuned on val) minus Global VH threshold (fit on train)",iou,0.1548681558470999,0.10705905406653479,0.1765543738976302,0.0
+S1 Bolivia hold-out,"U-Net (source-only, p>0.40 tuned on val) minus Global VH threshold (fit on train)",precision,-0.01975094642633579,-0.09363018929035546,0.08880903421488384,0.693
+S1 Bolivia hold-out,"U-Net (source-only, p>0.40 tuned on val) minus Global VH threshold (fit on train)",recall,0.20374816608062385,0.10959424560689986,0.26942236701414607,0.0
