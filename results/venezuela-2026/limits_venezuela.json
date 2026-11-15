@@ -1,0 +1,42 @@
+{
+ "note": "Draft limits for the Venezuela case (fr/en/ar). Not yet read by the generator (backend/science, off limits to Claude). Written 2026-11-15.",
+ "sources": {
+  "provisional_products": "CRID P05023 in every co-event product folder name (data/GUNW/*_P05023_*)",
+  "los_sign_unverified": "docs/claude/STATUS.md; results/panama-2026/sign_decision.json (undecided)",
+  "fallback_wavelength": "backend/config.py WAVELENGTH_M = 0.2384; backend/recipes/wavelength.py (c/centerFrequency: 1239 MHz -> 0.24196 m, 1229 MHz -> 0.24393 m); docs/claude/wavelength_review.md; the 7 products log 'no centerFrequency found' (dry-run console)",
+  "doublet": "task statement (USGS us6000t7zp mainshock, foreshock us6000t7zc); UCSD page https://topex.ucsd.edu/VNZ_7.5/index.html",
+  "no_reference_value": "https://topex.ucsd.edu/VNZ_7.5/index.html, page read 2026-11-15 (no sign convention found)"
+ },
+ "limits": [
+  {
+   "id": "provisional_products",
+   "en": "The NISAR products are provisional (CRID P05023): calibration and processing may change in later releases, so every value here can still move.",
+   "fr": "Les produits NISAR sont provisoires (CRID P05023) : l'étalonnage et le traitement peuvent changer dans les versions suivantes, donc chaque valeur peut encore bouger.",
+   "ar": "منتجات NISAR مؤقتة (CRID P05023): قد تتغير المعايرة والمعالجة في الإصدارات اللاحقة، ولذلك يمكن أن تتغير كل قيمة هنا."
+  },
+  {
+   "id": "los_sign_unverified",
+   "en": "The line-of-sight sign is not verified (NISAR_LOS_SIGN_VERIFIED is unset). The direction of motion (toward or away from the satellite) is therefore not stated, and no east or vertical split is given.",
+   "fr": "Le signe de la ligne de visée n'est pas vérifié (NISAR_LOS_SIGN_VERIFIED n'est pas défini). Le sens du mouvement (vers ou loin du satellite) n'est donc pas affirmé, et aucune séparation est/vertical n'est donnée.",
+   "ar": "إشارة خط البصر غير مُتحقَّق منها (NISAR_LOS_SIGN_VERIFIED غير معرّف). لذلك لا نؤكد اتجاه الحركة (نحو القمر الصناعي أو بعيدًا عنه)، ولا نقدّم فصلًا إلى مركبة شرقية ورأسية."
+  },
+  {
+   "id": "fallback_wavelength",
+   "en": "These products have no kept .h5 file, so the code uses the fallback wavelength 0.2384 m instead of the one read from centerFrequency. Depending on the radar mode, this understates the displacement by about 1.5 % (40 MHz mode) or 2.3 % (20 MHz mode); the mode is only guessed from the product name.",
+   "fr": "Ces produits n'ont pas de fichier .h5 conservé : le code utilise la longueur d'onde de repli 0,2384 m au lieu de celle lue dans centerFrequency. Selon le mode radar, le déplacement est sous-estimé d'environ 1,5 % (mode 40 MHz) ou 2,3 % (mode 20 MHz) ; le mode est seulement déduit du nom du produit.",
+   "ar": "لا يوجد ملف .h5 محفوظ لهذه المنتجات، لذلك يستخدم الكود الطول الموجي الاحتياطي 0.2384 م بدل القيمة المقروءة من centerFrequency. بحسب نمط الرادار، يُقدَّر الإزاحة بأقل من قيمتها بنحو 1.5 % (نمط 40 MHz) أو 2.3 % (نمط 20 MHz)؛ والنمط مُخمَّن من اسم المنتج فقط."
+  },
+  {
+   "id": "doublet",
+   "en": "The event is a doublet (a foreshock a few tens of seconds before the mainshock). One interferogram spans both, so it cannot separate them: the displacement shown is the sum of the two ruptures.",
+   "fr": "L'événement est un doublet (un choc précurseur quelques dizaines de secondes avant le choc principal). Un interférogramme couvre les deux et ne peut pas les séparer : le déplacement montré est la somme des deux ruptures.",
+   "ar": "الحدث زلزال مزدوج (هزة سابقة قبل الهزة الرئيسية بعدة عشرات من الثواني). يغطي الإنترفيروغرام الحدثين معًا ولا يمكنه فصلهما: الإزاحة المعروضة هي مجموع الانكسارين."
+  },
+  {
+   "id": "no_reference_value",
+   "en": "There is no reference value to compare with: the independent UCSD processing states no sign convention, so it is not used as a reference. Its tracks and dates match ours, but its numbers are not shown and not presented as a validation.",
+   "fr": "Il n'y a pas de valeur de référence pour comparer : le traitement indépendant de l'UCSD n'indique aucune convention de signe, donc il n'est pas utilisé comme référence. Ses traces et ses dates correspondent aux nôtres, mais ses chiffres ne sont pas montrés et ne sont pas présentés comme une validation.",
+   "ar": "لا توجد قيمة مرجعية للمقارنة: معالجة UCSD المستقلة لا تذكر أي اتفاقية للإشارة، لذلك لا تُستخدم كمرجع. مساراتها وتواريخها تطابق مساراتنا وتواريخنا، لكن أرقامها غير معروضة ولا تُقدَّم كتحقق."
+  }
+ ]
+}

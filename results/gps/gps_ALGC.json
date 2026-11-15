@@ -1,0 +1,1052 @@
+{
+ "station": {
+  "station": "ALGC",
+  "lat": 36.111047522,
+  "lon": -5.4441700261,
+  "height": 117.16419
+ },
+ "gps_source": "https://geodesy.unr.edu/gps_timeseries/IGS20/tenv3/IGS20/ALGC.tenv3",
+ "window_days": 3,
+ "sign_verified": false,
+ "n_gunw_products": 103,
+ "pairs": [
+  {
+   "product": "GUNW_T015_F020_20260627_20260709",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260627",
+   "date_after": "20260709",
+   "los_vector": [
+    0.6286,
+    0.1795,
+    0.7567
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.19,
+    -0.04,
+    1.23
+   ],
+   "gps_epochs_used": [
+    4,
+    7
+   ],
+   "gps_los_mm": 0.8,
+   "nisar_los_mm": 45.5,
+   "nisar_noise_mm": 30.9,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T015_F020_20260709_20260721",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260709",
+   "date_after": "20260721",
+   "los_vector": [
+    0.6285,
+    0.1795,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.28,
+    0.74,
+    -4.29
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -3.29,
+   "nisar_los_mm": -45.2,
+   "nisar_noise_mm": 28.9,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T015_F020_20260721_20260814",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260721",
+   "date_after": "20260814",
+   "los_vector": [
+    0.6285,
+    0.1795,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.65,
+    -0.09,
+    1.39
+   ],
+   "gps_epochs_used": [
+    7,
+    5
+   ],
+   "gps_los_mm": 0.62,
+   "nisar_los_mm": -38.7,
+   "nisar_noise_mm": 34.0,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T015_F020_20260814_20260826",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260814",
+   "date_after": "20260826",
+   "los_vector": [
+    0.6286,
+    0.1794,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.26,
+    -0.86,
+    1.18
+   ],
+   "gps_epochs_used": [
+    5,
+    7
+   ],
+   "gps_los_mm": 0.58,
+   "nisar_los_mm": 43.7,
+   "nisar_noise_mm": 35.3,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T015_F020_20260826_20260907",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260826",
+   "date_after": "20260907",
+   "los_vector": [
+    0.6286,
+    0.1795,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.39,
+    0.15,
+    0.24
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -0.04,
+   "nisar_los_mm": -54.9,
+   "nisar_noise_mm": 44.9,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T015_F020_20260907_20260919",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260907",
+   "date_after": "20260919",
+   "los_vector": [
+    0.6286,
+    0.1794,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.82,
+    0.94,
+    4.5
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 3.06,
+   "nisar_los_mm": -4.6,
+   "nisar_noise_mm": 28.0,
+   "corrections_applied": []
+  },
+  {
+   "product": "GUNW_T015_F020_20260919_20261001",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20260919",
+   "date_after": "20261001",
+   "los_vector": [
+    0.6286,
+    0.1791,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.77,
+    0.11,
+    -6.66
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -5.51,
+   "nisar_los_mm": 17.3,
+   "nisar_noise_mm": 27.8,
+   "corrections_applied": []
+  },
+  {
+   "product": "GUNW_T015_F020_20261001_20261013",
+   "direction": "ascending",
+   "track": 15,
+   "frame": 20,
+   "crid": "P05023",
+   "date_before": "20261001",
+   "date_after": "20261013",
+   "los_vector": [
+    0.6286,
+    0.1794,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.14,
+    0.47,
+    -0.76
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -0.58,
+   "nisar_los_mm": -17.6,
+   "nisar_noise_mm": 34.7,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260620_20260702",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260620",
+   "date_after": "20260702",
+   "los_vector": [
+    -0.6182,
+    0.212,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.42,
+    -0.17,
+    -0.88
+   ],
+   "gps_epochs_used": [
+    7,
+    6
+   ],
+   "gps_los_mm": -0.44,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 36.5,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260702_20260714",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260702",
+   "date_after": "20260714",
+   "los_vector": [
+    -0.6182,
+    0.2121,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.74,
+    2.11,
+    2.57
+   ],
+   "gps_epochs_used": [
+    6,
+    7
+   ],
+   "gps_los_mm": 1.93,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 35.7,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260714_20260726",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260714",
+   "date_after": "20260726",
+   "los_vector": [
+    -0.6181,
+    0.2125,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.48,
+    -0.63,
+    -0.91
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -1.12,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 28.7,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260726_20260819",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260726",
+   "date_after": "20260819",
+   "los_vector": [
+    -0.6182,
+    0.212,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": null,
+   "gps_epochs_used": [
+    7,
+    0
+   ],
+   "gps_los_mm": null,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 20.7,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260819_20260831",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260819",
+   "date_after": "20260831",
+   "los_vector": [
+    -0.6181,
+    0.2121,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": null,
+   "gps_epochs_used": [
+    0,
+    7
+   ],
+   "gps_los_mm": null,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 46.4,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260831_20260912",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260831",
+   "date_after": "20260912",
+   "los_vector": [
+    -0.6182,
+    0.2121,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.02,
+    -1.25,
+    0.87
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 0.38,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 30.8,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260912_20260924",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260912",
+   "date_after": "20260924",
+   "los_vector": [
+    -0.6183,
+    0.212,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -1.2,
+    1.86,
+    0.23
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 1.31,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 18.9,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20260924_20261006",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20260924",
+   "date_after": "20261006",
+   "los_vector": [
+    -0.6182,
+    0.2121,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.85,
+    0.72,
+    -2.7
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -1.37,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 20.4,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F070_20261006_20261018",
+   "direction": "descending",
+   "track": 95,
+   "frame": 70,
+   "crid": "P05023",
+   "date_before": "20261006",
+   "date_after": "20261018",
+   "los_vector": [
+    -0.6182,
+    0.2121,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.65,
+    -0.06,
+    6.17
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 4.26,
+   "nisar_los_mm": 61.2,
+   "nisar_noise_mm": 34.1,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260620_20260702",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260620",
+   "date_after": "20260702",
+   "los_vector": [
+    -0.6198,
+    0.2071,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.42,
+    -0.17,
+    -0.88
+   ],
+   "gps_epochs_used": [
+    7,
+    6
+   ],
+   "gps_los_mm": -0.44,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 43.4,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260702_20260714",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260702",
+   "date_after": "20260714",
+   "los_vector": [
+    -0.6199,
+    0.2071,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.74,
+    2.11,
+    2.57
+   ],
+   "gps_epochs_used": [
+    6,
+    7
+   ],
+   "gps_los_mm": 1.92,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 41.3,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260714_20260726",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260714",
+   "date_after": "20260726",
+   "los_vector": [
+    -0.6197,
+    0.2076,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.48,
+    -0.63,
+    -0.91
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -1.11,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 24.9,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260726_20260819",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260726",
+   "date_after": "20260819",
+   "los_vector": [
+    -0.6199,
+    0.2071,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": null,
+   "gps_epochs_used": [
+    7,
+    0
+   ],
+   "gps_los_mm": null,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 51.4,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260819_20260831",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260819",
+   "date_after": "20260831",
+   "los_vector": [
+    -0.6198,
+    0.2071,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": null,
+   "gps_epochs_used": [
+    0,
+    7
+   ],
+   "gps_los_mm": null,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 24.2,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260831_20260912",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260831",
+   "date_after": "20260912",
+   "los_vector": [
+    -0.6199,
+    0.2072,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.02,
+    -1.25,
+    0.87
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 0.39,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 30.8,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260912_20260924",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260912",
+   "date_after": "20260924",
+   "los_vector": [
+    -0.6199,
+    0.2071,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -1.2,
+    1.86,
+    0.23
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 1.3,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 18.3,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20260924_20261006",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20260924",
+   "date_after": "20261006",
+   "los_vector": [
+    -0.6199,
+    0.2072,
+    0.7569
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.85,
+    0.72,
+    -2.7
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -1.37,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 42.8,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T095_F071_20261006_20261018",
+   "direction": "descending",
+   "track": 95,
+   "frame": 71,
+   "crid": "P05023",
+   "date_before": "20261006",
+   "date_after": "20261018",
+   "los_vector": [
+    -0.6199,
+    0.2072,
+    0.7568
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.65,
+    -0.06,
+    6.17
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 4.25,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 20.0,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T116_F019_20260622_20260704",
+   "direction": "ascending",
+   "track": 116,
+   "frame": 19,
+   "crid": "P05023",
+   "date_before": "20260622",
+   "date_after": "20260704",
+   "los_vector": [
+    0.6293,
+    0.1744,
+    0.7573
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.05,
+    -0.99,
+    -0.64
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -0.63,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 33.8,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T116_F019_20260704_20260716",
+   "direction": "ascending",
+   "track": 116,
+   "frame": 19,
+   "crid": "P05023",
+   "date_before": "20260704",
+   "date_after": "20260716",
+   "los_vector": [
+    0.6293,
+    0.1744,
+    0.7573
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.4,
+    2.0,
+    0.67
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 0.6,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 24.7,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T116_F019_20260821_20260902",
+   "direction": "ascending",
+   "track": 116,
+   "frame": 19,
+   "crid": "P05023",
+   "date_before": "20260821",
+   "date_after": "20260902",
+   "los_vector": [
+    0.6293,
+    0.1743,
+    0.7573
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    0.46,
+    3.08,
+    -2.34
+   ],
+   "gps_epochs_used": [
+    2,
+    7
+   ],
+   "gps_los_mm": -0.94,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 32.9,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T116_F019_20260902_20260914",
+   "direction": "ascending",
+   "track": 116,
+   "frame": 19,
+   "crid": "P05023",
+   "date_before": "20260902",
+   "date_after": "20260914",
+   "los_vector": [
+    0.6293,
+    0.1743,
+    0.7573
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.37,
+    -0.66,
+    -0.96
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": -1.08,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 26.7,
+   "corrections_applied": [
+    "iono"
+   ]
+  },
+  {
+   "product": "GUNW_T116_F019_20260914_20260926",
+   "direction": "ascending",
+   "track": 116,
+   "frame": 19,
+   "crid": "P05023",
+   "date_before": "20260914",
+   "date_after": "20260926",
+   "los_vector": [
+    0.6294,
+    0.1742,
+    0.7573
+   ],
+   "los_vector_source": "file",
+   "gps_enu_change_mm": [
+    -0.55,
+    1.1,
+    0.82
+   ],
+   "gps_epochs_used": [
+    7,
+    7
+   ],
+   "gps_los_mm": 0.47,
+   "nisar_los_mm": null,
+   "nisar_noise_mm": 13.0,
+   "corrections_applied": [
+    "iono"
+   ]
+  }
+ ],
+ "gps_first_date": "2006-03-22",
+ "gps_last_date": "2026-10-31",
+ "rejected_pairs": [
+  {
+   "product": "GUNW_T095_F070_20260620_20260702",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 5.0814,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T095_F070_20260702_20260714",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 6.4618,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T095_F070_20260714_20260726",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 7.4722,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T095_F070_20260726_20260819",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 6.7627,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T095_F070_20260819_20260831",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 3.7999,
+   "coherence_median": 0.082
+  },
+  {
+   "product": "GUNW_T095_F070_20260831_20260912",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 3.6556,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T095_F070_20260912_20260924",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 3.0321,
+   "coherence_median": 0.084
+  },
+  {
+   "product": "GUNW_T095_F070_20260924_20261006",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 7.5239,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T095_F070_20261006_20261018",
+   "reasons": [
+    "median coherence 0.08 < 0.15"
+   ],
+   "phase_sigma_rad": 3.3666,
+   "coherence_median": 0.083
+  },
+  {
+   "product": "GUNW_T116_F019_20260716_20260821",
+   "reasons": [
+    "median coherence 0.14 < 0.15"
+   ],
+   "phase_sigma_rad": 11.3648,
+   "coherence_median": 0.14
+  },
+  {
+   "product": "GUNW_T116_F019_20260926_20261008",
+   "reasons": [
+    "median coherence 0.15 < 0.15"
+   ],
+   "phase_sigma_rad": 2.5012,
+   "coherence_median": 0.149
+  },
+  {
+   "product": "GUNW_T116_F019_20261008_20261020",
+   "reasons": [
+    "median coherence 0.14 < 0.15"
+   ],
+   "phase_sigma_rad": 2.5868,
+   "coherence_median": 0.138
+  }
+ ],
+ "summary": {
+  "all": {
+   "n_pairs": 9,
+   "rms_mm": 39.83,
+   "mean_difference_mm": 0.76,
+   "rms_after_removing_mean_mm": 39.83,
+   "correlation": 0.342
+  },
+  "by_geometry": {
+   "15/20 ascending": {
+    "n_pairs": 8,
+    "rms_mm": 37.15,
+    "mean_difference_mm": -6.27,
+    "rms_after_removing_mean_mm": 36.61,
+    "correlation": 0.081
+   },
+   "95/70 descending": {
+    "n_pairs": 1,
+    "rms_mm": 56.94,
+    "mean_difference_mm": 56.94,
+    "rms_after_removing_mean_mm": 0.0,
+    "correlation": null
+   }
+  },
+  "sign_hint": "inconclusive"
+ },
+ "status": "compared",
+ "message": "9 pair(s) compared out of 31 covering the station."
+}

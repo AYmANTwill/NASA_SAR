@@ -1,0 +1,35 @@
+{
+ "note": "Draft limits for the ionosphere-gps case (fr/en/ar). Not read by the generator yet (backend/science is off limits to Claude). Written 2026-11-15.",
+ "sources": {
+  "frame_spread_not_local": "backend/science/iono_chart.py docstring (no error bar, spatial correlation)",
+  "headline_spread_between_pairs": "results/ionosphere-gps/noise_table.json (headline_quiet: N 11, median 3.48, IQR 1.71-6.21); results/noise_with_without_iono_preliminary.csv (12 rows); results/panama-2026/IONO_BUG.md",
+  "panama_no_improvement_guarantee": "results/ionosphere-gps/noise_table.json (panama_coseismic: ratios 0.387, 0.621, 0.798 below 1; two pairs have raw spread 0); results/panama-2026/sensitivity_iono_B.json",
+  "gps_partial_noise_check": "results/gps/gps_stations.json (48 with data in window, 115 inside frames); results/gps/gps_ALGC.json (9 pairs, RMS 39.83 mm, correlation 0.342, inconclusive); gps_CEU1.json (2 pairs); results/gps_run_console.txt (9 min cap)"
+ },
+ "limits": [
+  {
+   "id": "frame_spread_not_local",
+   "en": "The chart shows the spread of the unwrapped phase over the whole frame, before and after subtracting the ionosphere screen. A lower whole-frame spread does not mean a smaller error at a given point, and no error bar is drawn because neighbouring pixels are correlated.",
+   "fr": "Le graphique montre la dispersion de la phase déroulée sur toute la scène, avant et après soustraction de l'écran ionosphérique. Une dispersion plus faible sur la scène entière ne veut pas dire une erreur plus faible en un point donné, et aucune barre d'erreur n'est tracée car les pixels voisins sont corrélés.",
+   "ar": "يعرض الرسم تشتّت الطور المفكوك على كامل المشهد قبل طرح شاشة الأيونوسفير وبعده. انخفاض التشتّت على المشهد كله لا يعني خطأً أقل عند نقطة معيّنة، ولا نرسم شريط خطأ لأن البكسلات المتجاورة مترابطة."
+  },
+  {
+   "id": "headline_spread_between_pairs",
+   "en": "The headline ratio (raw spread divided by corrected spread) is a median over the quiet pairs; the range quoted is the spread between pairs, not an uncertainty of the method. It comes from a preliminary table of 12 Morocco pairs (11 with a measurable raw spread) computed before the ionosphere-flag fix, and a few pairs dominate the high end.",
+   "fr": "Le rapport affiché (dispersion brute divisée par dispersion corrigée) est une médiane sur les paires calmes ; l'intervalle donné est la dispersion entre paires, pas une incertitude de la méthode. Il vient d'un tableau préliminaire de 12 paires du Maroc (11 avec une dispersion brute mesurable), calculé avant la correction du drapeau ionosphère, et quelques paires dominent le haut de la plage.",
+   "ar": "النسبة المعروضة (التشتّت الخام مقسومًا على التشتّت بعد التصحيح) هي وسيط على الأزواج الهادئة؛ والمدى المذكور هو التباين بين الأزواج وليس عدم يقين الطريقة. وهي مأخوذة من جدول أولي لـ 12 زوجًا من المغرب (11 منها بتشتّت خام قابل للقياس) حُسب قبل إصلاح علَم الأيونوسفير، وتهيمن بضعة أزواج على الطرف الأعلى."
+  },
+  {
+   "id": "panama_no_improvement_guarantee",
+   "en": "Subtracting the screen does not always help: on the Panama co-seismic pairs, whole-frame spread rises after subtraction on 3 of the 5 pairs where it can be measured, and the code keeps the raw phase there. These pairs also contain the earthquake signal, which inflates the spread, so they are not part of the headline. They have no per-pixel ionosphere uncertainty mask (the layer was not extracted).",
+   "fr": "Soustraire l'écran n'aide pas toujours : sur les paires cosismiques du Panama, la dispersion sur la scène augmente après soustraction pour 3 des 5 paires où elle est mesurable, et le code garde alors la phase brute. Ces paires contiennent aussi le signal du séisme, qui gonfle la dispersion ; elles ne servent donc pas au chiffre principal. Elles n'ont pas de masque d'incertitude ionosphérique par pixel (la couche n'a pas été extraite).",
+   "ar": "طرح الشاشة لا يفيد دائمًا: في أزواج بنما المصاحبة للزلزال يزداد التشتّت على المشهد بعد الطرح في 3 من 5 أزواج يمكن قياسها، ويُبقي الكود الطور الخام فيها. وتحتوي هذه الأزواج أيضًا على إشارة الزلزال التي تضخّم التشتّت، فلا تدخل في الرقم الرئيسي. وليس لها قناع عدم يقين أيونوسفيري لكل بكسل (لم تُستخرج الطبقة)."
+  },
+  {
+   "id": "gps_partial_noise_check",
+   "en": "The GNSS comparison is a noise check, not a sign test, and it is partial: the run was stopped by its time cap after 2 of the 48 stations with data in the NISAR window, and the first station (ALGC, 9 pairs) gives an RMS difference of about the size of the stated per-pair noise with an inconclusive correlation. The second (CEU1) has only 2 pairs. No uncertainty is given beyond the RMS, and the LOS sign is unverified, so the correlation cannot be read as a sign.",
+   "fr": "La comparaison GNSS est un contrôle de bruit, pas un test de signe, et elle est partielle : l'exécution a été arrêtée par sa limite de temps après 2 des 48 stations ayant des données dans la fenêtre NISAR, et la première station (ALGC, 9 paires) donne un écart RMS de l'ordre du bruit annoncé par paire, avec une corrélation non concluante. La seconde (CEU1) n'a que 2 paires. Aucune incertitude n'est donnée en dehors du RMS, et le signe LOS n'est pas vérifié : la corrélation ne se lit pas comme un signe.",
+   "ar": "مقارنة GNSS فحص للضجيج وليست اختبارًا للإشارة، وهي جزئية: أوقفها حدّ الزمن بعد محطتين من أصل 48 محطة لها بيانات ضمن نافذة NISAR، وتعطي المحطة الأولى (ALGC، 9 أزواج) فرق جذر متوسط المربعات بحجم الضجيج المعلن لكل زوج تقريبًا مع ارتباط غير حاسم. أما الثانية (CEU1) فلها زوجان فقط. لا يُعطى عدم يقين خارج RMS، وإشارة خط البصر غير متحقَّق منها، فلا يُقرأ الارتباط كإشارة."
+  }
+ ]
+}
