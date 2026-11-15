@@ -69,6 +69,8 @@ except ValueError:
 # ---------------------------------------------------------------- the four draft fixtures
 cases, errors = case_store.load_all()
 REQUIRED = [c for c in case_store.ORDER if c not in case_store.OPTIONAL_CASES]
+check("/api/cases order: Bin El Ouidane (the complete case) first, then the cases in progress",
+      [c["id"] for c in TestClient(api.app).get("/api/cases").json()][:1] == ["bin-el-ouidane-2026"])
 check("the 4 fixtures load and validate; the optional 5th case is there only if its file is",
       [c.id for c in cases if c.id in REQUIRED] == REQUIRED and not errors
       and all(c.id in REQUIRED or (case_store.CASES_DIR / f"{c.id}.json").is_file() for c in cases), errors)
@@ -133,7 +135,7 @@ except ValidationError as exc:
 c = TestClient(api.app)
 r = c.get("/api/cases")
 check("GET /api/cases lists the cases in order; the 5th only when its file exists",
-      r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED + (["bin-el-ouidane-2026"] if HAS_5TH else []),
+      r.status_code == 200 and [s["id"] for s in r.json()] == [c for c in case_store.ORDER if c in REQUIRED or HAS_5TH],
       r.text[:300])
 check("GET /api/cases/bin-el-ouidane-2026: 200 with its file, 404 case_not_found without",
       c.get("/api/cases/bin-el-ouidane-2026").status_code == (200 if HAS_5TH else 404))
@@ -884,6 +886,16 @@ check("panama: results/panama-2026/limits_panama.json is appended to the limits 
 (tmp / "results" / "panama-2026" / cs.PANAMA_LIMITS).write_text("{not json", encoding="utf-8")
 pan_bad = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
 (tmp / "results" / "panama-2026" / cs.PANAMA_LIMITS).unlink()
+for cid, fname in (("venezuela-2026", "limits_venezuela.json"), ("ionosphere-gps", "limits_ionosphere.json")):
+    (tmp / "results" / cid).mkdir(parents=True, exist_ok=True)
+    (tmp / "results" / cid / fname).write_text(json.dumps(pan_lim), encoding="utf-8")
+ven_l = cs.build_quake("venezuela-2026", tmp / "results", None, offline=True)
+iono_l = cs.build_iono(tmp / "results", offline=True)
+for cid, fname in (("venezuela-2026", "limits_venezuela.json"), ("ionosphere-gps", "limits_ionosphere.json")):
+    (tmp / "results" / cid / fname).unlink()
+check("venezuela / ionosphere: results/<id>/limits_<name>.json appended to the limits as given",
+      [x["text"] for x in ven_l["limits"]].count(pan_lim["limits"][0]) == 1
+      and [x["text"] for x in iono_l["limits"]].count(pan_lim["limits"][0]) == 1)
 check("panama: a broken limits_panama.json is ignored with a warning, no error; no file, no extra limit",
       pan_bad["limits"] == pan0["limits"]
       and cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)["limits"] == pan0["limits"])
