@@ -68,7 +68,9 @@ except ValueError:
 
 # ---------------------------------------------------------------- the four draft fixtures
 cases, errors = case_store.load_all()
-check("the 4 fixtures load and validate", [c.id for c in cases] == list(case_store.ORDER) and not errors, errors)
+REQUIRED = [c for c in case_store.ORDER if c not in case_store.OPTIONAL_CASES]
+check("the 4 fixtures load and validate (the optional 5th case is absent, not an error)",
+      [c.id for c in cases] == REQUIRED and not errors, errors)
 check("all fixtures are drafts with their placeholders listed",
       all(c.status == "draft" and c.placeholders for c in cases))
 base = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
@@ -128,8 +130,10 @@ except ValidationError as exc:
 # ---------------------------------------------------------------- API
 c = TestClient(api.app)
 r = c.get("/api/cases")
-check("GET /api/cases lists the 4 cases in order",
-      r.status_code == 200 and [s["id"] for s in r.json()] == list(case_store.ORDER), r.text[:300])
+check("GET /api/cases lists the 4 cases in order; the absent 5th case is not listed",
+      r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED, r.text[:300])
+check("GET /api/cases/bin-el-ouidane-2026 without its file: 404 case_not_found",
+      c.get("/api/cases/bin-el-ouidane-2026").status_code == 404)
 check("summaries have exactly the contract keys",
       all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url"} for s in r.json()))
 r = c.get("/api/cases/panama-2026")
@@ -692,6 +696,62 @@ check("haouz: a circle finding without its own measurement uncertainty is left o
       and "no measurement uncertainty at the site" in hz2_lim and hz2["status"] == "draft", hz2_lim)
 check("haouz: a site value that disagrees with the no-event baseline is a clear change in the headline",
       "clear change in Backscatter change" in hz2["headline"]["text"]["en"], hz2["headline"])
+
+# --- Youkaoui's water outputs: the optional 5th case, Haouz open water, /api/water ------------------------------
+from science import water  # noqa: E402
+
+wdir = tmp / "water_outputs"
+(wdir / "figures").mkdir(parents=True)
+(wdir / "rasters").mkdir()
+water.WATER_DIR = wdir
+(wdir / "figures" / "reservoir_area.png").write_bytes(bytes([0x89]) + b"PNG")
+(tmp / "secret.png").write_bytes(bytes([0x89]) + b"PNG")
+check("water: files under rasters/ and figures/ only, unsafe names and other folders refused",
+      water.water_path("figures", "reservoir_area.png") is not None
+      and water.water_path("figures", "../../secret.png") is None and water.water_path("outputs", "x.png") is None
+      and water.water_path("figures", "x.exe") is None and water.water_path("figures", "missing.png") is None)
+wc = TestClient(api.app)
+r_w = wc.get("/api/water/figures/reservoir_area.png")
+check("GET /api/water/figures/<file> serves the image; traversal and unknown folders -> 404",
+      r_w.status_code == 200 and r_w.headers["content-type"] == "image/png"
+      and wc.get("/api/water/figures/..%2F..%2Fsecret.png").status_code == 404
+      and wc.get("/api/water/data/reservoir_area.png").status_code == 404)
+check("5th case: no reservoir_case.json -> not built, no error", cs.build_reservoir() is None)
+res_lab = {"fr": "r", "en": "r", "ar": "r"}
+reservoir = {**json.loads((case_store.CASES_DIR / "ionosphere-gps.json").read_text(encoding="utf-8")),
+             "id": "bin-el-ouidane-2026", "kind": "method", "status": "final", "placeholders": [],
+             "findings": [{"id": "volume", "label": res_lab, "nisar": {"value": 0.9, "uncertainty": 0.1, "unit": "km2",
+                                                                       "sigma": 1},
+                           "reference": None, "reference_source": None, "agreement": "no_reference"},
+                          {"id": "level", "label": res_lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "m",
+                                                                      "sigma": 1},
+                           "reference": None, "reference_source": None, "agreement": "no_reference"}],
+             "figures": [{"id": "area", "kind": "chart", "title": res_lab, "url": "/api/water/figures/reservoir_area.png",
+                          "caption": {"template": "x", "params": {}}}]}
+(wdir / "reservoir_case.json").write_text(json.dumps(reservoir), encoding="utf-8")
+res5 = cs.build_reservoir()
+check("5th case: built from reservoir_case.json; a value without sigma is left out, so it stays a draft",
+      res5["id"] == "bin-el-ouidane-2026" and [f["id"] for f in res5["findings"]] == ["volume"]
+      and res5["status"] == "draft" and any("not computed" in x["text"]["en"] for x in res5["limits"]),
+      res5["placeholders"])
+(wdir / "reservoir_case.json").write_text(json.dumps({**reservoir, "figures": [
+    {**reservoir["figures"][0], "url": "/etc/passwd"}]}), encoding="utf-8")
+check("5th case: a figure url outside /api/water or /api/cases stops the build",
+      raises(cs.build_reservoir, cs.CaseInputError))
+(wdir / "reservoir_case.json").unlink()
+(wdir / "haouz_open_water.json").write_text(json.dumps({
+    "findings": [{"id": "change_km2", "label": res_lab, "nisar": {"value": 0.02, "uncertainty": 0.05, "unit": "km2",
+                                                                  "sigma": 1},
+                  "reference": None, "reference_source": None, "agreement": "no_reference"}],
+    "figures": [{"id": "unet_water", "kind": "chart", "title": res_lab, "url": "/api/water/figures/reservoir_area.png",
+                 "caption": {"template": "x", "params": {}}}]}), encoding="utf-8")
+hz_ow = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+ow = [f for f in hz_ow["findings"] if f["id"].startswith("open_water")]
+check("haouz: U-Net open water added as 'Persistent open water (U-Net)'; the headline does not change",
+      len(ow) == 1 and ow[0]["label"]["en"] == "Persistent open water (U-Net)"
+      and any(f["id"] == "unet_water" for f in hz_ow["figures"]) and hz_ow["headline"] == hz2["headline"],
+      [f["id"] for f in hz_ow["findings"]])
+(wdir / "haouz_open_water.json").unlink()
 
 # --- no 0.0 for a missing value ---------------------------------------------------------------------------------
 kept, nc_lim, nc_ph = cs.split_computed([mw_finding, {**mw_finding, "id": "slip",

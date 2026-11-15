@@ -26,7 +26,7 @@ import discoveries
 import events
 import watch
 from config import CACHE_DIR, LOS_SIGN
-from science import case_store
+from science import case_store, water
 
 router = APIRouter(prefix="/api")
 STORE = CACHE_DIR / "answers_v2"
@@ -808,6 +808,15 @@ def get_case(cid: str):
         return api_error("case_not_found", 404, "Cas d'étude introuvable.", "Case study not found.",
                          "دراسة الحالة غير موجودة.")
     return case_store.to_json(case)
+
+
+@router.get("/water/{kind}/{name}")
+def get_water_file(kind: str, name: str):
+    """Youkaoui's water rasters and figures (backend/water/outputs/rasters|figures), same checks as case figures."""
+    path = water.water_path(kind, name)
+    if path is None:
+        return api_error("figure_not_found", 404, "Figure introuvable.", "Figure not found.", "الشكل غير موجود.")
+    return FileResponse(path, media_type=case_store.MEDIA[path.suffix.lower().lstrip(".")])
 
 
 @router.get("/cases/{cid}/figures/{name}")

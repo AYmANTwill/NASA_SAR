@@ -16,7 +16,7 @@ const Lang3 = z.object({ fr: z.string().min(1), en: z.string().min(1), ar: z.str
 const isoUtc = z.string().datetime({ offset: true });
 const Source = z.object({ name: z.string().min(1), url: z.string().url() });
 
-export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps"]);
+export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps", "bin-el-ouidane-2026"]);
 export const CaseKind = z.enum(["earthquake", "flood", "method"]);
 export const CaseStatus = z.enum(["draft", "final"]);
 export const CaseAgreement = z.enum(["agree", "partial", "disagree", "no_reference"]);

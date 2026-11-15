@@ -15,8 +15,9 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer, model_validator
 
 CASE_KIND = {"panama-2026": "earthquake", "venezuela-2026": "earthquake",
-             "haouz-flood-2026": "flood", "ionosphere-gps": "method"}
-CaseId = Literal["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps"]
+             "haouz-flood-2026": "flood", "ionosphere-gps": "method",
+             "bin-el-ouidane-2026": "method"}
+CaseId = Literal["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps", "bin-el-ouidane-2026"]
 CaseKind = Literal["earthquake", "flood", "method"]
 Status = Literal["draft", "final"]
 AgreementLabel = Literal["agree", "partial", "disagree", "no_reference"]

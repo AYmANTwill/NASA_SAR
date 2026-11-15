@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ValidationError
 
-from science import case_layers, haouz_case, iono_chart, provenance, usgs
+from science import case_layers, haouz_case, iono_chart, provenance, usgs, water
 from science.case_models import CaseStudy, Figure, Finding, TemplatedText
 from science.case_store import CASES_DIR, FIGURE_NAME
 
@@ -411,9 +411,15 @@ def build_flood(case_id: str, results: Path, offline: bool) -> dict:
         missing.append(f"results/{case_id}/findings.json: no 'bbox' and no product to derive it")
     limits = (list(limits) + not_computed + haouz_case.not_a_flood_map_limits(info)
               + provenance.product_limits(products, info["crids"]))
-    parts = {"title": haouz_case.TITLE, "findings": findings or None, "figures": figures, "exposure": None,
+    head = haouz_case.headline(findings, info)          # the U-Net open water does not change the headline
+    try:
+        ow_findings, ow_figures = water.haouz_open_water()
+    except water.WaterInputError as exc:
+        raise CaseInputError(str(exc)) from exc
+    parts = {"title": haouz_case.TITLE, "findings": (findings + ow_findings) or None,
+             "figures": figures + ow_figures, "exposure": None,
              "limits": limits, "date": raw.get("date"), "timeline": tl or None,
-             "headline": haouz_case.headline(findings, info),
+             "headline": head,
              "location": {**base["location"], "bbox": bbox} if bbox else None}
     return finalize(base, parts, missing + m1 + m5)
 
@@ -498,12 +504,35 @@ def build_iono(results: Path, offline: bool) -> dict:
     return finalize(base, parts, missing + m1 + m4 + m5)
 
 
+def build_reservoir() -> dict | None:
+    """The 5th case from backend/water/outputs/reservoir_case.json (Youkaoui), None when absent. The no-0.0 rule
+    applies; it is final only if its file says so and nothing had to be left out."""
+    try:
+        data = water.reservoir_case()
+    except water.WaterInputError as exc:
+        raise CaseInputError(str(exc)) from exc
+    if data is None:
+        return None
+    findings, nc_limits, nc_missing = split_computed(data.get("findings", []))
+    placeholders = sorted(set(data.get("placeholders", [])) | set(nc_missing))
+    status = "final" if data.get("status") == "final" and not placeholders and findings else "draft"
+    case = {**data, "findings": findings, "limits": list(data.get("limits", [])) + nc_limits,
+            "placeholders": placeholders, "status": status}
+    try:
+        return CaseStudy.model_validate(case).model_dump(mode="json")
+    except ValidationError as exc:
+        raise CaseInputError(f"{water.RESERVOIR_ID}: the assembled case breaks the contract: {exc}") from exc
+
+
 def build_all(results: Path = RESULTS, venezuela_event: str | None = None, offline: bool = False,
               write: bool = True) -> dict[str, dict]:
     built = {"panama-2026": build_quake("panama-2026", results, EVENTS["panama-2026"], offline),
              "venezuela-2026": build_quake("venezuela-2026", results, venezuela_event, offline),
              "haouz-flood-2026": build_flood("haouz-flood-2026", results, offline),
              "ionosphere-gps": build_iono(results, offline)}
+    reservoir = build_reservoir()
+    if reservoir is not None:                   # absent: the 5th case is not served
+        built[water.RESERVOIR_ID] = reservoir
     if write:
         for cid, case in built.items():
             (CASES_DIR / f"{cid}.json").write_text(json.dumps(case, ensure_ascii=False, indent=1), encoding="utf-8")
