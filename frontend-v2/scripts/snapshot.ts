@@ -106,7 +106,14 @@ if (problems.length > 0) {
 writeFileSync(join(TMP, "snapshot.json"), JSON.stringify(snapshot, null, 1) + "\n");
 // Only now is the previous snapshot replaced.
 if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
-renameSync(TMP, OUT);
+// Windows scanners/watchers can briefly retain a handle after the last image is written.
+for (let attempt = 0; ; attempt++) {
+  try { renameSync(TMP, OUT); break; }
+  catch (error) {
+    if (attempt >= 5 || !["EPERM", "EBUSY", "EACCES"].includes((error as NodeJS.ErrnoException).code ?? "")) throw error;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+}
 
 const drafts = draftCases(snapshot);
 console.log(`\nsnapshot written: ${Object.keys(snapshot.responses).length} responses, ${snapshot.files.length} files`);

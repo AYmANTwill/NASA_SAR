@@ -68,7 +68,8 @@
   },
   "cases": {
     "lede": "Des événements où NISAR a mesuré le sol, comparés quand c’est possible à une référence indépendante.",
-    "draftNote": "Les cas marqués « Brouillon » sont incomplets et ne doivent pas être présentés comme des résultats finaux."
+    "draftNote": "Les cas marqués « Brouillon » sont incomplets et ne doivent pas être présentés comme des résultats finaux.",
+    "openReady": "Ouvrir le cas finalisé"
   },
   "caseKind": {
     "earthquake": "Séisme",
@@ -118,7 +119,8 @@
     "limits": "Ce que le radar ne peut pas dire ici",
     "sources": "Sources",
     "sourcesNone": "Aucune source externe pour l’instant",
-    "linkedAnswers": "Réponses de l’enquêteur liées"
+    "linkedAnswers": "Réponses de l’enquêteur liées",
+    "panamaPendingMagnitude": "Aucune magnitude validée n’est disponible. Les figures et les limites ci-dessous permettent d’examiner l’analyse."
   },
   "timelineKind": {
     "event": "Événement",
@@ -129,7 +131,11 @@
   "waterLayer": {
     "water_before": "Eau avant",
     "water_after": "Eau après",
-    "water_change": "Changement de l’eau"
+    "water_change": "Changement de l’eau",
+    "optical_before": "Image optique avant",
+    "optical_after": "Image optique après",
+    "opticalBackground": "Fond optique de la date correspondante",
+    "backgroundUnavailable": "Le fond optique est indisponible. La couche radar reste accessible."
   },
   "unit": {
     "mm": "mm",

@@ -24,12 +24,12 @@
   }
  },
  "headline": {
-  "template": "backend.case_draft",
+  "template": "backend.case_in_progress",
   "params": {},
   "text": {
-   "fr": "[BROUILLON] Déplacement NISAR comparé au traitement indépendant de l'UCSD : en cours.",
-   "en": "[DRAFT] NISAR displacement compared with UCSD's independent processing: in progress.",
-   "ar": "[مسودة] مقارنة إزاحة NISAR بالمعالجة المستقلة لجامعة UCSD: قيد الإنجاز."
+   "fr": "En cours : aucune mesure de cette étude n'est encore calculée.",
+   "en": "In progress: no measurement of this case is computed yet.",
+   "ar": "قيد الإنجاز: لم يُحسب أي قياس لهذه الدراسة بعد."
   }
  },
  "findings": [],
@@ -58,11 +58,14 @@
   }
  ],
  "placeholders": [
-  "date (day only, origin time from USGS to come)",
-  "findings: not computed yet",
-  "headline",
-  "limits",
-  "location.bbox",
-  "timeline[0].at"
+  "USGS event id not set: no date, timeline or map",
+  "exposure: cases/out/venezuela-2026_exposure.json not available",
+  "figures: no map with a layer",
+  "headline: no finding to report",
+  "limits: none computed",
+  "location.bbox: no co-seismic NISAR pair",
+  "results/venezuela-2026/findings.json not available",
+  "timeline: empty",
+  "timeline: no NISAR product"
  ]
 }

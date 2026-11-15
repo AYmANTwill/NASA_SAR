@@ -43,7 +43,8 @@ self.addEventListener('fetch', event => {
       return response;
     }).catch(async () => {
       const saved = await caches.match(request, {ignoreVary:true});
-      if (!saved || Date.now() - Number(saved.headers.get('X-Nisar-Saved-At') || 0) > 7*24*60*60*1000) return new Response('', {status:503, headers:{'X-Nisar-Offline':'1'}});
+      const bundled = PRECACHE.includes(url.pathname);
+      if (!saved || (!bundled && Date.now() - Number(saved.headers.get('X-Nisar-Saved-At') || 0) > 7*24*60*60*1000)) return new Response('', {status:503, headers:{'X-Nisar-Offline':'1'}});
       const headers = new Headers(saved.headers); headers.set('X-Nisar-Cached','1');
       return new Response(saved.body, {status:saved.status, headers});
     }));

@@ -49,6 +49,29 @@ finding is absent. Haouz `open_water_change` explicitly reads "no clear change i
 
 ## Offline demo
 
+### MVP with the published results
+
+`main` includes Anass's Haouz indicators, Panama sign/inversion checks and a preliminary ionosphere noise report.
+Assemble their API case files without rerunning the scientific processing, from the repository root:
+
+```powershell
+.venv/Scripts/python.exe tools/prepare_frontend_mvp.py --panama-preview
+```
+
+The Panama preview is the documented **+1 sensitivity run**, which is unstable and supplies no magnitude finding.
+Its figure is exploratory; Anass's inconclusive sign decision and limitations remain visible. The script preserves
+any different existing inversion input. Haouz findings retain their API labels, including the distinction between
+the null-distribution spread and measurement error. Missing raw products, GPS and exposure keep the affected
+cases in draft. They must not be promoted to final to make a jury build pass.
+
+The water v3 index supplies optical backgrounds and water overlays with explicit roles. Selecting before/after
+uses the matching optical date under the radar image; change uses its period end. The background can be hidden.
+Older three-image indexes and unavailable optional endpoints still work. The held-out model score remains read
+from `heldout_iou`; the separate unseen-reservoir metric retains its API label and uncertainty.
+
+For the current draft-labelled standalone MVP, use `npm run snapshot`, `npm run build:rehearsal`, then
+`npm run preview:rehearsal` (port 4312). `npm run build:demo` continues to refuse the four draft cases.
+
 The normal production build (`npm run build`, then `npm run preview`) also retains its app shell, validated
 responses and images for reports already opened. Demo answers are prepared automatically from `/api/demo`.
 Saved API responses and report images expire after a week; health and write actions are never replayed. On a

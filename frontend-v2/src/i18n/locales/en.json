@@ -68,7 +68,8 @@
   },
   "cases": {
     "lede": "Events where NISAR measured the ground, compared with an independent reference where one exists.",
-    "draftNote": "Cases marked “Draft” are incomplete and must not be presented as final results."
+    "draftNote": "Cases marked “Draft” are incomplete and must not be presented as final results.",
+    "openReady": "Open the completed case"
   },
   "caseKind": {
     "earthquake": "Earthquake",
@@ -118,7 +119,8 @@
     "limits": "What the radar cannot tell here",
     "sources": "Sources",
     "sourcesNone": "No external source yet",
-    "linkedAnswers": "Linked investigator answers"
+    "linkedAnswers": "Linked investigator answers",
+    "panamaPendingMagnitude": "No validated magnitude is available. The figures and limitations below let you examine the analysis."
   },
   "timelineKind": {
     "event": "Event",
@@ -129,7 +131,11 @@
   "waterLayer": {
     "water_before": "Water before",
     "water_after": "Water after",
-    "water_change": "Water change"
+    "water_change": "Water change",
+    "optical_before": "Optical image before",
+    "optical_after": "Optical image after",
+    "opticalBackground": "Optical background for the matching date",
+    "backgroundUnavailable": "The optical background is unavailable. The radar layer remains accessible."
   },
   "unit": {
     "mm": "mm",

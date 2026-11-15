@@ -27,6 +27,7 @@ export interface RadarMapProps {
   opacity?: number;
   resetKey?: number;
   activity?: boolean;
+  background?: Pick<RasterLayer, "url" | "bounds">;
 }
 
 const RASTER_OPACITY = 0.88;
@@ -59,7 +60,7 @@ function areaFeature(b: Bounds): GeoJSON.Feature {
  * canonical palette, placed at its bounds). North up and left to right in
  * every language. Keyboard: arrows pan, + / - zoom (MapLibre).
  */
-export default function RadarMap({ frame, point, layer, label, onPick, showArea = true, markers = [], earthquakes = [], opacity = RASTER_OPACITY, resetKey = 0, activity = false }: RadarMapProps) {
+export default function RadarMap({ frame, point, layer, background, label, onPick, showArea = true, markers = [], earthquakes = [], opacity = RASTER_OPACITY, resetKey = 0, activity = false }: RadarMapProps) {
   const { t, lang } = useText();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
@@ -67,6 +68,7 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
   pick.current = onPick;
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<"webgl" | "image" | null>(null);
+  const [backgroundFailed, setBackgroundFailed] = useState(false);
   const markerRefs = useRef<maplibregl.Marker[]>([]);
   const currentFrame = useRef(frame);
   currentFrame.current = frame;
@@ -109,6 +111,7 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
         });
         m.on("error", (event) => {
           if ((event as { sourceId?: string }).sourceId === "radar") setFailure("image");
+          if ((event as { sourceId?: string }).sourceId === "optical") setBackgroundFailed(true);
         });
         m.on("click", (event) => pick.current?.({ lat: event.lngLat.lat, lon: event.lngLat.lng }));
         m.getCanvas().addEventListener("keydown", (event) => {
@@ -188,6 +191,20 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
     if (resetKey && ready) map.current?.fitBounds(toLngLat(frame), { padding: framePadding.current, duration: 0 });
   }, [resetKey, ready, frame]);
 
+  // The API's optical background is below water, with its own bounds and no inferred scientific palette.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
+    if (m.getLayer("optical")) m.removeLayer("optical");
+    if (m.getSource("optical")) m.removeSource("optical");
+    setBackgroundFailed(false);
+    if (!background) return;
+    const [w, s, e, n] = background.bounds;
+    container.current?.setAttribute("data-idle", "false");
+    m.addSource("optical", { type: "image", url: background.url, coordinates: [[w, n], [e, n], [e, s], [w, s]] });
+    m.addLayer({ id: "optical", type: "raster", source: "optical", paint: { "raster-opacity": 1, "raster-fade-duration": 0 } }, m.getLayer("radar") ? "radar" : "area");
+  }, [background, ready]);
+
   // The radar raster.
   useEffect(() => {
     const m = map.current;
@@ -214,11 +231,12 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
   }, [layer, ready]);
 
   return (
-    <div className="radar-map" role="region" aria-label={label}>
+    <div className="radar-map" role="region" aria-label={label} data-background={background?.url ?? ""}>
       <div ref={container} className="radar-map-canvas" />
       {activity && <span className="map-sweep is-scanning" aria-hidden="true" />}
       {!activity && layer && ready && <span key={layer.url} className="map-sweep" aria-hidden="true" />}
       {failure === "webgl" && <p className="radar-map-failure">{t("map.noWebgl")}</p>}
+      {backgroundFailed && <p className="radar-map-failure" role="status">{t("waterLayer.backgroundUnavailable")}</p>}
       {failure === "image" && (
         <p className="radar-map-failure" role="alert">
           {t("map.imageFailed")}

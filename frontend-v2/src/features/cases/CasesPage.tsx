@@ -25,6 +25,7 @@ export function CasesPage() {
       <QueryView query={cases}>
         {(list) => (
           <>
+            <ReadyCase list={list} />
             {list.some((c) => c.status === "draft") && (
               <p className="cases-draft-note" role="note">
                 {t("cases.draftNote")}
@@ -36,6 +37,12 @@ export function CasesPage() {
       </QueryView>
     </section>
   );
+}
+
+function ReadyCase({ list }: { list: CaseSummary[] }) {
+  const { t, lang, localized } = useText();
+  const ready = list.find((study) => study.status === "final");
+  return ready ? <p className="cases-ready"><Link className="button button-primary" to={`/${lang}/cases/${ready.id}`}>{t("cases.openReady")}</Link><span>{localized(ready.title)}</span></p> : null;
 }
 
 /** Older APIs need a case read for the map extent or place. Complete summaries stand alone. */

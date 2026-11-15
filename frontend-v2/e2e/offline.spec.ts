@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 import { requireBackend, waitForMap } from "./backend";
 
 test.beforeEach(requireBackend);
-test("production app reloads a visited case, its images and a prepared answer without a network", async ({ page, context }) => {
+test("production app reloads a visited case, its images and a prepared answer without a network", async ({ page, context, request }) => {
+  const index = await (await request.get("/api/water/raster-index")).json() as { layers: unknown[] };
   await page.goto("/en/cases/bin-el-ouidane-2026");
   await waitForMap(page);
   await expect(page.locator(".figure-open")).toHaveCount(4);
@@ -17,7 +18,7 @@ test("production app reloads a visited case, its images and a prepared answer wi
     const requests = await cache.keys();
     return { figures: requests.filter((request) => request.url.includes("/api/water/figures/")).length,
       rasters: requests.filter((request) => request.url.includes("/api/water/rasters/")).length };
-  })).toEqual({ figures: 4, rasters: 3 });
+  })).toEqual({ figures: 4, rasters: index.layers.length });
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Bin El Ouidane");

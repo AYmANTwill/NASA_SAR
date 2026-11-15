@@ -10,6 +10,15 @@ const BASE = "http://test/api";
 const PATH = "/water/raster-index";
 
 describe("optional water images", () => {
+  it("accepts the live v3 backgrounds and keeps their API roles, dates and bounds", () => {
+    const raw = recorded("water-raster-index-v3.json").body;
+    const index = WaterRasterIndex.parse(raw);
+    const backgrounds = index.layers.filter((layer) => layer.role === "background");
+    expect(backgrounds.map((layer) => layer.id)).toEqual(["optical_before", "optical_after"]);
+    expect(index.layers.filter((layer) => layer.role === "overlay").map((layer) => layer.id)).toEqual(["water_before", "water_after", "water_change"]);
+    expect(backgrounds.every((layer) => layer.date && layer.url.startsWith("/api/water/rasters/") && !("palette" in layer))).toBe(true);
+  });
+
   it("reads the recorded live PNGs without turning package legends into RasterLayer palettes", async () => {
     const rec = recorded("water-raster-index.json");
     const { fetcher } = recordedFetch({ [BASE + PATH]: rec });

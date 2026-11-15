@@ -25,6 +25,8 @@
 .cases-intro h1 { font-size: clamp(2rem, 3.4vw, 3.2rem); line-height: 1.08; letter-spacing: -.035em; font-weight: 600; max-inline-size: 24ch; }
 .page-lede { max-inline-size: 62ch; font-size: 1.1rem; line-height: 1.65; }
 .cases-draft-note { border: 0; border-inline-start: 3px solid var(--ink-2); border-radius: 0 .3rem .3rem 0; background: var(--sheet); font-size: .85rem; }
+.cases-ready { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem; max-inline-size: none; }
+.cases-ready span { color: var(--ink-2); }
 .case-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
 .case-grid > li { min-inline-size: 0; }
 .case-card { grid-template-columns: minmax(0, 1fr); border: 1px solid var(--rule); border-radius: .6rem; overflow: hidden; transition: border-color 160ms; }
@@ -39,7 +41,9 @@
 .case-card-meta { gap: .4rem 1rem; }
 .case-layout { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 .case-header h1 { max-inline-size: 35ch; font-size: clamp(1.8rem, 2.8vw, 2.8rem); font-weight: 600; letter-spacing: -.025em; }
-.ledger { border: 1px solid var(--rule); border-radius: .6rem; padding: 1.5rem; }
+.ledger { min-inline-size: 0; grid-template-columns: minmax(0, 1fr); border: 1px solid var(--rule); border-radius: .6rem; padding: 1.5rem; overflow-wrap: anywhere; }
+.ledger-section, .figure, .figure-list, .map-panel-side { min-inline-size: 0; }
+.source-line, .figure figcaption, .map-caption { overflow-wrap: anywhere; }
 .map-panel, .pass-timeline, .ask-form, .steps-panel, .watch-card, .library-card, .status-block { border-radius: .6rem; overflow: hidden; }
 .limits { border-radius: .4rem; padding: 1.1rem; background: var(--paper); }
 .limits h2 { font-size: 1.1rem; }

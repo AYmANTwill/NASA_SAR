@@ -24,35 +24,84 @@
   }
  },
  "headline": {
-  "template": "backend.case_draft",
+  "template": "backend.case_in_progress",
   "params": {},
   "text": {
-   "fr": "[BROUILLON] Écart NISAR–GPS avant et après correction ionosphérique : en cours.",
-   "en": "[DRAFT] NISAR–GPS misfit before and after the ionospheric correction: in progress.",
-   "ar": "[مسودة] الفرق بين NISAR وGPS قبل تصحيح الأيونوسفير وبعده: قيد الإنجاز."
+   "fr": "En cours : aucune mesure de cette étude n'est encore calculée.",
+   "en": "In progress: no measurement of this case is computed yet.",
+   "ar": "قيد الإنجاز: لم يُحسب أي قياس لهذه الدراسة بعد."
   }
  },
  "findings": [],
- "figures": [],
+ "figures": [
+  {
+   "id": "iono_noise_pairs",
+   "kind": "chart",
+   "title": {
+    "fr": "Bruit des paires avant / après la correction ionosphérique",
+    "en": "Noise of the pairs before / after the ionospheric correction",
+    "ar": "ضوضاء الأزواج قبل التصحيح الأيونوسفيري وبعده"
+   },
+   "url": "/api/cases/ionosphere-gps/figures/iono_noise_pairs.png",
+   "caption": {
+    "template": "backend.iono_chart_caption",
+    "params": {
+     "n_pairs": 11,
+     "n_lower": 10,
+     "n_plus_higher": 10,
+     "n_left_out": 1,
+     "median_raw": {
+      "value": 6.36,
+      "uncertainty": 0,
+      "unit": "cm",
+      "sigma": 1
+     },
+     "median_after": {
+      "value": 2.62,
+      "uncertainty": 0,
+      "unit": "cm",
+      "sigma": 1
+     }
+    },
+    "text": {
+     "fr": "Écart de la phase déroulée sur la scène, 11 paires NISAR : médiane 6.36 cm brute, 2.62 cm après correction ionosphérique ; plus faible sur 10/11 paires. Avec le signe opposé, l'écart augmente sur 10/11 paires (contrôle du signe). 1 paire(s) écartée(s) (écart brut nul). Source : noise_with_without_iono_preliminary.csv.",
+     "en": "Spread of the unwrapped phase over the frame, 11 NISAR pairs: median 6.36 cm raw, 2.62 cm after the ionospheric correction; lower on 10/11 pairs. With the opposite sign the spread rises on 10/11 pairs (sign check). 1 pair(s) left out (zero raw spread). Source: noise_with_without_iono_preliminary.csv.",
+     "ar": "تشتت الطور المفكوك على المشهد، 11 أزواج NISAR: الوسيط 6.36 سم خام و2.62 سم بعد التصحيح الأيونوسفيري؛ أقل في 10/11 أزواج. مع الإشارة المعاكسة يزداد التشتت في 10/11 أزواج (فحص الإشارة). استُبعد 1 زوج (تشتت خام معدوم). المصدر: noise_with_without_iono_preliminary.csv."
+    }
+   }
+  }
+ ],
  "exposure": null,
  "timeline": [],
  "answer_ids": [],
  "limits": [
   {
-   "template": "backend.case_draft_limit",
+   "template": "backend.case_limit",
    "params": {},
    "text": {
-    "fr": "Brouillon : pas encore calculé (Écart quadratique NISAR–GPS sans correction, Écart quadratique NISAR–GPS avec correction).",
-    "en": "Draft: not computed yet (NISAR–GPS RMS, uncorrected, NISAR–GPS RMS, corrected).",
-    "ar": "مسودة: لم يُحسب بعد (جذر متوسط مربع الفرق NISAR–GPS دون تصحيح, جذر متوسط مربع الفرق NISAR–GPS بعد التصحيح)."
+    "fr": "Écart quadratique groupé sur toutes les stations ; incertitude = RMS/√(2n).",
+    "en": "RMS pooled over all stations; uncertainty = RMS/√(2n).",
+    "ar": "جذر متوسط المربعات مجمّع على كل المحطات؛ الشك = RMS/√(2n)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Graphique du bruit issu d'un calcul préliminaire (noise_with_without_iono_preliminary.csv).",
+    "en": "Noise chart from a preliminary run (noise_with_without_iono_preliminary.csv).",
+    "ar": "مخطط الضوضاء من حساب أولي (noise_with_without_iono_preliminary.csv)."
    }
   }
  ],
  "placeholders": [
-  "date (period of the GPS comparison to come)",
-  "findings: not computed yet",
-  "headline",
-  "limits",
-  "location"
+  "date: no NISAR-GPS pair",
+  "figures: no map with a layer",
+  "headline: no finding to report",
+  "location: no GPS station report",
+  "results/gps/gps_iono/ not available",
+  "results/gps/gps_none/ not available",
+  "timeline: empty",
+  "timeline: no NISAR product"
  ]
 }

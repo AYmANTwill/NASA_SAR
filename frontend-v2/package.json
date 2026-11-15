@@ -19,6 +19,7 @@
     "build:rehearsal": "vite-node scripts/check-demo.ts -- --allow-drafts && tsc --noEmit && vite build --mode rehearsal",
     "preview:demo": "vite preview --mode demo --host 127.0.0.1 --port 4311 --strictPort",
     "preview:rehearsal": "vite preview --mode rehearsal --host 127.0.0.1 --port 4312 --strictPort",
+    "package:mvp": "node scripts/package-mvp.mjs",
     "check:links": "vite-node scripts/check-links.ts",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
