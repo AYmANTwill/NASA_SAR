@@ -22,11 +22,18 @@ import numpy as np
 import pandas as pd
 
 from common import OUTPUTS, append_results
+from evaluate import method_threshold
 
 N_BOOT = 1000
 SEED = 0
 MIN_DSWX_VALID = 0.95
 UNET = ["U-Net source-only", "U-Net + per-scene norm", "U-Net + AdaBN", "U-Net + AdaBN + per-scene norm"]
+# The NISAR fine-tune is a candidate only when a run is active (evaluate.ft_run). v2 on 2026-11-15 won the track-44 selection and
+# the held-out IoU (0.934 vs 0.763) but reported +0.50 km2 for the case pair where DSWx gives -1.98 (track-44 bias),
+# so the shipped products keep the current variant (finetune/v2/, WATER_UNET.md).
+from evaluate import FT_V2, ft_run  # noqa: E402
+if ft_run():
+    UNET.append(FT_V2)
 BASE = ["Otsu (HV dB, per scene)", "Global HV threshold (fit on S1 train VH)"]
 
 
@@ -58,6 +65,10 @@ def main() -> None:
     res, sel_track = chosen["reservoir"], int(chosen["track"])
     thr = json.loads((OUTPUTS / "thresholds.json").read_text())
     e = pd.read_csv(OUTPUTS / "nisar_eval_per_date.csv")
+    from evaluate import ft_train_after
+    until = ft_train_after()
+    if until:  # site-adapted run: its training dates (after `until`) are never evaluated
+        e = e[e["date"].astype(str) <= until]
     c = pd.read_csv(OUTPUTS / "candidate_scenes.csv")
     c = c[(c["reservoir"] == res) & c["usable"]][["date", "track", "dswx_flag"]].rename(columns={"dswx_flag": "cand_flag"})
     assert not c.duplicated(["date", "track"]).any(), "one usable granule per (date, track) expected"
@@ -89,7 +100,7 @@ def main() -> None:
                          "recall_ci95_lo": ci["recall"][0], "recall_ci95_hi": ci["recall"][1],
                          "n_pixels": int(df[[f"tp|{m}", f"fp|{m}", f"fn|{m}"]].sum().sum()),
                          "notes": f"{tag}; {len(df)} dates; 95% CI bootstrap over dates; variant chosen on T{sel_track} only; "
-                                  f"U-Net p>{thr['unet_probability_threshold']} fixed on S1 validation"})
+                                  f"U-Net p>{method_threshold(m) if m in UNET else thr['unet_probability_threshold']}"})
 
     # 3. area bias (model minus DSWx on the same DSWx-valid pixels), correction fitted on selection only
     col = f"area_on_dswx_valid_km2|{best}"
@@ -124,7 +135,10 @@ def main() -> None:
     out = {"reservoir": res, "selection_track": sel_track,
            "heldout_tracks": sorted(held["track"].unique().tolist()),
            "variant_selected_on_selection_track": best, "selection_track_iou_by_variant": sel_scores,
-           "probability_threshold": thr["unet_probability_threshold"], "threshold_source": "Sentinel-1 validation split",
+           "probability_threshold": method_threshold(best),
+           "threshold_source": (f"validation reservoir of the fine-tuning (Al Massira, run {ft_run()})" if best == "U-Net + AdaBN + NISAR fine-tune"
+                                else "Sentinel-1 validation split"),
+           "evaluation_dates_until": until,
            "headline_heldout": metrics[best]["held-out"], "metrics": metrics, "area_bias": bias,
            "excluded_dates": excluded,
            "notes": ["DSWx-HLS is an optical reference within 5 days, not ground truth.",

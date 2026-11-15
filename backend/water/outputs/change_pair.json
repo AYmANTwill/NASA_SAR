@@ -1,8 +1,8 @@
 {
-  "method": "U-Net + AdaBN",
-  "probability_threshold": 0.4,
+  "method": "U-Net + AdaBN + NISAR fine-tune",
+  "probability_threshold": 0.35,
   "threshold_fitted_on": "Sen1Floods11 validation split",
-  "pair_rule": "largest DSWx water-area difference",
+  "pair_rule": "case dates fixed when the case was defined (largest DSWx water-area difference among clean, non-wind track-44 dates, v1 run); not re-chosen when the model changes, because the wind flag depends on the model",
   "mc_passes": 20,
   "pre": {
     "date": "2026-06-17",
@@ -14,8 +14,8 @@
     "tag": "Bin_El_Ouidane_T044A_2026-09-21",
     "dswx_water_km2": 30.8241
   },
-  "gain_km2": 0.45170000000000005,
-  "loss_km2": 2.3632,
-  "water_pre_km2": 35.8793,
-  "water_post_km2": 33.967800000000004
+  "gain_km2": 0.10010000000000001,
+  "loss_km2": 1.9373,
+  "water_pre_km2": 32.326100000000004,
+  "water_post_km2": 30.4889
 }

@@ -1,0 +1,159 @@
+PASS health: products found  — {'GCOV': 2, 'GUNW': 116, 'SME2': 6}
+PASS catalog lists products
+PASS places
+PASS ask sudden_motion: type
+PASS ask sudden_motion: recovers 25 cm up / 15 cm east  — {'east': 14.9, 'up': 24.79, 'geometry_source': 'file'}
+PASS layer PNG served  — /layers/disp_GUNW_T004_F006_20260930_20261012.png
+PASS ask slow_motion: vertical velocity near the -20 mm/yr truth (bump-weighted)  — -18.41
+PASS ask slow_motion: series returned
+PASS ask surface change (earthquake, exact instant): coherence loss found, before and event pairs of the same length  — 0.35
+PASS ask flood: open water found  — 983.0
+PASS ask deforestation: loss found
+PASS ask soil_moisture: series of 6, picks the final soilMoisture grid  — ('science/LSAR/SME2/grids/soilMoisture', 0.3)
+PASS ask in Arabic: Arabic verdict
+PASS ask without data: graceful answer
+PASS ask without location: 400
+PASS event computed
+PASS events listing
+PASS discoveries: finds the Ben Guerir subsidence  — [(7.58954, -80.76962, 8.3, 'cm'), (7.58988, -80.76959, 3.48, 'cm'), (32.27027, -7.92914, -23.94, 'mm/yr'), (34.59711, -5.19793, -10.39, 'mm/yr'), (34.59753, -5.1968, -10.3, 'mm/yr')]
+PASS discoveries: finds Al Wahda
+PASS watch created with next passes  — [{'track': 95, 'frame': 71, 'direction': 'descending', 'next_pass': '2026-11-23'}]
+PASS watch listed
+PASS watch check runs
+PASS watch delete
+PASS next-pass
+PASS mock mode answers
+PASS mock layer served
+PASS classifier trained  — ['stable', 'flooded', 'vegetation_loss']
+PASS classifier f1 > 0.8 on synthetic  — {'stable': 1.0, 'flooded': 1.0, 'vegetation_loss': 1.0}
+PASS classify endpoint  — {'flooded': 983.0, 'vegetation_loss': 478.7}
+PASS precompute script  — discoveries: disabled (Automatic discoveries are disabled: the candidate zones were not physical (several fringes in a single 12-day pair) and are not validated. Set NISAR_DISCOVERIES_ENABLED=1 to run them anyway.)
+PASS router: whole-word keywords in FR/EN/AR ('street' is not 'tree', 'damage' is not 'dam', no keyword = no type)
+PASS unknown question: 200 with a request to rephrase, no type guessed, no alert
+PASS event detection: Panama exact instant; Haouz and dated questions are whole-day events
+PASS catalog.relation: exact instant (ref <= event <= sec straddles)
+PASS catalog.relation: whole-day event: only a pair that starts before the day and ends after it straddles; an acquisition inside the day is ambiguous
+PASS catalog: CRID parsed; maturity provisional / validated / unknown
+PASS /catalog exposes crid and maturity (provisional and validated products both present)
+PASS sudden motion: no pair straddles the event -> no-data answer, no fallback to other pairs  — {'error': 'no NISAR pair straddles the event of 20260505 (day precision); other pairs were not used', 'pairs_before': 0, 'pairs_after': 6, 'ambiguous_pairs': []}
+PASS sudden motion without an event date: asks for the date instead of picking the latest pair
+PASS surface change Haouz: whole-day event; before pair and storm pair share frame, CRID and length (12 d); provisional label; both geometries used  — {'date_before': '20261003', 'loss_at_point': 0.65}
+PASS surface change: a frame that barely covers the point is listed but unusable, and does not vote
+PASS surface change: medium at most (never high), orange alert, layer is the coherence-loss map
+PASS surface change verdict in French, English and Arabic; every number comes from the facts  — {'fr': set(), 'en': set(), 'ar': set()}
+PASS surface change: says it is not damage / depth / cause, in the three languages
+PASS surface change: rain is CONTEXT, never an independent confirmation (status 'context', confidence stays medium)  — {'Open-Meteo': 'context', 'OpenStreetMap': 'unavailable'}
+PASS surface change: a pair with an acquisition on the event day is ambiguous and never used  — ['GUNW_T044_F017_20261003_20261015', 'GUNW_T044_F017_20260921_20261003']
+PASS flood question with no GCOV product: routed to surface change and says so
+PASS surface change without an event date: 'latest' mode says so, no change in synthetic data -> no alert  — 0.01
+PASS surface change pairing: same pair length (coherence decays with the baseline) and same CRID are required
+PASS time series: a connected chain uses its 24-day pairs; cutting the chain is reported, never bridged
+PASS time series: rate withheld under 12 months (365 d), reported from 12 months
+PASS slow motion, 4-month record: cumulative LOS only, no mm/yr, no decomposition, confidence capped, provisional label  — (108, 'low')
+PASS slow motion: provisional (P05023) and validated (P05036) chains are separate series, never mixed
+PASS slow motion with a rate (record >= threshold): rate and vertical component are reported, numbers from facts
+PASS gazetteer: FR / EN / AR aliases resolve to the inventory coordinates; Al Wahda is on the dam
+PASS /health gives a Moroccan default map view
+PASS events library: the five Morocco events, Panama only as a hidden test fixture
+PASS events: Haouz flash flood computed (surface change), Gharb soil moisture computed
+PASS mock: sentences equal the real templates (so the interface mock cannot drift)
+PASS docs/API_CONTRACT.md: surface_change, context status, crid/maturity, event_time documented; no 'damage' type left
+PASS morocco plan: minimal frames cover all sites (44/17, 116/19, 44/18; not 15/19)  — [[116, 19, 'A'], [44, 17, 'A'], [44, 18, 'A']]
+PASS morocco plan: parts equal tiers, one of 1/2/3, tier labels present
+PASS morocco plan filter: no Partial duplicate, nothing above 48 d, no pair that skips an acquisition
+PASS morocco plan filter: 15/19 (not a minimal frame) only appears in SME2
+PASS morocco plan: the 24-day pair across the data gap is kept (tier 2)  — 24
+PASS morocco plan: Al Haouz tier 1 = last pre, straddling and first post pair of 10 Oct  — ['post', 'pre', 'straddle']
+PASS morocco plan: VALIDATED pair kept in its own chain (CRIDs not mixed), tier 1, provisional chain untouched
+PASS nearest_neighbour: a VALIDATED pair is judged against VALIDATED acquisitions only
+PASS morocco plan: SME2 tier 1 (since 20 Sep, sites, one version per date) and tier 3 (rest of the box)  — (20,)
+PASS morocco plan: extra_layers only on GUNW rows, no duplicated file across tiers
+PASS morocco plan: plan_nisar.json untouched by the builder
+PASS download_all --plan: loads the given file; tier plan has parts 1..3 and tier labels
+PASS download_all default plan unchanged: parts 1..5, part 1 is the pilot
+PASS download_all --help lists --plan and --keep-raw
+PASS download_all: build-plan refuses --plan; a missing plan is an error (no automatic rebuild)
+PASS extract default (no extra): exactly the old outputs, no new layer, wrapped coherence skipped  — ['radar_geometry.npz', 'unwrappedInterferogram_HH_coherenceMagnitude.tif', 'unwrappedInterferogram_HH_connectedComponents.tif', 'unwrappedInterferogram_HH_ionospherePhaseScreen.tif', 'unwrappedInterferogram_HH_unwrappedPhase.tif']
+PASS extract extra: ionosphere uncertainty + mask as GeoTIFF, troposphere and tide cubes in the npz, nothing missing  — {'demandees': ['ionospherePhaseScreenUncertainty', 'mask', 'TroposphericPhaseScreen', 'heightAboveEllipsoid', 'xCoordinates', 'yCoordinates', 'projection', 'slantRangeSolidEarthTidesPhase'], 'trouvees': ['TroposphericPhaseScreen', 'heightAboveEllipsoid', 'ionospherePhaseScreenUncertainty', 'mask', 'projection', 'slantRangeSolidEarthTidesPhase', 'xCoordinates', 'yCoordinates'], 'manquantes': []}
+PASS extract extra: a requested layer absent from the file is reported, not silently ignored  — ['slantRangeSolidEarthTidesPhase']
+PASS finish --keep-raw: raw .h5 kept next to the GeoTIFFs, partial file gone, _DONE says raw  — {'kept_bytes': 34370, 'at': '2026-11-14 11:29:33', 'raw': True}
+PASS catalog still indexes a folder holding raw .h5 + extra layers + _extra_layers.json  — GUNW_T044_F017_20260929_20261011
+PASS finish without --keep-raw: raw removed, extra layers off (row has no extra_layers), _DONE as before
+PASS safety net: missing extra layer -> raw .h5 kept WITHOUT --keep-raw, _DONE lists the missing name  — {'kept_bytes': 33857, 'at': '2026-11-14 11:29:34', 'raw': True, 'raw_kept_missing_layers': ['slantRangeSolidEarthTidesPhase']}
+PASS safety net: the warning names the missing layer and the kept raw file
+PASS safety net: all extra layers present and no --keep-raw -> raw deleted, no marker  — {'kept_bytes': 12178, 'at': '2026-11-14 11:29:34'}
+PASS extra_missing: unreadable report -> ["?"]; absent report -> ["?"] if required, [] if not
+PASS safety net: unreadable _extra_layers.json also keeps the raw .h5  — {'kept_bytes': 34370, 'at': '2026-11-14 11:29:34', 'raw': True, 'raw_kept_missing_layers': ['?']}
+PASS free-disk check: --keep-raw adds the raw GUNW size (not SME2, which is kept whole anyway)
+PASS download 416 + Content-Range equal to the partial size: treated as complete, one request, file untouched
+PASS download 416 without Content-Range: treated as complete (finish() will verify)
+PASS download 416 saying a different size: partial dropped, file restarted from zero  — (500, -500)
+PASS download resume still works: 206 appends the missing bytes with a Range header
+PASS list_h5_layers: case-insensitive keyword filter prints path, shape, dtype; no keyword lists everything; bad file fails  — (3, 18)
+PASS npz (extra): the 3 long keys unchanged + 4 axes and the tide cube under short names, nothing else  — ['heightAboveEllipsoid', 'projection', 'science__LSAR__GUNW__metadata__radarGrid__hydrostaticTroposphericPhaseScreen', 'science__LSAR__GUNW__metadata__radarGrid__losUnitVectorX', 'science__LSAR__GUNW__metadata__radarGrid__wetTroposphericPhaseScreen', 'slantRangeSolidEarthTidesPhase', 'xCoordinates', 'yCoordinates']
+PASS npz (extra): axes come from radarGrid (4 values), not from the 8-pixel grid; projection and tide values intact
+PASS _extra_layers.json: the tide cube and the axes are reported found, nothing missing  — {'demandees': ['ionospherePhaseScreenUncertainty', 'mask', 'TroposphericPhaseScreen', 'heightAboveEllipsoid', 'xCoordinates', 'yCoordinates', 'projection', 'slantRangeSolidEarthTidesPhase'], 'trouvees': ['TroposphericPhaseScreen', 'heightAboveEllipsoid', 'ionospherePhaseScreenUncertainty', 'mask', 'projection', 'slantRangeSolidEarthTidesPhase', 'xCoordinates', 'yCoordinates'], 'manquantes': []}
+PASS npz (default, no extra): same keys and values as the legacy selection rule (default extraction unchanged)  — ['science__LSAR__GUNW__metadata__radarGrid__losUnitVectorX']
+PASS rebuild-npz --dry-run: reports what would change and writes nothing
+PASS rebuild-npz: old keys kept with identical values, axes + tide cube added, report and _DONE corrected
+PASS rebuild-npz: the raw .h5 is untouched (same bytes); no temp file left behind
+PASS rebuild-npz: a product that is already up to date is left alone; second run is a no-op
+PASS rebuild-npz: folders without raw .h5 or without _DONE are skipped; an unreadable raw file is an error and its npz is kept
+PASS download_all rebuild-npz CLI: runs offline without a token or a plan; exit code 1 only because of the broken test folder  — 0113T054606_2…
+ignoré : pas de .h5 brut               NISAR_noraw…
+ignoré : pas de _DONE                  NISAR_notdone…
+5 dossier(s) · reconstruits : 0 · erreurs : 1 · (dry-run : rien n'a été écrit)
+
+PASS surface change: nine geometries listed; usable = good, degraded-before, corner-patch, borderline, quiet; not usable = no baseline, edge of the array, never coherent, baseline pair not measurable  — {61: True, 63: False, 65: True, 67: True, 60: True, 62: False, 64: False, 66: True, 68: False}
+PASS surface change: 'not usable: <reason>' names the failing rule and carries no change number  — not usable: the 5 km circle is not covered by valid data
+PASS surface change: when no geometry is usable the recipe returns the error 'not usable: ...' and no number at all  — not usable: no earlier pair of the same length to use as a baseline
+PASS surface change: coverage_5km, baseline and frame-background facts are present and sensible on the good geometry  — {'direction': 'ascending', 'track': 60, 'frame': 31, 'crid': 'P05023', 'pre_pair': 'GUNW_T060_F031_20260921_20261003', 'co_pair': 'GUNW_T060_F031_20261003_20261015', 'coverage_5km': 1.0, 'coherent_before_fraction_5km': 1.0, 'usable': True, 'reason': None, 'loss_at_point': 0.65, 'loss_mean_5km': 0.215, 'changed_km2_5km': 22.12, 'baseline_pair': 'GUNW_T060_F031_20260909_20260921', 'baseline_loss_mean': 0.0, 'baseline_changed_km2': 0.0, 'frame_loss_mean': 0.008, 'frame_frac_changed': 0.0096, 'excess_over_frame': 0.207, 'local_excess': True, 'baseline_unreliable': False, 'pair_coherence_mean': 0.75, 'other_pairs_coherence_median': 0.75, 'n_other_pairs': 4, 'excess_level': 'strong'}
+PASS surface change: local excess = circle mean loss above the frame mean by more than the margin (and not otherwise)
+PASS surface change: baseline unreliable when the before pair is >0.1 below the median of the geometry's other pairs  — (0.55, 0.75)
+PASS surface change: the area is a true 5 km radius circle (a patch in the corner of the old 10x10 km square is not counted)  — (1.7408000000000001, 0.06)
+PASS surface change: the facts reach the Haouz answer (new keys present, old key names unchanged)
+PASS surface change: excess bands use the stated margins; only the strong band sets local_excess  — {60: (0.207, 'strong'), 66: (0.128, 'borderline'), 67: (0.03, 'none')}
+PASS surface change: the limits of the no-event reference are in the facts (one geometry, one season, random circles)  — ['one viewing geometry (044/17)', 'one season (June to September 2026)', 'circles placed at random anywhere in the frame']
+PASS surface change wording, strong band: 'local excess', medium confidence, orange, in FR/EN/AR, no cause or damage claimed
+PASS surface change wording, borderline band: 'just above the no-event level', low confidence, yellow, no cause, FR/EN/AR  — ('low', 'yellow')
+PASS surface change wording, below the margin: 'no clear local change', no alert, FR/EN/AR
+PASS surface change wording: every sentence states the limits of the no-event reference (FR/EN/AR)
+PASS surface change wording: every number of every sentence in every band and language comes from the facts  — [('fr', set()), ('en', set()), ('ar', set()), ('fr', set()), ('en', set()), ('ar', set()), ('fr', set()), ('en', set()), ('ar', set())]
+PASS surface change wording: an unreliable baseline is said in FR/EN/AR and caps confidence at low (yellow, not orange)  — ('low', 'yellow')
+PASS surface change: the loss at the point stays a fact and is not in the sentence
+PASS surface change: a reliable baseline is preferred when choosing the main geometry
+PASS surface change: no usable geometry gives 'not usable: <reason>', no number, no alert, through the whole answer  — No NISAR data downloaded yet can answer this here. not usable: no earlier pair of the same length to use as a baseline
+PASS mock: surface-change facts, confidence, reasons and alert are exactly what assess() gives (the mock cannot drift)
+PASS precompute prints French/Arabic verdicts even when stdout is ascii (exit 0, output is UTF-8)  — on\Python313\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.2.3) or chardet (7.4.3)/charset_normalizer (3.4.0) doesn't match a supported version!
+  warnings.warn(
+
+PASS every entry point that prints reconfigures stdout (precompute.py, train_classifier.py)
+PASS discoveries are disabled by default (config.DISCOVERIES_ENABLED is False)
+PASS discoveries off: the API returns an empty list with a reason, with or without refresh, and never an old cache
+PASS discoveries on: every zone is an 'unvalidated candidate', confidence low, alert yellow (never high, orange or red)  — [('low', 'yellow'), ('low', 'yellow'), ('low', 'yellow')]
+PASS discoveries: fringes = |cm| / 11.92 and the area is reported (a 60 cm block is 3 to 5 fringes after smoothing)  — (3.8, 13.52)
+PASS discoveries: one connected component is detected, and a zone that spans two is flagged
+PASS discoveries: the zone's own geometry is never a second opinion; another geometry that shows it confirms it
+PASS discoveries: a zone of one fringe or more in one pair is flagged as not physical  — ['3.8 fringes in a single pair: not physical for this window', 'no second geometry covers it']
+PASS LOS_SIGN_VERIFIED is False by default (STATUS H4 open)
+PASS sign unverified: sudden motion says 'uncorrected line-of-sight change, sign unverified' (FR/EN/AR), confidence low, no alert  — ('low', 'none')
+PASS sign unverified: ionosphere and troposphere are stated (no screen in the synthetic products -> 'not corrected')
+PASS sign verified (flag on): the old sentence and the normal confidence rules come back  — ('medium', 'orange')
+PASS time series: no data gap crossed and the reference shares the point's component on the synthetic stack
+PASS time series: a pair that starts before and ends after the gap is counted as crossing it  — 3
+PASS Al Wahda sentence: says the chain crosses the data gap, in the three languages, with the pair count from the facts
+PASS reference component: shared -> reference_same_component True; reference in another component -> False, with the share  — (1.0, 0.0)
+PASS reference in another component: said in FR/EN/AR and the confidence is capped at low
+PASS one bridging pair is said in the singular (FR/EN/AR)
+PASS ionosphere screen subtracted: the sentence says so (not validated) in FR/EN/AR; troposphere is never corrected
+PASS soil moisture: the product's own uncertainty layer is read; a large change is outside it, a small one inside  — (0.075, 0.015)
+PASS soil moisture: without an uncertainty layer the 0.028 default is used
+PASS soil moisture: inside the uncertainty -> confidence forced low; outside -> medium; never high, even if rain 'agrees'; no alert
+PASS soil moisture: the sentence says the change is within the product's uncertainty (FR/EN/AR) only when it is
+PASS events: ben-guerir-mine is marked 'not validated' (status, note and title); the others are 'ready'
+PASS events: the computed answer of the mine carries the status too
+PASS mock discoveries: same shape, labelled, never high or orange
+PASS docs: sign_verified, iono_screen, crosses_data_gap, reference_same_component, uncertainty_m3m3, status, discoveries off documented
+PASS plan_nisar.json still byte-identical after all Morocco checks
+
+151/151 checks passed

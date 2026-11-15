@@ -1,0 +1,181 @@
+{
+ "variant": "B",
+ "excluded_ids": [
+  "GUNW_T004_F005_20260930_20261012",
+  "GUNW_T076_F005_20261005_20261017"
+ ],
+ "per_frame": [
+  {
+   "pair": "GUNW_T076_F006_20261005_20261017",
+   "variant_note": "",
+   "geometry": "T76 asce",
+   "track": "T76",
+   "k": 22.542506220084537,
+   "sigma_k": 0.6836016489783735,
+   "k_over_sigma": 32.97608520075073,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T076_F005_20261005_20261017",
+   "variant_note": "",
+   "geometry": "T76 asce",
+   "track": "T76",
+   "k": 0.46462976946974666,
+   "sigma_k": 0.03203617588412957,
+   "k_over_sigma": 14.503284385447516,
+   "verdict": "consistent",
+   "excluded": true
+  },
+  {
+   "pair": "GUNW_T040_F085_20261002_20261014",
+   "variant_note": "",
+   "geometry": "T40 desc",
+   "track": "T40",
+   "k": 0.9968577572091293,
+   "sigma_k": 0.10072384866719428,
+   "k_over_sigma": 9.896938713123316,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T040_F084_20261002_20261014",
+   "variant_note": "",
+   "geometry": "T40 desc",
+   "track": "T40",
+   "k": 59.25958161216091,
+   "sigma_k": 3.8331886079624184,
+   "k_over_sigma": 15.459604958927683,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T004_F005_20260930_20261012",
+   "variant_note": "",
+   "geometry": "T4 asce",
+   "track": "T4",
+   "k": 0.12310539856325559,
+   "sigma_k": 0.04199975420025267,
+   "k_over_sigma": 2.931098072057645,
+   "verdict": "inconclusive",
+   "excluded": true
+  },
+  {
+   "pair": "GUNW_T141_F085_20260927_20261009",
+   "variant_note": "two product variants share this id",
+   "geometry": "T141 desc",
+   "track": "T141",
+   "k": 2.003596135321404,
+   "sigma_k": 0.20666762574731048,
+   "k_over_sigma": 9.694775018953242,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T141_F085_20260927_20261009",
+   "variant_note": "second product variant",
+   "geometry": "T141 desc",
+   "track": "T141",
+   "k": 2.4845314894486488,
+   "sigma_k": 0.22042637511766475,
+   "k_over_sigma": 11.271480049165591,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T141_F084_20260927_20261009",
+   "variant_note": "",
+   "geometry": "T141 desc",
+   "track": "T141",
+   "k": 6.949931912705547,
+   "sigma_k": 0.11241750824322126,
+   "k_over_sigma": 61.82250453078002,
+   "verdict": "consistent",
+   "excluded": false
+  }
+ ],
+ "counts_all": {
+  "n_frames": 8,
+  "n_consistent_frames": 7,
+  "n_flipped_frames": 0,
+  "n_inconclusive_frames": 1,
+  "tracks_consistent": [
+   "T141",
+   "T40",
+   "T76"
+  ],
+  "n_tracks_consistent": 3,
+  "geometries_consistent": [
+   "T141 desc",
+   "T40 desc",
+   "T76 asce"
+  ],
+  "n_geometries_consistent": 3,
+  "n_asc": 1,
+  "n_desc": 2
+ },
+ "counts_kept": {
+  "n_frames": 6,
+  "n_consistent_frames": 6,
+  "n_flipped_frames": 0,
+  "n_inconclusive_frames": 0,
+  "tracks_consistent": [
+   "T141",
+   "T40",
+   "T76"
+  ],
+  "n_tracks_consistent": 3,
+  "geometries_consistent": [
+   "T141 desc",
+   "T40 desc",
+   "T76 asce"
+  ],
+  "n_geometries_consistent": 3,
+  "n_asc": 1,
+  "n_desc": 2
+ },
+ "per_track_kept": {
+  "T141": {
+   "vr_plus1": 0.9872,
+   "vr_minus1": 0.9752,
+   "diff": 0.012
+  },
+  "T40": {
+   "vr_plus1": 0.7596,
+   "vr_minus1": 0.7259,
+   "diff": 0.0336
+  },
+  "T76": {
+   "vr_plus1": 0.671,
+   "vr_minus1": 0.6769,
+   "diff": -0.0059
+  }
+ },
+ "decision_kept": {
+  "decision": "undecided",
+  "ffm_n_k_positive_3sigma": 5,
+  "ffm_n_k_negative_3sigma": 0,
+  "vr_plus1": 0.9599,
+  "vr_minus1": 0.9558,
+  "vr_difference": 0.0041,
+  "best_plane_plus1": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  }
+ },
+ "decision_all": {
+  "decision": "undecided",
+  "vr_plus1": 0.9487,
+  "vr_minus1": 0.9438,
+  "vr_difference": 0.0049,
+  "best_plane_plus1": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  },
+  "ffm_n_k_positive_3sigma": 6,
+  "ffm_n_k_negative_3sigma": 0
+ },
+ "elapsed_s": 931
+}

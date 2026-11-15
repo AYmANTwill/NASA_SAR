@@ -1,0 +1,43 @@
+{
+  "rule": "per track: change between the clean passes nearest each case date (within \u00b15 d); mean over tracks; 1\u03c3 = standard error over tracks; model and DSWx areas on the same DSWx-valid pixels",
+  "case_dates": [
+    "2026-06-17",
+    "2026-09-21"
+  ],
+  "method": "U-Net + AdaBN + NISAR fine-tune",
+  "per_track": [
+    {
+      "track": 44,
+      "pre": "2026-06-17",
+      "post": "2026-09-21",
+      "nisar_km2": -1.7090000000000032,
+      "dswx_km2": -1.9749999999999979
+    },
+    {
+      "track": 95,
+      "pre": "2026-06-20",
+      "post": "2026-09-24",
+      "nisar_km2": -1.6770000000000032,
+      "dswx_km2": -1.9869999999999983
+    },
+    {
+      "track": 116,
+      "pre": "2026-06-22",
+      "post": "2026-09-26",
+      "nisar_km2": -2.100999999999999,
+      "dswx_km2": -1.9640000000000022
+    }
+  ],
+  "nisar": {
+    "value": -1.829,
+    "uncertainty": 0.136,
+    "unit": "km2",
+    "sigma": 1.0
+  },
+  "dswx": {
+    "value": -1.975,
+    "uncertainty": 0.01,
+    "unit": "km2",
+    "sigma": 1.0
+  }
+}

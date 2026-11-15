@@ -1,0 +1,1 @@
+{"reservoir": "Al_Wahda", "osm": "relation/1365068", "osm_name": "Barrage Al Wahda", "osm_bounds": [-5.2015919, 34.5102964, -4.9092203, 34.7090655], "buffer_deg": 0.02, "bbox": [-5.2216, 34.4903, -4.8892, 34.7291], "n_dates": 10, "tracks": [15, 95], "dswx_outliers_removed": 1}

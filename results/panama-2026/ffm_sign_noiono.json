@@ -1,0 +1,117 @@
+{
+ "model": {
+  "strike": 295.0,
+  "dip": 60.0,
+  "rake": -16.0,
+  "length_km": 55.0,
+  "width_km": 33.6,
+  "lat": 7.54,
+  "lon": -80.769,
+  "top_depth_km": 0.0,
+  "source": "USGS finite-fault model us6000u18k"
+ },
+ "los_sign_tested": 1.0,
+ "per_track": {
+  "GUNW_T076_F006_20261005_20261017": {
+   "k": 22.542506220084537,
+   "sigma_k": 0.6836016489783735,
+   "partial_r": 0.6329368737876535,
+   "verdict": "consistent"
+  },
+  "GUNW_T076_F005_20261005_20261017": {
+   "k": 0.46462976946974666,
+   "sigma_k": 0.03203617588412957,
+   "partial_r": 0.35359718480297814,
+   "verdict": "consistent"
+  },
+  "GUNW_T040_F085_20261002_20261014": {
+   "k": 0.9968577572091293,
+   "sigma_k": 0.10072384866719428,
+   "partial_r": 0.24387133364045085,
+   "verdict": "consistent"
+  },
+  "GUNW_T040_F084_20261002_20261014": {
+   "k": 51.67890909750653,
+   "sigma_k": 3.6765998390740204,
+   "partial_r": 0.3298828744468517,
+   "verdict": "consistent"
+  },
+  "GUNW_T004_F005_20260930_20261012": {
+   "k": 0.12310539856325559,
+   "sigma_k": 0.04199975420025267,
+   "partial_r": 0.07733279881483292,
+   "verdict": "inconclusive"
+  },
+  "GUNW_T141_F085_20260927_20261009": {
+   "k": 2.4845314894486488,
+   "sigma_k": 0.22042637511766475,
+   "partial_r": 0.27943512488892713,
+   "verdict": "consistent"
+  },
+  "GUNW_T141_F084_20260927_20261009": {
+   "k": 8.16564327867679,
+   "sigma_k": 0.13804340248356098,
+   "partial_r": 0.8276513003502617,
+   "verdict": "consistent"
+  }
+ },
+ "overall": "consistent",
+ "meaning": "consistent = the current NISAR_LOS_SIGN matches the USGS model; flipped = use the opposite",
+ "pairs": [
+  "GUNW_T076_F006_20261005_20261017",
+  "GUNW_T076_F005_20261005_20261017",
+  "GUNW_T040_F085_20261002_20261014",
+  "GUNW_T040_F084_20261002_20261014",
+  "GUNW_T004_F005_20260930_20261012",
+  "GUNW_T141_F085_20260927_20261009",
+  "GUNW_T141_F085_20260927_20261009",
+  "GUNW_T141_F084_20260927_20261009"
+ ],
+ "n_points": {
+  "GUNW_T076_F006_20261005_20261017": 1631,
+  "GUNW_T076_F005_20261005_20261017": 1476,
+  "GUNW_T040_F085_20261002_20261014": 1553,
+  "GUNW_T040_F084_20261002_20261014": 1622,
+  "GUNW_T004_F005_20260930_20261012": 1432,
+  "GUNW_T141_F085_20260927_20261009": 1507,
+  "GUNW_T141_F084_20260927_20261009": 1613
+ },
+ "notes": {
+  "GUNW_T076_F006_20261005_20261017": [
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ],
+  "GUNW_T076_F005_20261005_20261017": [
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ],
+  "GUNW_T040_F085_20261002_20261014": [
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ],
+  "GUNW_T040_F084_20261002_20261014": [
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ],
+  "GUNW_T004_F005_20260930_20261012": [
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ],
+  "GUNW_T141_F085_20260927_20261009": [
+   "LOS vector: track mean (file)",
+   "4 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ],
+  "GUNW_T141_F084_20260927_20261009": [
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "ionospheric correction NOT applied: unknown"
+  ]
+ },
+ "iono_screen": "noiono"
+}

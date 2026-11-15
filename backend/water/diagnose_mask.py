@@ -141,8 +141,8 @@ def main() -> None:
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch
 
-    earthaccess.login(strategy="environment")
-    fs = earthaccess.get_fsspec_https_session()
+    from common import https_fs
+    fs = https_fs()
     held = json.loads((OUTPUTS / "heldout_eval.json").read_text())
     method, thr = held["variant_selected_on_selection_track"], held["probability_threshold"]
     aoi = json.loads((OUTPUTS / "aoi.json").read_text())

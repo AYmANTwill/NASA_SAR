@@ -1248,6 +1248,26 @@ check("ionosphere rules are pure functions: uncertainty mask threshold, keep-raw
       _corr.uncertainty_mask(_np.array([0.5, 1.5, _np.nan]), 1.0).tolist() == [False, True, False]
       and _corr.uncertainty_mask(None) is None and _corr.keep_raw_phase(1.0, 1.2) and not _corr.keep_raw_phase(1.0, 0.5)
       and _corr.keep_raw_phase(1.0, float("nan")))
+os.environ["NISAR_IONO_GUARD"] = "off"
+_disp._los_cm.cache_clear()
+try:
+    i_off = _disp.los_cm_full(ips[1])[4]["iono"]
+    f_off = _disp.analyze(ips[1], *IS, make_layer=False)
+    try:
+        os.environ["NISAR_IONO_GUARD"] = "maybe"
+        _corr.iono_guard()
+        bad_guard = False
+    except ValueError:
+        bad_guard = True
+finally:
+    os.environ.pop("NISAR_IONO_GUARD", None)
+    _disp._los_cm.cache_clear()
+check("NISAR_IONO_GUARD=off: the screen is subtracted even where it does not lower the sigma (the pair that keeps raw by "
+      "default), the facts record guard 'off' (and 'on' by default), an invalid value fails fast",
+      i_off["applied"] is True and i_off["kept_raw"] is False and i_off["guard"] == "off"
+      and f_off["iono_applied"] is True and f_off["corrections"]["iono"]["guard"] == "off"
+      and ig["guard"] == "on" and ib["guard"] == "on" and ib["kept_raw"] is True and bad_guard
+      and _corr.iono_guard() == "on", (i_off, bad_guard))
 nr_out2 = tmp / "results_out_iono"
 _nr.main(["--out", str(nr_out2), "--match", "T173"])
 nri = json.loads((nr_out2 / "noise_report.json").read_text(encoding="utf-8"))
@@ -1405,6 +1425,13 @@ check("API contract: validation event, correction facts, sign basis, pair qualit
       and all(k in contract3 for k in ("surface_change", "crid", "maturity", "event_time", "iono_screen", "unvalidated candidate")))
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
+
+# --- 7. the vendored water package's own tests (backend/tests/test_water.py, copied as-is) ------------------------
+import subprocess  # noqa: E402
+_tw = subprocess.run([sys.executable, str(ROOT / "tests" / "test_water.py")], cwd=ROOT, capture_output=True,
+                     text=True, encoding="utf-8", errors="replace", env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+check("test_water.py (vendored nisar-water package) passes", _tw.returncode == 0,
+      (_tw.stdout + _tw.stderr).strip().splitlines()[-3:])
 
 n_ok = sum(ok for _, ok in results)
 print(f"\n{n_ok}/{len(results)} checks passed")

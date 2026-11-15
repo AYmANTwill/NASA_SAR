@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from common import BIG_OUT, OUTPUTS
-from evaluate import slug
+from evaluate import method_threshold, slug
 from nisar_search import dswx_acquisitions, sample_browse, search_dswx, utm_box, utm_of
 from output_assets import CREDIT, basemap, decorate, overlay, warp
 from timeseries import best_method
@@ -44,7 +44,7 @@ def main() -> None:
 
     method = best_method()
     prob, _, b = warp(BIG_OUT / f"prob_{slug(method)}_{c['tag']}.tif")
-    thr = json.loads((OUTPUTS / "thresholds.json").read_text())["unet_probability_threshold"]
+    thr = method_threshold(method)
     water = (np.nan_to_num(prob, nan=0) >= thr).astype(np.uint8)
     px = abs((b[2] - b[0]) / prob.shape[1] * 111.32 * np.cos(np.radians((b[1] + b[3]) / 2))
              * (b[3] - b[1]) / prob.shape[0] * 110.57)
@@ -60,13 +60,26 @@ def main() -> None:
                     f"{c['dswx_cloud_max_pct']:.0f}%, valid reservoir pixels {c['dswx_aoi_valid_frac']:.0%}\n"
                     "→ no optical water map", fontsize=9)
     ax[0].legend(handles=[Patch(color="#9a9a9a", label="masked (cloud / no data)")], loc="lower right", fontsize=8)
-    basemap(ax[1], b)
+    bg = basemap(ax[1], b, c["tag"])  # the 07-13 clear acquisition matched to this pass, not the old Esri mosaic
     overlay(ax[1], water, b, {1: (0.15, 0.52, 1.0, 0.7)})
+    # the nearest CLEAR optical water map (matched to this NISAR pass), drawn as a shoreline: the old basemap photo
+    # shows a lower, drought-time lake, so the comparison must be against same-period optical water
+    from matplotlib.lines import Line2D
+    sc = scenes.set_index("tag").loc[c["tag"]]
+    handles = [Patch(color=(0.15, 0.52, 1.0), label="NISAR water (U-Net)")]
+    ref_txt = ""
+    if isinstance(sc.get("dswx_tif"), str) and sc["dswx_tif"]:
+        ref, _, rb = warp(sc["dswx_tif"])
+        ref = np.where(ref == 1, 1.0, 0.0)
+        yy = np.linspace(rb[3], rb[1], ref.shape[0]); xx = np.linspace(rb[0], rb[2], ref.shape[1])
+        ax[1].contour(xx, yy, ref, levels=[0.5], colors=["#ffd400"], linewidths=1.1, zorder=6)
+        handles.append(Line2D([], [], color="#ffd400", lw=1.5, label=f"optical shoreline, nearest clear day ({sc['dswx_date']})"))
+        ref_txt = f"; yellow = OPERA DSWx water edge on {sc['dswx_date']}"
     decorate(ax[1], b, f"NISAR L-band, same day (track {int(c['track'])}): U-Net water {area:.1f} km²")
-    ax[1].legend(handles=[Patch(color=(0.15, 0.52, 1.0), label="NISAR water (U-Net)")], loc="upper left", fontsize=8)
+    ax[1].legend(handles=handles, loc="upper left", fontsize=8)
     fig.suptitle(f"{res.replace('_', ' ')}: clouds stop the optical water map, radar does not", fontsize=12)
-    fig.text(.01, .01, "Basemap: Esri World Imagery · " + CREDIT, fontsize=8)
-    fig.tight_layout(rect=[0, .03, 1, .95])
+    fig.text(.01, .01, f"Background: {bg}, nearest clear day" + ref_txt + " · " + CREDIT, fontsize=7.5)
+    fig.tight_layout(rect=[0, .06, 1, .95])
     fig.savefig(OUTPUTS / "figures" / "clouds.png", dpi=300)
     plt.close(fig)
     (OUTPUTS / "clouds_figure.json").write_text(json.dumps({

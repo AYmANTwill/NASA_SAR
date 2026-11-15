@@ -6,12 +6,15 @@ backend/water/outputs/
   rasters/, figures/      images served at /api/water/rasters/<file> and /api/water/figures/<file>
 
 Every input is optional: absent → the 5th case is not served and Haouz is unchanged, with no error. A file that
-breaks the contract stops the build (never patched silently). The no-0.0 rule applies: a finding without its σ is
+breaks the contract is never patched silently: in production (STRICT false) the 5th case, the Haouz water extras or
+the raster index are skipped with a logged warning, so one bad file never stops the API or the other cases; the tests
+set STRICT (or NISAR_WATER_STRICT=1) and such a file raises. The no-0.0 rule applies: a finding without its σ is
 left out and said in the limits (science.cases.finalize / split_computed).
 """
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -22,6 +25,9 @@ from science.case_store import FIGURE_NAME
 
 WATER_DIR = Path(os.environ.get("NISAR_WATER", Path(__file__).resolve().parents[1] / "water" / "outputs"))
 RESERVOIR_ID = "bin-el-ouidane-2026"
+STRICT = os.environ.get("NISAR_WATER_STRICT", "") == "1"
+BACKGROUND_LAYERS = ("optical_before", "optical_after")     # optical 2026 images drawn under the water layers
+log = logging.getLogger(__name__)
 SERVED = ("rasters", "figures")
 URL_PREFIX = "/api/water/"
 OPEN_WATER_LABEL = {"fr": "Eau libre permanente (U-Net)", "en": "Persistent open water (U-Net)",
@@ -116,13 +122,17 @@ def reservoir_case(water_dir: Path | None = None) -> dict | None:
 
 def raster_index(water_dir: Path | None = None) -> dict | None:
     """outputs/raster_index.json with served layer urls (/api/water/rasters/...), None when absent. The layers are
-    RGBA PNG images in EPSG:4326 with [west, south, east, north] bounds, not RasterLayer (no water palette)."""
+    RGBA PNG images in EPSG:4326 with [west, south, east, north] bounds, not RasterLayer (no water palette). Every
+    layer has a role: "background" for the optical images (drawn under the water, never the default basemap),
+    "overlay" for the water layers, unless the package gives one."""
     path = (water_dir or WATER_DIR) / "raster_index.json"
     data = _read(path)
     if data is None:
         return None
     try:
-        layers = [{**lay, "url": served_url(lay["url"], path.name)} for lay in data.get("layers", [])]
+        layers = [{**lay, "url": served_url(lay["url"], path.name),
+                   "role": lay.get("role") or ("background" if lay["id"] in BACKGROUND_LAYERS else "overlay")}
+                  for lay in data.get("layers", [])]
     except (KeyError, TypeError) as exc:
         raise WaterInputError(f"{path}: {exc}") from exc
     return {**data, "layers": layers}
@@ -150,3 +160,12 @@ def haouz_open_water(water_dir: Path | None = None) -> tuple[list[dict], list[di
     except (ValidationError, KeyError, TypeError) as exc:
         raise WaterInputError(f"{path}: {exc}") from exc
     return findings, figures, limits
+
+
+def skip_or_raise(what: str, exc: Exception, raise_as: type[Exception] | None = None) -> None:
+    """Production: log and skip `what`. STRICT (tests): raise (as `raise_as` when given)."""
+    if STRICT:
+        if raise_as is not None:
+            raise raise_as(str(exc)) from exc
+        raise exc
+    log.warning("water: %s skipped: %s", what, exc)

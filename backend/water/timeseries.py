@@ -24,6 +24,17 @@ MIN_DSWX_VALID = 0.95
 ORBIT_PAIR_DAYS = 3
 
 
+def _train_after():
+    try:
+        from evaluate import ft_train_after
+        return ft_train_after()
+    except Exception:
+        return None
+
+
+TRAIN_AFTER = _train_after()
+
+
 def best_method() -> str:
     """Operational variant = the one chosen on the selection track only (heldout_eval.json).
     Falls back to the best pooled U-Net row only if the held-out protocol has not been run."""
@@ -76,6 +87,8 @@ def main() -> None:
             flags = []
             if pd.notna(drop) and drop > WIND_DROP:
                 flags.append("possible wind effect")
+            if TRAIN_AFTER and str(r["date"]) > TRAIN_AFTER:
+                flags.append("in training (site adaptation)")
             if outlier:
                 flags.append("dswx outlier")
             elif has and not ok:
@@ -96,7 +109,7 @@ def main() -> None:
     ts.to_csv(OUTPUTS / "water_area_timeseries.csv", index=False)
     print(ts.to_string(index=False))
 
-    oc = orbit_consistency(ts)
+    oc = orbit_consistency(ts[~ts["flag"].str.contains("in training")] if TRAIN_AFTER else ts)
     if len(oc):
         oc.to_csv(OUTPUTS / "orbit_consistency.csv", index=False)
         print(oc.to_string(index=False))

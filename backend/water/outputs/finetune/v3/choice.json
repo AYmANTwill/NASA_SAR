@@ -1,0 +1,94 @@
+{
+  "rule": "among variants that beat the start on the validation site: prefer a kept epoch within the bias tolerance, then the lowest |area bias| at the validation-chosen threshold, then the highest IoU",
+  "run": "v3",
+  "n_train_scenes": 151,
+  "n_val_scenes": 14,
+  "test_sites": [
+    "Oued_El_Makhazine"
+  ],
+  "case_dates_in_training_after": null,
+  "chosen_threshold": 0.3,
+  "val_site": "Al_Massira",
+  "train_sites": [
+    "Abdelmoumen",
+    "Al_Wahda",
+    "Allal_El_Fassi",
+    "El_Kansera",
+    "Hassan_Addakhil",
+    "Idriss_1er",
+    "Lalla_Takerkoust",
+    "Mansour_Eddahbi",
+    "Mohammed_V",
+    "Sidi_Mohamed_Ben_Abdellah",
+    "Youssef_Ben_Tachfine"
+  ],
+  "base_method": "U-Net + AdaBN",
+  "base_checkpoint": "unet_s1_adabn_s1norm.pt",
+  "input_norm": "s1",
+  "probability_threshold": 0.4,
+  "variants": [
+    {
+      "variant": "inc",
+      "area_weight": 0.0,
+      "incidence_input": true,
+      "start_val_iou": 0.46919100147961307,
+      "start_val_area_bias_km2": 75.66516428571427,
+      "val_water_km2": 73.18701428571428,
+      "bias_tolerance_km2": 3.6593507142857145,
+      "improved": true,
+      "checkpoint": "unet_ft_v3_inc.pt",
+      "kept_epoch": 12,
+      "kept_within_bias_tol": true,
+      "kept_val_iou": 0.9532539024379507,
+      "kept_val_area_bias_km2": -0.5774928571428571,
+      "val_threshold": 0.3,
+      "val_iou_at_val_threshold": 0.9523757668051175,
+      "val_bias_at_val_threshold": 0.00043571428571428136,
+      "val_grid": {
+        "thr": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7
+        ],
+        "iou": [
+          0.9499418330198108,
+          0.9514258779479184,
+          0.9523757668051175,
+          0.9529566209969352,
+          0.9532539024379507,
+          0.9532419363235094,
+          0.9527344668651713,
+          0.9520944400374547,
+          0.9515163090410672,
+          0.950782977696543,
+          0.9497732753045852
+        ],
+        "bias": [
+          0.7089,
+          0.3297642857142858,
+          0.00043571428571428136,
+          -0.2979928571428572,
+          -0.5774928571428571,
+          -0.8469428571428571,
+          -1.12505,
+          -1.3944285714285716,
+          -1.6461500000000002,
+          -1.900392857142857,
+          -2.1686857142857145
+        ],
+        "water_km2": 73.18701428571428,
+        "epoch": 12
+      }
+    }
+  ],
+  "chosen": "inc",
+  "chosen_checkpoint": "unet_ft_v3_inc.pt"
+}

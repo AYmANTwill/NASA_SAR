@@ -1,0 +1,117 @@
+{
+ "case": "panama-2026",
+ "event": "us6000u18k",
+ "los_sign_env": 1.0,
+ "pairs": [
+  "GUNW_T076_F006_20261005_20261017",
+  "GUNW_T076_F005_20261005_20261017",
+  "GUNW_T040_F085_20261002_20261014",
+  "GUNW_T040_F084_20261002_20261014",
+  "GUNW_T004_F005_20260930_20261012",
+  "GUNW_T141_F085_20260927_20261009",
+  "GUNW_T141_F085_20260927_20261009",
+  "GUNW_T141_F084_20260927_20261009"
+ ],
+ "decision": "undecided",
+ "rule": "+1 accepted only if: USGS finite-fault model k > 0 at > 3 sigma on >= 3 tracks with none significantly < 0; AND variance reduction(+1) - VR(-1) >= 0.1; AND the best plane with +1 is the left-lateral plane 288/66/-17. -1 by the mirrored rule. Otherwise undecided.",
+ "notes": [],
+ "criteria_plus1": {
+  "ffm_k_positive_on_3_tracks_none_negative": true,
+  "inversion_fits_clearly_better": false,
+  "best_plane_is_left_lateral": false
+ },
+ "criteria_minus1": {
+  "ffm_k_negative_on_3_tracks_none_positive": false,
+  "inversion_fits_clearly_better": false,
+  "best_plane_is_left_lateral": true
+ },
+ "ffm": {
+  "model": {
+   "strike": 295.0,
+   "dip": 60.0,
+   "rake": -16.0,
+   "length_km": 55.0,
+   "width_km": 33.6,
+   "lat": 7.54,
+   "lon": -80.769,
+   "top_depth_km": 0.0,
+   "source": "USGS finite-fault model us6000u18k"
+  },
+  "n_tracks": 7,
+  "n_k_positive_3sigma": 6,
+  "n_k_negative_3sigma": 0,
+  "per_track": {
+   "GUNW_T076_F006_20261005_20261017": {
+    "k": 22.542506220084537,
+    "sigma_k": 0.6836016489783735,
+    "k_over_sigma": 32.97608520075073,
+    "partial_r": 0.6329368737876535,
+    "verdict": "consistent"
+   },
+   "GUNW_T076_F005_20261005_20261017": {
+    "k": 0.46462976946974666,
+    "sigma_k": 0.03203617588412957,
+    "k_over_sigma": 14.503284385447516,
+    "partial_r": 0.35359718480297814,
+    "verdict": "consistent"
+   },
+   "GUNW_T040_F085_20261002_20261014": {
+    "k": 0.9968577572091293,
+    "sigma_k": 0.10072384866719428,
+    "k_over_sigma": 9.896938713123316,
+    "partial_r": 0.24387133364045085,
+    "verdict": "consistent"
+   },
+   "GUNW_T040_F084_20261002_20261014": {
+    "k": 51.67890909750653,
+    "sigma_k": 3.6765998390740204,
+    "k_over_sigma": 14.05616911263377,
+    "partial_r": 0.3298828744468517,
+    "verdict": "consistent"
+   },
+   "GUNW_T004_F005_20260930_20261012": {
+    "k": 0.12310539856325559,
+    "sigma_k": 0.04199975420025267,
+    "k_over_sigma": 2.931098072057645,
+    "partial_r": 0.07733279881483292,
+    "verdict": "inconclusive"
+   },
+   "GUNW_T141_F085_20260927_20261009": {
+    "k": 2.4845314894486488,
+    "sigma_k": 0.22042637511766475,
+    "k_over_sigma": 11.271480049165591,
+    "partial_r": 0.27943512488892713,
+    "verdict": "consistent"
+   },
+   "GUNW_T141_F084_20260927_20261009": {
+    "k": 8.16564327867679,
+    "sigma_k": 0.13804340248356098,
+    "k_over_sigma": 59.152723938756886,
+    "partial_r": 0.8276513003502617,
+    "verdict": "consistent"
+   }
+  }
+ },
+ "inversion": {
+  "variance_reduction_plus1": 0.8242644675902168,
+  "variance_reduction_minus1": 0.8175796013289248,
+  "rms_cm_plus1": 24.931833190611645,
+  "rms_cm_minus1": 25.401602875710232,
+  "best_plane_plus1": {
+   "strike": 25.21,
+   "dip": 74.77,
+   "rake": -155.3
+  },
+  "best_plane_minus1": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  }
+ },
+ "expected_plane": {
+  "strike": 288.32,
+  "dip": 66.22,
+  "rake": -16.68
+ },
+ "convention": "+1 = positive toward the satellite (documented NISAR convention)"
+}

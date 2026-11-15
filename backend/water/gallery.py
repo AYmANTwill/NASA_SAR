@@ -2,7 +2,7 @@
 
 Per date (outputs/figures/gallery/<date>_T<track>.png, 110 dpi):
   left  = NISAR HH backscatter (dB) with the U-Net water outline (cyan)
-  right = Esri World Imagery basemap + agreement with OPERA DSWx:
+  right = same-date NISAR HH backscatter + agreement with OPERA DSWx (the Esri mosaic is 2023/2025, not the date):
           white agreement, red miss (DSWx only), orange false alarm (NISAR only); IoU/P/R in title
 Dates whose DSWx is flagged (partial coverage / outlier) or whose model area is wind-flagged are
 still drawn, with the flag in the title, so failures are visible too.
@@ -65,7 +65,7 @@ def main() -> None:
     scenes = scenes.sort_values(["track", "date"])
 
     _, _, b0 = warp(BIG_OUT / f"prob_{slug(method)}_{scenes.iloc[0].tag}.tif")
-    base, base_ext = fetch_basemap(b0)
+    base, base_ext = None, None  # no Esri mosaic: it is 2023/2025 imagery (drought-time lake), not the NISAR date
     legend = [Patch(color="white", label="agreement"), Patch(color="#d62728", label="miss (DSWx only)"),
               Patch(color="#ff8c00", label="false alarm (NISAR only)")]
     sheet = []
@@ -85,8 +85,7 @@ def main() -> None:
         ov = np.zeros(pred.shape + (4,)); ov[edge] = (0, 1, 1, 1)
         ax[0].imshow(ov, extent=ext, interpolation="nearest")
         ax[0].set_title(f"NISAR HH (dB) + U-Net water outline — model {t['model_water_km2']:.1f} km²", fontsize=9)
-        if base is not None:
-            ax[1].imshow(base, extent=base_ext)
+        ax[1].imshow(hh, extent=(bh[0], bh[2], bh[1], bh[3]), cmap="gray", vmin=-25, vmax=0)  # same-date radar
         title = f"vs OPERA DSWx: no clear reference"
         if has_ref:
             from output_assets import warp as _w
@@ -97,7 +96,7 @@ def main() -> None:
             iou, p, r = tp / max(tp + fp + fn, 1), tp / max(tp + fp, 1), tp / max(tp + fn, 1)
             title = (f"vs OPERA DSWx {sc.dswx_date}: IoU {iou:.3f}  P {p:.3f}  R {r:.3f}"
                      + (f"  DSWx {t['dswx_water_km2']:.1f} km²" if pd.notna(t["dswx_water_km2"]) else ""))
-            sheet.append((sc, rgba, ext, iou, flag, role))
+            sheet.append((sc, rgba, ext, iou, flag, role, hh, bh))
         ax[1].set_title(title, fontsize=9)
         ax[1].legend(handles=legend, loc="upper left", fontsize=7)
         for a in ax:
@@ -108,7 +107,7 @@ def main() -> None:
         if flag:
             head += f" — FLAG: {flag}"
         fig.suptitle(head, fontsize=11, color="#b00000" if flag else "black")
-        fig.text(.01, .01, "Basemap: Esri World Imagery · " + CREDIT, fontsize=7)
+        fig.text(.01, .01, "Background: NISAR HH backscatter of the same date (no old basemap) · " + CREDIT, fontsize=7)
         fig.tight_layout(rect=[0, .03, 1, .95])
         fig.savefig(GALLERY / f"{sc.date}_T{sc.track:03d}.png", dpi=110)
         plt.close(fig)
@@ -117,16 +116,15 @@ def main() -> None:
     fig, axs = plt.subplots(rows, cols, figsize=(cols * 3.4, rows * 2.6))
     for a in axs.ravel():
         a.axis("off")
-    for a, (sc, rgba, ext, iou, flag, role) in zip(axs.ravel(), sheet):
-        if base is not None:
-            a.imshow(base, extent=base_ext)
+    for a, (sc, rgba, ext, iou, flag, role, hh, bh) in zip(axs.ravel(), sheet):
+        a.imshow(hh, extent=(bh[0], bh[2], bh[1], bh[3]), cmap="gray", vmin=-25, vmax=0)
         a.imshow(rgba, extent=ext, interpolation="nearest")
         a.set_xlim(ext[0], ext[1]); a.set_ylim(ext[2], ext[3])
         a.set_title(textwrap.shorten(f"T{sc.track} {sc.date} IoU {iou:.2f} {'(sel)' if role == 'selection' else ''}"
                                      f"{' ' + flag if flag else ''}", 48), fontsize=7, color="#b00000" if flag else "black")
     fig.suptitle(f"{res}: U-Net ({method}) vs OPERA DSWx on every NISAR date — white agree, red miss, orange false alarm",
                  fontsize=11)
-    fig.text(.01, .005, "Basemap: Esri World Imagery · " + CREDIT, fontsize=7)
+    fig.text(.01, .005, "Background: NISAR HH backscatter of each date (no old basemap) · " + CREDIT, fontsize=7)
     fig.tight_layout(rect=[0, .02, 1, .97])
     fig.savefig(OUTPUTS / "figures" / "gallery_contact_sheet.png", dpi=150)
     plt.close(fig)

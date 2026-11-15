@@ -58,6 +58,10 @@ for name, model, obj in (("location", cm.Location, c["location"]), ("headline", 
     check(f"reservoir {name} validates", ok, err)
 check("reservoir timeline items validate", all(valid(cm.TimelineItem, t)[0] for t in c["timeline"]), f"{len(c['timeline'])} passes")
 check("reservoir limits validate", len(c["limits"]) >= 1 and all(valid(cm.TemplatedText, l)[0] for l in c["limits"]))
+lists = [(t["template"], k) for t in c["limits"] + h["limits"] for k, v in t.get("params", {}).items() if isinstance(v, (list, dict))]
+check("limit template params are scalars (the UI rejects lists)", not lists, str(lists))
+check("fr/ar headline translated (no English agreement word)",
+      all(w not in c["headline"]["text"][lang] for lang in ("fr", "ar") for w in ("(agree)", "(disagree)")))
 if "bin-el-ouidane-2026" in cm.CaseId.__args__:
     ok, err = valid(cm.CaseStudy, c)
     check("reservoir case validates as CaseStudy", ok, err)
@@ -74,7 +78,13 @@ for layer in ri["layers"]:
     w, s, e, n = layer["bounds"]
     check(f"layer {layer['id']}: file exists and bounds ordered", (OUT / layer["file"]).exists() and w < e and s < n)
 
-# Size budget
+# The model is part of the package
+ck = ROOT / "water" / "model" / "water_unet_v3.pt"
+check("model weights present (water/model/water_unet_v3.pt, < 100 MB)", ck.exists() and ck.stat().st_size < 100e6,
+      f"{ck.stat().st_size / 1e6:.1f} MB" if ck.exists() else "missing")
+check("model card present", (ROOT / "water" / "model" / "MODEL.md").exists())
+
+# Size budget (outputs only; the weights live in water/model/)
 size = sum(p.stat().st_size for p in OUT.rglob("*") if p.is_file()) / 1e6
 check("backend/water/outputs under 50 MB", size < 50, f"{size:.1f} MB")
 

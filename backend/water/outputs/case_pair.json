@@ -1,0 +1,1 @@
+{"pre": "2026-06-17", "post": "2026-09-21", "why": "case dates fixed when the case was defined (largest DSWx water-area difference among clean, non-wind track-44 dates, v1 run); not re-chosen when the model changes, because the wind flag depends on the model"}

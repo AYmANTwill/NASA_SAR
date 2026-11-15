@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from common import BIG_OUT, OUTPUTS
-from evaluate import slug
+from evaluate import method_threshold, slug
 from nisar_search import dswx_acquisitions, sample_browse, search_dswx, utm_box, utm_of
 from output_assets import CREDIT, warp
 from timeseries import best_method
@@ -74,7 +74,7 @@ def main() -> None:
     rgba_bad, ext = browse_for(bbox, bad["dswx_date"], bad["sensor"])
     rgba_ok, _ = browse_for(bbox, near["dswx_date"], near["sensor"])
     method = best_method()
-    thr = json.loads((OUTPUTS / "thresholds.json").read_text())["unet_probability_threshold"]
+    thr = method_threshold(method)
     prob, _, b = warp(BIG_OUT / f"prob_{slug(method)}_{tag}.tif")
     for k, (img, title) in enumerate([
             (rgba_bad, f"DSWx {bad['dswx_date']} ({bad['sensor']}): {bad['dswx_water_km2_browse']:.1f} km²  → REMOVED"),

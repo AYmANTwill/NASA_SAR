@@ -1,0 +1,18 @@
+-- 17 dataset(s) pour unwrappedPhase, losUnitVector, Tropospheric, Tide, ionosphere
+/science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/ionospherePhaseScreen  shape=(4311, 4383)  dtype=float32
+/science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/ionospherePhaseScreenUncertainty  shape=(4311, 4383)  dtype=float32
+/science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/unwrappedPhase  shape=(4311, 4383)  dtype=float32
+/science/LSAR/GUNW/metadata/processingInformation/algorithms/ionosphereEstimation/ionosphereAlgorithm  shape=()  dtype=|S132
+/science/LSAR/GUNW/metadata/processingInformation/algorithms/ionosphereEstimation/ionosphereFilling  shape=()  dtype=|S7
+/science/LSAR/GUNW/metadata/processingInformation/algorithms/ionosphereEstimation/ionosphereFiltering  shape=()  dtype=|S42
+/science/LSAR/GUNW/metadata/processingInformation/algorithms/ionosphereEstimation/ionosphereOutliers  shape=(2,)  dtype=object
+/science/LSAR/GUNW/metadata/processingInformation/algorithms/ionosphereEstimation/unwrappingErrorCorrection  shape=()  dtype=|S4
+/science/LSAR/GUNW/metadata/processingInformation/parameters/geocoding/hydrostaticTroposphericCorrectionApplied  shape=()  dtype=|S4
+/science/LSAR/GUNW/metadata/processingInformation/parameters/geocoding/wetTroposphericCorrectionApplied  shape=()  dtype=|S4
+/science/LSAR/GUNW/metadata/processingInformation/parameters/ionosphere/highBandBandwidth  shape=()  dtype=float32
+/science/LSAR/GUNW/metadata/processingInformation/parameters/ionosphere/lowBandBandwidth  shape=()  dtype=float32
+/science/LSAR/GUNW/metadata/radarGrid/hydrostaticTroposphericPhaseScreen  shape=(20, 702, 713)  dtype=float64
+/science/LSAR/GUNW/metadata/radarGrid/losUnitVectorX  shape=(20, 702, 713)  dtype=float32
+/science/LSAR/GUNW/metadata/radarGrid/losUnitVectorY  shape=(20, 702, 713)  dtype=float32
+/science/LSAR/GUNW/metadata/radarGrid/slantRangeSolidEarthTidesPhase  shape=(20, 702, 713)  dtype=float64
+/science/LSAR/GUNW/metadata/radarGrid/wetTroposphericPhaseScreen  shape=(20, 702, 713)  dtype=float64

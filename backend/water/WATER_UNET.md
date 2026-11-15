@@ -1,5 +1,7 @@
 # Water U-Net
 
+> Model card (weights, architecture, figures, `predict.py`): [model/MODEL.md](model/MODEL.md)
+
 `backend/water/` segments open water in NISAR GCOV HH/HV imagery. It is a self-contained science pipeline:
 large rasters and checkpoints remain under `$NASA_DATA` (default `~/nasa_data`, outside the repo), while code, small results, figures and
 JSON contracts live in the repository.
@@ -200,3 +202,32 @@ python tests\test_science.py
 - Model water area is biased high relative to DSWx (shoreline mixing, false alarms in the north-east arm).
 - The water assets are figure images until the proposed palette/layer/series additions are approved.
 
+
+## Versions (2026-11-15)
+
+| Version | Model | Case water-area change | Status |
+|---|---|---|---|
+| v1 | U-Net + AdaBN (Sentinel-1 trained, no NISAR labels) | single pair T44: -1.91 ± 2.04 km² vs DSWx -2.06 | first delivery |
+| v1.1 | v1 | same; contract fixes (scalar params, FR/AR text, clouds first) | delivered |
+| v1.2 | v1 | **3 tracks**: -2.76 ± 0.53 km² vs DSWx -1.98 (`change_multitrack.json`) | this version |
+| v2 | v1 fine-tuned on NISAR with DSWx labels of 6 other reservoirs (`finetune/`, run v2) | 3 tracks: -0.98 ± 0.59 vs DSWx -1.98 | not adopted |
+| v3 | v2 + incidence-angle input + 7 more reservoirs (13 in all, 182 scenes); test reservoir Oued El Makhazine never used | 3 tracks: -1.59 ± 0.20 vs DSWx -1.98; IoU 0.929 on the test reservoir (v1: 0.193) | general model |
+| **v3site** | v3 + this reservoir's own passes after 2026-10-03 (more than one revisit after the case period; shaded, never scored) | **3 tracks: -1.83 ± 0.14 vs DSWx -1.98; held-out IoU 0.948 [0.944, 0.952] on tracks 95/116, dates up to 2026-10-03; test reservoir IoU 0.933** | **shipped** |
+
+**v3 / v3site protocol.** Test reservoir (Oued El Makhazine) fixed before training and never used to train or choose.
+Validation reservoir Al Massira (epoch and probability threshold). v3site adds Bin El Ouidane DSWx labels only for
+passes after 2026-10-03; every reported number uses dates up to 2026-10-03, and the case dates (June–September) are
+never in training. The variant is still chosen on track 44 only (v3site 0.951 vs v1 0.851). A model that memorised
+the lake would show no change; v3site's change (-1.83) matches DSWx (-1.98). Full comparison:
+`outputs/finetune/v3/eval.json`. Haouz with v3site: 0.00 ± 0.01 km² of new persistent open water (consistent with zero).
+
+**Why 3 tracks.** On one track the area of a model varies by about ±1.7 km² from date to date (v1 and v2 alike),
+so a single pair of dates carries about ±2.4 km² of noise. The change is now the mean, over every track with a clean
+pass within ±5 days of both case dates, of the per-track change (a constant per-track bias cancels); 1σ = standard
+error over tracks. DSWx is processed the same way. This showed that v1 over-states the June→September drop and v2
+under-states it.
+
+**Why v2 was not adopted.** Higher pixel accuracy (held-out IoU 0.934 vs 0.763 on tracks 95/116, which were also
+frequent in its training), but its error on track 44 at the case reservoir (incidence 34°) varies from date to date,
+so its case change is off. The v1 fine-tuning had trained on 10 of 75 scenes (disk-guard refusals); `ft_prep.py`
+now stops when more than 20% of reads fail.
