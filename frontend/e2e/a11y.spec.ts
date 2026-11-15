@@ -1,8 +1,22 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import * as fx from "../src/__fixtures__";
 import { waitForMap, watchConsole } from "./helpers";
 
-const ROUTES = ["/", "/cases/panama-2026", "/cases/ionosphere-gps", "/discover", "/investigate", "/investigate/fx-panama-2026-10-09", "/investigate/fx-alwahda-since-june", "/investigate/fx-zone-rif-slope", "/watch", "/library", "/proof"];
+// Case pages: those the demo build actually serves (exported from the API, or the local drafts).
+const CASE_ROUTES = fx.caseStudies.map((c) => `/cases/${c.id}`);
+const ROUTES = [
+  "/",
+  ...CASE_ROUTES,
+  "/discover",
+  "/investigate",
+  "/investigate/fx-panama-2026-10-09",
+  "/investigate/fx-alwahda-since-june",
+  "/investigate/fx-zone-rif-slope",
+  "/watch",
+  "/library",
+  "/proof",
+];
 const LANGS = ["fr", "ar", "en"] as const;
 
 for (const lang of LANGS) {
@@ -12,21 +26,36 @@ for (const lang of LANGS) {
       await page.goto(`${route}${route.includes("?") ? "&" : "?"}lang=${lang}`);
       await expect(page.locator("main")).toBeVisible();
       await page.waitForLoadState("networkidle").catch(() => undefined);
-      await expect(page.locator("html")).toHaveAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+      await expect(page.locator("html")).toHaveAttribute(
+        "dir",
+        lang === "ar" ? "rtl" : "ltr",
+      );
       await expect(page.locator("html")).toHaveAttribute("lang", lang);
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
         // MapLibre draws on a canvas; its DOM controls are checked, the canvas is not text.
         .exclude(".maplibregl-canvas")
         .analyze();
-      const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-      expect(serious.map((v) => `${v.id}: ${v.help} → ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")}`)).toEqual([]);
+      const serious = results.violations.filter(
+        (v) => v.impact === "serious" || v.impact === "critical",
+      );
+      expect(
+        serious.map(
+          (v) =>
+            `${v.id}: ${v.help} → ${v.nodes
+              .map((n) => n.target.join(" "))
+              .slice(0, 3)
+              .join(" | ")}`,
+        ),
+      ).toEqual([]);
       expect(errors).toEqual([]);
     });
   }
 }
 
-test("keyboard: skip link, navigation, ask, layer controls, language", async ({ page }) => {
+test("keyboard: skip link, navigation, ask, layer controls, language", async ({
+  page,
+}) => {
   await page.goto("/investigate/fx-panama-2026-10-09");
   await waitForMap(page);
   await page.keyboard.press("Tab");
@@ -43,9 +72,21 @@ test("keyboard: skip link, navigation, ask, layer controls, language", async ({ 
       const el = document.activeElement as HTMLElement | null;
       if (!el || el === document.body) return null;
       // The indicator may sit on the element or on a focus-within wrapper (ask box).
-      const shows = (n: Element | null) => !!n && (getComputedStyle(n).outlineStyle !== "none" || getComputedStyle(n).boxShadow !== "none");
-      const visible = shows(el) || shows(el.parentElement) || shows(el.parentElement?.parentElement ?? null);
-      return { name: el.getAttribute("aria-label") ?? el.textContent?.trim().slice(0, 40) ?? el.tagName, visible };
+      const shows = (n: Element | null) =>
+        !!n &&
+        (getComputedStyle(n).outlineStyle !== "none" ||
+          getComputedStyle(n).boxShadow !== "none");
+      const visible =
+        shows(el) ||
+        shows(el.parentElement) ||
+        shows(el.parentElement?.parentElement ?? null);
+      return {
+        name:
+          el.getAttribute("aria-label") ??
+          el.textContent?.trim().slice(0, 40) ??
+          el.tagName,
+        visible,
+      };
     });
     if (info) {
       seen.add(info.name);
@@ -56,8 +97,12 @@ test("keyboard: skip link, navigation, ask, layer controls, language", async ({ 
   expect([...seen].some((n) => n.startsWith("Opacité"))).toBe(true);
 
   // Language switch without reload.
-  const marker = await page.evaluate(() => ((window as unknown as { __m: number }).__m = Math.random()));
+  const marker = await page.evaluate(
+    () => ((window as unknown as { __m: number }).__m = Math.random()),
+  );
   await page.getByRole("button", { name: "العربية" }).click();
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  expect(await page.evaluate(() => (window as unknown as { __m: number }).__m)).toBe(marker);
+  expect(
+    await page.evaluate(() => (window as unknown as { __m: number }).__m),
+  ).toBe(marker);
 });

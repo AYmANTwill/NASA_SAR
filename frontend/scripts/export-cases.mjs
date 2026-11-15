@@ -1,5 +1,6 @@
 // Exports the case studies from the running API for the offline demo build.
-//   node scripts/export-cases.mjs [--api http://127.0.0.1:8000/api]
+//   node scripts/export-cases.mjs [--api http://127.0.0.1:8000/api] [--include-drafts]
+// Team decision (15 Nov): the offline demo ships the final cases only; drafts are left out unless --include-drafts.
 // Writes src/__fixtures__/cases-export.ts (responses verbatim, only /api URLs rewritten)
 // and downloads every figure and layer image into public/__fixtures__/cases/.
 // Values are never edited: the demo replays exactly what the API served.
@@ -30,7 +31,10 @@ async function localize(url) {
   return `/__fixtures__/cases/${rel}`;
 }
 
-const summaries = await getJson("/cases");
+const includeDrafts = process.argv.includes("--include-drafts");
+const all = await getJson("/cases");
+const left = includeDrafts ? [] : all.filter((s) => s.status !== "final").map((s) => s.id);
+const summaries = includeDrafts ? all : all.filter((s) => s.status === "final");
 const studies = [];
 for (const s of summaries) {
   const c = await getJson(`/cases/${encodeURIComponent(s.id)}`);
@@ -50,5 +54,6 @@ writeFileSync(
     `const data: { summaries: unknown[]; studies: unknown[] } | null = ${JSON.stringify({ summaries, studies }, null, 1)};\n` +
     `export default data;\n`,
 );
-console.log(`${studies.length} cases exported to ${out}`);
+console.log(`${studies.length} cases exported to ${out}: ${studies.map((c) => c.id).join(", ")}`);
+if (left.length) console.log(`Left out of the offline demo (draft): ${left.join(", ")}`);
 if (drafts.length) console.log(`Still draft (the release demo build will refuse them): ${drafts.join(", ")}`);

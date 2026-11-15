@@ -29,10 +29,10 @@ async function mockApi(page: Page, overrides: { discoveries?: unknown; discoveri
     }
     if (path === "/notifications") return json(route, fx.initialNotifications);
     if (path === "/library") return json(route, fx.library);
-    if (path === "/cases") return json(route, overrides.cases ?? fx.caseSummaries);
+    if (path === "/cases") return json(route, overrides.cases ?? fx.draftCaseSummaries);
     if (path.startsWith("/cases/")) {
       const id = decodeURIComponent(path.slice("/cases/".length));
-      const c = overrides.studies?.find((x) => x.id === id) ?? fx.caseStudies.find((x) => x.id === id);
+      const c = overrides.studies?.find((x) => x.id === id) ?? fx.draftCaseStudies.find((x) => x.id === id);
       return c ? json(route, c) : json(route, { code: "not_found", message: { template: "error.not_found", params: {} } }, 404);
     }
     if (path === "/proofs/lband-vs-cband" && overrides.proofError) return json(route, overrides.proofError.body, overrides.proofError.status);
@@ -138,11 +138,11 @@ test("case studies: first page, draft banner, findings with agreement and limits
 test("a fifth case served by the API gets its own card", async ({ page }) => {
   const errors = watchConsole(page);
   // Test-only summary: same shape as the API's, title marked as a test.
-  const fifth = { ...fx.caseSummaries[0], id: "bin-el-ouidane-2026", title: { fr: "Cas de test 5", en: "Test case 5", ar: "Test case 5" } };
-  await mockApi(page, { cases: [...fx.caseSummaries, fifth] });
+  const fifth = { ...fx.draftCaseSummaries[0], id: "bin-el-ouidane-2026", title: { fr: "Cas de test 5", en: "Test case 5", ar: "Test case 5" } };
+  await mockApi(page, { cases: [...fx.draftCaseSummaries, fifth] });
   await page.goto("/");
   const cards = page.getByRole("list", { name: "Études de cas", exact: true }).getByRole("listitem");
-  await expect(cards).toHaveCount(fx.caseSummaries.length + 1);
+  await expect(cards).toHaveCount(fx.draftCaseSummaries.length + 1);
   await expect(page.getByRole("link", { name: "Cas de test 5" })).toHaveAttribute("href", "/cases/bin-el-ouidane-2026");
   expect(errors).toEqual([]);
 });
@@ -159,7 +159,7 @@ const longLimit = (n: number) => ({
   },
 });
 const negativeCase = {
-  ...fx.caseStudies.find((c) => c.id === "haouz-flood-2026")!,
+  ...fx.draftCaseStudies.find((c) => c.id === "haouz-flood-2026")!,
   status: "final",
   title: { fr: "Cas de test : aucun changement net", en: "Test case: no net change", ar: "حالة اختبار: لا تغيّر صافٍ" },
   headline: { template: "test.headline", params: {}, text: { fr: "Test : aucun changement net au-dessus de la dispersion de référence.", en: "Test: no net change above the reference spread.", ar: "اختبار: لا تغيّر صافٍ فوق التشتت المرجعي." } },
