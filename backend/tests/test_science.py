@@ -737,6 +737,20 @@ check("answers: displacement step keeps its dates and direction as params",
       answer_text.step_summary("displacement ascending 20261003→20261015")["params"]
       == {"direction": {"term": "direction.ascending"}, "date": {"date": "2026-10-03"}, "date2": {"date": "2026-10-15"}})
 
+fl = api_v2.to_answer({"type": "flood", "facts": {"open_water_ha": 12.0, "flooded_vegetation_ha": 3.0}, "place": {},
+                       "data_used": []}, "a-fl", "q", "fr")
+df = api_v2.to_answer({"type": "deforestation", "facts": {"vegetation_loss_ha": 40.0}, "place": {}, "data_used": []},
+                      "a-df", "q", "fr")
+check("answers: flood / forest areas without a computed sigma are not sent (no hand-set 20 %), a limit says why",
+      not any(m["id"] in ("flooded_area", "forest_loss") for m in fl["metrics"] + df["metrics"])
+      and any(x["template"] == "backend.limit.no_sigma" for x in fl["limits"])
+      and any(x["template"] == "backend.limit.no_sigma" for x in df["limits"]), (fl["metrics"], df["metrics"]))
+fl2 = api_v2._metrics("flood", {"open_water_ha": 12.0, "flooded_vegetation_ha": 3.0, "flooded_area_sigma_ha": 2.5})
+check("answers: with a sigma computed by the recipe the flooded area is a measurement",
+      fl2 == [{"id": "flooded_area", "measurement": {"value": 15.0, "uncertainty": 2.5, "unit": "ha", "sigma": 1}}])
+check("answers: no hand-set 0.1 m on the largest pixel offset either",
+      api_v2._metrics("large_displacement", {"magnitude_m": 1.2}) == [])
+
 # --- Youkaoui's water outputs: the optional 5th case, Haouz open water, /api/water ------------------------------
 from science import water  # noqa: E402
 

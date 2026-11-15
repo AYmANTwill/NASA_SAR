@@ -193,14 +193,14 @@ def _metrics(qtype: str, f: dict) -> list[dict]:
     elif qtype == "soil_moisture":
         add("soil_moisture", meas(f.get("latest_m3m3"), f.get("uncertainty_m3m3"), "m3/m3"))
         add("soil_moisture_anomaly", meas(f.get("anomaly_m3m3"), f.get("uncertainty_m3m3"), "m3/m3"))
-    elif qtype == "flood":
-        area = (f.get("open_water_ha") or 0) + (f.get("flooded_vegetation_ha") or 0)
-        add("flooded_area", meas(area, 0.2 * area, "ha"))           # +-20 %: classification heuristic
+    elif qtype == "flood":                  # no hand-set +-20 %: only a sigma computed by the recipe
+        parts = [f.get("open_water_ha"), f.get("flooded_vegetation_ha")]
+        area = sum(parts) if None not in parts else None
+        add("flooded_area", meas(area, f.get("flooded_area_sigma_ha"), "ha"))
     elif qtype == "deforestation":
-        a = f.get("vegetation_loss_ha")
-        add("forest_loss", meas(a, 0.2 * (a or 0), "ha"))
+        add("forest_loss", meas(f.get("vegetation_loss_ha"), f.get("vegetation_loss_sigma_ha"), "ha"))
     elif qtype == "large_displacement":
-        add("offset_max", meas(f.get("magnitude_m"), 0.1, "m"))
+        add("offset_max", meas(f.get("magnitude_m"), f.get("magnitude_sigma_m"), "m"))   # no hand-set 0.1 m
     return m
 
 
@@ -345,6 +345,22 @@ def _layers(layers: list[dict], period: dict | None) -> list[dict]:
     return out
 
 
+NO_SIGMA = {"flood": ("flooded_area", "la surface inondée", "the flooded area", "المساحة المغمورة"),
+            "deforestation": ("forest_loss", "la perte de forêt", "the forest loss", "فقدان الغابات"),
+            "large_displacement": ("offset_max", "le décalage maximal", "the largest offset", "أكبر إزاحة")}
+
+
+def _not_measured(qtype: str, f: dict, metrics: list[dict]) -> list[dict]:
+    """A limit for a value the recipe computed without its uncertainty: it is not sent as a measurement."""
+    if qtype not in NO_SIGMA or any(m["id"] == NO_SIGMA[qtype][0] for m in metrics):
+        return []
+    mid, fr, en, ar = NO_SIGMA[qtype]
+    return [tt("backend.limit.no_sigma", {"metric": {"term": f"metric.{mid}"}},
+               f"Pas de valeur pour {fr} : la classification ne donne pas encore d'incertitude calculée.",
+               f"No value for {en}: the classification does not give a computed uncertainty yet.",
+               f"لا توجد قيمة لـ{ar}: لا يعطي التصنيف بعد شكًّا محسوبًا.")]
+
+
 def _limits(qtype: str, f: dict, tracks: list[dict]) -> list[dict]:
     lim = []
     cs = {L: agent.cannot_say(qtype, L) if qtype in agent.CANNOT_SAY else None for L in LANGS}
@@ -472,7 +488,8 @@ def to_answer(resp: dict, aid: str, question: str, lang: str, name_i18n: dict | 
         "metrics": _metrics(qtype, f) if ok else [], "series": _series(qtype, f) if ok else [],
         "checks": _checks(qtype, f) if ok else [], "evidence": ev,
         "layers": _layers(resp.get("layers"), period), "earthquakes": quakes,
-        "limits": _limits(qtype, f, tracks) + ([period_limit] if period_limit else []),
+        "limits": (_limits(qtype, f, tracks) + (_not_measured(qtype, f, _metrics(qtype, f)) if ok else [])
+                   + ([period_limit] if period_limit else [])),
         "indication": None, "classifier": None,
         "next_pass": passes[0]["next_pass"] if passes else None, "cached": cached,
         "steps": _steps(resp.get("steps"), recipe, len(used), period if acq else None),
