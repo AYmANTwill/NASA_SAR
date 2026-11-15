@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-10T00:00:00Z",
+  "bbox": [
+    -8.2,
+    31.05,
+    -7.75,
+    31.45
+  ],
+  "products": [
+    "GCOV_T023_F073_20261013_20261013",
+    "GCOV_T023_F073_20261001_20261001",
+    "GCOV_T044_F017_20261015_20261015",
+    "GCOV_T044_F017_20261003_20261003"
+  ],
+  "findings": [
+    {
+      "id": "flooded_area",
+      "label": {
+        "fr": "Surface d'eau nouvelle persistante",
+        "en": "Persistent new open-water area",
+        "ar": "مساحة المياه المفتوحة الجديدة المستمرة"
+      },
+      "nisar": {
+        "value": 4.7968,
+        "uncertainty": 7.364,
+        "unit": "km2",
+        "sigma": 1.0
+      },
+      "reference": null,
+      "reference_source": null,
+      "agreement": "no_reference"
+    }
+  ],
+  "figures": [
+    {
+      "id": "haouz_backscatter_change",
+      "title": {
+        "fr": "Changement de rétrodiffusion NISAR",
+        "en": "NISAR backscatter change",
+        "ar": "تغير التشتت الخلفي لـ NISAR"
+      },
+      "caption": {
+        "template": "backend.water_haouz_map",
+        "params": {},
+        "text": {
+          "fr": "HH après moins avant sur la trace descendante 23.",
+          "en": "Post-minus-pre HH on descending track 23.",
+          "ar": "فرق HH بعد الحدث وقبله على المسار الهابط 23."
+        }
+      },
+      "raster": "backscatter_change_T023D.tif",
+      "layer": {
+        "kind": "backscatter_change",
+        "unit": "dB",
+        "palette": "diverging_displacement",
+        "min": -8,
+        "max": 8,
+        "period": {
+          "start": "2026-10-01",
+          "end": "2026-10-13"
+        },
+        "source": "NISAR GCOV T023/F073",
+        "sign_convention": null
+      }
+    }
+  ],
+  "limits": [
+    {
+      "fr": "Revisite de 12 jours par trace : les passages utilisés sont le 1er/3 octobre (avant) et le 13/15 octobre (après), soit 3 à 5 jours après la crue éclair du 10 octobre. Une crue éclair se retire en quelques heures; ce résultat mesure uniquement l'eau ouverte encore présente au passage, pas l'emprise maximale.",
+      "en": "12-day revisit per track: the passes used are 1/3 October (before) and 13/15 October (after), 3 to 5 days after the 10 October flash flood. Flash floods recede within hours; this result measures only open water still present at the pass, not the peak extent.",
+      "ar": "إعادة الزيارة كل 12 يوماً لكل مسار: المرورات المستخدمة 1/3 أكتوبر (قبل) و13/15 أكتوبر (بعد)، أي بعد 3 إلى 5 أيام من السيل المفاجئ في 10 أكتوبر. تنحسر السيول المفاجئة خلال ساعات؛ تقيس النتيجة المياه المفتوحة الباقية وقت المرور فقط."
+    },
+    {
+      "fr": "Vallées étroites : les lits d'oued du Haouz (Imlil, Asni, Moulay Brahim) font quelques dizaines de mètres de large, comparables aux pixels GCOV de 10 à 20 m après filtre de Lee 5x5 (environ 50 à 100 m effectifs); une eau résiduelle dans ces lits est en grande partie sous la résolution effective.",
+      "en": "Narrow valleys: the Haouz wadi beds (Imlil, Asni, Moulay Brahim) are a few tens of metres wide, comparable to the 10-20 m GCOV pixels after the 5x5 Lee filter (about 50-100 m effective); residual water in these beds is largely below the effective resolution.",
+      "ar": "أودية ضيقة: مجاري الأودية في الحوز (إمليل، أسني، مولاي إبراهيم) بعرض بضع عشرات من الأمتار، وهو ما يقارب بكسلات GCOV من 10 إلى 20 م بعد مرشح لي 5x5 (حوالي 50 إلى 100 م فعلياً)؛ المياه المتبقية في هذه المجاري أدنى غالباً من الدقة الفعلية."
+    },
+    {
+      "fr": "Repliement et ombre radar : sur les versants raides du Haut Atlas, le repliement mélange le fond de vallée avec le versant face au radar, et l'ombre produit une rétrodiffusion faible qui ressemble à de l'eau; les deux traces (23 descendante, 44 ascendante) voient des versants différents, d'où l'écart entre elles.",
+      "en": "Radar layover and shadow: on steep High Atlas slopes, layover mixes the valley floor with the radar-facing slope, and shadow produces low backscatter that resembles water; the two tracks (23 descending, 44 ascending) see different slopes, which is why they disagree.",
+      "ar": "التراكب والظل الراداري: على منحدرات الأطلس الكبير الشديدة يخلط التراكب قاع الوادي بالمنحدر المواجه للرادار، ويُنتج الظل تشتتاً خلفياً ضعيفاً يشبه الماء؛ يرى المساران (23 الهابط و44 الصاعد) منحدرات مختلفة، ولذلك يختلفان."
+    },
+    {
+      "fr": "Aucune paire DSWx claire avant/après n'existe; la valeur n'a donc pas de référence et l'accord n'est pas évalué.",
+      "en": "No clear DSWx pre/post pair exists, so the value has no reference and agreement is not evaluated.",
+      "ar": "لا يوجد زوج DSWx واضح قبل/بعد، لذلك لا مرجع للقيمة ولا يُقيَّم التوافق."
+    }
+  ],
+  "interpretation": "no detectable persistent flood extent",
+  "diagnostics": {
+    "method": "U-Net + AdaBN + per-scene norm",
+    "probability_threshold": 0.4,
+    "tracks": [
+      {
+        "track": 23,
+        "direction": "DESCENDING",
+        "pre_date": "2026-10-01",
+        "post_date": "2026-10-13",
+        "area_km2": 6.2064,
+        "mc_area_std_km2": 13.621932779640806,
+        "mask": "$NASA_DATA/outputs/haouz/flood_mask_T023D.tif"
+      },
+      {
+        "track": 44,
+        "direction": "ASCENDING",
+        "pre_date": "2026-10-03",
+        "post_date": "2026-10-15",
+        "area_km2": 3.3872,
+        "mc_area_std_km2": 4.838240978789927,
+        "mask": "$NASA_DATA/outputs/haouz/flood_mask_T044A.tif"
+      }
+    ],
+    "value_km2": 4.7968,
+    "mc_sigma_km2": 7.2278217400177835,
+    "orbit_sigma_km2": 1.4096000000000002,
+    "uncertainty_km2": 7.363992073968691,
+    "uncertainty_formula": "sqrt(mc_sigma_of_track_mean^2 + half_asc_desc_range^2)",
+    "backscatter_change": "$NASA_DATA/outputs/haouz/backscatter_change_T023D.tif"
+  }
+}

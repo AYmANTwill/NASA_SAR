@@ -1,0 +1,61 @@
+{
+  "clear_dates": 29,
+  "selection_dates": 21,
+  "held_out_dates": 8,
+  "chosen_on_T44_T95": "U-Net + AdaBN + per-scene norm",
+  "orbit_holdout": {
+    "Otsu (HV dB, per scene)": {
+      "selection_iou": 0.42405249436671383,
+      "held_out_T116_iou": 0.43773895439529387
+    },
+    "Global HV threshold (fit on S1 train VH)": {
+      "selection_iou": 0.11535876908795038,
+      "held_out_T116_iou": 0.06148657413412894
+    },
+    "U-Net source-only": {
+      "selection_iou": 0.5549012625758515,
+      "held_out_T116_iou": 0.5583961039732057
+    },
+    "U-Net + per-scene norm": {
+      "selection_iou": 0.6329908446324594,
+      "held_out_T116_iou": 0.577063175381424
+    },
+    "U-Net + AdaBN": {
+      "selection_iou": 0.7907848723030837,
+      "held_out_T116_iou": 0.8293365630466962
+    },
+    "U-Net + AdaBN + per-scene norm": {
+      "selection_iou": 0.8086774011802348,
+      "held_out_T116_iou": 0.8372782556229003
+    }
+  },
+  "june_alignment_sensitivity": {
+    "2026-06-17": {
+      "native_iou": 0.8480820589134103,
+      "best_5px_iou": 0.8492383059754683,
+      "best_shift_pixels_x_y": [
+        1,
+        0
+      ],
+      "pixel_size_m": [
+        10.0,
+        10.0
+      ],
+      "crs": "EPSG:32629"
+    },
+    "2026-06-29": {
+      "native_iou": 0.6872328201532724,
+      "best_5px_iou": 0.6889204499289877,
+      "best_shift_pixels_x_y": [
+        1,
+        0
+      ],
+      "pixel_size_m": [
+        10.0,
+        10.0
+      ],
+      "crs": "EPSG:32629"
+    }
+  },
+  "caveat": "T116 was excluded from DSWx variant selection, but AdaBN used unlabeled tiles from all tracks."
+}

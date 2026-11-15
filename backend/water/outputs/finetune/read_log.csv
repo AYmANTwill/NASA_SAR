@@ -1,0 +1,90 @@
+tag,site,track,date,cached,nisar_read_s,nisar_payload_mb,dswx_read_s,label_valid_frac,label_water_frac,nisar_tif,label_tif,error
+Al_Massira_T023D_2026-06-27,Al_Massira,23,2026-06-27,True,,,,,,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-06-27.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-06-27_dswx.tif,
+Al_Massira_T044A_2026-08-16,Al_Massira,44,2026-08-16,False,38.3,23.6,9.3,0.997,0.2456,$NASA_DATA/finetune/nisar/Al_Massira_T044A_2026-08-16.tif,$NASA_DATA/finetune/labels/Al_Massira_T044A_2026-08-16_dswx.tif,
+Al_Massira_T023D_2026-08-14,Al_Massira,23,2026-08-14,False,42.3,23.6,6.8,1.0,0.2494,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-08-14.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-08-14_dswx.tif,
+Al_Massira_T023D_2026-07-09,Al_Massira,23,2026-07-09,False,44.1,23.6,6.4,0.995,0.2477,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-07-09.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-07-09_dswx.tif,
+Al_Massira_T044A_2026-06-29,Al_Massira,44,2026-06-29,False,51.2,23.6,6.7,0.987,0.2407,$NASA_DATA/finetune/nisar/Al_Massira_T044A_2026-06-29.tif,$NASA_DATA/finetune/labels/Al_Massira_T044A_2026-06-29_dswx.tif,
+Al_Massira_T044A_2026-07-11,Al_Massira,44,2026-07-11,False,62.8,23.6,6.8,1.0,0.254,$NASA_DATA/finetune/nisar/Al_Massira_T044A_2026-07-11.tif,$NASA_DATA/finetune/labels/Al_Massira_T044A_2026-07-11_dswx.tif,
+Al_Massira_T044A_2026-08-28,Al_Massira,44,2026-08-28,False,33.7,23.6,5.6,0.998,0.2469,$NASA_DATA/finetune/nisar/Al_Massira_T044A_2026-08-28.tif,$NASA_DATA/finetune/labels/Al_Massira_T044A_2026-08-28_dswx.tif,
+Al_Massira_T023D_2026-08-26,Al_Massira,23,2026-08-26,False,36.8,23.6,5.6,0.984,0.2445,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-08-26.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-08-26_dswx.tif,
+Al_Massira_T023D_2026-09-19,Al_Massira,23,2026-09-19,False,36.9,23.6,5.4,0.996,0.2462,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-09-19.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-09-19_dswx.tif,
+Al_Massira_T044A_2026-09-21,Al_Massira,44,2026-09-21,False,35.7,23.6,5.8,1.0,0.2471,$NASA_DATA/finetune/nisar/Al_Massira_T044A_2026-09-21.tif,$NASA_DATA/finetune/labels/Al_Massira_T044A_2026-09-21_dswx.tif,
+Al_Wahda_T095D_2026-06-20,Al_Wahda,95,2026-06-20,True,,,,,,$NASA_DATA/finetune/nisar/Al_Wahda_T095D_2026-06-20.tif,$NASA_DATA/finetune/labels/Al_Wahda_T095D_2026-06-20_dswx.tif,
+Al_Massira_T023D_2026-10-01,Al_Massira,23,2026-10-01,False,38.8,23.6,10.0,1.0,0.2494,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-10-01.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-10-01_dswx.tif,
+Al_Massira_T044A_2026-10-15,Al_Massira,44,2026-10-15,False,37.1,23.6,6.3,1.0,0.2503,$NASA_DATA/finetune/nisar/Al_Massira_T044A_2026-10-15.tif,$NASA_DATA/finetune/labels/Al_Massira_T044A_2026-10-15_dswx.tif,
+Al_Massira_T023D_2026-10-25,Al_Massira,23,2026-10-25,False,41.5,23.6,7.5,1.0,0.2525,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-10-25.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-10-25_dswx.tif,
+Al_Massira_T023D_2026-10-13,Al_Massira,23,2026-10-13,False,51.8,23.6,5.8,0.997,0.2477,$NASA_DATA/finetune/nisar/Al_Massira_T023D_2026-10-13.tif,$NASA_DATA/finetune/labels/Al_Massira_T023D_2026-10-13_dswx.tif,
+Al_Wahda_T015A_2026-06-27,Al_Wahda,15,2026-06-27,False,60.9,67.3,6.0,1.0,0.1348,$NASA_DATA/finetune/nisar/Al_Wahda_T015A_2026-06-27.tif,$NASA_DATA/finetune/labels/Al_Wahda_T015A_2026-06-27_dswx.tif,
+Al_Wahda_T015A_2026-09-07,Al_Wahda,15,2026-09-07,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Al_Wahda_T095D_2026-09-24,Al_Wahda,95,2026-09-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Al_Wahda_T095D_2026-07-14,Al_Wahda,95,2026-07-14,False,57.3,67.3,10.7,1.0,0.1348,$NASA_DATA/finetune/nisar/Al_Wahda_T095D_2026-07-14.tif,$NASA_DATA/finetune/labels/Al_Wahda_T095D_2026-07-14_dswx.tif,
+Al_Wahda_T095D_2026-10-18,Al_Wahda,95,2026-10-18,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T095D_2026-06-20,Idriss_1er,95,2026-06-20,True,,,,,,$NASA_DATA/finetune/nisar/Idriss_1er_T095D_2026-06-20.tif,$NASA_DATA/finetune/labels/Idriss_1er_T095D_2026-06-20_dswx.tif,
+Al_Wahda_T015A_2026-10-25,Al_Wahda,15,2026-10-25,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T167D_2026-07-07,Idriss_1er,167,2026-07-07,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T095D_2026-07-14,Idriss_1er,95,2026-07-14,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T015A_2026-07-21,Idriss_1er,15,2026-07-21,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Al_Wahda_T015A_2026-08-14,Al_Wahda,15,2026-08-14,False,60.3,67.3,6.2,1.0,0.1326,$NASA_DATA/finetune/nisar/Al_Wahda_T015A_2026-08-14.tif,$NASA_DATA/finetune/labels/Al_Wahda_T015A_2026-08-14_dswx.tif,
+Idriss_1er_T095D_2026-07-26,Idriss_1er,95,2026-07-26,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T015A_2026-08-14,Idriss_1er,15,2026-08-14,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T167D_2026-08-24,Idriss_1er,167,2026-08-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T095D_2026-08-31,Idriss_1er,95,2026-08-31,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T015A_2026-09-07,Idriss_1er,15,2026-09-07,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T015A_2026-09-19,Idriss_1er,15,2026-09-19,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Al_Wahda_T015A_2026-08-26,Al_Wahda,15,2026-08-26,False,66.8,67.3,6.3,0.996,0.1278,$NASA_DATA/finetune/nisar/Al_Wahda_T015A_2026-08-26.tif,$NASA_DATA/finetune/labels/Al_Wahda_T015A_2026-08-26_dswx.tif,
+Al_Wahda_T095D_2026-08-31,Al_Wahda,95,2026-08-31,False,64.1,67.3,5.7,1.0,0.131,$NASA_DATA/finetune/nisar/Al_Wahda_T095D_2026-08-31.tif,$NASA_DATA/finetune/labels/Al_Wahda_T095D_2026-08-31_dswx.tif,
+Idriss_1er_T095D_2026-09-24,Idriss_1er,95,2026-09-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-06-27,Sidi_Mohamed_Ben_Abdellah,23,2026-06-27,True,,,,,,$NASA_DATA/finetune/nisar/Sidi_Mohamed_Ben_Abdellah_T023D_2026-06-27.tif,$NASA_DATA/finetune/labels/Sidi_Mohamed_Ben_Abdellah_T023D_2026-06-27_dswx.tif,
+Idriss_1er_T015A_2026-10-01,Idriss_1er,15,2026-10-01,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T167D_2026-10-11,Idriss_1er,167,2026-10-11,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T167D_2026-10-23,Idriss_1er,167,2026-10-23,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Idriss_1er_T015A_2026-10-25,Idriss_1er,15,2026-10-25,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-07-02,Sidi_Mohamed_Ben_Abdellah,95,2026-07-02,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-07-21,Sidi_Mohamed_Ben_Abdellah,23,2026-07-21,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T116A_2026-07-04,Sidi_Mohamed_Ben_Abdellah,116,2026-07-04,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-08-14,Sidi_Mohamed_Ben_Abdellah,23,2026-08-14,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-08-19,Sidi_Mohamed_Ben_Abdellah,95,2026-08-19,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T116A_2026-08-21,Sidi_Mohamed_Ben_Abdellah,116,2026-08-21,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-08-26,Sidi_Mohamed_Ben_Abdellah,23,2026-08-26,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-08-31,Sidi_Mohamed_Ben_Abdellah,95,2026-08-31,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-09-12,Sidi_Mohamed_Ben_Abdellah,95,2026-09-12,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T116A_2026-09-14,Sidi_Mohamed_Ben_Abdellah,116,2026-09-14,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-09-19,Sidi_Mohamed_Ben_Abdellah,23,2026-09-19,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-09-24,Sidi_Mohamed_Ben_Abdellah,95,2026-09-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-10-01,Sidi_Mohamed_Ben_Abdellah,23,2026-10-01,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-10-06,Sidi_Mohamed_Ben_Abdellah,95,2026-10-06,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T116A_2026-10-08,Sidi_Mohamed_Ben_Abdellah,116,2026-10-08,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T095D_2026-06-20,Oued_El_Makhazine,95,2026-06-20,True,,,,,,$NASA_DATA/finetune/nisar/Oued_El_Makhazine_T095D_2026-06-20.tif,$NASA_DATA/finetune/labels/Oued_El_Makhazine_T095D_2026-06-20_dswx.tif,
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-10-13,Sidi_Mohamed_Ben_Abdellah,23,2026-10-13,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T023D_2026-10-25,Sidi_Mohamed_Ben_Abdellah,23,2026-10-25,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T095D_2026-10-30,Sidi_Mohamed_Ben_Abdellah,95,2026-10-30,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Sidi_Mohamed_Ben_Abdellah_T116A_2026-11-01,Sidi_Mohamed_Ben_Abdellah,116,2026-11-01,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T116A_2026-06-22,Oued_El_Makhazine,116,2026-06-22,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T015A_2026-06-27,Oued_El_Makhazine,15,2026-06-27,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T095D_2026-07-02,Oued_El_Makhazine,95,2026-07-02,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T116A_2026-07-04,Oued_El_Makhazine,116,2026-07-04,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T095D_2026-07-14,Oued_El_Makhazine,95,2026-07-14,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T116A_2026-07-16,Oued_El_Makhazine,116,2026-07-16,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T015A_2026-08-26,Oued_El_Makhazine,15,2026-08-26,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T015A_2026-09-19,Oued_El_Makhazine,15,2026-09-19,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T095D_2026-09-24,Oued_El_Makhazine,95,2026-09-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T095D_2026-08-31,Oued_El_Makhazine,95,2026-08-31,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T116A_2026-09-26,Oued_El_Makhazine,116,2026-09-26,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T015A_2026-10-01,Oued_El_Makhazine,15,2026-10-01,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-07-02,Mohammed_V,87,2026-07-02,True,,,,,,$NASA_DATA/finetune/nisar/Mohammed_V_T087A_2026-07-02.tif,$NASA_DATA/finetune/labels/Mohammed_V_T087A_2026-07-02_dswx.tif,
+Oued_El_Makhazine_T015A_2026-10-13,Oued_El_Makhazine,15,2026-10-13,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T015A_2026-10-25,Oued_El_Makhazine,15,2026-10-25,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T116A_2026-11-01,Oued_El_Makhazine,116,2026-11-01,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Oued_El_Makhazine_T095D_2026-10-30,Oued_El_Makhazine,95,2026-10-30,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T167D_2026-07-07,Mohammed_V,167,2026-07-07,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-07-14,Mohammed_V,87,2026-07-14,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T167D_2026-07-19,Mohammed_V,167,2026-07-19,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-08-19,Mohammed_V,87,2026-08-19,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T167D_2026-08-24,Mohammed_V,167,2026-08-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-08-31,Mohammed_V,87,2026-08-31,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T167D_2026-09-05,Mohammed_V,167,2026-09-05,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T167D_2026-09-17,Mohammed_V,167,2026-09-17,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-09-24,Mohammed_V,87,2026-09-24,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-10-18,Mohammed_V,87,2026-10-18,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T167D_2026-10-23,Mohammed_V,167,2026-10-23,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk
+Mohammed_V_T087A_2026-10-30,Mohammed_V,87,2026-10-30,False,,,,,,,,RuntimeError: NISAR subset read: would leave less than 9 GB free on disk

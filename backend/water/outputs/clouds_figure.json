@@ -1,0 +1,9 @@
+{
+  "dswx_date": "2026-07-14",
+  "dswx_sensor": "L8",
+  "dswx_tile_cloud_pct": 100.0,
+  "dswx_valid_frac_over_aoi": 0.0,
+  "nisar_tag": "Bin_El_Ouidane_T095D_2026-07-14",
+  "nisar_water_km2_approx": 30.53,
+  "method": "U-Net + AdaBN"
+}

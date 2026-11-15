@@ -50,12 +50,52 @@ def _read(path: Path) -> dict | None:
         raise WaterInputError(f"{path}: invalid JSON ({exc})") from exc
 
 
-def _check_urls(figures: list[dict], where: str) -> None:
+PACKAGE_PREFIX = "water/outputs/"          # the package writes urls relative to backend/
+
+
+def served_url(url: str, where: str) -> str:
+    """'water/outputs/figures/x.png' -> '/api/water/figures/x.png' (same for rasters/); served urls pass as they are.
+    Anything else stops the build: the frontend could not load it."""
+    if url.startswith(URL_PREFIX) or url.startswith("/api/cases/"):
+        return url
+    if url.startswith(PACKAGE_PREFIX):
+        kind, _, name = url[len(PACKAGE_PREFIX):].partition("/")
+        if kind in SERVED and FIGURE_NAME.match(name):
+            return f"{URL_PREFIX}{kind}/{name}"
+    raise WaterInputError(f"{where}: url {url!r} is not under {PACKAGE_PREFIX}{{figures,rasters}}/ nor {URL_PREFIX}")
+
+
+def _param_lists(obj):
+    """A copy where every TemplatedText param that is a list (the frontend's TemplateParam has no array) becomes
+    scalars, values unchanged: strings joined ("P05023, P05036"), a [low, high] number pair -> <key>_low / <key>_high.
+    Reported to Youkaoui in docs/claude/WATER_NOTES.md (backend/water/ is vendored, never edited here)."""
+    if isinstance(obj, list):
+        return [_param_lists(v) for v in obj]
+    if not isinstance(obj, dict):
+        return obj
+    out = {k: _param_lists(v) for k, v in obj.items()}
+    if "template" in out and isinstance(out.get("params"), dict):
+        params = {}
+        for k, v in out["params"].items():
+            if isinstance(v, list) and len(v) == 2 and all(isinstance(x, (int, float)) for x in v):
+                params[f"{k}_low"], params[f"{k}_high"] = v
+            elif isinstance(v, list):
+                params[k] = ", ".join(str(x) for x in v)
+            else:
+                params[k] = v
+        out["params"] = params
+    return out
+
+
+def _served(figures: list[dict], where: str) -> list[dict]:
+    """The figures with served urls (new dicts, the input is not changed)."""
+    out = []
     for f in figures:
-        urls = [f.get("url", "")] + ([f["layer"]["url"]] if f.get("layer") else [])
-        for u in urls:
-            if not u.startswith(URL_PREFIX) and not u.startswith("/api/cases/"):
-                raise WaterInputError(f"{where}: figure {f.get('id')} url {u!r} is not served ({URL_PREFIX}...)")
+        g = {**f, "url": served_url(f.get("url", ""), where)}
+        if f.get("layer"):
+            g["layer"] = {**f["layer"], "url": served_url(f["layer"].get("url", ""), where)}
+        out.append(g)
+    return out
 
 
 def reservoir_case(water_dir: Path | None = None) -> dict | None:
@@ -66,28 +106,47 @@ def reservoir_case(water_dir: Path | None = None) -> dict | None:
         return None
     if data.get("id") != RESERVOIR_ID:
         raise WaterInputError(f"{path}: id must be {RESERVOIR_ID!r}, got {data.get('id')!r}")
+    data = _param_lists({**data, "figures": _served(data.get("figures", []), path.name)})
     try:
-        CaseStudy.model_validate({**data, "status": "draft"})
+        CaseStudy.model_validate(data)
     except ValidationError as exc:
         raise WaterInputError(f"{path}: {exc}") from exc
-    _check_urls(data.get("figures", []), path.name)
     return data
 
 
-def haouz_open_water(water_dir: Path | None = None) -> tuple[list[dict], list[dict]]:
-    """(findings, figures) for the Haouz case, ([], []) when the file is absent. Findings get the
-    'persistent open water (U-Net)' label; their agreement is checked by the Finding model."""
+def raster_index(water_dir: Path | None = None) -> dict | None:
+    """outputs/raster_index.json with served layer urls (/api/water/rasters/...), None when absent. The layers are
+    RGBA PNG images in EPSG:4326 with [west, south, east, north] bounds, not RasterLayer (no water palette)."""
+    path = (water_dir or WATER_DIR) / "raster_index.json"
+    data = _read(path)
+    if data is None:
+        return None
+    try:
+        layers = [{**lay, "url": served_url(lay["url"], path.name)} for lay in data.get("layers", [])]
+    except (KeyError, TypeError) as exc:
+        raise WaterInputError(f"{path}: {exc}") from exc
+    return {**data, "layers": layers}
+
+
+def haouz_open_water(water_dir: Path | None = None) -> tuple[list[dict], list[dict], list[dict]]:
+    """(findings, figures, limits) for the Haouz case, ([], [], []) when the file is absent. The package's own label
+    is kept ('persistent open water (U-Net)' when it has none); numbers are taken as they are and the agreement is
+    checked by the Finding model. Limits are {fr, en, ar} texts, wrapped as TemplatedText."""
     path = (water_dir or WATER_DIR) / "haouz_open_water.json"
     data = _read(path)
     if data is None:
-        return [], []
+        return [], [], []
+    data = _param_lists(data)
     try:
         findings = []
         for f in data.get("findings", []):
             fid = f["id"] if str(f["id"]).startswith("open_water") else f"open_water_{f['id']}"
-            findings.append(Finding.model_validate({**f, "id": fid, "label": OPEN_WATER_LABEL}).model_dump(mode="json"))
-        figures = [Figure.model_validate(f).model_dump(mode="json", exclude_none=True) for f in data.get("figures", [])]
+            findings.append(Finding.model_validate({**f, "id": fid, "label": f.get("label") or OPEN_WATER_LABEL})
+                            .model_dump(mode="json"))
+        figures = [Figure.model_validate(f).model_dump(mode="json", exclude_none=True)
+                   for f in _served(data.get("figures", []), path.name)]
+        limits = [lim if "template" in lim else {"template": "backend.water_limit", "params": {}, "text": lim}
+                  for lim in data.get("limits", [])]
     except (ValidationError, KeyError, TypeError) as exc:
         raise WaterInputError(f"{path}: {exc}") from exc
-    _check_urls(figures, path.name)
-    return findings, figures
+    return findings, figures, limits

@@ -1,0 +1,20 @@
+{
+  "label": "flooded",
+  "beta": true,
+  "model": "Water U-Net, probability threshold 0.40 fixed on Sen1Floods11 validation",
+  "evaluated_on": "Sen1Floods11 Bolivia hold-out (15 chips; event excluded from training)",
+  "precision": 0.8502664822,
+  "precision_ci95": [0.7240323941, 0.8921498461],
+  "recall": 0.7847891463,
+  "recall_ci95": [0.5924969248, 0.8953292742],
+  "iou": 0.6894984981,
+  "iou_ci95": [0.4861145447, 0.7996070935],
+  "global_threshold_iou": 0.5346303423,
+  "paired_iou_difference": 0.1548681558,
+  "paired_iou_difference_ci95": [0.1070590541, 0.1765543739],
+  "bootstrap": {"unit": "chip", "resamples": 1000, "seed": 0, "interval": "percentile 95%"},
+  "xgboost_comparison": {
+    "status": "not_comparable_on_this_dataset",
+    "reason": "The team XGBoost model requires paired before/after GCOV features and multi-class masks; Sen1Floods11 supplies a single Sentinel-1 acquisition and binary water labels."
+  }
+}

@@ -69,10 +69,12 @@ except ValueError:
 # ---------------------------------------------------------------- the four draft fixtures
 cases, errors = case_store.load_all()
 REQUIRED = [c for c in case_store.ORDER if c not in case_store.OPTIONAL_CASES]
-check("the 4 fixtures load and validate (the optional 5th case is absent, not an error)",
-      [c.id for c in cases] == REQUIRED and not errors, errors)
-check("all fixtures are drafts with their placeholders listed",
-      all(c.status == "draft" and c.placeholders for c in cases))
+check("the 4 fixtures load and validate; the optional 5th case is there only if its file is",
+      [c.id for c in cases if c.id in REQUIRED] == REQUIRED and not errors
+      and all(c.id in REQUIRED or (case_store.CASES_DIR / f"{c.id}.json").is_file() for c in cases), errors)
+HAS_5TH = (case_store.CASES_DIR / "bin-el-ouidane-2026.json").is_file()
+check("all fixtures are drafts with their placeholders listed (the vendored 5th case is final)",
+      all(c.status == "draft" and c.placeholders for c in cases if c.id in REQUIRED))
 base = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
 _lab = {"fr": "x", "en": "x", "ar": "x"}
 base["findings"] = [      # synthetic findings for the contract tests below (the fixtures no longer hold any)
@@ -130,10 +132,11 @@ except ValidationError as exc:
 # ---------------------------------------------------------------- API
 c = TestClient(api.app)
 r = c.get("/api/cases")
-check("GET /api/cases lists the 4 cases in order; the absent 5th case is not listed",
-      r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED, r.text[:300])
-check("GET /api/cases/bin-el-ouidane-2026 without its file: 404 case_not_found",
-      c.get("/api/cases/bin-el-ouidane-2026").status_code == 404)
+check("GET /api/cases lists the cases in order; the 5th only when its file exists",
+      r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED + (["bin-el-ouidane-2026"] if HAS_5TH else []),
+      r.text[:300])
+check("GET /api/cases/bin-el-ouidane-2026: 200 with its file, 404 case_not_found without",
+      c.get("/api/cases/bin-el-ouidane-2026").status_code == (200 if HAS_5TH else 404))
 check("summaries have exactly the contract keys, plus the optional bbox and place (the map extent)",
       all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url", "bbox", "place"}
           and len(s["bbox"]) == 4 and set(s["place"]) == {"fr", "en", "ar"} for s in r.json()))
@@ -479,6 +482,9 @@ from types import SimpleNamespace  # noqa: E402
 
 from config import CACHE_DIR  # noqa: E402
 from science import cases as cs  # noqa: E402
+from science import water  # noqa: E402
+
+water.WATER_DIR = tmp / "no_water_outputs"     # tests never read the vendored backend/water/outputs
 
 work = tmp / "cases_work"
 shutil.copytree(case_store.CASES_DIR, work, ignore=shutil.ignore_patterns("out", "figures"))
@@ -773,7 +779,7 @@ check("GET /api/water/figures/<file> serves the image; traversal and unknown fol
 check("5th case: no reservoir_case.json -> not built, no error", cs.build_reservoir() is None)
 res_lab = {"fr": "r", "en": "r", "ar": "r"}
 reservoir = {**json.loads((case_store.CASES_DIR / "ionosphere-gps.json").read_text(encoding="utf-8")),
-             "id": "bin-el-ouidane-2026", "kind": "method", "status": "final", "placeholders": [],
+             "id": "bin-el-ouidane-2026", "kind": "method", "status": "draft", "placeholders": [],
              "findings": [{"id": "volume", "label": res_lab, "nisar": {"value": 0.9, "uncertainty": 0.1, "unit": "km2",
                                                                        "sigma": 1},
                            "reference": None, "reference_source": None, "agreement": "no_reference"},
@@ -801,11 +807,47 @@ check("5th case: a figure url outside /api/water or /api/cases stops the build",
                  "caption": {"template": "x", "params": {}}}]}), encoding="utf-8")
 hz_ow = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
 ow = [f for f in hz_ow["findings"] if f["id"].startswith("open_water")]
-check("haouz: U-Net open water added as 'Persistent open water (U-Net)'; the headline does not change",
-      len(ow) == 1 and ow[0]["label"]["en"] == "Persistent open water (U-Net)"
+check("haouz: U-Net open water added with the package's own label; the headline does not change",
+      len(ow) == 1 and ow[0]["label"]["en"] == "r"
       and any(f["id"] == "unet_water" for f in hz_ow["figures"]) and hz_ow["headline"] == hz2["headline"],
       [f["id"] for f in hz_ow["findings"]])
 (wdir / "haouz_open_water.json").unlink()
+check("water: package urls 'water/outputs/<figures|rasters>/<file>' map to /api/water/...; others refused",
+      water.served_url("water/outputs/figures/clouds.png", "t") == "/api/water/figures/clouds.png"
+      and water.served_url("water/outputs/rasters/water_change.png", "t") == "/api/water/rasters/water_change.png"
+      and raises(lambda: water.served_url("water/outputs/../secret.png", "t"), water.WaterInputError)
+      and raises(lambda: water.served_url("https://elsewhere/x.png", "t"), water.WaterInputError))
+pl = water._param_lists({"limits": [{"template": "x", "params": {"crid": ["P05023", "P05036"], "ci": [0.35, 2.18],
+                                                                 "n": 3}}]})
+check("water: list template params become scalars with the same values (the frontend has no array param)",
+      pl["limits"][0]["params"] == {"crid": "P05023, P05036", "ci_low": 0.35, "ci_high": 2.18, "n": 3}, pl)
+vendored = Path(__file__).resolve().parents[1] / "water" / "outputs"
+if (vendored / "reservoir_case.json").is_file():
+    water.WATER_DIR = vendored
+    real5 = cs.build_reservoir()
+    real_hz = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+    water.WATER_DIR = tmp / "no_water_outputs"
+    ids5 = [f["id"] for f in real5["findings"]]
+    check("vendored package: Bin El Ouidane is FINAL with its 3 findings (held-out IoU first-class), urls served",
+          real5["status"] == "final" and ids5 == ["water_area_change", "heldout_iou", "orbit_consistency"]
+          and all(f["url"].startswith("/api/water/figures/")
+                  and water.water_path("figures", f["url"].rsplit("/", 1)[1], vendored) for f in real5["figures"])
+          and len(real5["timeline"]) == 32, (real5["status"], ids5))
+    water.WATER_DIR = vendored
+    ri = TestClient(api.app).get("/api/water/raster-index")
+    water.WATER_DIR = tmp / "no_water_outputs"
+    lays = ri.json().get("layers", []) if ri.status_code == 200 else []
+    check("GET /api/water/raster-index: the 3 layers with served urls and [w, s, e, n] bounds",
+          [x["id"] for x in lays] == ["water_before", "water_after", "water_change"]
+          and all(x["url"].startswith("/api/water/rasters/") and x["bounds"][0] < x["bounds"][2] for x in lays),
+          ri.text[:200])
+    rh = {f["id"]: f for f in real_hz["findings"]}
+    check("vendored package: Haouz gets open_water_change (with sigma), clouds.png and the package limits; "
+          "headline unchanged",
+          rh["open_water_change"]["nisar"]["uncertainty"] > 0
+          and any(f["url"] == "/api/water/figures/clouds.png" for f in real_hz["figures"])
+          and any("12-day" in x["text"]["en"] for x in real_hz["limits"])
+          and real_hz["headline"] == hz2["headline"], list(rh))
 
 # --- no 0.0 for a missing value ---------------------------------------------------------------------------------
 kept, nc_lim, nc_ph = cs.split_computed([mw_finding, {**mw_finding, "id": "slip",

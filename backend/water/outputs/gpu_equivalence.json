@@ -1,0 +1,12 @@
+{
+  "dates": 28,
+  "max_prob_diff_fp32_batched_vs_saved": 0.004915595054626465,
+  "max_prob_diff_amp_vs_saved": 0.1290457546710968,
+  "mask_pixels_changed_fp32_batched": 391,
+  "mask_pixels_changed_amp": 7526,
+  "mask_fraction_changed_amp": 0.000258361394861794,
+  "heldout_iou_saved": 0.7629537686470108,
+  "heldout_iou_amp": 0.7627287804232623,
+  "seconds_amp_batched": 3.2,
+  "seconds_fp32_batched": 3.4
+}

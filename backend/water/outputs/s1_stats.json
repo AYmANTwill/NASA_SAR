@@ -1,0 +1,38 @@
+{
+  "channels": [
+    "VV_dB",
+    "VH_dB"
+  ],
+  "split": "train",
+  "n_chips": {
+    "train": 252,
+    "valid": 89,
+    "test": 90
+  },
+  "clip_db": [
+    -30.0,
+    5.0
+  ],
+  "mean_db": [
+    -10.4477,
+    -17.1919
+  ],
+  "std_db": [
+    4.0417,
+    4.3093
+  ],
+  "p0.5_db_median_over_chips": [
+    -19.82,
+    -28.25
+  ],
+  "p99.5_db_median_over_chips": [
+    -3.65,
+    -10.25
+  ],
+  "label_pixels": {
+    "nodata(-1)": 8756881,
+    "dry(0)": 51856372,
+    "water(1)": 5447035
+  },
+  "water_fraction_of_labeled": 0.0951
+}

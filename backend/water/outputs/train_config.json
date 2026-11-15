@@ -1,0 +1,32 @@
+{
+  "seed": 0,
+  "checkpoint": "$NASA_DATA/models/unet_s1.pt",
+  "checkpoint_sha256": "f4534bbfecfe3016be636eb490c8981d4c1c8e0b0c558b1051d8b46c892917c3",
+  "best_epoch": 46,
+  "best_val_iou": 0.6627066416613973,
+  "train_args": {
+    "epochs": 60,
+    "bs": 16,
+    "lr": 0.0003,
+    "crop": 256,
+    "dropout": 0.2,
+    "limit": null,
+    "workers": 4,
+    "eval_only": false
+  },
+  "normalization": {
+    "mean_db": [
+      -10.4477,
+      -17.1919
+    ],
+    "std_db": [
+      4.0417,
+      4.3093
+    ]
+  },
+  "architecture": "smp.Unet resnet34 (ImageNet init), in_channels=2 [VV,VH dB], classes=1, Dropout2d before head",
+  "loss": "masked BCE + masked soft Dice (label -1 ignored)",
+  "optimizer": "AdamW wd=1e-4, cosine LR",
+  "augmentation": "random 256 crops, flips, rot90",
+  "torch": "2.11.0+cu128"
+}

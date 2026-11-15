@@ -1,0 +1,37 @@
+{
+  "rule": "variant with the highest validation-site IoU; must beat the starting checkpoint on the validation site",
+  "val_site": "Al_Massira",
+  "train_sites": [
+    "Al_Wahda",
+    "Idriss_1er",
+    "Mohammed_V",
+    "Oued_El_Makhazine",
+    "Sidi_Mohamed_Ben_Abdellah"
+  ],
+  "base_method": "U-Net + AdaBN",
+  "base_checkpoint": "unet_s1_adabn_s1norm.pt",
+  "input_norm": "s1",
+  "probability_threshold": 0.4,
+  "variants": [
+    {
+      "variant": "nisar",
+      "best_val_iou": 0.9331703222868825,
+      "start_val_iou": 0.46919100147961307,
+      "start_val_area_bias_km2": 75.66516428571428,
+      "improved": true,
+      "checkpoint": "unet_ft_nisar.pt",
+      "best_epoch": 13
+    },
+    {
+      "variant": "mix",
+      "best_val_iou": 0.9157836960249768,
+      "start_val_iou": 0.46919100147961307,
+      "start_val_area_bias_km2": 75.66516428571428,
+      "improved": true,
+      "checkpoint": "unet_ft_mix.pt",
+      "best_epoch": 12
+    }
+  ],
+  "chosen": "nisar",
+  "chosen_checkpoint": "unet_ft_nisar.pt"
+}

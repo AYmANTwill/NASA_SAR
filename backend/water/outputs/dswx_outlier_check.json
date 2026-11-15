@@ -1,0 +1,38 @@
+{
+  "snow_masked_pixels_30m": {
+    "outlier_date": 5181,
+    "nearest_clean_date": 43
+  },
+  "outlier": {
+    "date": "2026-06-29",
+    "sensor": "S2B",
+    "km2_browse": 21.5,
+    "neighbours_median_km2": 32.0,
+    "relative_deviation": 0.328125
+  },
+  "nearest_clean": {
+    "date": "2026-07-01",
+    "sensor": "S2C",
+    "km2_browse": 31.9
+  },
+  "nisar_same_day": {
+    "tag": "Bin_El_Ouidane_T044A_2026-06-29",
+    "model_km2": 34.05
+  },
+  "all_outliers": [
+    {
+      "dswx_date": "2026-06-26",
+      "sensor": "S2A",
+      "dswx_water_km2_browse": 16.2,
+      "comparator_median_km2": 32.1,
+      "rel_dev": 0.4953271028037384
+    },
+    {
+      "dswx_date": "2026-06-29",
+      "sensor": "S2B",
+      "dswx_water_km2_browse": 21.5,
+      "comparator_median_km2": 32.0,
+      "rel_dev": 0.328125
+    }
+  ]
+}
