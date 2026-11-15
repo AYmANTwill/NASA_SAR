@@ -220,6 +220,21 @@ no DEM, default 0), `NISAR_IONO_UNC_MAX_RAD` (1.0), `NISAR_FLAT_PHASE_SIGMA_RAD`
 (0.15), `NISAR_DISCOVERIES_MODE` (`consistent`). Exit codes: `validate_gps.py` and `sign_check.py` return 2 when there is
 nothing to compare, and say why in their files.
 
+## Run the demo
+
+Needs Python 3 (backend dependencies from `backend/requirements.txt`) and Node 20+. The data folder is the output of
+`download_all.py` (default `D:\project\NASA_SAR\data`).
+
+```powershell
+.\start_demo.ps1                          # or: .\start_demo.ps1 -DataDir E:\path\to\data
+.\stop_demo.ps1
+```
+
+Open http://127.0.0.1:5310/en/ (`/fr/`, `/ar/`). The API is on http://127.0.0.1:8000 (`/health`, `/api/cases`).
+The interface is `frontend-v2/` (Vite proxies `/api` to the backend). Logs: `demo_logs/`.
+Bin El Ouidane is final; Panama, Haouz, Venezuela and ionosphere-GPS are drafts shown as in progress.
+The line-of-sight sign is not verified (the script never sets `NISAR_LOS_SIGN_VERIFIED`).
+
 ## Before the demo
 - [ ] `python backend\tests\test_all.py` → 196/196 on the demo laptop
 - [ ] Sign check: `python backend\sign_check.py --data D:\nisar_validation` (see Validation); a human compares with the

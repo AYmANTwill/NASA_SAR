@@ -21,3 +21,4 @@ contract_dump/
 tools/frontend_contract/node_modules/
 tools/frontend_contract/package*.json
 tools/frontend_contract/contract.ts
+demo_logs/
