@@ -1,6 +1,6 @@
 {
-  "method": "U-Net + AdaBN",
-  "probability_threshold": 0.4,
+  "method": "U-Net + AdaBN + NISAR fine-tune",
+  "probability_threshold": 0.35,
   "esri_world_imagery_sources": [
     {
       "lon": -6.42,
@@ -60,39 +60,39 @@
       "dswx_date": "2026-06-16",
       "hls_clear_frac": 0.9939060720561728,
       "false_alarms_vs_dswx": {
-        "false_alarm_km2": 3.9203,
-        "miss_km2": 1.0176,
-        "net_fa_minus_miss_km2": 2.9027000000000003,
-        "shoreline_km2": 1.0474,
-        "exposed_lakebed_km2": 0.0008,
-        "steep_slope_km2": 0.4305,
-        "other_land_km2": 2.4416
+        "false_alarm_km2": 0.4511,
+        "miss_km2": 1.1171,
+        "net_fa_minus_miss_km2": -0.666,
+        "shoreline_km2": 0.36860000000000004,
+        "exposed_lakebed_km2": 0.0002,
+        "steep_slope_km2": 0.031900000000000005,
+        "other_land_km2": 0.0504
       },
       "false_alarms_vs_dswx_and_hls_mndwi_land": {
-        "false_alarm_km2": 3.9127,
-        "miss_km2": 1.0176,
-        "net_fa_minus_miss_km2": 2.8951000000000002,
-        "shoreline_km2": 1.0445,
-        "exposed_lakebed_km2": 0.0008,
-        "steep_slope_km2": 0.4258,
-        "other_land_km2": 2.4416
+        "false_alarm_km2": 0.4484,
+        "miss_km2": 1.1171,
+        "net_fa_minus_miss_km2": -0.6687000000000001,
+        "shoreline_km2": 0.3659,
+        "exposed_lakebed_km2": 0.0002,
+        "steep_slope_km2": 0.031900000000000005,
+        "other_land_km2": 0.0504
       },
       "alignment_m": {
         "ours_vs_dswx_shift_east_north": [
-          -7.5,
-          3.1
+          -4.9,
+          1.3
         ],
         "ours_vs_dswx_iou_at_best_vs_zero_shift": [
-          0.8705,
-          0.8696
+          0.9543,
+          0.9543
         ],
         "ours_vs_hls_mndwi_shift_east_north": [
-          -17.5,
-          10.7
+          -6.2,
+          4.8
         ],
         "ours_vs_hls_mndwi_iou_at_best_vs_zero_shift": [
-          0.8318,
-          0.8295
+          0.9284,
+          0.928
         ],
         "nisar_hh_vs_hls_nir_phase_corr_east_north": [
           -2.0,
@@ -109,39 +109,39 @@
       "dswx_date": "2026-09-21",
       "hls_clear_frac": 0.9896252385154347,
       "false_alarms_vs_dswx": {
-        "false_alarm_km2": 3.7896,
-        "miss_km2": 0.7301000000000001,
-        "net_fa_minus_miss_km2": 3.0595000000000003,
-        "shoreline_km2": 1.1045,
-        "exposed_lakebed_km2": 0.18910000000000002,
-        "steep_slope_km2": 0.4379,
-        "other_land_km2": 2.0581
+        "false_alarm_km2": 0.45530000000000004,
+        "miss_km2": 0.8557,
+        "net_fa_minus_miss_km2": -0.40040000000000003,
+        "shoreline_km2": 0.4187,
+        "exposed_lakebed_km2": 0.01,
+        "steep_slope_km2": 0.016300000000000002,
+        "other_land_km2": 0.0103
       },
       "false_alarms_vs_dswx_and_hls_mndwi_land": {
-        "false_alarm_km2": 3.7744,
-        "miss_km2": 0.7301000000000001,
-        "net_fa_minus_miss_km2": 3.0443000000000002,
-        "shoreline_km2": 1.094,
-        "exposed_lakebed_km2": 0.18910000000000002,
-        "steep_slope_km2": 0.43320000000000003,
-        "other_land_km2": 2.0581
+        "false_alarm_km2": 0.4461,
+        "miss_km2": 0.8557,
+        "net_fa_minus_miss_km2": -0.4096,
+        "shoreline_km2": 0.40950000000000003,
+        "exposed_lakebed_km2": 0.01,
+        "steep_slope_km2": 0.016300000000000002,
+        "other_land_km2": 0.0103
       },
       "alignment_m": {
         "ours_vs_dswx_shift_east_north": [
-          -1.5,
-          0.5
+          1.3,
+          1.4
         ],
         "ours_vs_dswx_iou_at_best_vs_zero_shift": [
-          0.8724,
-          0.8724
+          0.9594,
+          0.9594
         ],
         "ours_vs_hls_mndwi_shift_east_north": [
-          -13.3,
-          7.6
+          4.1,
+          4.7
         ],
         "ours_vs_hls_mndwi_iou_at_best_vs_zero_shift": [
-          0.775,
-          0.7742
+          0.8642,
+          0.8642
         ],
         "nisar_hh_vs_hls_nir_phase_corr_east_north": [
           -2.0,
@@ -151,50 +151,50 @@
       }
     },
     {
-      "tag": "Bin_El_Ouidane_T116A_2026-10-08",
-      "nisar_date": "2026-10-08",
-      "track": 116,
-      "hls_granule": "HLS.S30.T29SQR.2026280T110929.v2.0",
-      "dswx_date": "2026-10-07",
-      "hls_clear_frac": 0.980273303124481,
+      "tag": "Bin_El_Ouidane_T095D_2026-07-26",
+      "nisar_date": "2026-07-26",
+      "track": 95,
+      "hls_granule": "HLS.S30.T29SQR.2026207T105619.v2.0",
+      "dswx_date": "2026-07-26",
+      "hls_clear_frac": 0.9982366827311054,
       "false_alarms_vs_dswx": {
-        "false_alarm_km2": 0.3992,
-        "miss_km2": 1.1149,
-        "net_fa_minus_miss_km2": -0.7157,
-        "shoreline_km2": 0.259,
-        "exposed_lakebed_km2": 0.0179,
-        "steep_slope_km2": 0.0539,
-        "other_land_km2": 0.0684
+        "false_alarm_km2": 0.6266,
+        "miss_km2": 1.0337,
+        "net_fa_minus_miss_km2": -0.4071,
+        "shoreline_km2": 0.5428000000000001,
+        "exposed_lakebed_km2": 0.0022,
+        "steep_slope_km2": 0.0396,
+        "other_land_km2": 0.042
       },
       "false_alarms_vs_dswx_and_hls_mndwi_land": {
-        "false_alarm_km2": 0.392,
-        "miss_km2": 1.1149,
-        "net_fa_minus_miss_km2": -0.7229,
-        "shoreline_km2": 0.2518,
-        "exposed_lakebed_km2": 0.0179,
-        "steep_slope_km2": 0.0539,
-        "other_land_km2": 0.0684
+        "false_alarm_km2": 0.6244000000000001,
+        "miss_km2": 1.0337,
+        "net_fa_minus_miss_km2": -0.4093,
+        "shoreline_km2": 0.5411,
+        "exposed_lakebed_km2": 0.0022,
+        "steep_slope_km2": 0.0391,
+        "other_land_km2": 0.042
       },
       "alignment_m": {
         "ours_vs_dswx_shift_east_north": [
-          1.8,
-          -1.6
+          -8.4,
+          0.3
         ],
         "ours_vs_dswx_iou_at_best_vs_zero_shift": [
-          0.8124,
-          0.8124
+          0.9528,
+          0.9507
         ],
         "ours_vs_hls_mndwi_shift_east_north": [
-          0.8,
-          0.2
+          -14.6,
+          -6.6
         ],
         "ours_vs_hls_mndwi_iou_at_best_vs_zero_shift": [
-          0.7848,
-          0.7848
+          0.82,
+          0.8191
         ],
         "nisar_hh_vs_hls_nir_phase_corr_east_north": [
-          1.0,
-          12.0
+          35.0,
+          -12.0
         ],
         "pixel_m": 10.0
       }
@@ -205,386 +205,314 @@
       "tag": "Bin_El_Ouidane_T044A_2026-06-17",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 3.9203,
-      "miss_km2": 1.0176,
-      "net_fa_minus_miss_km2": 2.9027000000000003,
-      "shoreline_km2": 1.0474,
-      "exposed_lakebed_km2": 0.0008,
-      "steep_slope_km2": 0.4305,
-      "other_land_km2": 2.4416
+      "false_alarm_km2": 0.4511,
+      "miss_km2": 1.1171,
+      "net_fa_minus_miss_km2": -0.666,
+      "shoreline_km2": 0.36860000000000004,
+      "exposed_lakebed_km2": 0.0002,
+      "steep_slope_km2": 0.031900000000000005,
+      "other_land_km2": 0.0504
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-06-20",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 6.7678,
-      "miss_km2": 3.8421000000000003,
-      "net_fa_minus_miss_km2": 2.9257,
-      "shoreline_km2": 1.5009000000000001,
-      "exposed_lakebed_km2": 0.0015,
-      "steep_slope_km2": 0.6713,
-      "other_land_km2": 4.5941
+      "false_alarm_km2": 0.5930000000000001,
+      "miss_km2": 1.1804000000000001,
+      "net_fa_minus_miss_km2": -0.5874,
+      "shoreline_km2": 0.46080000000000004,
+      "exposed_lakebed_km2": 0.0002,
+      "steep_slope_km2": 0.0489,
+      "other_land_km2": 0.08310000000000001
     },
     {
       "tag": "Bin_El_Ouidane_T116A_2026-06-22",
       "set": "held-out",
       "track": 116,
-      "false_alarm_km2": 1.0995000000000001,
-      "miss_km2": 0.3783,
-      "net_fa_minus_miss_km2": 0.7212000000000001,
-      "shoreline_km2": 0.4954,
+      "false_alarm_km2": 0.1721,
+      "miss_km2": 0.2556,
+      "net_fa_minus_miss_km2": -0.0835,
+      "shoreline_km2": 0.1481,
       "exposed_lakebed_km2": 0.0,
-      "steep_slope_km2": 0.26890000000000003,
-      "other_land_km2": 0.3352
+      "steep_slope_km2": 0.0224,
+      "other_land_km2": 0.0016
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-07-02",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 7.575500000000001,
-      "miss_km2": 4.1007,
-      "net_fa_minus_miss_km2": 3.4748,
-      "shoreline_km2": 1.5482,
-      "exposed_lakebed_km2": 0.0068000000000000005,
-      "steep_slope_km2": 0.8254,
-      "other_land_km2": 5.1951
+      "false_alarm_km2": 0.6117,
+      "miss_km2": 0.9001,
+      "net_fa_minus_miss_km2": -0.2884,
+      "shoreline_km2": 0.5047,
+      "exposed_lakebed_km2": 0.0011,
+      "steep_slope_km2": 0.0599,
+      "other_land_km2": 0.046
     },
     {
       "tag": "Bin_El_Ouidane_T116A_2026-07-04",
       "set": "held-out",
       "track": 116,
-      "false_alarm_km2": 0.9836,
-      "miss_km2": 0.306,
-      "net_fa_minus_miss_km2": 0.6776,
-      "shoreline_km2": 0.4773,
+      "false_alarm_km2": 0.16870000000000002,
+      "miss_km2": 0.2982,
+      "net_fa_minus_miss_km2": -0.1295,
+      "shoreline_km2": 0.1433,
       "exposed_lakebed_km2": 0.0,
-      "steep_slope_km2": 0.2303,
-      "other_land_km2": 0.276
+      "steep_slope_km2": 0.0247,
+      "other_land_km2": 0.0007
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-07-11",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 4.218,
-      "miss_km2": 1.1038000000000001,
-      "net_fa_minus_miss_km2": 3.1142000000000003,
-      "shoreline_km2": 1.1247,
-      "exposed_lakebed_km2": 0.0105,
-      "steep_slope_km2": 0.5662,
-      "other_land_km2": 2.5166
+      "false_alarm_km2": 0.5769000000000001,
+      "miss_km2": 1.0708,
+      "net_fa_minus_miss_km2": -0.4939,
+      "shoreline_km2": 0.45380000000000004,
+      "exposed_lakebed_km2": 0.0005,
+      "steep_slope_km2": 0.027800000000000002,
+      "other_land_km2": 0.09480000000000001
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-07-14",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 3.4079,
-      "miss_km2": 5.205900000000001,
-      "net_fa_minus_miss_km2": -1.798,
-      "shoreline_km2": 0.8797,
-      "exposed_lakebed_km2": 0.005,
-      "steep_slope_km2": 0.43060000000000004,
-      "other_land_km2": 2.0926
+      "false_alarm_km2": 0.5185000000000001,
+      "miss_km2": 1.5822,
+      "net_fa_minus_miss_km2": -1.0637,
+      "shoreline_km2": 0.4071,
+      "exposed_lakebed_km2": 0.0001,
+      "steep_slope_km2": 0.0455,
+      "other_land_km2": 0.0658
     },
     {
       "tag": "Bin_El_Ouidane_T116A_2026-07-16",
       "set": "held-out",
       "track": 116,
-      "false_alarm_km2": 0.8667,
-      "miss_km2": 0.6105,
-      "net_fa_minus_miss_km2": 0.25620000000000004,
-      "shoreline_km2": 0.3904,
+      "false_alarm_km2": 0.1865,
+      "miss_km2": 0.2847,
+      "net_fa_minus_miss_km2": -0.09820000000000001,
+      "shoreline_km2": 0.1553,
       "exposed_lakebed_km2": 0.0,
-      "steep_slope_km2": 0.1915,
-      "other_land_km2": 0.2848
+      "steep_slope_km2": 0.0262,
+      "other_land_km2": 0.005
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-07-23",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 5.699800000000001,
-      "miss_km2": 1.3007,
-      "net_fa_minus_miss_km2": 4.3991,
-      "shoreline_km2": 1.3557000000000001,
-      "exposed_lakebed_km2": 0.031900000000000005,
-      "steep_slope_km2": 0.6946,
-      "other_land_km2": 3.6176000000000004
+      "false_alarm_km2": 0.5458000000000001,
+      "miss_km2": 0.9319000000000001,
+      "net_fa_minus_miss_km2": -0.3861,
+      "shoreline_km2": 0.5008,
+      "exposed_lakebed_km2": 0.0066,
+      "steep_slope_km2": 0.0187,
+      "other_land_km2": 0.019700000000000002
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-07-26",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 7.067200000000001,
-      "miss_km2": 6.059200000000001,
-      "net_fa_minus_miss_km2": 1.008,
-      "shoreline_km2": 1.5059,
-      "exposed_lakebed_km2": 0.035,
-      "steep_slope_km2": 0.779,
-      "other_land_km2": 4.7473
+      "false_alarm_km2": 0.6266,
+      "miss_km2": 1.0337,
+      "net_fa_minus_miss_km2": -0.4071,
+      "shoreline_km2": 0.5428000000000001,
+      "exposed_lakebed_km2": 0.0022,
+      "steep_slope_km2": 0.0396,
+      "other_land_km2": 0.042
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-08-16",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 3.7287000000000003,
-      "miss_km2": 0.9894000000000001,
-      "net_fa_minus_miss_km2": 2.7393,
-      "shoreline_km2": 0.9598000000000001,
-      "exposed_lakebed_km2": 0.0683,
-      "steep_slope_km2": 0.4536,
-      "other_land_km2": 2.247
+      "false_alarm_km2": 0.4046,
+      "miss_km2": 1.0405,
+      "net_fa_minus_miss_km2": -0.6359,
+      "shoreline_km2": 0.32280000000000003,
+      "exposed_lakebed_km2": 0.0022,
+      "steep_slope_km2": 0.0179,
+      "other_land_km2": 0.061700000000000005
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-08-19",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 6.248200000000001,
-      "miss_km2": 1.0557,
-      "net_fa_minus_miss_km2": 5.1925,
-      "shoreline_km2": 1.3902,
-      "exposed_lakebed_km2": 0.1033,
-      "steep_slope_km2": 0.5259,
-      "other_land_km2": 4.228800000000001
+      "false_alarm_km2": 0.5556,
+      "miss_km2": 1.0508,
+      "net_fa_minus_miss_km2": -0.49520000000000003,
+      "shoreline_km2": 0.4424,
+      "exposed_lakebed_km2": 0.0031000000000000003,
+      "steep_slope_km2": 0.0361,
+      "other_land_km2": 0.07400000000000001
     },
     {
       "tag": "Bin_El_Ouidane_T116A_2026-08-21",
       "set": "held-out",
       "track": 116,
-      "false_alarm_km2": 1.0403,
-      "miss_km2": 0.5221,
-      "net_fa_minus_miss_km2": 0.5182,
-      "shoreline_km2": 0.43510000000000004,
-      "exposed_lakebed_km2": 0.0039000000000000003,
-      "steep_slope_km2": 0.2762,
-      "other_land_km2": 0.3251
+      "false_alarm_km2": 0.1495,
+      "miss_km2": 0.29200000000000004,
+      "net_fa_minus_miss_km2": -0.14250000000000002,
+      "shoreline_km2": 0.12340000000000001,
+      "exposed_lakebed_km2": 0.00030000000000000003,
+      "steep_slope_km2": 0.023100000000000002,
+      "other_land_km2": 0.0027
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-08-28",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 2.4768000000000003,
-      "miss_km2": 1.4667000000000001,
-      "net_fa_minus_miss_km2": 1.0101,
-      "shoreline_km2": 0.8336,
-      "exposed_lakebed_km2": 0.1395,
-      "steep_slope_km2": 0.30560000000000004,
-      "other_land_km2": 1.1981000000000002
+      "false_alarm_km2": 0.595,
+      "miss_km2": 1.0768,
+      "net_fa_minus_miss_km2": -0.4818,
+      "shoreline_km2": 0.4572,
+      "exposed_lakebed_km2": 0.0227,
+      "steep_slope_km2": 0.0206,
+      "other_land_km2": 0.0945
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-08-31",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 3.1637,
-      "miss_km2": 4.7292000000000005,
-      "net_fa_minus_miss_km2": -1.5655000000000001,
-      "shoreline_km2": 0.8947,
-      "exposed_lakebed_km2": 0.09430000000000001,
-      "steep_slope_km2": 0.3784,
-      "other_land_km2": 1.7963
+      "false_alarm_km2": 0.6197,
+      "miss_km2": 1.3674000000000002,
+      "net_fa_minus_miss_km2": -0.7477,
+      "shoreline_km2": 0.4887,
+      "exposed_lakebed_km2": 0.006900000000000001,
+      "steep_slope_km2": 0.0354,
+      "other_land_km2": 0.0887
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-09-09",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 2.4909000000000003,
-      "miss_km2": 1.552,
-      "net_fa_minus_miss_km2": 0.9389000000000001,
-      "shoreline_km2": 0.7707,
-      "exposed_lakebed_km2": 0.15480000000000002,
-      "steep_slope_km2": 0.2564,
-      "other_land_km2": 1.3090000000000002
+      "false_alarm_km2": 0.4213,
+      "miss_km2": 1.1985000000000001,
+      "net_fa_minus_miss_km2": -0.7772,
+      "shoreline_km2": 0.3451,
+      "exposed_lakebed_km2": 0.0051,
+      "steep_slope_km2": 0.0146,
+      "other_land_km2": 0.0565
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-09-12",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 4.6764,
-      "miss_km2": 4.4511,
-      "net_fa_minus_miss_km2": 0.2253,
-      "shoreline_km2": 1.1746,
-      "exposed_lakebed_km2": 0.13570000000000002,
-      "steep_slope_km2": 0.6847000000000001,
-      "other_land_km2": 2.6814
+      "false_alarm_km2": 0.7244,
+      "miss_km2": 0.7359,
+      "net_fa_minus_miss_km2": -0.0115,
+      "shoreline_km2": 0.5946,
+      "exposed_lakebed_km2": 0.014100000000000001,
+      "steep_slope_km2": 0.0475,
+      "other_land_km2": 0.0682
     },
     {
       "tag": "Bin_El_Ouidane_T116A_2026-09-14",
       "set": "held-out",
       "track": 116,
-      "false_alarm_km2": 0.8581000000000001,
-      "miss_km2": 0.7762,
-      "net_fa_minus_miss_km2": 0.0819,
-      "shoreline_km2": 0.4113,
-      "exposed_lakebed_km2": 0.004,
-      "steep_slope_km2": 0.2048,
-      "other_land_km2": 0.23800000000000002
+      "false_alarm_km2": 0.167,
+      "miss_km2": 0.2318,
+      "net_fa_minus_miss_km2": -0.0648,
+      "shoreline_km2": 0.14550000000000002,
+      "exposed_lakebed_km2": 0.0016,
+      "steep_slope_km2": 0.016300000000000002,
+      "other_land_km2": 0.0036000000000000003
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-09-21",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 3.7896,
-      "miss_km2": 0.7301000000000001,
-      "net_fa_minus_miss_km2": 3.0595000000000003,
-      "shoreline_km2": 1.1045,
-      "exposed_lakebed_km2": 0.18910000000000002,
-      "steep_slope_km2": 0.4379,
-      "other_land_km2": 2.0581
+      "false_alarm_km2": 0.45530000000000004,
+      "miss_km2": 0.8557,
+      "net_fa_minus_miss_km2": -0.40040000000000003,
+      "shoreline_km2": 0.4187,
+      "exposed_lakebed_km2": 0.01,
+      "steep_slope_km2": 0.016300000000000002,
+      "other_land_km2": 0.0103
     },
     {
       "tag": "Bin_El_Ouidane_T095D_2026-09-24",
       "set": "held-out",
       "track": 95,
-      "false_alarm_km2": 6.1574,
-      "miss_km2": 4.8828000000000005,
-      "net_fa_minus_miss_km2": 1.2746,
-      "shoreline_km2": 1.2921,
-      "exposed_lakebed_km2": 0.2381,
-      "steep_slope_km2": 0.6613,
-      "other_land_km2": 3.9659
+      "false_alarm_km2": 0.5468000000000001,
+      "miss_km2": 0.8237,
+      "net_fa_minus_miss_km2": -0.27690000000000003,
+      "shoreline_km2": 0.4781,
+      "exposed_lakebed_km2": 0.0054,
+      "steep_slope_km2": 0.0429,
+      "other_land_km2": 0.0204
     },
     {
       "tag": "Bin_El_Ouidane_T116A_2026-09-26",
       "set": "held-out",
       "track": 116,
-      "false_alarm_km2": 0.9689000000000001,
-      "miss_km2": 0.4626,
-      "net_fa_minus_miss_km2": 0.5063,
-      "shoreline_km2": 0.4509,
-      "exposed_lakebed_km2": 0.0061,
-      "steep_slope_km2": 0.23720000000000002,
-      "other_land_km2": 0.2747
+      "false_alarm_km2": 0.1598,
+      "miss_km2": 0.2775,
+      "net_fa_minus_miss_km2": -0.1177,
+      "shoreline_km2": 0.13240000000000002,
+      "exposed_lakebed_km2": 0.0025,
+      "steep_slope_km2": 0.021,
+      "other_land_km2": 0.0039000000000000003
     },
     {
       "tag": "Bin_El_Ouidane_T044A_2026-10-03",
       "set": "selection",
       "track": 44,
-      "false_alarm_km2": 0.7038,
-      "miss_km2": 6.3923000000000005,
-      "net_fa_minus_miss_km2": -5.6885,
-      "shoreline_km2": 0.269,
-      "exposed_lakebed_km2": 0.058800000000000005,
-      "steep_slope_km2": 0.12610000000000002,
-      "other_land_km2": 0.2499
-    },
-    {
-      "tag": "Bin_El_Ouidane_T095D_2026-10-06",
-      "set": "held-out",
-      "track": 95,
-      "false_alarm_km2": 2.2989,
-      "miss_km2": 3.5254000000000003,
-      "net_fa_minus_miss_km2": -1.2265000000000001,
-      "shoreline_km2": 0.7757000000000001,
-      "exposed_lakebed_km2": 0.34790000000000004,
-      "steep_slope_km2": 0.1003,
-      "other_land_km2": 1.075
-    },
-    {
-      "tag": "Bin_El_Ouidane_T116A_2026-10-08",
-      "set": "held-out",
-      "track": 116,
-      "false_alarm_km2": 0.3992,
-      "miss_km2": 1.1149,
-      "net_fa_minus_miss_km2": -0.7157,
-      "shoreline_km2": 0.259,
-      "exposed_lakebed_km2": 0.0179,
-      "steep_slope_km2": 0.0539,
-      "other_land_km2": 0.0684
-    },
-    {
-      "tag": "Bin_El_Ouidane_T044A_2026-10-15",
-      "set": "selection",
-      "track": 44,
-      "false_alarm_km2": 1.7217,
-      "miss_km2": 2.061,
-      "net_fa_minus_miss_km2": -0.3393,
-      "shoreline_km2": 0.6457,
-      "exposed_lakebed_km2": 0.1302,
-      "steep_slope_km2": 0.1708,
-      "other_land_km2": 0.775
-    },
-    {
-      "tag": "Bin_El_Ouidane_T044A_2026-10-27",
-      "set": "selection",
-      "track": 44,
-      "false_alarm_km2": 5.7211,
-      "miss_km2": 0.7768,
-      "net_fa_minus_miss_km2": 4.9443,
-      "shoreline_km2": 1.351,
-      "exposed_lakebed_km2": 0.24130000000000001,
-      "steep_slope_km2": 0.7069000000000001,
-      "other_land_km2": 3.4219000000000004
-    },
-    {
-      "tag": "Bin_El_Ouidane_T095D_2026-10-30",
-      "set": "held-out",
-      "track": 95,
-      "false_alarm_km2": 4.162100000000001,
-      "miss_km2": 2.4656000000000002,
-      "net_fa_minus_miss_km2": 1.6965000000000001,
-      "shoreline_km2": 1.0450000000000002,
-      "exposed_lakebed_km2": 0.17900000000000002,
-      "steep_slope_km2": 0.531,
-      "other_land_km2": 2.4071000000000002
-    },
-    {
-      "tag": "Bin_El_Ouidane_T116A_2026-11-01",
-      "set": "held-out",
-      "track": 116,
-      "false_alarm_km2": 1.2218,
-      "miss_km2": 0.43920000000000003,
-      "net_fa_minus_miss_km2": 0.7826000000000001,
-      "shoreline_km2": 0.533,
-      "exposed_lakebed_km2": 0.0132,
-      "steep_slope_km2": 0.3019,
-      "other_land_km2": 0.37370000000000003
+      "false_alarm_km2": 0.366,
+      "miss_km2": 1.5162,
+      "net_fa_minus_miss_km2": -1.1502000000000001,
+      "shoreline_km2": 0.3125,
+      "exposed_lakebed_km2": 0.0148,
+      "steep_slope_km2": 0.0056,
+      "other_land_km2": 0.033100000000000004
     }
   ],
   "false_alarm_summary_by_track": {
     "44": {
-      "false_alarm_km2": 3.447,
-      "miss_km2": 1.739,
-      "net_fa_minus_miss_km2": 1.708,
-      "shoreline_km2": 0.946,
-      "exposed_lakebed_km2": 0.103,
-      "steep_slope_km2": 0.415,
-      "other_land_km2": 1.983
+      "false_alarm_km2": 0.477,
+      "miss_km2": 1.101,
+      "net_fa_minus_miss_km2": -0.624,
+      "shoreline_km2": 0.397,
+      "exposed_lakebed_km2": 0.008,
+      "steep_slope_km2": 0.019,
+      "other_land_km2": 0.053
     },
     "95": {
-      "false_alarm_km2": 5.153,
-      "miss_km2": 4.032,
-      "net_fa_minus_miss_km2": 1.121,
-      "shoreline_km2": 1.201,
-      "exposed_lakebed_km2": 0.115,
-      "steep_slope_km2": 0.559,
-      "other_land_km2": 3.278
+      "false_alarm_km2": 0.6,
+      "miss_km2": 1.084,
+      "net_fa_minus_miss_km2": -0.485,
+      "shoreline_km2": 0.49,
+      "exposed_lakebed_km2": 0.004,
+      "steep_slope_km2": 0.044,
+      "other_land_km2": 0.061
     },
     "116": {
-      "false_alarm_km2": 0.93,
-      "miss_km2": 0.576,
-      "net_fa_minus_miss_km2": 0.354,
-      "shoreline_km2": 0.432,
-      "exposed_lakebed_km2": 0.006,
-      "steep_slope_km2": 0.221,
-      "other_land_km2": 0.272
+      "false_alarm_km2": 0.167,
+      "miss_km2": 0.273,
+      "net_fa_minus_miss_km2": -0.106,
+      "shoreline_km2": 0.141,
+      "exposed_lakebed_km2": 0.001,
+      "steep_slope_km2": 0.022,
+      "other_land_km2": 0.003
     }
   },
   "false_alarm_summary_by_set": {
     "held-out": {
-      "false_alarm_km2": 3.276,
-      "miss_km2": 2.496,
-      "net_fa_minus_miss_km2": 0.78,
-      "shoreline_km2": 0.859,
-      "exposed_lakebed_km2": 0.066,
-      "steep_slope_km2": 0.408,
-      "other_land_km2": 1.942
+      "false_alarm_km2": 0.414,
+      "miss_km2": 0.737,
+      "net_fa_minus_miss_km2": -0.322,
+      "shoreline_km2": 0.341,
+      "exposed_lakebed_km2": 0.003,
+      "steep_slope_km2": 0.035,
+      "other_land_km2": 0.036
     },
     "selection": {
-      "false_alarm_km2": 3.447,
-      "miss_km2": 1.739,
-      "net_fa_minus_miss_km2": 1.708,
-      "shoreline_km2": 0.946,
-      "exposed_lakebed_km2": 0.103,
-      "steep_slope_km2": 0.415,
-      "other_land_km2": 1.983
+      "false_alarm_km2": 0.477,
+      "miss_km2": 1.101,
+      "net_fa_minus_miss_km2": -0.624,
+      "shoreline_km2": 0.397,
+      "exposed_lakebed_km2": 0.008,
+      "steep_slope_km2": 0.019,
+      "other_land_km2": 0.053
     }
   }
 }

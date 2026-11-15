@@ -18,7 +18,7 @@
       "legend": {
         "water": "#2684ff"
       },
-      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN)"
+      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN + NISAR fine-tune)"
     },
     {
       "id": "water_after",
@@ -34,7 +34,7 @@
       "legend": {
         "water": "#2684ff"
       },
-      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN)"
+      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN + NISAR fine-tune)"
     },
     {
       "id": "water_change",
@@ -54,7 +54,37 @@
         "gain": "#1f77b4",
         "loss": "#d62728"
       },
-      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN)"
+      "source": "NISAR GCOV, Water U-Net (U-Net + AdaBN + NISAR fine-tune)"
+    },
+    {
+      "id": "optical_before",
+      "file": "rasters/optical_before.png",
+      "url": "water/outputs/rasters/optical_before.png",
+      "bounds": [
+        -6.488862,
+        32.052841,
+        -6.340939,
+        32.142782
+      ],
+      "date": "2026-06-17",
+      "role": "background",
+      "legend": {},
+      "source": "HLS Sentinel-2B 2026-06-16 true colour (the acquisition the matched DSWx map was computed from); show it under the water layers instead of the default basemap"
+    },
+    {
+      "id": "optical_after",
+      "file": "rasters/optical_after.png",
+      "url": "water/outputs/rasters/optical_after.png",
+      "bounds": [
+        -6.488862,
+        32.052841,
+        -6.340939,
+        32.142782
+      ],
+      "date": "2026-09-21",
+      "role": "background",
+      "legend": {},
+      "source": "HLS Sentinel-2A 2026-09-21 true colour (the acquisition the matched DSWx map was computed from); show it under the water layers instead of the default basemap"
     }
   ]
 }

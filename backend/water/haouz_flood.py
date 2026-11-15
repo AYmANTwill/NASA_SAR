@@ -21,7 +21,7 @@ import torch
 from adabn import load_scene, norm_scene, predict_scene
 from common import BIG_OUT, DATA, MODELS, OUTPUTS, retry, dpath, rel
 from data_s1 import load_stats
-from evaluate import METHODS
+from evaluate import METHODS, method_threshold
 from model import load_model
 from nisar_prep import lee_filter, login, read_subset, to_db, write_tif
 from nisar_search import dswx_acquisitions, search_dswx, search_nisar
@@ -66,8 +66,8 @@ def prepare(scenes: pd.DataFrame) -> pd.DataFrame:
     import earthaccess
     import rasterio
 
-    login()
-    fs = earthaccess.get_fsspec_https_session()
+    from common import https_fs
+    fs = https_fs()
     HAOUZ_DIR.mkdir(parents=True, exist_ok=True)
     paths = []
     for _, r in scenes.iterrows():
@@ -118,13 +118,8 @@ def _catalog_vrts(granule: str, source: Path) -> None:
 
 def method_and_model(device):
     # Reuse the reservoir-selected transfer variant only when its checkpoint exists.
-    method = "U-Net source-only"
-    results = OUTPUTS / "results.csv"
-    if results.exists():
-        r = pd.read_csv(results)
-        r = r[r.domain.astype(str).str.startswith("NISAR") & r.method.isin(METHODS)]
-        if len(r):
-            method = r.sort_values("iou", ascending=False).iloc[0].method
+    from timeseries import best_method
+    method = best_method()  # the operational variant (chosen on the selection track, heldout_eval.json)
     ck, mode = METHODS[method]
     if not (MODELS / ck).exists():
         method, (ck, mode) = "U-Net source-only", METHODS["U-Net source-only"]
@@ -138,7 +133,7 @@ def infer(scenes: pd.DataFrame, mc: int) -> tuple[list[dict], dict]:
     device = gpu_start(__file__)
     method, mode, model = method_and_model(device)
     stats = load_stats()
-    pthr = json.loads((OUTPUTS / "thresholds.json").read_text())["unet_probability_threshold"]
+    pthr = method_threshold(method)
     HAOUZ_BIG.mkdir(parents=True, exist_ok=True)
     track_rows, main = [], {}
     for (track, direction), g in scenes.groupby(["track", "direction"]):
@@ -147,7 +142,7 @@ def infer(scenes: pd.DataFrame, mc: int) -> tuple[list[dict], dict]:
         for period in ("pre", "post"):
             x, prof = load_scene(g.loc[period, "nisar_tif"])
             valid = np.all(np.isfinite(x), axis=0)
-            xn, _ = norm_scene(x, mode, stats)
+            xn, _ = norm_scene(x, mode, stats, src=g.loc[period, "nisar_tif"])
             prob, std = predict_scene(model, xn, device, mc=0)
             arrays[period] = (x, prof, valid, xn, prob, std)
         pre, post = arrays["pre"], arrays["post"]
@@ -206,8 +201,8 @@ def reference_dswx(profile) -> dict | None:
     if pre is None or post is None:
         return None
     shape = (profile["height"], profile["width"])
-    import earthaccess
-    fs = earthaccess.get_fsspec_https_session()
+    from common import https_fs
+    fs = https_fs()
     r0 = dswx_reference([fs.open(u, "rb") for u in pre.wtr_urls.split(";") if u],
                         profile["crs"].to_epsg(), profile["transform"], shape)
     r1 = dswx_reference([fs.open(u, "rb") for u in post.wtr_urls.split(";") if u],

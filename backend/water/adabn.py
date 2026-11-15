@@ -13,6 +13,8 @@ from __future__ import annotations
 import copy
 import os
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import rasterio
@@ -40,13 +42,31 @@ def load_scene(path) -> tuple[np.ndarray, dict]:
         return s.read().astype(np.float32), s.profile
 
 
-def norm_scene(x_db: np.ndarray, mode: str, s1: dict) -> tuple[np.ndarray, np.ndarray]:
-    """mode 's1' = S1 training stats, 'scene' = the scene's own stats. HH->VV slot, HV->VH slot."""
+INC_MEAN, INC_STD = 40.0, 5.0  # incidence-angle input channel (v3), degrees
+
+
+def inc_path(src):
+    """Incidence raster of a scene GeoTIFF (finetune/ft_incidence.py names it after the scene file)."""
+    from common import DATA, dpath
+    return DATA / "finetune" / "incidence" / f"{Path(str(dpath(src))).stem}_inc.tif"
+
+
+def norm_scene(x_db: np.ndarray, mode: str, s1: dict, src=None) -> tuple[np.ndarray, np.ndarray]:
+    """mode 's1' = S1 training stats, 'scene' = the scene's own stats, 's1inc' = 's1' + incidence-angle channel
+    (needs src, the scene GeoTIFF path). HH->VV slot, HV->VH slot."""
     if mode == "scene":
         mean, std = scene_stats(x_db)
     else:
         mean, std = s1["mean_db"], s1["std_db"]
-    return normalize(x_db, mean, std)
+    xn, valid = normalize(x_db[:2], mean, std)
+    if mode == "s1inc":
+        p = inc_path(src)
+        if not p.exists():
+            raise FileNotFoundError(f"incidence raster missing: {p} (run finetune/ft_incidence.py)")
+        with rasterio.open(p) as s:
+            a = s.read(1).astype(np.float32)
+        xn = np.concatenate([xn, np.nan_to_num((a - INC_MEAN) / INC_STD, nan=0.0)[None]]).astype(np.float32)
+    return xn, valid
 
 
 def tiles(h: int, w: int, size: int = TILE, stride: int = STRIDE):

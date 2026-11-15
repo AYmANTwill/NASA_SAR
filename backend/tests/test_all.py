@@ -1426,6 +1426,13 @@ check("API contract: validation event, correction facts, sign basis, pair qualit
 check("plan_nisar.json still byte-identical after all Morocco checks",
       hashlib.sha256(PLAN_NISAR.read_bytes()).hexdigest() == sha_before)
 
+# --- 7. the vendored water package's own tests (backend/tests/test_water.py, copied as-is) ------------------------
+import subprocess  # noqa: E402
+_tw = subprocess.run([sys.executable, str(ROOT / "tests" / "test_water.py")], cwd=ROOT, capture_output=True,
+                     text=True, encoding="utf-8", errors="replace", env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+check("test_water.py (vendored nisar-water package) passes", _tw.returncode == 0,
+      (_tw.stdout + _tw.stderr).strip().splitlines()[-3:])
+
 n_ok = sum(ok for _, ok in results)
 print(f"\n{n_ok}/{len(results)} checks passed")
 sys.exit(0 if n_ok == len(results) else 1)

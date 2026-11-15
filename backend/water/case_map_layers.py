@@ -36,6 +36,21 @@ def main() -> None:
         layers.append({"id": name, "file": f"rasters/{name}.png", "url": f"water/outputs/rasters/{name}.png",
                        "bounds": [round(v, 6) for v in bounds], **date, "legend": legend,
                        "source": f"NISAR GCOV, Water U-Net ({pair['method']})"})
+    # Same-period optical backgrounds (HLS scene of the matched DSWx map): the web map's own basemap is an old
+    # mosaic (drought-time lake) and would make correct water look like it covers land; show these under the water.
+    from output_assets import hls_rgb
+    for when, key in (("before", "pre"), ("after", "post")):
+        h = hls_rgb(pair[key]["tag"])
+        if h is None:
+            continue
+        rgb, hb, label = h
+        name = f"optical_{when}"
+        alpha = np.where(rgb.sum(2) > 0, 255, 0).astype(np.uint8)
+        Image.fromarray(np.dstack([(rgb * 255).astype(np.uint8), alpha]), "RGBA").save(RASTERS / f"{name}.png", optimize=True)
+        layers.append({"id": name, "file": f"rasters/{name}.png", "url": f"water/outputs/rasters/{name}.png",
+                       "bounds": [round(v, 6) for v in hb], "date": pair[key]["date"], "role": "background",
+                       "legend": {}, "source": f"{label} true colour (the acquisition the matched DSWx map was computed "
+                                             "from); show it under the water layers instead of the default basemap"})
     (OUTPUTS / "raster_index.json").write_text(json.dumps({
         "case_id": "bin-el-ouidane-2026", "crs": "EPSG:4326", "bounds_order": "[west, south, east, north], pixel outer edges",
         "format": "RGBA PNG, north-up, transparent = no data", "layers": layers}, indent=2), encoding="utf-8")

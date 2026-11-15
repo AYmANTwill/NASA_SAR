@@ -332,6 +332,12 @@ def split_computed(findings: list[dict]) -> tuple[list[dict], list[dict], list[s
 OWN_KEYS = ("findings", "limits", "exposure")      # always from this build, never from the previous file
 
 
+IN_PROGRESS = {"template": "backend.case_in_progress", "params": {},
+               "text": {"fr": "En cours : aucune mesure de cette étude n'est encore calculée.",
+                        "en": "In progress: no measurement of this case is computed yet.",
+                        "ar": "قيد الإنجاز: لم يُحسب أي قياس لهذه الدراسة بعد."}}
+
+
 def finalize(base: dict, parts: dict, placeholders: list[str]) -> dict:
     """Merges the computed parts into the draft, decides the status, validates against the contract.
     findings / limits / exposure never come from the base file (it is the previous build or a draft fixture)."""
@@ -346,6 +352,8 @@ def finalize(base: dict, parts: dict, placeholders: list[str]) -> dict:
         placeholders.append("limits: none computed")
     if parts.get("headline") is None:       # the draft's "[DRAFT]" texts would otherwise survive
         placeholders.append("headline: no finding to report")
+    if not findings:                        # nothing measured: say "in progress", never an old or numeric headline
+        case["headline"] = IN_PROGRESS
     if not any(f.get("layer") for f in parts.get("figures") or []):
         placeholders.append("figures: no map with a layer")
     if not parts.get("timeline"):
@@ -361,6 +369,26 @@ def finalize(base: dict, parts: dict, placeholders: list[str]) -> dict:
 
 def _base(case_id: str) -> dict:
     return json.loads((CASES_DIR / f"{case_id}.json").read_text(encoding="utf-8"))
+
+
+PANAMA_LIMITS = "limits_panama.json"
+
+
+def panama_extra_limits(results: Path) -> list[dict]:
+    """Anass's results/panama-2026/limits_panama.json ({"limits": [{fr, en, ar}]}) as TemplatedText, texts as given.
+    No file, or a file without that shape: nothing (logged), never an error."""
+    path = results / "panama-2026" / PANAMA_LIMITS
+    if not path.is_file():
+        return []
+    try:
+        items = json.loads(path.read_text(encoding="utf-8"))["limits"]
+        out = [TemplatedText.model_validate({"template": f"backend.panama_limit_{i}", "params": {},
+                                             "text": {k: item[k] for k in ("fr", "en", "ar")}}).model_dump(mode="json")
+               for i, item in enumerate(items, 1)]
+    except (ValueError, KeyError, TypeError, ValidationError) as exc:
+        log.warning("panama-2026: %s ignored (%s)", path, exc)
+        return []
+    return out
 
 
 def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool) -> dict:
@@ -380,6 +408,7 @@ def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool
     maps, m4 = _maps(case_id, pairs, ev.lat, ev.lon) if ev else ([], [])
     if case_id == "panama-2026":
         findings, figures, limits, m2 = fault_part(case_id)
+        limits = list(limits) + panama_extra_limits(results)
     else:
         _raw, findings, figures, limits, m2 = results_part(case_id, results)
     exposure, m3 = exposure_part(case_id)
@@ -414,8 +443,9 @@ def build_flood(case_id: str, results: Path, offline: bool) -> dict:
     head = haouz_case.headline(findings, info)          # the U-Net open water does not change the headline
     try:
         ow_findings, ow_figures, ow_limits = water.haouz_open_water()
-    except water.WaterInputError as exc:
-        raise CaseInputError(str(exc)) from exc
+    except water.WaterInputError as exc:            # production: Haouz without the water extras
+        water.skip_or_raise("Haouz open water", exc, CaseInputError)
+        ow_findings, ow_figures, ow_limits = [], [], []
     parts = {"title": haouz_case.TITLE, "findings": (findings + ow_findings) or None,
              "figures": figures + ow_figures, "exposure": None,
              "limits": limits + ow_limits, "date": raw.get("date"), "timeline": tl or None,
@@ -509,8 +539,9 @@ def build_reservoir() -> dict | None:
     applies; it is final only if its file says so and nothing had to be left out."""
     try:
         data = water.reservoir_case()
-    except water.WaterInputError as exc:
-        raise CaseInputError(str(exc)) from exc
+    except water.WaterInputError as exc:            # production: the 5th case is not served
+        water.skip_or_raise(water.RESERVOIR_ID, exc, CaseInputError)
+        return None
     if data is None:
         return None
     findings, nc_limits, nc_missing = split_computed(data.get("findings", []))
@@ -521,7 +552,9 @@ def build_reservoir() -> dict | None:
     try:
         return CaseStudy.model_validate(case).model_dump(mode="json")
     except ValidationError as exc:
-        raise CaseInputError(f"{water.RESERVOIR_ID}: the assembled case breaks the contract: {exc}") from exc
+        water.skip_or_raise(water.RESERVOIR_ID, water.WaterInputError(
+            f"{water.RESERVOIR_ID}: the assembled case breaks the contract: {exc}"), CaseInputError)
+        return None
 
 
 def build_all(results: Path = RESULTS, venezuela_event: str | None = None, offline: bool = False,

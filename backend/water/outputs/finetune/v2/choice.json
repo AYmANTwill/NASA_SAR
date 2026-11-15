@@ -1,0 +1,143 @@
+{
+  "rule": "among variants that beat the start on the validation site: prefer a kept epoch within the bias tolerance, then the lowest |area bias| at the validation-chosen threshold, then the highest IoU",
+  "run": "v2",
+  "n_train_scenes": 75,
+  "n_val_scenes": 14,
+  "chosen_threshold": 0.35,
+  "val_site": "Al_Massira",
+  "train_sites": [
+    "Al_Wahda",
+    "Idriss_1er",
+    "Mohammed_V",
+    "Oued_El_Makhazine",
+    "Sidi_Mohamed_Ben_Abdellah"
+  ],
+  "base_method": "U-Net + AdaBN",
+  "base_checkpoint": "unet_s1_adabn_s1norm.pt",
+  "input_norm": "s1",
+  "probability_threshold": 0.4,
+  "variants": [
+    {
+      "variant": "base",
+      "area_weight": 0.0,
+      "start_val_iou": 0.46919100147961307,
+      "start_val_area_bias_km2": 75.66516428571428,
+      "val_water_km2": 73.18701428571428,
+      "bias_tolerance_km2": 3.6593507142857145,
+      "improved": true,
+      "checkpoint": "unet_ft_v2_base.pt",
+      "kept_epoch": 12,
+      "kept_within_bias_tol": true,
+      "kept_val_iou": 0.9529779363292946,
+      "kept_val_area_bias_km2": -0.3613071428571429,
+      "val_threshold": 0.35,
+      "val_iou_at_val_threshold": 0.9523538629072249,
+      "val_bias_at_val_threshold": -0.026642857142857124,
+      "val_grid": {
+        "thr": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7
+        ],
+        "iou": [
+          0.9473896588648392,
+          0.9497332420317641,
+          0.9513214905667261,
+          0.9523538629072249,
+          0.9529779363292946,
+          0.9532220322741856,
+          0.953077762085014,
+          0.9527319730786901,
+          0.9522254504549831,
+          0.9514095595432017,
+          0.9503134725847303
+        ],
+        "bias": [
+          1.233364285714286,
+          0.7508642857142858,
+          0.33947857142857146,
+          -0.026642857142857124,
+          -0.3613071428571429,
+          -0.6747285714285715,
+          -0.9862642857142857,
+          -1.2816214285714285,
+          -1.5591857142857142,
+          -1.8400499999999997,
+          -2.1319785714285713
+        ],
+        "water_km2": 73.18701428571428,
+        "epoch": 12
+      }
+    },
+    {
+      "variant": "area",
+      "area_weight": 5.0,
+      "start_val_iou": 0.46919100147961307,
+      "start_val_area_bias_km2": 75.66516428571428,
+      "val_water_km2": 73.18701428571428,
+      "bias_tolerance_km2": 3.6593507142857145,
+      "improved": true,
+      "checkpoint": "unet_ft_v2_area.pt",
+      "kept_epoch": 25,
+      "kept_within_bias_tol": true,
+      "kept_val_iou": 0.953526804956845,
+      "kept_val_area_bias_km2": -0.43737142857142863,
+      "val_threshold": 0.35,
+      "val_iou_at_val_threshold": 0.9531160765787795,
+      "val_bias_at_val_threshold": -0.14777142857142853,
+      "val_grid": {
+        "thr": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7
+        ],
+        "iou": [
+          0.9497825191084962,
+          0.9513556646064922,
+          0.9524313942709434,
+          0.9531160765787795,
+          0.953526804956845,
+          0.9536786701626618,
+          0.9535099848196378,
+          0.9532566310789898,
+          0.9527989196147078,
+          0.9520743508708037,
+          0.9510346816543934
+        ],
+        "bias": [
+          0.8715000000000002,
+          0.4929714285714285,
+          0.1579,
+          -0.14777142857142853,
+          -0.43737142857142863,
+          -0.71545,
+          -1.0040714285714285,
+          -1.2743785714285711,
+          -1.5362857142857145,
+          -1.804071428571429,
+          -2.0850357142857145
+        ],
+        "water_km2": 73.18701428571428,
+        "epoch": 25
+      }
+    }
+  ],
+  "chosen": "base",
+  "chosen_checkpoint": "unet_ft_v2_base.pt"
+}

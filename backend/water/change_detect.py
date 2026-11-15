@@ -22,7 +22,7 @@ import torch
 from adabn import load_scene, norm_scene, predict_scene
 from common import BIG_OUT, MODELS, OUTPUTS
 from data_s1 import load_stats
-from evaluate import METHODS
+from evaluate import METHODS, method_threshold
 from model import load_model
 from nisar_prep import write_tif
 from timeseries import MIN_DSWX_VALID, best_method  # MIN_DSWX_VALID = 0.95
@@ -30,6 +30,11 @@ from timeseries import MIN_DSWX_VALID, best_method  # MIN_DSWX_VALID = 0.95
 
 def choose_pair(per_date: pd.DataFrame, track: int) -> tuple[pd.Series, pd.Series, str]:
     g = per_date[per_date["track"] == track].sort_values("date")
+    fixed = OUTPUTS / "case_pair.json"  # the case's event dates, fixed when the case was defined (model-independent)
+    if fixed.exists():
+        fx = json.loads(fixed.read_text())
+        pre, post = (g[g["date"] == fx[k]].iloc[0] for k in ("pre", "post"))
+        return pre, post, fx["why"]
     ts = pd.read_csv(OUTPUTS / "water_area_timeseries.csv")
     # SAR-side artefacts must not become headline endpoints either: wind-flagged dates are excluded
     clean = set(ts.loc[(ts["track"] == track) & ts["dswx_water_km2"].notna()
@@ -49,7 +54,7 @@ def main() -> None:
     from common import gpu_start
     device = gpu_start(__file__)
     meta = json.loads((OUTPUTS / "aoi.json").read_text())["chosen"]
-    pthr = json.loads((OUTPUTS / "thresholds.json").read_text())["unet_probability_threshold"]
+    pthr = method_threshold(best_method())
     per_date = pd.read_csv(OUTPUTS / "nisar_eval_per_date.csv")
     scenes = pd.read_csv(OUTPUTS / "nisar_scenes.csv").set_index("tag")
     pre, post, why = choose_pair(per_date, meta["track"])
@@ -67,7 +72,7 @@ def main() -> None:
     for name, row in (("pre", pre), ("post", post)):
         x_db, prof = load_scene(scenes.loc[row["tag"], "nisar_tif"])
         valid = np.all(np.isfinite(x_db), 0)
-        xn, _ = norm_scene(x_db, mode, s1)
+        xn, _ = norm_scene(x_db, mode, s1, src=scenes.loc[row["tag"], "nisar_tif"])
         prob, std = predict_scene(model, xn, device, mc=a.mc)
         w = ((prob > pthr) & valid).astype(np.uint8)
         w[~valid] = 255

@@ -31,6 +31,15 @@ EXTRA = {
     "Sidi_Mohamed_Ben_Abdellah": (33.86, -6.70),
     "Oued_El_Makhazine": (35.02, -5.77),
     "Mohammed_V": (34.67, -2.97),
+    # v3 (2026-11-15): more reservoirs, hence more tracks and incidence angles (approximate centres; the extent
+    # is the largest OSM water body nearby; a site whose box meets the case reservoir is skipped automatically)
+    "Lalla_Takerkoust": (31.36, -8.13),
+    "Abdelmoumen": (30.68, -9.22),
+    "Youssef_Ben_Tachfine": (29.86, -9.33),
+    "Mansour_Eddahbi": (30.97, -6.78),
+    "Hassan_Addakhil": (31.98, -4.45),
+    "El_Kansera": (34.04, -5.92),
+    "Allal_El_Fassi": (33.93, -4.68),
 }
 MAX_DAYS = 2
 

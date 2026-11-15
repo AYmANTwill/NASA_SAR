@@ -50,8 +50,12 @@ The id fixes the kind: `panama-2026` and `venezuela-2026` are `earthquake`, `hao
 
 `bin-el-ouidane-2026` (Youkaoui, `backend/water/`) is optional: it is served only when `backend/water/outputs/reservoir_case.json` exists (a full CaseStudy, same rules). Its images, and those of `haouz_open_water.json` (findings "persistent open water (U-Net)" added to the Haouz case), are served at `GET /api/water/rasters/{file}` and `GET /api/water/figures/{file}` (png / jpg / webp, same path checks as case figures). The package writes urls as `water/outputs/<figures|rasters>/<file>` (relative to
 `backend/`); the loader maps them to `/api/water/...`. `GET /api/water/raster-index` returns
-`outputs/raster_index.json` (3 RGBA PNG layers, EPSG:4326, `[west, south, east, north]`; images, not `RasterLayer`).
+`outputs/raster_index.json` (every RGBA PNG layer of the package, EPSG:4326, `[west, south, east, north]`; images, not `RasterLayer`).
 `backend/water/` is vendored from Youkaoui's `nisar-water` package and never edited here.
+
+Each raster-index layer also has `role`: `"background"` for `optical_before` / `optical_after` (optical 2026 images, drawn under the water layers instead of the default basemap), `"overlay"` for the water layers, unless the package gives one. A water file that breaks its format never stops the API: in production the 5th case, the Haouz water extras or the raster index are skipped with a logged warning (raster index: 404 `water_not_found`); with `NISAR_WATER_STRICT=1` (the tests) it raises.
+
+A case with no finding is served with the headline `backend.case_in_progress` ("En cours : aucune mesure de cette étude n'est encore calculée."), status `draft`, no finding, so no value and no agreement badge. `results/panama-2026/limits_panama.json` (`{"limits": [{fr, en, ar}]}`, Anass) is appended to the Panama limits as given; absent or malformed: ignored with a warning.
 
 ### New Measurement units
 

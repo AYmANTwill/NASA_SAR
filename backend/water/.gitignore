@@ -2,6 +2,7 @@
 *.tif
 *.tiff
 *.pt
+!model/water_unet_v3.pt
 *.pth
 *.ckpt
 *.npz

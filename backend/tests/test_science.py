@@ -485,6 +485,7 @@ from science import cases as cs  # noqa: E402
 from science import water  # noqa: E402
 
 water.WATER_DIR = tmp / "no_water_outputs"     # tests never read the vendored backend/water/outputs
+water.STRICT = True                             # a broken water file raises here; production skips it with a warning
 
 work = tmp / "cases_work"
 shutil.copytree(case_store.CASES_DIR, work, ignore=shutil.ignore_patterns("out", "figures"))
@@ -827,20 +828,31 @@ if (vendored / "reservoir_case.json").is_file():
     real5 = cs.build_reservoir()
     real_hz = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
     water.WATER_DIR = tmp / "no_water_outputs"
+    # Expected values are read from the vendored package itself (it changes between versions), never hard-coded.
+    src5 = json.loads((vendored / "reservoir_case.json").read_text(encoding="utf-8"))
+    with_sigma = [f["id"] for f in src5["findings"] if f["nisar"]["uncertainty"] > 0]
     ids5 = [f["id"] for f in real5["findings"]]
-    check("vendored package: Bin El Ouidane is FINAL with its 3 findings (held-out IoU first-class), urls served",
-          real5["status"] == "final" and ids5 == ["water_area_change", "heldout_iou", "orbit_consistency"]
+    check("vendored package: Bin El Ouidane is built as the package says (status, findings with sigma, timeline), "
+          "urls served",
+          real5["status"] == src5["status"] and ids5 == with_sigma
           and all(f["url"].startswith("/api/water/figures/")
                   and water.water_path("figures", f["url"].rsplit("/", 1)[1], vendored) for f in real5["figures"])
-          and len(real5["timeline"]) == 32, (real5["status"], ids5))
+          and len(real5["timeline"]) == len(src5["timeline"]), (real5["status"], ids5, with_sigma))
     water.WATER_DIR = vendored
     ri = TestClient(api.app).get("/api/water/raster-index")
     water.WATER_DIR = tmp / "no_water_outputs"
+    src_idx = json.loads((vendored / "raster_index.json").read_text(encoding="utf-8"))
     lays = ri.json().get("layers", []) if ri.status_code == 200 else []
-    check("GET /api/water/raster-index: the 3 layers with served urls and [w, s, e, n] bounds",
-          [x["id"] for x in lays] == ["water_before", "water_after", "water_change"]
-          and all(x["url"].startswith("/api/water/rasters/") and x["bounds"][0] < x["bounds"][2] for x in lays),
-          ri.text[:200])
+    check("GET /api/water/raster-index: every layer of the package, with its role (optical = background), served url "
+          "and [w, s, e, n] bounds",
+          [x["id"] for x in lays] == [x["id"] for x in src_idx["layers"]]
+          and all(x["url"].startswith("/api/water/rasters/") and x["bounds"][0] < x["bounds"][2]
+                  and x["bounds"][1] < x["bounds"][3] for x in lays)
+          and all(x["role"] == ("background" if x["id"] in water.BACKGROUND_LAYERS else x["role"]) for x in lays)
+          and all(x["role"] in ("background", "overlay") for x in lays)
+          and {"optical_before", "optical_after"} <= {x["id"] for x in lays if x["role"] == "background"}
+          and all(water.water_path("rasters", x["url"].rsplit("/", 1)[1], vendored) for x in lays),
+          ri.text[:300])
     rh = {f["id"]: f for f in real_hz["findings"]}
     check("vendored package: Haouz gets open_water_change (with sigma), clouds.png and the package limits; "
           "headline unchanged",
@@ -860,6 +872,39 @@ check("no 0.0: Panama without a fault inversion has no Mw finding, never '0 vs 7
       pan0["findings"] == [] and pan0["status"] == "draft"
       and any(x["text"]["en"].startswith("Magnitude not estimated: cases/out/panama-2026.json not available")
               for x in pan0["limits"]), [f["id"] for f in pan0["findings"]])
+check("draft without findings: an 'in progress' headline (never an old or numeric one), no finding, no badge",
+      pan0["headline"] == cs.IN_PROGRESS and pan0["findings"] == [], pan0["headline"])
+(tmp / "results" / "panama-2026").mkdir(parents=True, exist_ok=True)
+pan_lim = {"limits": [{"fr": "Signe non vérifié.", "en": "Sign not verified.", "ar": "الإشارة غير متحقق منها."}]}
+(tmp / "results" / "panama-2026" / cs.PANAMA_LIMITS).write_text(json.dumps(pan_lim), encoding="utf-8")
+pan_l = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+check("panama: results/panama-2026/limits_panama.json is appended to the limits as given (fr / en / ar)",
+      [x["text"] for x in pan_l["limits"]].count(pan_lim["limits"][0]) == 1
+      and len(pan_l["limits"]) == len(pan0["limits"]) + 1, [x["text"]["en"] for x in pan_l["limits"]])
+(tmp / "results" / "panama-2026" / cs.PANAMA_LIMITS).write_text("{not json", encoding="utf-8")
+pan_bad = cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)
+(tmp / "results" / "panama-2026" / cs.PANAMA_LIMITS).unlink()
+check("panama: a broken limits_panama.json is ignored with a warning, no error; no file, no extra limit",
+      pan_bad["limits"] == pan0["limits"]
+      and cs.build_quake("panama-2026", tmp / "results", "us6000u18k", offline=True)["limits"] == pan0["limits"])
+broken = tmp / "water_broken"
+broken.mkdir(exist_ok=True)
+(broken / "reservoir_case.json").write_text("{broken", encoding="utf-8")
+(broken / "haouz_open_water.json").write_text("{broken", encoding="utf-8")
+(broken / "raster_index.json").write_text("{broken", encoding="utf-8")
+water.WATER_DIR, water.STRICT = broken, False
+prod5 = cs.build_reservoir()
+prod_hz = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+prod_ri = TestClient(api.app).get("/api/water/raster-index")
+water.STRICT = True
+strict_raises = raises(cs.build_reservoir, cs.CaseInputError)
+strict_ri = TestClient(api.app).get("/api/water/raster-index").status_code
+water.WATER_DIR = tmp / "no_water_outputs"
+check("water in production: a broken file skips the 5th case, the Haouz extras and the raster index (warning), "
+      "the rest is served; in STRICT (tests) it raises / 500",
+      prod5 is None and prod_hz["id"] == "haouz-flood-2026"
+      and not any(f["id"].startswith("open_water") for f in prod_hz["findings"])
+      and prod_ri.status_code == 404 and strict_raises and strict_ri == 500, (prod5, prod_ri.status_code, strict_ri))
 fixture_pan = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
 check("no 0.0: the served draft fixtures hold no placeholder value (no finding with uncertainty 0)",
       all(f["nisar"]["uncertainty"] > 0 for cid in ("panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps")

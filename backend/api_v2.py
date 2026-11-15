@@ -856,10 +856,15 @@ def get_case(cid: str):
 
 @router.get("/water/raster-index")
 def get_water_raster_index():
-    """The 3 water map layers (RGBA PNG, EPSG:4326, [west, south, east, north]) with their served urls."""
+    """Every water map layer (RGBA PNG, EPSG:4326, [west, south, east, north]) with its role ("background" for the
+    optical images, "overlay" for water) and served url. A broken index is skipped with a warning in production
+    (404, the rest of the API keeps working), a 500 when water.STRICT (tests)."""
     try:
         index = water.raster_index()
-    except water.WaterInputError:
+    except water.WaterInputError as exc:
+        if not water.STRICT:
+            log.warning("water raster index skipped: %s", exc)
+            return api_error("water_not_found", 404, "Pas de couches d'eau.", "No water layers.", "لا توجد طبقات مياه.")
         return api_error("water_invalid", 500, "Index des couches d'eau invalide.", "Invalid water layer index.",
                          "فهرس طبقات المياه غير صالح.")
     if index is None:

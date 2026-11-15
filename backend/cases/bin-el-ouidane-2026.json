@@ -27,42 +27,59 @@
   "template": "backend.water_area_change",
   "params": {
    "nisar": {
-    "value": -1.911,
-    "uncertainty": 2.038,
+    "value": -1.829,
+    "uncertainty": 0.136,
     "unit": "km2",
     "sigma": 1.0
    },
    "reference": {
-    "value": -2.056,
-    "uncertainty": 1.784,
+    "value": -1.975,
+    "uncertainty": 0.01,
     "unit": "km2",
     "sigma": 1.0
    },
    "agreement": "agree"
   },
   "text": {
-   "en": "Water area 2026-06-17 → 2026-09-21: NISAR -1.91 ± 2.04 km², DSWx -2.06 ± 1.78 km² (agree).",
-   "fr": "Surface en eau 2026-06-17 → 2026-09-21 : NISAR -1.91 ± 2.04 km², DSWx -2.06 ± 1.78 km² (agree).",
-   "ar": "مساحة المياه 2026-06-17 ← 2026-09-21: NISAR -1.91 ± 2.04 km², DSWx -2.06 ± 1.78 km² (agree)."
+   "en": "Water area 2026-06-17 → 2026-09-21, 3 tracks: NISAR -1.83 ± 0.14 km², DSWx -1.98 ± 0.01 km² (agree).",
+   "fr": "Surface en eau 2026-06-17 → 2026-09-21, 3 traces : NISAR -1.83 ± 0.14 km², DSWx -1.98 ± 0.01 km² (concordants).",
+   "ar": "مساحة المياه 2026-06-17 ← 2026-09-21، 3 مسارات: NISAR -1.83 ± 0.14 كم², DSWx -1.98 ± 0.01 كم² (متوافقان)."
   }
  },
  "findings": [
   {
-   "id": "water_area_change",
+   "id": "unseen_reservoir_iou",
    "label": {
-    "fr": "Variation de la surface en eau (NISAR vs DSWx optique)",
-    "en": "Water-area change (NISAR vs optical DSWx)",
-    "ar": "تغير مساحة المياه (NISAR مقابل DSWx البصري)"
+    "fr": "Accord avec DSWx sur un barrage jamais utilisé à l'entraînement (Oued El Makhazine, 17 dates, IoU)",
+    "en": "Agreement with DSWx on a reservoir never used for training (Oued El Makhazine, 17 dates, IoU)",
+    "ar": "التوافق مع DSWx على سد لم يُستخدم في التدريب (Oued El Makhazine، 17 تاريخًا، IoU)"
    },
    "nisar": {
-    "value": -1.911,
-    "uncertainty": 2.038,
+    "value": 93.34,
+    "uncertainty": 0.35,
+    "unit": "percent",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "water_area_change",
+   "label": {
+    "fr": "Variation de la surface en eau, 3 traces (NISAR vs DSWx optique)",
+    "en": "Water-area change, 3 tracks (NISAR vs optical DSWx)",
+    "ar": "تغير مساحة المياه، 3 مسارات (NISAR مقابل DSWx البصري)"
+   },
+   "nisar": {
+    "value": -1.829,
+    "uncertainty": 0.136,
     "unit": "km2",
     "sigma": 1.0
    },
    "reference": {
-    "value": -2.056,
-    "uncertainty": 1.784,
+    "value": -1.975,
+    "uncertainty": 0.01,
     "unit": "km2",
     "sigma": 1.0
    },
@@ -80,8 +97,8 @@
     "ar": "التوافق مع DSWx على المسارات المحجوزة 95/116 (IoU)"
    },
    "nisar": {
-    "value": 76.3,
-    "uncertainty": 1.45,
+    "value": 94.77,
+    "uncertainty": 0.2,
     "unit": "percent",
     "sigma": 1.0
    },
@@ -97,8 +114,8 @@
     "ar": "فرق المساحة بين المدارين الصاعد والهابط (≤ 3 أيام)"
    },
    "nisar": {
-    "value": 2.038,
-    "uncertainty": 0.314,
+    "value": 0.251,
+    "uncertainty": 0.048,
     "unit": "km2",
     "sigma": 1.0
    },
@@ -108,6 +125,25 @@
   }
  ],
  "figures": [
+  {
+   "id": "reservoir_clouds",
+   "kind": "image",
+   "title": {
+    "fr": "Le radar voit l'eau à travers les nuages",
+    "en": "Radar sees water through clouds",
+    "ar": "الرادار يرى المياه عبر السحب"
+   },
+   "url": "/api/water/figures/clouds.png",
+   "caption": {
+    "template": "backend.water_reservoir_clouds",
+    "params": {},
+    "text": {
+     "en": "Same day: DSWx masked by clouds, NISAR water map complete.",
+     "fr": "Même jour : DSWx masqué par les nuages, carte NISAR complète.",
+     "ar": "في اليوم نفسه: DSWx محجوب بالسحب وخريطة NISAR كاملة."
+    }
+   }
+  },
   {
    "id": "reservoir_hero",
    "kind": "image",
@@ -162,25 +198,6 @@
      "en": "Three NISAR tracks and DSWx; flagged dates are kept and marked.",
      "fr": "Trois traces NISAR et DSWx ; les dates signalées sont gardées et marquées.",
      "ar": "ثلاثة مسارات NISAR وDSWx؛ التواريخ المعلَّمة محفوظة ومميزة."
-    }
-   }
-  },
-  {
-   "id": "reservoir_clouds",
-   "kind": "image",
-   "title": {
-    "fr": "Le radar voit l'eau à travers les nuages",
-    "en": "Radar sees water through clouds",
-    "ar": "الرادار يرى المياه عبر السحب"
-   },
-   "url": "/api/water/figures/clouds.png",
-   "caption": {
-    "template": "backend.water_reservoir_clouds",
-    "params": {},
-    "text": {
-     "en": "Same day: DSWx masked by clouds, NISAR water map complete.",
-     "fr": "Même jour : DSWx masqué par les nuages, carte NISAR complète.",
-     "ar": "في اليوم نفسه: DSWx محجوب بالسحب وخريطة NISAR كاملة."
     }
    }
   }
@@ -467,25 +484,41 @@
    }
   },
   {
-   "template": "backend.water_transfer",
-   "params": {},
+   "template": "backend.water_transfer_finetuned",
+   "params": {
+    "n_reservoirs": 12
+   },
    "text": {
-    "en": "Trained on Sentinel-1 C-band VV/VH and applied to NISAR L-band HH/HV (HH↔VV, HV↔VH): an assumption, checked only against DSWx.",
-    "fr": "Entraîné sur Sentinel-1 bande C VV/VH et appliqué à NISAR bande L HH/HV (HH↔VV, HV↔VH) : une hypothèse, vérifiée seulement avec DSWx.",
-    "ar": "دُرِّب على Sentinel-1 (النطاق C، VV/VH) وطُبِّق على NISAR (النطاق L، HH/HV): افتراض لم يُتحقق منه إلا مقابل DSWx."
+    "en": "Pre-trained on Sentinel-1 C-band VV/VH, then fine-tuned on NISAR L-band HH/HV and the radar incidence angle with OPERA DSWx labels of 12 other Moroccan reservoirs and of this reservoir's passes after 2026-10-03 only (marked 'in training'; no date of the June–September case period, and none of the reported numbers, uses them); checked only against DSWx, itself optical.",
+    "fr": "Pré-entraîné sur Sentinel-1 bande C VV/VH, puis affiné sur NISAR bande L HH/HV et l'angle d'incidence radar avec les étiquettes OPERA DSWx de 12 autres barrages marocains et des seuls passages de ce barrage après le 2026-10-03 (marqués « entraînement » ; aucune date de la période du cas juin–septembre, et aucun chiffre affiché, ne les utilise) ; vérifié seulement avec DSWx, lui-même optique.",
+    "ar": "دُرِّب أولاً على Sentinel-1 (النطاق C، VV/VH) ثم ضُبط على NISAR (النطاق L، HH/HV) وزاوية سقوط الرادار بعلامات OPERA DSWx من 12 سدود مغربية أخرى ومن مرور هذا السد بعد 2026-10-03 فقط (معلَّمة «تدريب»؛ لا تستخدمها أي من تواريخ فترة الحالة يونيو–سبتمبر ولا أي رقم معروض)؛ لم يُتحقق منه إلا مقابل DSWx، وهو بصري."
    }
   },
   {
-   "template": "backend.water_shoreline_bias",
+   "template": "backend.water_area_bias",
    "params": {
-    "bias_km2": 1.25,
-    "ci95_km2_low": 0.35,
-    "ci95_km2_high": 2.18
+    "bias_km2": -0.46,
+    "ci95_lo_km2": -0.59,
+    "ci95_hi_km2": -0.35
    },
    "text": {
-    "en": "Area is biased high near shorelines: +1.25 km² on held-out tracks (95% interval +0.35 to +2.18).",
-    "fr": "La surface est surestimée près des rives : +1.25 km² sur les traces tenues à l'écart (intervalle 95 % +0.35 à +2.18).",
-    "ar": "المساحة مُقدَّرة بالزيادة قرب الشواطئ: +1.25 كم² على المسارات المحجوزة (مجال 95% من +0.35 إلى +2.18)."
+    "en": "Area is biased low (water slightly under-mapped): -0.46 km² on held-out tracks (95% interval -0.59 to -0.35).",
+    "fr": "La surface est sous-estimée (eau légèrement sous-cartographiée) : -0.46 km² sur les traces tenues à l'écart (intervalle 95 % -0.59 à -0.35).",
+    "ar": "المساحة مُقدَّرة بالنقص (المياه أقل قليلاً من الواقع): -0.46 كم² على المسارات المحجوزة (مجال 95% من -0.59 إلى -0.35)."
+   }
+  },
+  {
+   "template": "backend.water_finetune_data",
+   "params": {
+    "n_other_reservoirs": 11,
+    "n_other_scenes": 151,
+    "case_dates": "2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116)",
+    "tracks": "15, 23, 44, 87, 95, 116, 145, 167"
+   },
+   "text": {
+    "en": "Fine-tuning data: 151 NISAR scenes of 11 other Moroccan reservoirs (tracks 15, 23, 44, 87, 95, 116, 145, 167, June–November 2026) and 6 passes of this reservoir: 2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116). OPERA DSWx is both the training label and the reference used here, so the scores measure agreement with DSWx, not with ground truth. The list is in backend/water/model/fine_tuning_scenes.csv.",
+    "fr": "Données d'affinage : 151 scènes NISAR de 11 autres barrages marocains (traces 15, 23, 44, 87, 95, 116, 145, 167, juin–novembre 2026) et 6 passages de ce barrage : 2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116). OPERA DSWx est à la fois l'étiquette d'entraînement et la référence utilisée ici : les scores mesurent l'accord avec DSWx, pas avec la vérité terrain. Liste : backend/water/model/fine_tuning_scenes.csv.",
+    "ar": "بيانات الضبط الدقيق: 151 مشهد NISAR من 11 سدًا مغربيًا آخر (المسارات 15, 23, 44, 87, 95, 116, 145, 167، يونيو–نوفمبر 2026) و6 مرورًا لهذا السد: 2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116). ‏OPERA DSWx هو في آن واحد علامة التدريب والمرجع المستخدم هنا، لذا تقيس الدرجات التوافق مع DSWx لا مع الحقيقة الميدانية. القائمة في backend/water/model/fine_tuning_scenes.csv."
    }
   }
  ],

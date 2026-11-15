@@ -31,6 +31,19 @@ BLOCK = 16 * 2**20
 
 
 def _job(row: dict, bbox: list) -> dict:
+    """One site-date; a transient low-disk refusal (free space dips while other programs write) waits and retries."""
+    from common import free_bytes
+
+    for attempt in range(6):
+        rec = _job_once(row, bbox)
+        rec["free_gb_after"] = round(free_bytes() / 2**30, 2)
+        if "free on disk" not in str(rec.get("error", "")):
+            return rec
+        time.sleep(60)
+    return rec
+
+
+def _job_once(row: dict, bbox: list) -> dict:
     import rasterio
 
     from nisar_prep import dswx_reference, lee_filter, read_subset, to_db, write_tif
@@ -74,6 +87,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=5)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--max-fail", type=float, default=0.2, help="stop if more than this fraction of reads failed")
     a = ap.parse_args()
     sites = json.loads((FT_OUT / "sites.json").read_text())["sites"]
     cand = pd.read_csv(FT_OUT / "candidates.csv")
@@ -103,6 +117,11 @@ def main() -> None:
               f"{new['nisar_payload_mb'].sum() / max(new['nisar_read_s'].sum(), 1e-9):.2f} MB/s per worker (payload); "
               f"wall {time.perf_counter() - t_all:.0f} s with {a.workers} workers")
     print(f"dataset: {len(ok)} site-dates; data root {dir_size()/1e9:.2f} GB")
+    fails = log[log.get("error", pd.Series(index=log.index, dtype=object)).notna()]
+    if len(fails):
+        print("failed reads by reason:\n" + fails["error"].str[:90].value_counts().to_string())
+    if len(fails) > a.max_fail * len(log):  # never train silently on a fraction of the data
+        sys.exit(f"{len(fails)}/{len(log)} reads failed (> {a.max_fail:.0%}): stopping")
 
 
 if __name__ == "__main__":
