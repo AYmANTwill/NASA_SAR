@@ -3,11 +3,14 @@
 Everything is evaluated in the documented +1 convention (positive = toward the satellite), whatever NISAR_LOS_SIGN
 is set to: the -1 hypothesis is the same data with the opposite sign.
 
-+1 is accepted only if all three hold:
-1. USGS finite-fault forward model (science.ffm_sign): k > 0 at > 3σ on at least 3 tracks, none significantly < 0;
-2. the inversion fits clearly better with +1 than with -1: variance reduction(+1) - VR(-1) >= 0.10;
-3. with +1, the best nodal plane is the left-lateral one (USGS plane 288/66/-17).
--1 is accepted by the mirrored rule. Anything else is "undecided".
+Three tests, each with its own verdict (+1, -1 or inconclusive), all saved and printed:
+(a) USGS finite-fault forward model (science.ffm_sign): k > 0 at > 3σ on at least 3 tracks, none significantly < 0
+    (+1); the mirror for -1;
+(b) the inversion fits clearly better with one sign: variance reduction(+1) - VR(-1) >= 0.10 (or the reverse);
+(c) the best nodal plane with that sign is the left-lateral one (USGS plane 288/66/-17), and not with the other.
+(a) decides. With one free offset per connected component and a free ramp per track, the inversion absorbs much of
+the signal whichever the sign (real data, 14 Nov: VR +1 0.824 vs -1 0.818), so (b) is weak; (b) and (c) are reported
+next to it, and a contradiction is written in the notes.
 """
 from __future__ import annotations
 
@@ -24,9 +27,10 @@ VR_MARGIN = 0.10
 EXPECTED_PLANE = Plane(288.32, 66.22, -16.68)     # USGS us6000u18k nodal plane 2 (left-lateral)
 STRIKE_DIP_TOL_DEG = 15.0
 RAKE_TOL_DEG = 30.0
-RULE = ("+1 accepted only if: USGS finite-fault model k > 0 at > 3 sigma on >= 3 tracks with none significantly < 0; "
-        f"AND variance reduction(+1) - VR(-1) >= {VR_MARGIN}; AND the best plane with +1 is the left-lateral plane "
-        "288/66/-17. -1 by the mirrored rule. Otherwise undecided.")
+RULE = ("(a) decides: USGS finite-fault model k > 0 at > 3 sigma on >= 3 tracks with none significantly < 0 -> +1, "
+        "the mirror -> -1, else undecided. Reported next to it: (b) variance reduction(+1) - VR(-1) >= "
+        f"{VR_MARGIN} (or the reverse); (c) best plane left-lateral 288/66/-17 with one sign only. (b) is weak with "
+        "free offsets per connected component.")
 
 
 def _angle(a: float, b: float) -> float:
@@ -44,6 +48,10 @@ def flipped(tracks: list[Track]) -> list[Track]:
 
 def _best(fits: list[PlaneFit]) -> PlaneFit:
     return fits[int(np.argmin([f.rms_cm for f in fits]))]
+
+
+def _verdict(plus_ok: bool, minus_ok: bool) -> str:
+    return "+1" if plus_ok and not minus_ok else "-1" if minus_ok and not plus_ok else "inconclusive"
 
 
 def decide(tracks_plus: list[Track], planes: tuple[Plane, ...], lat0: float, lon0: float,
@@ -64,14 +72,24 @@ def decide(tracks_plus: list[Track], planes: tuple[Plane, ...], lat0: float, lon
     minus = {"ffm_k_negative_on_3_tracks_none_positive": n_neg >= MIN_TRACKS and n_pos == 0,
              "inversion_fits_clearly_better": vr_m - vr_p >= VR_MARGIN,
              "best_plane_is_left_lateral": plane_matches(bm.plane)}
-    decision = "+1" if all(plus.values()) else "-1" if all(minus.values()) else "undecided"
+    verdicts = {
+        "a_finite_fault": _verdict(plus["ffm_k_positive_on_3_tracks_none_negative"],
+                                   minus["ffm_k_negative_on_3_tracks_none_positive"]),
+        "b_variance_reduction": _verdict(plus["inversion_fits_clearly_better"], minus["inversion_fits_clearly_better"]),
+        "c_left_lateral_plane": _verdict(plus["best_plane_is_left_lateral"] and not minus["best_plane_is_left_lateral"],
+                                         minus["best_plane_is_left_lateral"] and not plus["best_plane_is_left_lateral"]),
+    }
+    a = verdicts["a_finite_fault"]
+    decision = a if a != "inconclusive" else "undecided"
     notes = [f"only {len(tracks_plus)} track(s): the rule needs >= {MIN_TRACKS}"] if len(tracks_plus) < MIN_TRACKS else []
+    notes += [f"({k[0]}) says {v}, against (a)" for k, v in verdicts.items()
+              if decision != "undecided" and v not in ("inconclusive", decision)]
     per = {name: {"k": v["k"], "sigma_k": v["sigma_k"],
                   "k_over_sigma": v["k"] / v["sigma_k"] if v["sigma_k"] else None,
                   "partial_r": v["partial_r"], "verdict": v["verdict"]}
            for name, v in ffm_res["per_track"].items()}
     return {
-        "decision": decision, "rule": RULE, "notes": notes,
+        "decision": decision, "decided_by": "a_finite_fault", "verdicts": verdicts, "rule": RULE, "notes": notes,
         "criteria_plus1": plus, "criteria_minus1": minus,
         "ffm": {"model": ffm_res["model"], "n_tracks": len(verdicts), "n_k_positive_3sigma": n_pos,
                 "n_k_negative_3sigma": n_neg, "per_track": per},

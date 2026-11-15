@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ValidationError
 
-from science import case_layers, iono_chart, usgs
+from science import case_layers, haouz_case, iono_chart, provenance, usgs
 from science.case_models import CaseStudy, Figure, Finding, TemplatedText
 from science.case_store import CASES_DIR, FIGURE_NAME
 
@@ -202,7 +202,9 @@ def fault_part(case_id: str) -> tuple[list, list, list, list]:
     """(findings, figures, limits, placeholders) from science.panama_fault's output."""
     data = _read(out_dir() / f"{case_id}.json")
     if data is None:
-        return [], [], [], [f"fault inversion: cases/out/{case_id}.json not available"]
+        why = f"cases/out/{case_id}.json not available"
+        return [], [], [_limit({"fr": f"Magnitude non estimée : {why}.", "en": f"Magnitude not estimated: {why}.",
+                                "ar": f"لم يتم تقدير القدر: {why}."})], [f"fault inversion: {why}"]
     sign_limits, sign_missing = sign_part(data.get("sign_check"))
     limits = [_limit(l3) for l3 in data.get("limits", [])] + sign_limits
     figures = []
@@ -220,6 +222,17 @@ def fault_part(case_id: str) -> tuple[list, list, list, list]:
                               "en": f"Magnitude not estimated: the inversion is not stable ({reasons}).",
                               "ar": f"لم يتم تقدير القدر: الانعكاس غير مستقر ({reasons})."}))
         return [], figures, limits, ["fault inversion not stable: magnitude not estimated"] + sign_missing
+    for nc in data.get("not_computed", []):           # values without an uncertainty: said, never shown as 0
+        lab = nc.get("label") or {}
+        why = nc.get("reason", "not computed")
+        limits.append(_limit({"fr": f"{lab.get('fr', nc['id'])} : non calculé ({why}).",
+                              "en": f"{lab.get('en', nc['id'])}: not computed ({why}).",
+                              "ar": f"{lab.get('ar', nc['id'])}: لم يُحسب ({why})."}))
+    if not any(f.get("id") == "mw" for f in data["findings"]):
+        why = next((nc.get("reason") for nc in data.get("not_computed", []) if nc.get("id") == "mw"), "not computed")
+        limits.append(_limit({"fr": f"Magnitude non estimée : {why}.", "en": f"Magnitude not estimated: {why}.",
+                              "ar": f"لم يتم تقدير القدر: {why}."}))
+        sign_missing = sign_missing + [f"magnitude not estimated: {why}"]
     return data["findings"], figures, limits, sign_missing
 
 
@@ -296,20 +309,49 @@ def headline(case_id: str, findings: list[dict]) -> dict | None:
     return None
 
 
+def _is_computed(f: dict) -> bool:
+    m = f.get("nisar") or {}
+    return m.get("value") is not None and bool(m.get("uncertainty"))
+
+
+def split_computed(findings: list[dict]) -> tuple[list[dict], list[dict], list[str]]:
+    """(computed findings, limits for the others, placeholders). A NISAR value without its uncertainty was not
+    computed: it is never shown as 0, it is left out and said in the limits."""
+    kept, limits, missing = [], [], []
+    for f in findings:
+        if _is_computed(f):
+            kept.append(f)
+            continue
+        lab = f.get("label") or {}
+        limits.append(_limit({"fr": f"{lab.get('fr', f['id'])} : non calculé.", "en": f"{lab.get('en', f['id'])}: not computed.",
+                              "ar": f"{lab.get('ar', f['id'])}: لم يُحسب."}))
+        missing.append(f"findings[{f['id']}]: not computed")
+    return kept, limits, missing
+
+
+OWN_KEYS = ("findings", "limits", "exposure")      # always from this build, never from the previous file
+
+
 def finalize(base: dict, parts: dict, placeholders: list[str]) -> dict:
-    """Merges the computed parts into the draft, decides the status, validates against the contract."""
-    case = {**base, **{k: v for k, v in parts.items() if v is not None}}
-    placeholders = list(placeholders)
+    """Merges the computed parts into the draft, decides the status, validates against the contract.
+    findings / limits / exposure never come from the base file (it is the previous build or a draft fixture)."""
+    case = {**base, **{k: v for k, v in parts.items() if v is not None and k not in OWN_KEYS}}
+    findings, nc_limits, nc_missing = split_computed(parts.get("findings") or [])
+    placeholders = list(placeholders) + nc_missing
+    case["findings"], case["exposure"] = findings, parts.get("exposure")
+    limits = list(parts.get("limits") or []) + nc_limits
+    if limits:
+        case["limits"] = limits
+    else:
+        placeholders.append("limits: none computed")
     if parts.get("headline") is None:       # the draft's "[DRAFT]" texts would otherwise survive
         placeholders.append("headline: no finding to report")
-    if parts.get("limits") is None:
-        placeholders.append("limits: none computed")
     if not any(f.get("layer") for f in parts.get("figures") or []):
         placeholders.append("figures: no map with a layer")
     if not parts.get("timeline"):
         placeholders.append("timeline: empty")
     case["placeholders"] = sorted(set(placeholders))
-    has_findings = bool(parts.get("findings"))
+    has_findings = bool(findings)
     case["status"] = "final" if not case["placeholders"] and has_findings else "draft"
     try:
         return CaseStudy.model_validate(case).model_dump(mode="json")
@@ -342,6 +384,7 @@ def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool
         _raw, findings, figures, limits, m2 = results_part(case_id, results)
     exposure, m3 = exposure_part(case_id)
     bbox = _bbox(pairs)
+    limits = list(limits) + provenance.product_limits(pairs)
     parts = {"findings": findings or None, "figures": maps + figures, "exposure": exposure, "timeline": tl or None,
              "limits": limits or None, "date": when, "headline": headline(case_id, findings),
              "location": {**base["location"], "bbox": bbox} if bbox else None}
@@ -351,10 +394,13 @@ def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool
 
 
 def build_flood(case_id: str, results: Path, offline: bool) -> dict:
+    """Al Haouz: a candidate surface-change area with three indicators, not a flood map (science/haouz_case.py)."""
     base = _base(case_id)
-    raw, findings, figures, limits, missing = results_part(case_id, results)
-    exposure, m3 = exposure_part(case_id)
-    products, m5 = _catalog_products(raw.get("products", []))
+    raw, anass, figures, limits, missing = results_part(case_id, results)
+    found, not_computed, info = haouz_case.indicators(results, anass)
+    findings = found + haouz_case.drop_flood_area(anass)
+    missing += [f"haouz: {lim['text']['en']}" for lim in not_computed]
+    products, m5 = _catalog_products(list(dict.fromkeys(raw.get("products", []) + info["products"])))
     if raw and "date" not in raw:
         missing.append(f"results/{case_id}/findings.json: 'date' not given")
     if raw and not raw.get("products"):
@@ -363,10 +409,13 @@ def build_flood(case_id: str, results: Path, offline: bool) -> dict:
     bbox = raw.get("bbox") or _bbox(products)
     if raw and not bbox:
         missing.append(f"results/{case_id}/findings.json: no 'bbox' and no product to derive it")
-    parts = {"findings": findings or None, "figures": figures, "exposure": exposure, "limits": limits or None,
-             "date": raw.get("date"), "timeline": tl or None, "headline": headline(case_id, findings),
+    limits = (list(limits) + not_computed + haouz_case.not_a_flood_map_limits(info)
+              + provenance.product_limits(products, info["crids"]))
+    parts = {"title": haouz_case.TITLE, "findings": findings or None, "figures": figures, "exposure": None,
+             "limits": limits, "date": raw.get("date"), "timeline": tl or None,
+             "headline": haouz_case.headline(findings, info),
              "location": {**base["location"], "bbox": bbox} if bbox else None}
-    return finalize(base, parts, missing + m1 + m3 + m5)
+    return finalize(base, parts, missing + m1 + m5)
 
 
 IONO_CHART = "iono_noise_pairs.png"
@@ -442,7 +491,8 @@ def build_iono(results: Path, offline: bool) -> dict:
                      "en": "RMS pooled over all stations; uncertainty = RMS/√(2n).",
                      "ar": "جذر متوسط المربعات مجمّع على كل المحطات؛ الشك = RMS/√(2n)."})
     chart, chart_limits = iono_chart_part(results)
-    parts = {"findings": g["findings"] or None, "limits": [method, *g["limits"], *chart_limits], "location": loc,
+    parts = {"findings": g["findings"] or None, "location": loc,
+             "limits": [method, *g["limits"], *chart_limits, *provenance.product_limits(products)],
              "date": date, "headline": headline("ionosphere-gps", g["findings"]), "figures": maps + chart,
              "timeline": tl or None}
     return finalize(base, parts, missing + m1 + m4 + m5)
