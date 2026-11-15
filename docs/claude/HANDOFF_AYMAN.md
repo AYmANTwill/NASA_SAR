@@ -1,8 +1,7 @@
-# Handoff: Ayman's science and API work (updated 14 Nov 2026, 17:45)
+# Handoff: Ayman's science and API work (updated 15 Nov 2026, 00:10)
 
-Branch `ayman/science` (origin/main merged in). Gates: `test_all.py` 196/196, `test_science.py` 101/101 (~3 min),
-`tools/frontend_contract` 83/83 routes + 2/2 final cases (also with `NISAR_DEMO=1`). Not yet run on real NISAR data
-(the GUNW pairs are on Anass's machine A).
+Branch `ayman/science` (origin/main merged). Gates: `test_all.py` 196/196, `test_science.py` 121/121, contract 85/85.
+Anass ran everything on real data (194 products) on 14 Nov; his review's fixes are the last three rows below.
 
 ## Done, and where
 | what | files | commit |
@@ -55,11 +54,9 @@ Branch `ayman/science` (origin/main merged in). Gates: `test_all.py` 196/196, `t
   the decimal point in `agent.template` prose stays (numbers passed as params are formatted by the frontend).
 
 ## Known limits
-- Uniform slip on one rectangle; the model error (μ, uniform slip) dominates the Mw σ and is not quantified.
-- One mean line-of-sight vector per track; the incidence angle varies across the swath.
+- Uniform slip on one rectangle (model error not quantified); one mean line-of-sight vector per track.
 - The sign test depends on the finite-fault centre: a fault 16 km away gave "inconclusive" in the tests.
 - Vertical / east-west metrics are not sent until `decompose.combine` returns its σ (the old ×1.5 factor was removed).
-- Noise chart: no error bar (correlated pixels); the current CSV is preliminary and a limit says so.
 - `recipes/decompose.py:los_vector` swallows exceptions; `watch.py:82` sends no User-Agent (Anass's files).
 
 ## Open tasks
