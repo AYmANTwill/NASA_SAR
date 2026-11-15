@@ -36,8 +36,9 @@ export function useText() {
       if (typeof p === "number") return LRI + formatNumber(p, lang) + PDI;
       if (isMeasurement(p)) {
         const unit = t(`unit.${p.unit}`);
-        const number = p.uncertainty === 0 ? formatNumber(p.value, lang) : `${formatNumber(p.value, lang)} ± ${formatNumber(p.uncertainty, lang)}`;
-        return `${LRI}${number}${PDI}${unit ? ` ${unit}` : ""}`;
+        // Keep value and uncertainty together when a prose template wraps, particularly in RTL.
+        const number = p.uncertainty === 0 ? formatNumber(p.value, lang) : `${formatNumber(p.value, lang)}\u00a0±\u00a0${formatNumber(p.uncertainty, lang)}`;
+        return `${LRI}${number}${PDI}${unit ? `\u00a0${unit}` : ""}`;
       }
       if ("date" in p) return formatDate(p.date, lang);
       if ("term" in p) return t(p.term, { ns: "term", keySeparator: false, nsSeparator: false, defaultValue: p.term });

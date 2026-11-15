@@ -1,0 +1,193 @@
+{
+ "path": "/cases/haouz-flood-2026",
+ "status": 200,
+ "body": {
+  "id": "haouz-flood-2026",
+  "kind": "flood",
+  "status": "draft",
+  "title": {
+   "fr": "Zone candidate de changement de surface près d'Asni (Al Haouz, 10 octobre 2026)",
+   "en": "Candidate surface-change area near Asni (Al Haouz, 10 October 2026)",
+   "ar": "منطقة مرشحة لتغير السطح قرب أسني (الحوز، 10 أكتوبر 2026)"
+  },
+  "date": "2026-10-10T00:00:00Z",
+  "location": {
+   "lat": 31.25,
+   "lon": -7.983,
+   "bbox": [
+    -8.2,
+    31.05,
+    -7.75,
+    31.45
+   ],
+   "place": {
+    "fr": "Asni, Al Haouz (Maroc)",
+    "en": "Asni, Al Haouz (Morocco)",
+    "ar": "أسني، الحوز (المغرب)"
+   }
+  },
+  "headline": {
+   "template": "backend.case_draft",
+   "params": {},
+   "text": {
+    "fr": "[BROUILLON] Zone candidate de changement de surface : indicateurs en cours de calcul.",
+    "en": "[DRAFT] Candidate surface-change area: indicators being computed.",
+    "ar": "[مسودة] منطقة مرشحة لتغير السطح: المؤشرات قيد الحساب."
+   }
+  },
+  "findings": [
+   {
+    "id": "open_water_change",
+    "label": {
+     "fr": "Eau libre persistante après l'orage (U-Net)",
+     "en": "Persistent open water after the storm (U-Net)",
+     "ar": "المياه المفتوحة المستمرة بعد العاصفة (U-Net)"
+    },
+    "nisar": {
+     "value": 4.7968,
+     "uncertainty": 7.364,
+     "unit": "km2",
+     "sigma": 1.0
+    },
+    "reference": null,
+    "reference_source": null,
+    "agreement": "no_reference"
+   }
+  ],
+  "figures": [
+   {
+    "id": "water_radar_vs_clouds",
+    "kind": "image",
+    "title": {
+     "fr": "Le radar voit l'eau à travers les nuages",
+     "en": "Radar sees water through clouds",
+     "ar": "الرادار يرى المياه عبر السحب"
+    },
+    "url": "/api/water/figures/clouds.png",
+    "caption": {
+     "template": "backend.water_clouds",
+     "params": {},
+     "text": {
+      "en": "Same day: the optical water map (OPERA DSWx) is masked by clouds; the NISAR U-Net map is not.",
+      "fr": "Même jour : la carte optique de l'eau (OPERA DSWx) est masquée par les nuages ; la carte NISAR U-Net ne l'est pas.",
+      "ar": "في اليوم نفسه: خريطة المياه البصرية (OPERA DSWx) محجوبة بالسحب، أما خريطة NISAR U-Net فلا."
+     }
+    }
+   }
+  ],
+  "exposure": null,
+  "timeline": [
+   {
+    "label": {
+     "fr": "Crue",
+     "en": "Flood",
+     "ar": "الفيضان"
+    },
+    "at": "2026-10-10T00:00:00Z"
+   }
+  ],
+  "answer_ids": [],
+  "limits": [
+   {
+    "template": "backend.case_limit",
+    "params": {},
+    "text": {
+     "fr": "Perte de cohérence (cercle de 5 km), comparée à la référence sans événement : non calculé (not in results/haouz-flood-2026/findings.json).",
+     "en": "Coherence loss (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+     "ar": "فقدان التماسك (دائرة 5 كم)، مقارنة بخط الأساس دون حدث: لم يُحسب (not in results/haouz-flood-2026/findings.json)."
+    }
+   },
+   {
+    "template": "backend.case_limit",
+    "params": {},
+    "text": {
+     "fr": "Changement de rétrodiffusion (cercle de 5 km), comparé à la référence sans événement : non calculé (not in results/haouz-flood-2026/findings.json).",
+     "en": "Backscatter change (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+     "ar": "تغير الانتثار الخلفي (دائرة 5 كم)، مقارنة بخط الأساس دون حدث: لم يُحسب (not in results/haouz-flood-2026/findings.json)."
+    }
+   },
+   {
+    "template": "backend.case_limit",
+    "params": {},
+    "text": {
+     "fr": "Anomalie d'humidité du sol : non calculé (results/events/haouz-soil-moisture.json not available).",
+     "en": "Soil-moisture anomaly: not computed (results/events/haouz-soil-moisture.json not available).",
+     "ar": "شذوذ رطوبة التربة: لم يُحسب (results/events/haouz-soil-moisture.json not available)."
+    }
+   },
+   {
+    "template": "backend.case_limit",
+    "params": {},
+    "text": {
+     "fr": "Les trois indicateurs reposent sur les mêmes passages NISAR : ils ne sont pas indépendants et ne se confirment pas l'un l'autre.",
+     "en": "The three indicators rest on the same NISAR passes: they are not independent and do not confirm each other.",
+     "ar": "تعتمد المؤشرات الثلاثة على نفس مرورات NISAR: فهي ليست مستقلة ولا يؤكد بعضها بعضا."
+    }
+   },
+   {
+    "template": "backend.case_limit",
+    "params": {},
+    "text": {
+     "fr": "Ce n'est pas une carte d'inondation : la perte de cohérence et le changement de rétrodiffusion viennent aussi de la végétation, de l'humidité du sol ou du vent ; aucun masque d'eau n'est dérivé, donc aucune surface inondée (km²) n'est donnée.",
+     "en": "This is not a flood map: coherence loss and backscatter change also come from vegetation, soil moisture or wind; no water mask is derived, so no flooded surface (km²) is given.",
+     "ar": "هذه ليست خريطة فيضان: فقدان التماسك وتغير الانتثار الخلفي ينتجان أيضا عن الغطاء النباتي ورطوبة التربة والرياح؛ لم يُستخرج قناع للمياه، لذا لا تُعطى أي مساحة مغمورة (كم²)."
+    }
+   },
+   {
+    "template": "backend.water_limit",
+    "params": {},
+    "text": {
+     "en": "The value is consistent with zero at 1σ uncertainty: no flooded area is claimed.",
+     "fr": "La valeur est compatible avec zéro compte tenu de l'incertitude (1σ) : aucune surface inondée n'est revendiquée.",
+     "ar": "القيمة متوافقة مع الصفر ضمن هامش عدم اليقين (1σ): لا يُدّعى وجود مساحة مغمورة."
+    }
+   },
+   {
+    "template": "backend.water_limit",
+    "params": {},
+    "text": {
+     "fr": "Revisite de 12 jours par trace : les passages utilisés sont le 1er/3 octobre (avant) et le 13/15 octobre (après), soit 3 à 5 jours après la crue éclair du 10 octobre. Une crue éclair se retire en quelques heures; ce résultat mesure uniquement l'eau ouverte encore présente au passage, pas l'emprise maximale.",
+     "en": "12-day revisit per track: the passes used are 1/3 October (before) and 13/15 October (after), 3 to 5 days after the 10 October flash flood. Flash floods recede within hours; this result measures only open water still present at the pass, not the peak extent.",
+     "ar": "إعادة الزيارة كل 12 يوماً لكل مسار: المرورات المستخدمة 1/3 أكتوبر (قبل) و13/15 أكتوبر (بعد)، أي بعد 3 إلى 5 أيام من السيل المفاجئ في 10 أكتوبر. تنحسر السيول المفاجئة خلال ساعات؛ تقيس النتيجة المياه المفتوحة الباقية وقت المرور فقط."
+    }
+   },
+   {
+    "template": "backend.water_limit",
+    "params": {},
+    "text": {
+     "fr": "Vallées étroites : les lits d'oued du Haouz (Imlil, Asni, Moulay Brahim) font quelques dizaines de mètres de large, comparables aux pixels GCOV de 10 à 20 m après filtre de Lee 5x5 (environ 50 à 100 m effectifs); une eau résiduelle dans ces lits est en grande partie sous la résolution effective.",
+     "en": "Narrow valleys: the Haouz wadi beds (Imlil, Asni, Moulay Brahim) are a few tens of metres wide, comparable to the 10-20 m GCOV pixels after the 5x5 Lee filter (about 50-100 m effective); residual water in these beds is largely below the effective resolution.",
+     "ar": "أودية ضيقة: مجاري الأودية في الحوز (إمليل، أسني، مولاي إبراهيم) بعرض بضع عشرات من الأمتار، وهو ما يقارب بكسلات GCOV من 10 إلى 20 م بعد مرشح لي 5x5 (حوالي 50 إلى 100 م فعلياً)؛ المياه المتبقية في هذه المجاري أدنى غالباً من الدقة الفعلية."
+    }
+   },
+   {
+    "template": "backend.water_limit",
+    "params": {},
+    "text": {
+     "fr": "Repliement et ombre radar : sur les versants raides du Haut Atlas, le repliement mélange le fond de vallée avec le versant face au radar, et l'ombre produit une rétrodiffusion faible qui ressemble à de l'eau; les deux traces (23 descendante, 44 ascendante) voient des versants différents, d'où l'écart entre elles.",
+     "en": "Radar layover and shadow: on steep High Atlas slopes, layover mixes the valley floor with the radar-facing slope, and shadow produces low backscatter that resembles water; the two tracks (23 descending, 44 ascending) see different slopes, which is why they disagree.",
+     "ar": "التراكب والظل الراداري: على منحدرات الأطلس الكبير الشديدة يخلط التراكب قاع الوادي بالمنحدر المواجه للرادار، ويُنتج الظل تشتتاً خلفياً ضعيفاً يشبه الماء؛ يرى المساران (23 الهابط و44 الصاعد) منحدرات مختلفة، ولذلك يختلفان."
+    }
+   },
+   {
+    "template": "backend.water_limit",
+    "params": {},
+    "text": {
+     "fr": "Aucune paire DSWx claire avant/après n'existe; la valeur n'a donc pas de référence et l'accord n'est pas évalué.",
+     "en": "No clear DSWx pre/post pair exists, so the value has no reference and agreement is not evaluated.",
+     "ar": "لا يوجد زوج DSWx واضح قبل/بعد، لذلك لا مرجع للقيمة ولا يُقيَّم التوافق."
+    }
+   }
+  ],
+  "placeholders": [
+   "figures: no map with a layer",
+   "haouz: Backscatter change (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+   "haouz: Coherence loss (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+   "haouz: Soil-moisture anomaly: not computed (results/events/haouz-soil-moisture.json not available).",
+   "headline: no finding to report",
+   "results/haouz-flood-2026/findings.json not available",
+   "timeline: empty",
+   "timeline: no NISAR product"
+  ]
+ }
+}

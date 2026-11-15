@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { LANGS, pageScreenshot, requireBackend } from "./backend";
+import { LANGS, pageScreenshot, requireBackend, reviewScreen } from "./backend";
 
 const API = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
 
@@ -32,8 +32,7 @@ test.describe("library, live backend", () => {
         await expect(title).toBeVisible();
         if (e.answer_id) await expect(title.getByRole("link")).toHaveAttribute("href", `/${lang}/answers/${e.answer_id}`);
       }
-      expect(await axe(page)).toEqual([]);
-      await pageScreenshot(page, `e2e/__screenshots__/library-${lang}-1440.png`);
+      await reviewScreen(page, `library-${lang}`);
     });
   }
 });
@@ -74,12 +73,10 @@ test.describe("watches, live backend", () => {
 
   for (const lang of LANGS) {
     test(`${lang}: watches page renders and passes axe`, async ({ page }) => {
-      await page.setViewportSize({ width: 390, height: 900 });
       await page.goto(`/${lang}/watches`);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator(".loading")).toHaveCount(0);
-      expect(await axe(page)).toEqual([]);
-      await pageScreenshot(page, `e2e/__screenshots__/watches-${lang}-390.png`);
+      await reviewScreen(page, `watches-${lang}`);
     });
   }
 });

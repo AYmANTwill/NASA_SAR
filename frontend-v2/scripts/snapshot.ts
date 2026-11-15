@@ -26,7 +26,7 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-async function record(path: string): Promise<unknown> {
+async function record(path: string, optional = false): Promise<unknown> {
   let response: Response;
   try {
     response = await fetch(API + path);
@@ -34,6 +34,10 @@ async function record(path: string): Promise<unknown> {
     fail(`${path}: the backend does not answer at ${API}.`);
   }
   const body: unknown = await response.json().catch(() => null);
+  if (optional && response.status === 404) {
+    console.log(`404  ${path} (optional, omitted)`);
+    return null;
+  }
   snapshot.responses[path] = { status: response.status, body };
   console.log(`${response.status}  ${path}`);
   return response.ok ? body : null;
@@ -62,7 +66,8 @@ mkdirSync(TMP, { recursive: true });
 
 await record("/health");
 const answerIds = new Set<string>();
-for (const summary of list<{ id: string; thumbnail_url: string | null }>(await record("/cases"))) {
+const cases = list<{ id: string; thumbnail_url: string | null }>(await record("/cases"));
+for (const summary of cases) {
   const study = (await record(`/cases/${summary.id}`)) as { figures?: { url: string; layer?: { url: string } }[]; answer_ids?: string[] } | null;
   if (summary.thumbnail_url) await copyFile(summary.thumbnail_url);
   for (const figure of study?.figures ?? []) {
@@ -70,6 +75,11 @@ for (const summary of list<{ id: string; thumbnail_url: string | null }>(await r
     if (figure.layer) await copyFile(figure.layer.url);
   }
   for (const id of study?.answer_ids ?? []) answerIds.add(id);
+}
+
+if (cases.some((c) => c.id === "bin-el-ouidane-2026")) {
+  const water = await record("/water/raster-index", true) as { layers?: { url: string }[] } | null;
+  for (const image of water?.layers ?? []) await copyFile(image.url);
 }
 
 for (const e of list<{ answer_id: string | null }>(await record("/library"))) if (e.answer_id) answerIds.add(e.answer_id);

@@ -66,7 +66,7 @@
   },
   "cases": {
     "lede": "Des événements où NISAR a mesuré le sol, comparés quand c’est possible à une référence indépendante.",
-    "draftNote": "Ces études de cas sont des brouillons : leurs valeurs NISAR ne sont pas encore mesurées. Rien ici n’est un résultat."
+    "draftNote": "Les cas marqués « Brouillon » sont incomplets et ne doivent pas être présentés comme des résultats finaux."
   },
   "caseKind": {
     "earthquake": "Séisme",
@@ -92,7 +92,7 @@
   },
   "case": {
     "back": "Toutes les études de cas",
-    "draftBand": "Ce cas n’est pas un résultat : ses valeurs NISAR ne sont pas encore mesurées.",
+    "draftBand": "Ce cas reste incomplet : ses mesures disponibles et ses limites sont présentées ci-dessous.",
     "mapLabel": "Carte radar : {{place}}",
     "findings": "Mesures NISAR et référence",
     "findingsNone": "Aucune mesure pour l’instant.",
@@ -106,12 +106,28 @@
     "source": "Source :",
     "timeline": "Chronologie",
     "timelineNone": "Chronologie pas encore établie",
+    "noEventAgreement": "Concorde avec la référence sans événement : pas de différence nette par rapport à l’absence de changement.",
+    "heldoutIouContext": "IoU évaluée sur des traces jamais utilisées pour les réglages du modèle.",
+    "openWaterNoClearChange": "Pas de changement net d’eau libre.",
+    "openWaterContext": "Sans référence indépendante, cette mesure ne permet pas de conclure à une surface inondée.",
+    "haouzContext": "Ce cas évalue un changement de surface et ne fournit aucune surface inondée. L’eau libre permanente (U-Net) ne constitue pas une détection de crue.",
     "figures": "Figures",
     "figuresNone": "Aucune figure pour l’instant",
     "limits": "Ce que le radar ne peut pas dire ici",
     "sources": "Sources",
     "sourcesNone": "Aucune source externe pour l’instant",
     "linkedAnswers": "Réponses de l’enquêteur liées"
+  },
+  "timelineKind": {
+    "event": "Événement",
+    "acquisition": "Acquisition NISAR",
+    "publication": "Publication ASF",
+    "unspecified": "Autres dates"
+  },
+  "waterLayer": {
+    "water_before": "Eau avant",
+    "water_after": "Eau après",
+    "water_change": "Changement de l’eau"
   },
   "unit": {
     "mm": "mm",

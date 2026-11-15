@@ -1,12 +1,15 @@
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { I18nextProvider } from "react-i18next";
 import { describe, expect, it } from "vitest";
 import { ApiProvider } from "@/api/ApiProvider";
 import { createHttpClient } from "@/api/client";
 import type { CaseStudy, Lang } from "@/api/contract";
 import { AppRoutes } from "@/app/routes";
 import { formatNumber } from "@/i18n/format";
+import { i18nFor } from "@/i18n";
 import { recorded, recordedFetch, type Recorded } from "@/test/recorded";
+import { FindingView } from "./ledger";
 
 const BASE = "http://test/api";
 
@@ -111,6 +114,22 @@ describe("case view, linked answers", () => {
     const section = await screen.findByRole("region", { name: "Linked investigator answers" });
     const link = await within(section).findByRole("link", { name: (answer.body as { question: string }).question });
     expect(link.getAttribute("href")).toBe(`/en/answers/${(answer.body as { id: string }).id}`);
+  });
+});
+
+describe("Haouz agreement interpretation", () => {
+  it.each(["fr", "en", "ar"] as const)("explains agreement with the no-event baseline below the badge (%s)", (lang) => {
+    // Display regression only: the measurements come from the recorded reference, as in finalFrom above.
+    const finding = (finalFrom("case-panama-2026.json").body as CaseStudy).findings[0]!;
+    finding.reference_source = { ...finding.reference_source!, name: "No-event baseline: random circles" };
+    const { container, rerender } = render(
+      <I18nextProvider i18n={i18nFor[lang]}><FindingView finding={finding} status="final" caseId="haouz-flood-2026" /></I18nextProvider>,
+    );
+    const note = container.querySelector(".finding-context");
+    expect(note?.textContent).toBe(i18nFor[lang].t("case.noEventAgreement"));
+    expect(note?.previousElementSibling?.className).toBe("finding-agreement");
+    rerender(<I18nextProvider i18n={i18nFor[lang]}><FindingView finding={finding} status="final" caseId="panama-2026" /></I18nextProvider>);
+    expect(container.querySelector(".finding-context")).toBeNull();
   });
 });
 

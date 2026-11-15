@@ -1,5 +1,6 @@
 {
   "tpl": {
+    "backend.water_area_change": "تغير مساحة المياه: NISAR {{nisar}}، المرجع البصري OPERA DSWx {{reference}}.",
     "step.verdict": "صيغ الحكم من قالب ثابت؛ أرقامه مأخوذة من الحساب",
     "step.search_scenes_zero": "لم يُعثر على أي منتج NISAR من {{start}} إلى {{end}}",
     "step.search_scenes_one": "عُثر على منتج NISAR واحد من {{start}} إلى {{end}}",

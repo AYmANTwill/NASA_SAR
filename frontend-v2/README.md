@@ -20,6 +20,21 @@ npm run dev
 
 Open http://127.0.0.1:5310. The language is in the address: `/fr/`, `/en/`, `/ar/`.
 
+The case list uses optional summary bounds and place names, with a detail fallback for older backends. Timeline
+kinds separate events, acquisitions and publications; dates without a kind remain unclassified.
+
+The optional Bin El Ouidane method case keeps its four figures in the ledger. Its before/after/change RGBA PNGs
+from `/api/water/raster-index` can be selected on the map at their API bounds. They are image overlays: no
+`RasterLayer` palette or legend is fabricated. A missing endpoint leaves the figures and case available.
+
+Haouz agreement with a "No-event baseline" is explained under the badge as not different from no change.
+Persistent open water (U-Net) is never described as flood detection.
+
+The water model's validation score is the API finding `heldout_iou`, with its API uncertainty and unit. Its note
+explains that the evaluation tracks were never used for model tuning. No selection score is substituted if this
+finding is absent. Haouz `open_water_change` explicitly reads "no clear change in open water" with the neutral
+`no_reference` badge; an agreement without a reference is rejected by the contract.
+
 ## Offline demo
 
 The demo laptop needs neither the backend nor the internet once the build is made.
@@ -36,6 +51,8 @@ npm run preview:demo      # serves dist-demo/ on http://127.0.0.1:4311, no backe
   are final, and it can never overwrite the jury build in `dist-demo/`.
 - If a snapshot fails (backend down, a response breaking the contract, an image missing), the previous snapshot is
   kept unchanged.
+- When available, the water image index and its PNGs are recorded too. Older snapshots without that optional
+  endpoint still replay the case and its figures.
 - The demo answers the demonstration questions of `GET /api/demo` (in FR, EN and AR, matched without case, accents
   or punctuation) and shows every recorded page. Anything else says "not available in the offline demo". It never
   creates or changes a watch.

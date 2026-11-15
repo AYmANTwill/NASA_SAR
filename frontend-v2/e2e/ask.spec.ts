@@ -1,6 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { LANGS, pageScreenshot, requireBackend, waitForMap } from "./backend";
+import { LANGS, requireBackend, reviewScreen, waitForMap } from "./backend";
 
 const API = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
 const LIMITS = { fr: "Ce que le radar ne peut pas dire ici", en: "What the radar cannot tell here", ar: "ما لا يستطيع الرادار قوله هنا" };
@@ -18,16 +17,15 @@ test.describe("investigator, live backend", () => {
       const demo = (await (await request.get(`${API}/api/demo`)).json()) as Demo;
       const question = demo.entries[0]!.questions.find((q) => q.lang === lang)!.text;
       await page.goto(`/${lang}/ask`);
+      await expect(page.getByRole("button", { name: question })).toBeVisible();
+      await reviewScreen(page, `ask-form-${lang}`);
       await page.getByRole("button", { name: question }).click();
       const limits = page.getByRole("region", { name: LIMITS[lang] });
       await expect(limits).toBeVisible({ timeout: 60_000 });
       await expect(page.locator(".steps .step").first()).toBeVisible();
       // Every interface template the backend used has a text in this language.
       await expect(page.getByText(NOT_AVAILABLE[lang])).toHaveCount(0);
-      const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-      expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
-      await waitForMap(page);
-      await pageScreenshot(page, `e2e/__screenshots__/ask-${lang}-1440.png`);
+      await reviewScreen(page, `ask-${lang}`);
     });
   }
 
@@ -37,6 +35,30 @@ test.describe("investigator, live backend", () => {
     await page.goto(`/fr/answers/${id}`);
     await expect(page.getByRole("region", { name: LIMITS.fr })).toBeVisible();
     await expect(page.getByRole("link", { name: id })).toBeVisible();
+  });
+
+  test("every linked answer in every language on desktop and phone", async ({ page, request }) => {
+    test.setTimeout(600_000);
+    const demo = (await (await request.get(`${API}/api/demo`)).json()) as Demo;
+    const library = await (await request.get(`${API}/api/library`)).json() as { answer_id: string | null }[];
+    const cases = await (await request.get(`${API}/api/cases`)).json() as { id: string }[];
+    const ids = new Set(demo.entries.map((e) => e.answer_id));
+    for (const event of library) if (event.answer_id) ids.add(event.answer_id);
+    for (const summary of cases) {
+      const study = await (await request.get(`${API}/api/cases/${summary.id}`)).json() as { answer_ids: string[] };
+      for (const id of study.answer_ids) ids.add(id);
+    }
+    for (const endpoint of ["watches", "notifications"]) {
+      const entries = await (await request.get(`${API}/api/${endpoint}`)).json() as { answer_id: string | null }[];
+      for (const entry of entries) if (entry.answer_id) ids.add(entry.answer_id);
+    }
+    for (const id of ids) {
+      for (const lang of LANGS) {
+        await page.goto(`/${lang}/answers/${encodeURIComponent(id)}`);
+        await expect(page.getByRole("region", { name: LIMITS[lang] })).toBeVisible();
+        await reviewScreen(page, `answer-${id}-${lang}`);
+      }
+    }
   });
 
   test("clicking on the map picks a point for the question", async ({ page }) => {

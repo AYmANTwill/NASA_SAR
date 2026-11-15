@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import type { CaseStudy } from "@/api/contract";
-import { useCaseStudy } from "@/api/queries";
+import { useCaseStudy, useWaterRasterIndex } from "@/api/queries";
+import { ErrorPanel } from "@/components/ErrorPanel";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { MapPanel, type MapEntry } from "@/components/map/MapPanel";
 import { QueryView } from "@/components/QueryView";
@@ -32,8 +33,10 @@ export function CaseView() {
 function CaseBody({ study }: { study: CaseStudy }) {
   const { t, lang, text, localized } = useText();
   const draft = study.status === "draft";
+  const water = useWaterRasterIndex(study.id === "bin-el-ouidane-2026");
   // Figures with a raster layer go on the map; the others (charts, images) stay in the ledger.
   const mapEntries: MapEntry[] = study.figures.flatMap((f) => (f.layer ? [{ layer: f.layer, title: f.title, caption: f.caption }] : []));
+  for (const image of water.data?.layers ?? []) mapEntries.push({ image, label: t(`waterLayer.${image.id}`) });
   const otherFigures = study.figures.filter((f) => !f.layer);
 
   return (
@@ -57,18 +60,20 @@ function CaseBody({ study }: { study: CaseStudy }) {
       <div className="case-layout">
         <div className="case-map-column">
           <MapPanel frame={study.location.bbox} point={study.location} entries={mapEntries} label={t("case.mapLabel", { place: localized(study.location.place) })} />
+          {water.isError && <ErrorPanel error={water.error} onRetry={() => void water.refetch()} />}
           <PassTimeline study={study} />
         </div>
 
         <div className="ledger">
           <p className="headline">{text(study.headline)}</p>
+          {study.id === "haouz-flood-2026" && <p className="case-interpretation">{t("case.haouzContext")}</p>}
 
           <section className="ledger-section" aria-labelledby="findings-title">
             <h2 id="findings-title">{t("case.findings")}</h2>
             {study.findings.length === 0 ? (
               <p className="not-measured">{t("case.findingsNone")}</p>
             ) : (
-              study.findings.map((f) => <FindingView key={f.id} finding={f} status={study.status} />)
+              study.findings.map((f) => <FindingView key={f.id} finding={f} status={study.status} caseId={study.id} />)
             )}
           </section>
 

@@ -66,7 +66,7 @@
   },
   "cases": {
     "lede": "Events where NISAR measured the ground, compared with an independent reference where one exists.",
-    "draftNote": "These case studies are drafts: their NISAR values are not measured yet. Nothing here is a result."
+    "draftNote": "Cases marked “Draft” are incomplete and must not be presented as final results."
   },
   "caseKind": {
     "earthquake": "Earthquake",
@@ -92,7 +92,7 @@
   },
   "case": {
     "back": "All case studies",
-    "draftBand": "This case is not a result: its NISAR values are not measured yet.",
+    "draftBand": "This case is incomplete. The available measurements and their limits are shown below.",
     "mapLabel": "Radar map: {{place}}",
     "findings": "NISAR measurements and reference",
     "findingsNone": "No measurement yet.",
@@ -106,12 +106,28 @@
     "source": "Source:",
     "timeline": "Timeline",
     "timelineNone": "Timeline not established yet",
+    "noEventAgreement": "Agrees with the no-event baseline: not different from no change.",
+    "heldoutIouContext": "IoU evaluated on tracks never used to tune the model.",
+    "openWaterNoClearChange": "No clear change in open water.",
+    "openWaterContext": "Without an independent reference, this measurement does not establish a flooded area.",
+    "haouzContext": "This case evaluates surface change and provides no flooded area. Persistent open water (U-Net) is not a flood detection.",
     "figures": "Figures",
     "figuresNone": "No figure yet",
     "limits": "What the radar cannot tell here",
     "sources": "Sources",
     "sourcesNone": "No external source yet",
     "linkedAnswers": "Linked investigator answers"
+  },
+  "timelineKind": {
+    "event": "Event",
+    "acquisition": "NISAR acquisition",
+    "publication": "ASF publication",
+    "unspecified": "Other dates"
+  },
+  "waterLayer": {
+    "water_before": "Water before",
+    "water_after": "Water after",
+    "water_change": "Water change"
   },
   "unit": {
     "mm": "mm",

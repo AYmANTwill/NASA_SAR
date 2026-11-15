@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const BACKEND = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
 
@@ -36,6 +37,24 @@ export async function pageScreenshot(page: Page, path: string): Promise<void> {
     await page.waitForTimeout(100);
     await waitForMap(page);
   }
+  await expect.poll(() => page.evaluate(() => [...document.images].every((img) => img.complete && img.naturalWidth > 0)), {
+    message: `all figures loaded for ${path}`,
+  }).toBe(true);
   await page.screenshot({ path });
   await page.setViewportSize(viewport);
+}
+
+/** The same live layout, image and accessibility checks on desktop and at the requested phone width. */
+export async function reviewScreen(page: Page, name: string, widths = [1440, 390]): Promise<void> {
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.evaluate(() => document.fonts.ready);
+    if (await page.locator(".radar-map-canvas").count()) await waitForMap(page);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, `${name}: horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
+    const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    expect(results.violations.map((v) => `${name}/${width} ${v.id}: ${v.help}`)).toEqual([]);
+    await pageScreenshot(page, `e2e/__screenshots__/${name}-${width}.png`);
+  }
 }

@@ -13,7 +13,7 @@ export interface RadarMapProps {
   /** The API's point of the event, drawn as a dot. */
   point?: { lat: number; lon: number };
   /** The raster shown, exactly as the API sent it (PNG + bounds), or none. */
-  layer: RasterLayer | null;
+  layer: Pick<RasterLayer, "url" | "bounds"> | null;
   label: string;
   /** When set, a click (or Enter on the focused map, at its centre) picks a point. */
   onPick?: (point: { lat: number; lon: number }) => void;
@@ -150,6 +150,7 @@ export default function RadarMap({ frame, point, layer, label, onPick, showArea 
     if (m.getSource("radar")) m.removeSource("radar");
     setFailure(null);
     if (!layer) return;
+    container.current?.setAttribute("data-idle", "false");
     const [w, s, e, n] = layer.bounds;
     m.addSource("radar", {
       type: "image",

@@ -1,5 +1,6 @@
 {
   "tpl": {
+    "backend.water_area_change": "Water-area change: NISAR {{nisar}}, optical OPERA DSWx reference {{reference}}.",
     "step.verdict": "Verdict written from a fixed template; its numbers come from the computation",
     "step.search_scenes_one": "{{count}} NISAR product found, from {{start}} to {{end}}",
     "step.search_scenes_other": "{{count}} NISAR products found, from {{start}} to {{end}}",

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { WaterRasterIndex } from "@/api/water";
 import {
   Answer,
   ApiErrorBody,
@@ -39,6 +40,7 @@ const ROUTES: [RegExp, Schema][] = [
   [/^\/health$/, Health],
   [/^\/cases$/, z.array(CaseSummary)],
   [/^\/cases\/[^/]+$/, CaseStudy],
+  [/^\/water\/raster-index$/, WaterRasterIndex],
   [/^\/answers\/[^/]+$/, Answer],
   [/^\/library$/, z.array(LibraryEvent)],
   [/^\/demo$/, DemoBundle],

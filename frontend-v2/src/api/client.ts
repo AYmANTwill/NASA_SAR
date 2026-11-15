@@ -17,12 +17,14 @@ import {
 } from "./contract";
 import { ApiError, OfflineError, parseWith } from "./errors";
 import { readSse } from "./sse";
+import { WaterRasterIndex } from "./water";
 
 /** Everything the interface asks of the backend. Components never call fetch. */
 export interface ApiClient {
   health(signal?: AbortSignal): Promise<Health>;
   cases(signal?: AbortSignal): Promise<CaseSummary[]>;
   caseStudy(id: string, signal?: AbortSignal): Promise<CaseStudy>;
+  waterRasterIndex(signal?: AbortSignal): Promise<WaterRasterIndex | null>;
   ask(request: AskRequest, onStep: (step: AgentStep) => void, signal?: AbortSignal): Promise<Answer>;
   answer(id: string, signal?: AbortSignal): Promise<Answer>;
   library(signal?: AbortSignal): Promise<LibraryEvent[]>;
@@ -84,6 +86,14 @@ export function createHttpClient(base: string = import.meta.env.VITE_API_BASE ??
     health: (signal) => get("/health", Health, signal),
     cases: (signal) => get("/cases", z.array(CaseSummary), signal),
     caseStudy: (caseId, signal) => get(`/cases/${id(caseId)}`, CaseStudy, signal),
+    async waterRasterIndex(signal) {
+      try {
+        return await get("/water/raster-index", WaterRasterIndex, signal);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    },
     answer: (answerId, signal) => get(`/answers/${id(answerId)}`, Answer, signal),
     library: (signal) => get("/library", z.array(LibraryEvent), signal),
     demo: (signal) => get("/demo", DemoBundle, signal),

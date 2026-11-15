@@ -499,7 +499,7 @@ export const CaseStudy = z.object({
   findings: z.array(Finding),
   figures: z.array(Figure),
   exposure: CaseExposure.nullable(),
-  timeline: z.array(z.object({ label: Localized, at: caseDate })),
+  timeline: z.array(z.object({ label: Localized, at: caseDate, kind: z.enum(["event", "acquisition", "publication"]).optional() })),
   answer_ids: z.array(z.string()),
   limits: z.array(TemplatedText).min(1, "every case must state its limits"),
 });
@@ -512,5 +512,7 @@ export const CaseSummary = z.object({
   date: caseDate,
   status: CaseStatus,
   thumbnail_url: z.string().nullable(),
+  bbox: Bounds.optional(),
+  place: Localized.optional(),
 });
 export type CaseSummary = z.infer<typeof CaseSummary>;

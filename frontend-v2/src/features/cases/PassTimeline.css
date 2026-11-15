@@ -10,6 +10,24 @@
   font-size: var(--step-1);
 }
 
+.pt-tracks {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pt-track {
+  display: grid;
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pt-track-label,
+.pt-item-kind {
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
 .pt-axis {
   position: relative;
   block-size: 1.5rem;
@@ -50,6 +68,15 @@
 
 .pt-list time {
   color: var(--ink-2);
+}
+
+@media (max-width: 960px) {
+  .pt-list {
+    max-block-size: 20rem;
+    overflow-y: auto;
+    padding-inline-end: var(--space-2);
+    scrollbar-gutter: stable;
+  }
 }
 
 @media (max-width: 480px) {

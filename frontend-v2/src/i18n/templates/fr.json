@@ -1,5 +1,6 @@
 {
   "tpl": {
+    "backend.water_area_change": "Variation de la surface en eau : NISAR {{nisar}}, référence optique OPERA DSWx {{reference}}.",
     "step.verdict": "Verdict rédigé à partir d’un modèle fixe ; ses chiffres viennent du calcul",
     "step.search_scenes_one": "{{count}} produit NISAR trouvé, du {{start}} au {{end}}",
     "step.search_scenes_other": "{{count}} produits NISAR trouvés, du {{start}} au {{end}}",

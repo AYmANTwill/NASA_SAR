@@ -9,7 +9,7 @@ import { useText } from "@/i18n/useText";
 import { measurementState } from "@/science/measurement";
 
 /** One finding: NISAR's value, the reference's, the strip when both are measured, the API's agreement. */
-export function FindingView({ finding, status }: { finding: Finding; status: CaseStatus }) {
+export function FindingView({ finding, status, caseId }: { finding: Finding; status: CaseStatus; caseId?: CaseStudy["id"] }) {
   const { t, localized } = useText();
   const nisarState = measurementState(finding.nisar, status);
   const reference = finding.reference;
@@ -17,12 +17,17 @@ export function FindingView({ finding, status }: { finding: Finding; status: Cas
   const bothMeasured = nisarState !== "placeholder" && reference !== null && measurementState(reference, status) !== "placeholder";
   // A placeholder has no agreement worth showing (Panama's placeholder Mw "disagrees" with USGS, API_REQUESTS.md #1).
   const agreement = nisarState === "placeholder" && reference !== null ? "pending" : finding.agreement;
+  const noEventAgreement = caseId === "haouz-flood-2026" && agreement === "agree" && /^no-event baseline\b/i.test(source?.name ?? "");
+  const heldoutIou = caseId === "bin-el-ouidane-2026" && finding.id === "heldout_iou";
+  const openWaterChange = caseId === "haouz-flood-2026" && finding.id === "open_water_change";
 
   return (
     <article className="finding" aria-labelledby={`finding-${finding.id}`}>
       <h3 id={`finding-${finding.id}`} className="finding-label">
         {localized(finding.label)}
       </h3>
+      {heldoutIou && <p className="finding-context">{t("case.heldoutIouContext")}</p>}
+      {openWaterChange && nisarState !== "placeholder" && <p className="finding-interpretation">{t("case.openWaterNoClearChange")}</p>}
       <dl className="finding-rows">
         <div className="finding-row">
           <dt>
@@ -51,6 +56,8 @@ export function FindingView({ finding, status }: { finding: Finding; status: Cas
       <p className="finding-agreement">
         <AgreementMark agreement={agreement} />
       </p>
+      {noEventAgreement && <p className="finding-context">{t("case.noEventAgreement")}</p>}
+      {openWaterChange && reference === null && <p className="finding-context">{t("case.openWaterContext")}</p>}
     </article>
   );
 }
