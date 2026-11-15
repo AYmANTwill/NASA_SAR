@@ -4,6 +4,7 @@ Run from backend/ (NISAR_LOS_SIGN unset), one process per variant (the displacem
     python ../results/panama-2026/sensitivity_iono.py A      # raw: the old already_applied (geocoding flags counted)
     python ../results/panama-2026/sensitivity_iono.py B      # fixed already_applied + per-pair keep_raw_phase rule (default code)
     python ../results/panama-2026/sensitivity_iono.py C      # forced subtraction (keep_raw_phase always False, in this script only)
+    python ../results/panama-2026/sensitivity_iono.py G      # C again, through NISAR_IONO_GUARD=off (must match C)
     python ../results/panama-2026/sensitivity_iono.py merge  # sensitivity_iono.md from the three JSON files
 
 Per track (frames fitted together, no bootstrap, no noise model): VR(+1), VR(-1) of each USGS nodal plane, points, valid
@@ -14,6 +15,7 @@ nothing in the repository is changed: the variants are monkeypatches inside this
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -41,6 +43,8 @@ if VARIANT == "A":                       # the code as it was: any flag with "io
     corrections.already_applied = _old_already_applied
 elif VARIANT == "C":                     # forced subtraction
     corrections.keep_raw_phase = lambda *a, **k: False
+elif VARIANT == "G":                     # same as C through the repository option NISAR_IONO_GUARD=off (no monkeypatch)
+    os.environ["NISAR_IONO_GUARD"] = "off"
 
 
 def merge() -> None:

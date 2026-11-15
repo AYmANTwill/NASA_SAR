@@ -37,6 +37,16 @@ IONO_UNC_MAX_RAD = float(os.environ.get("NISAR_IONO_UNC_MAX_RAD", "1.0"))
 SIGMA_SUBSAMPLE = 4                               # every 4th pixel for the frame-wide robust sigma
 
 
+def iono_guard() -> str:
+    """NISAR_IONO_GUARD: "on" (default) keeps the raw phase of a pair where subtracting the ionosphere screen does not lower
+    the frame-wide robust sigma (keep_raw_phase); "off" always subtracts the screen (a sensitivity test, not a default).
+    Read at each call (set it before the process starts: displacement caches its results). Any other value fails fast. The answer facts record the value (corrections.iono.guard)."""
+    value = os.environ.get("NISAR_IONO_GUARD", "on").strip().lower()
+    if value not in ("on", "off"):
+        raise ValueError(f"NISAR_IONO_GUARD must be 'on' or 'off', got {value!r}")
+    return value
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Setting
 # ---------------------------------------------------------------------------------------------------------------------
@@ -359,6 +369,8 @@ def _apply_iono(p, phase, attrs, wavelength_m, sign):
     the raw phase for a pair where subtracting does not lower the frame-wide robust sigma. sign -1 (the noise
     report's convention test) forces the subtraction."""
     r = _base("iono", attrs, "ionospherePhaseScreen")
+    guard = iono_guard()
+    r["guard"] = guard
     if r["already_applied_flag"]:
         return phase, {**r, "reason": "the product says the ionosphere is already corrected: not applied again"}
     if "iono" not in p.files:
@@ -377,7 +389,7 @@ def _apply_iono(p, phase, attrs, wavelength_m, sign):
             "uncertainty_layer": "present" if mask is not None else "absent (not extracted for this product)",
             "uncertainty_max_rad": IONO_UNC_MAX_RAD,
             "uncertainty_masked_fraction": None if mask is None else round(float(mask.mean()), 4)}
-    if sign == 1 and keep_raw_phase(s_raw, s_sub):
+    if sign == 1 and guard == "on" and keep_raw_phase(s_raw, s_sub):
         return phase, {**r, **info, "kept_raw": True,
                        "reason": f"kept the raw phase: subtracting the screen did not lower the robust sigma "
                                  f"({info['frame_sigma_raw_rad']} -> {info['frame_sigma_subtracted_rad']} rad)"}
