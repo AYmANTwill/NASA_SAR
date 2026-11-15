@@ -13,7 +13,9 @@ from science.case_models import CASE_KIND, CaseStudy, CaseSummary
 
 log = logging.getLogger(__name__)
 CASES_DIR = Path(os.environ.get("NISAR_CASES", Path(__file__).resolve().parents[1] / "cases"))
-ORDER = tuple(CASE_KIND)  # panama, venezuela, haouz, ionosphere, bin-el-ouidane
+# Demo order: the only complete, validated case first, then the cases still in progress.
+ORDER = ("bin-el-ouidane-2026", "panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps")
+assert set(ORDER) == set(CASE_KIND), "ORDER must list every case id"
 OPTIONAL_CASES = ("bin-el-ouidane-2026",)   # served only when its file exists (Youkaoui's water outputs)
 
 
