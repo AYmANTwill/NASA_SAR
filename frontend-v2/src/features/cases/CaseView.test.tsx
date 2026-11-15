@@ -95,6 +95,25 @@ describe("case view, final", () => {
   });
 });
 
+describe("case view, linked answers", () => {
+  it("links each answer the case lists, with its question and verdict", async () => {
+    const rec = structuredClone(recorded("case-panama-2026.json"));
+    const answer = recorded("answer-event-panama-2026.json");
+    (rec.body as CaseStudy).answer_ids = [(answer.body as { id: string }).id];
+    const { fetcher } = recordedFetch({ [`${BASE}/cases/panama-2026`]: rec, [`${BASE}${answer.path}`]: answer });
+    render(
+      <ApiProvider client={createHttpClient(BASE, fetcher)}>
+        <MemoryRouter initialEntries={["/en/cases/panama-2026"]}>
+          <AppRoutes />
+        </MemoryRouter>
+      </ApiProvider>,
+    );
+    const section = await screen.findByRole("region", { name: "Linked investigator answers" });
+    const link = await within(section).findByRole("link", { name: (answer.body as { question: string }).question });
+    expect(link.getAttribute("href")).toBe(`/en/answers/${(answer.body as { id: string }).id}`);
+  });
+});
+
 describe("case view, errors", () => {
   it("an unknown case shows the backend's not-found text", async () => {
     const { fetcher } = recordedFetch({ [`${BASE}/cases/no-such-case`]: recorded("case-404.json") });

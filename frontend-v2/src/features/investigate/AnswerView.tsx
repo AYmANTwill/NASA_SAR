@@ -41,7 +41,7 @@ function ConfidenceMark({ confidence }: { confidence: Confidence }) {
 
 /** One answer of the investigator: map and evidence ledger, in the same reading order as a case. */
 export function AnswerView({ answer, showSteps = true }: { answer: Answer; showSteps?: boolean }) {
-  const { t, lang, text } = useText();
+  const { t, lang, text, param } = useText();
   const place = answer.location.name_i18n?.[lang] ?? answer.location.name ?? "";
 
   return (
@@ -76,6 +76,7 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
             {text(answer.verdict)}
           </p>
           <p className="answer-tags">
+            <span className="tag">{param({ term: `recipe.${answer.recipe}` })}</span>
             <ConfidenceMark confidence={answer.confidence} />
             {answer.stable_in_noise && <span className="tag">{t("answer.stableInNoise")}</span>}
             <span className="tag">{t(`productStatus.${answer.product_status}`)}</span>
@@ -106,6 +107,27 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
               {answer.series.map((s) => (
                 <SeriesChart key={s.id} series={s} />
               ))}
+            </section>
+          )}
+
+          {answer.classifier && (
+            <section className="ledger-section" aria-labelledby="classifier-title">
+              <h2 id="classifier-title">{t("answer.classifier")}</h2>
+              <p>
+                <strong>{t(`classLabel.${answer.classifier.label}`)}</strong> <span className="tag">{t("answer.beta")}</span>
+              </p>
+              <dl className="legend-facts">
+                <dt>{t("answer.precision")}</dt>
+                <dd>
+                  <bdi dir="ltr">{formatNumber(answer.classifier.precision, lang)}</bdi>
+                </dd>
+                <dt>{t("answer.recall")}</dt>
+                <dd>
+                  <bdi dir="ltr">{formatNumber(answer.classifier.recall, lang)}</bdi>
+                </dd>
+                <dt>{t("answer.evaluatedOn")}</dt>
+                <dd dir="auto">{answer.classifier.evaluated_on}</dd>
+              </dl>
             </section>
           )}
 

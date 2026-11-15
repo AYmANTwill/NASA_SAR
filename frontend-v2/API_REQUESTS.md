@@ -65,3 +65,28 @@ have no schema in the contract.
 - **Ask:** add their response shapes to `contract.ts` (or answer 204), so they can be validated like the rest.
 - **Until then:** the interface never reads these bodies. After either action it re-reads `GET /api/watches` and
   `GET /api/notifications`, which are validated.
+
+## 8. Backend features that /api does not expose
+
+The legacy routes (`backend/api.py`) offer features that have no `/api` route and no schema in the contract, so
+no interface may use them (every response must be validated):
+
+| legacy route / field | what it gives | why an interface wants it |
+|---|---|---|
+| `GET /places` | the named places the agent understands, with FR/EN/AR aliases | suggest place names in the question box |
+| `GET /next-pass?lat=&lon=` | next NISAR passes over any point | "next pass" before a question is asked |
+| `GET /catalog?level=GUNW` | the products on the server | "what data does this server have" on the status page |
+| `GET /events?include_validation=true` | all events, the Morocco ones included | the four Moroccan sites stay out of `/api/library` (team decision, 14 Nov) |
+| `POST /ask` field `date` | the event date of a question | ask about a dated event without writing the date in the question |
+| answer fields `profile`, `facts`, `event_time`, `data_used` | west–east profile, every number behind the verdict, event instant, product ids | detail panels, provenance |
+
+- **Ask:** decide which of these the demo needs; for each, an `/api` route or `Answer` field with its schema in
+  `contract.ts` (Ayman + Houssam).
+
+## 9. English questions without a known place type
+
+`POST /api/ask` with `{"question": "Is the ground moving here?", "lang": "en", "location": {…}}` returns the error
+`unclear_question`, while the French "Le terrain bouge-t-il ici ?" at the same point is understood (slow motion).
+
+- **Ask:** the same question vocabulary in EN and AR as in FR (agent classifier).
+- **Until then:** the interface shows the backend's "unclear question" text in the page language.

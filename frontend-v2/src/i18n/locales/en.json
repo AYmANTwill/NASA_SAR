@@ -110,7 +110,8 @@
     "figuresNone": "No figure yet",
     "limits": "What the radar cannot tell here",
     "sources": "Sources",
-    "sourcesNone": "No external source yet"
+    "sourcesNone": "No external source yet",
+    "linkedAnswers": "Linked investigator answers"
   },
   "unit": {
     "mm": "mm",
@@ -200,7 +201,12 @@
     "nextPass": "Next NISAR pass",
     "permalink": "Address of this answer",
     "cached": "(precomputed answer)",
-    "noRaster": "No radar map in this answer: only the point studied is drawn."
+    "noRaster": "No radar map in this answer: only the point studied is drawn.",
+    "classifier": "Automatic classification",
+    "beta": "beta",
+    "precision": "Precision",
+    "recall": "Recall",
+    "evaluatedOn": "Evaluated on"
   },
   "steps": {
     "ms": "ms"
@@ -348,5 +354,11 @@
       "demo": "Offline demo: answers from the NISAR Pulse server, recorded on {{date}}.",
       "rehearsal": "REHEARSAL, not for the jury: this offline build contains draft cases (recorded on {{date}})."
     }
+  },
+  "classLabel": {
+    "flooded": "Flooded",
+    "burned": "Burned",
+    "vegetation_loss": "Vegetation loss",
+    "stable": "Stable"
   }
 }

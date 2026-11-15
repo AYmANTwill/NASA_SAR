@@ -110,7 +110,8 @@
     "figuresNone": "Aucune figure pour l’instant",
     "limits": "Ce que le radar ne peut pas dire ici",
     "sources": "Sources",
-    "sourcesNone": "Aucune source externe pour l’instant"
+    "sourcesNone": "Aucune source externe pour l’instant",
+    "linkedAnswers": "Réponses de l’enquêteur liées"
   },
   "unit": {
     "mm": "mm",
@@ -200,7 +201,12 @@
     "nextPass": "Prochain passage NISAR",
     "permalink": "Adresse de cette réponse",
     "cached": "(réponse précalculée)",
-    "noRaster": "Pas de carte radar dans cette réponse : seul le point étudié est tracé."
+    "noRaster": "Pas de carte radar dans cette réponse : seul le point étudié est tracé.",
+    "classifier": "Classification automatique",
+    "beta": "bêta",
+    "precision": "Précision",
+    "recall": "Rappel",
+    "evaluatedOn": "Évaluée sur"
   },
   "steps": {
     "ms": "ms"
@@ -348,5 +354,11 @@
       "demo": "Démo hors ligne : réponses du serveur NISAR Pulse enregistrées le {{date}}.",
       "rehearsal": "RÉPÉTITION, pas pour le jury : cette version hors ligne contient des cas brouillons (enregistrée le {{date}})."
     }
+  },
+  "classLabel": {
+    "flooded": "Inondé",
+    "burned": "Brûlé",
+    "vegetation_loss": "Perte de végétation",
+    "stable": "Stable"
   }
 }

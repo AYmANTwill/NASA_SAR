@@ -31,6 +31,14 @@ export function useAnswer(id: string) {
   return useQuery({ queryKey: ["answer", id], queryFn: ({ signal }) => api.answer(id, signal) });
 }
 
+/** Several answers at once (a case's linked answers), sharing the cache of useAnswer. */
+export function useAnswers(ids: string[]) {
+  const api = useApi();
+  return useQueries({
+    queries: ids.map((id) => ({ queryKey: ["answer", id], queryFn: ({ signal }: { signal: AbortSignal }) => api.answer(id, signal) })),
+  });
+}
+
 export function useLibrary() {
   const api = useApi();
   return useQuery({ queryKey: ["library"], queryFn: ({ signal }) => api.library(signal) });

@@ -4,8 +4,8 @@ import { useDiscoveries, useHealth, useLbandProof } from "@/api/queries";
 import { useText } from "@/i18n/useText";
 import "./StatusPage.css";
 
-/** The region the backend's discovery service covers (docs/API_CONTRACT.md: Morocco). */
-const DISCOVERY_REGION = "morocco";
+/** The backend's region code for Morocco (backend/api_v2.py REGION: "MA"). */
+const DISCOVERY_REGION = "MA";
 
 export function StatusPage() {
   const { t } = useText();

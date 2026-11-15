@@ -27,7 +27,7 @@ export interface RecordedResponse {
 export interface Snapshot {
   generated_at: string;
   source: string;
-  /** Keyed by API path, e.g. "/cases/panama-2026" or "/discoveries?region=morocco". */
+  /** Keyed by API path, e.g. "/cases/panama-2026" or "/discoveries?region=MA". */
   responses: Record<string, RecordedResponse>;
   /** Images (figures, map layers) copied next to the build, by their API path. */
   files: string[];

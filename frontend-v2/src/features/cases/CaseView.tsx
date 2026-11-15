@@ -7,7 +7,7 @@ import { QueryView } from "@/components/QueryView";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDate } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
-import { ExposureView, FigureList, FindingView, LimitsView, SourcesView } from "./ledger";
+import { ExposureView, FigureList, FindingView, LimitsView, LinkedAnswers, SourcesView } from "./ledger";
 import { PassTimeline } from "./PassTimeline";
 import "./CaseView.css";
 
@@ -81,6 +81,8 @@ function CaseBody({ study }: { study: CaseStudy }) {
             <h2 id="figures-title">{t("case.figures")}</h2>
             <FigureList figures={otherFigures} />
           </section>
+
+          <LinkedAnswers ids={study.answer_ids} />
 
           <LimitsView study={study} />
 

@@ -84,7 +84,7 @@ for (const id of answerIds) {
   for (const layer of answer?.layers ?? []) await copyFile(layer.url);
 }
 
-await record("/discoveries?region=morocco");
+await record("/discoveries?region=MA");
 await record("/proofs/lband-vs-cband");
 
 const problems = validateSnapshot(snapshot);

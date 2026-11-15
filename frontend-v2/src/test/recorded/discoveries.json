@@ -1,5 +1,5 @@
 {
- "path": "/discoveries?region=morocco",
+ "path": "/discoveries?region=MA",
  "status": 503,
  "body": {
   "code": "discoveries_disabled",
