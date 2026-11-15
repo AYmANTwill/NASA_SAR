@@ -70,7 +70,9 @@ Older three-image indexes and unavailable optional endpoints still work. The hel
 from `heldout_iou`; the separate unseen-reservoir metric retains its API label and uncertainty.
 
 For the current draft-labelled standalone MVP, use `npm run snapshot`, `npm run build:rehearsal`, then
-`npm run preview:rehearsal` (port 4312). `npm run build:demo` continues to refuse the four draft cases.
+`npm run preview:rehearsal` (port 4312). For the team's final-only demo, use `npm run snapshot:final`, then
+`npm run build:demo` and `npm run package:mvp -- --demo`. Drafts are omitted, never promoted. A snapshot which
+includes drafts still fails the jury build. The live interface and the rehearsal retain Anass's in-progress cases.
 
 The normal production build (`npm run build`, then `npm run preview`) also retains its app shell, validated
 responses and images for reports already opened. Demo answers are prepared automatically from `/api/demo`.

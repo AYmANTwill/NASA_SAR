@@ -9,13 +9,12 @@
  * snapshot is kept untouched. Nothing is edited: what the backend sent is
  * what the demo replays.
  */
-import { existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { draftCases, validateSnapshot, type Snapshot } from "@/demo/snapshot";
 
 const API = (process.env.API ?? "http://127.0.0.1:8000/api").replace(/\/$/, "");
 const ORIGIN = new URL(API).origin;
-const OUT = join(process.cwd(), "demo-data");
 const TMP = join(process.cwd(), "demo-data.tmp");
 
 const snapshot: Snapshot = { generated_at: new Date().toISOString(), source: API, responses: {}, files: [] };
@@ -66,7 +65,14 @@ mkdirSync(TMP, { recursive: true });
 
 await record("/health");
 const answerIds = new Set<string>();
-const cases = list<{ id: string; thumbnail_url: string | null }>(await record("/cases"));
+const summaries = list<{ id: string; status: string; thumbnail_url: string | null }>(await record("/cases"));
+const finalOnly = process.argv.includes("--final-only");
+const cases = finalOnly ? summaries.filter((summary) => summary.status === "final") : summaries;
+if (finalOnly) {
+  if (!cases.length) fail("No final case is available for the jury demo.");
+  snapshot.responses["/cases"] = { ...snapshot.responses["/cases"]!, body: cases };
+  console.log(`final cases only; omitted drafts: ${summaries.filter((summary) => summary.status !== "final").map((summary) => summary.id).join(", ")}`);
+}
 for (const summary of cases) {
   const study = (await record(`/cases/${summary.id}`)) as { figures?: { url: string; layer?: { url: string } }[]; answer_ids?: string[] } | null;
   if (summary.thumbnail_url) await copyFile(summary.thumbnail_url);
@@ -104,17 +110,8 @@ if (problems.length > 0) {
 }
 
 writeFileSync(join(TMP, "snapshot.json"), JSON.stringify(snapshot, null, 1) + "\n");
-// Only now is the previous snapshot replaced.
-if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
-// Windows scanners/watchers can briefly retain a handle after the last image is written.
-for (let attempt = 0; ; attempt++) {
-  try { renameSync(TMP, OUT); break; }
-  catch (error) {
-    if (attempt >= 5 || !["EPERM", "EBUSY", "EACCES"].includes((error as NodeJS.ErrnoException).code ?? "")) throw error;
-    await new Promise((resolve) => setTimeout(resolve, 300));
-  }
-}
+// install-snapshot.mjs runs after Vite releases its Windows directory watchers.
 
 const drafts = draftCases(snapshot);
-console.log(`\nsnapshot written: ${Object.keys(snapshot.responses).length} responses, ${snapshot.files.length} files`);
+console.log(`\nsnapshot validated: ${Object.keys(snapshot.responses).length} responses, ${snapshot.files.length} files`);
 if (drafts.length > 0) console.warn(`draft cases (a demo build will refuse them): ${drafts.join(", ")}`);
