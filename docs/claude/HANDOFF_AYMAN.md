@@ -22,7 +22,10 @@ Branch `ayman/science` (origin/main merged in). Gates: `test_all.py` 196/196, `t
 | One offset per connected component (inversion, sign test, noise model); `flipped` keeps the noise model | `science/panama_fault.py:component_blocks`, `invert_fault.ramp_design` | 735da2c |
 | api_v2: no Measurement without its σ, tracks / acquisitions / period from the facts, no layer without its PNG, no English error in FR / AR, Overpass timeout 90 s | `api_v2.py`, `evidence.py` | 276a701 |
 | Ionosphere case: before / after noise chart per NISAR pair from Anass's CSV | `science/iono_chart.py`, `science/cases.py:iono_chart_part` | fad19c3 |
-| Wavelength λ = c / centerFrequency (proposal, branch `ayman/wavelength`) | `recipes/wavelength.py`, `recipes/displacement.py` | c41e315 |
+| Wavelength λ = c / centerFrequency (merged in main, PR #6) | `recipes/wavelength.py`, `recipes/displacement.py` | c41e315 |
+| Haouz = candidate surface-change area (no flood area, no km², no exposure); no 0.0 for a missing value; CRID + λ-fallback limits on every case | `science/haouz_case.py`, `science/provenance.py`, `science/cases.py`, `backend/cases/*.json` | d5184a3 |
+| Mode (2000/4000) in the track id, `--exclude-frame`, `NISAR_CORRECTIONS`, sign verdicts (a)(b)(c) with (a) deciding, `_m` without σ → left out, noise_report "really applied" column, `FRINGE_CM` TODO | `science/panama_fault.py`, `science/sign_decision.py`, `noise_report.py`, `config.py` | 8bda793 |
+| Haouz circle findings vs the no-event baseline (site ± its own standard error; baseline mean ± spread as `reference`) | `science/haouz_case.py`, CASE_CONTRACT.md | f2094f7 |
 
 ## Decisions
 - **Case contract:** CASE_CONTRACT.md is the source (pydantic in the backend, zod in the frontend). Dates ISO UTC;
@@ -30,8 +33,14 @@ Branch `ayman/science` (origin/main merged in). Gates: `test_all.py` 196/196, `t
   ≥ 1 map with a layer, a full timeline, and a non-zero σ on every finding.
 - **Agreement rule:** S = sqrt(σn² + σr²) (1-sigma). `agree` if |n − r| ≤ 2S, `partial` if ≤ 4S, else `disagree`;
   `no_reference` without a reference. Recomputed on both sides, never typed by hand.
-- **Sign decision rule:** +1 needs finite-fault k > 0 at > 3σ on ≥ 3 tracks with none < 0 at 3σ, AND VR(+1) − VR(−1)
-  ≥ 0.10, AND best plane = left-lateral 288/66/−17 (±15° strike/dip, ±30° rake). −1 mirrored, else "undecided".
+- **Sign decision rule:** (a) decides: finite-fault k > 0 at > 3σ on ≥ 3 tracks with none < 0 at 3σ → +1 (mirror
+  → −1, else "undecided"). (b) VR(+1) − VR(−1) ≥ 0.10 and (c) best plane left-lateral 288/66/−17 are saved and
+  printed next to it; (b) is weak with free offsets per component (real data: VR 0.824 vs 0.818).
+- **No 0.0:** a NISAR value without its σ is never sent; it is left out of `findings` and said in `limits` (Panama:
+  "Magnitude not estimated: <reason>"). `findings` / `limits` / `exposure` never come from the previous case file.
+- **Haouz:** "Candidate surface-change area", not a flood map. Circle findings: `nisar` = change at the site ± its
+  standard error, `reference` = no-event baseline (mean ± spread of the random circles), so "agree" = "not different
+  from no change". Soil-moisture anomaly ± the SME2 uncertainty. Same passes → not independent (said in limits).
 - **Okada / inversion:** ν = 0.25, μ = 30 GPa, Mw = 2/3 (log10 M0 − 9.1). Strike/dip/rake fixed per nodal plane, lower
   RMS wins. Bounds: centre ±100 km, length 5–400 km, width 3–80 km, top 0–40 km, slip 0.01–20 m; 6 starts. Ramp per
   track = one offset per connected component (≥ 20 blocks, largest always kept) + east/north gradient, solved
@@ -54,11 +63,13 @@ Branch `ayman/science` (origin/main merged in). Gates: `test_all.py` 196/196, `t
 - `recipes/decompose.py:los_vector` swallows exceptions; `watch.py:82` sends no User-Agent (Anass's files).
 
 ## Open tasks
-1. **Anass:** merge `ayman/wavelength` (merges cleanly into main: test_wavelength 6/6, test_all 196/196); store
-   `centerFrequency` in `radar_geometry.npz`. In `decompose.combine`, return `sigma_east` / `sigma_up` =
-   σ_los · sqrt(diag((MᵀM)⁻¹)) with its 2×2 matrix M (api_v2 already reads them).
-2. **Anass, real Panama run:** `NISAR_LOS_SIGN=1 python -m science.panama_fault --boot 5` (sign verdict, component
-   offsets and noise model on real data; needs the `plan_validation.json` part 2 pre-event pairs).
+1. **Anass:** fix `corrections.already_applied` (geocoding flags read as phase corrections: iono / tropo skipped on
+   every product with a kept .h5), then rerun `noise_report.py` (its recommendation is wrong until then) and
+   `NISAR_LOS_SIGN=1 python -m science.panama_fault --boot 5 --exclude-frame 141/85`. Store `centerFrequency` in
+   `radar_geometry.npz` (33 GUNW fall back to λ = 0.2384 m). `decompose.combine`: return `sigma_east` / `sigma_up`.
+   Pull main: the 406 from Overpass means a tree without the User-Agent (main sends it: HTTP 200 checked).
+2. **Anass, Haouz:** `results/haouz-flood-2026/findings.json` in the baseline encoding (CASE_CONTRACT.md); without a
+   site standard error the coherence / backscatter findings are left out with that reason.
 3. **Sunday: "Use of AI" README section** (`README.md`).
 
 ## Inputs still missing for final cases
