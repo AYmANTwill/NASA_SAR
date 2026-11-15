@@ -371,24 +371,32 @@ def _base(case_id: str) -> dict:
     return json.loads((CASES_DIR / f"{case_id}.json").read_text(encoding="utf-8"))
 
 
-PANAMA_LIMITS = "limits_panama.json"
+EXTRA_LIMITS = {"panama-2026": "limits_panama.json", "venezuela-2026": "limits_venezuela.json",
+                "ionosphere-gps": "limits_ionosphere.json"}
+PANAMA_LIMITS = EXTRA_LIMITS["panama-2026"]
 
 
-def panama_extra_limits(results: Path) -> list[dict]:
-    """Anass's results/panama-2026/limits_panama.json ({"limits": [{fr, en, ar}]}) as TemplatedText, texts as given.
+def extra_limits(case_id: str, results: Path) -> list[dict]:
+    """Anass's results/<id>/limits_<name>.json ({"limits": [{fr, en, ar}]}) as TemplatedText, texts as given.
     No file, or a file without that shape: nothing (logged), never an error."""
-    path = results / "panama-2026" / PANAMA_LIMITS
-    if not path.is_file():
+    name = EXTRA_LIMITS.get(case_id)
+    path = results / case_id / name if name else None
+    if path is None or not path.is_file():
         return []
+    slug = case_id.split("-")[0]
     try:
         items = json.loads(path.read_text(encoding="utf-8"))["limits"]
-        out = [TemplatedText.model_validate({"template": f"backend.panama_limit_{i}", "params": {},
+        out = [TemplatedText.model_validate({"template": f"backend.{slug}_limit_{i}", "params": {},
                                              "text": {k: item[k] for k in ("fr", "en", "ar")}}).model_dump(mode="json")
                for i, item in enumerate(items, 1)]
     except (ValueError, KeyError, TypeError, ValidationError) as exc:
-        log.warning("panama-2026: %s ignored (%s)", path, exc)
+        log.warning("%s: %s ignored (%s)", case_id, path, exc)
         return []
     return out
+
+
+def panama_extra_limits(results: Path) -> list[dict]:
+    return extra_limits("panama-2026", results)
 
 
 def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool) -> dict:
@@ -411,6 +419,7 @@ def build_quake(case_id: str, results: Path, event_id: str | None, offline: bool
         limits = list(limits) + panama_extra_limits(results)
     else:
         _raw, findings, figures, limits, m2 = results_part(case_id, results)
+        limits = list(limits) + extra_limits(case_id, results)
     exposure, m3 = exposure_part(case_id)
     bbox = _bbox(pairs)
     limits = list(limits) + provenance.product_limits(pairs)
@@ -528,7 +537,8 @@ def build_iono(results: Path, offline: bool) -> dict:
                      "ar": "جذر متوسط المربعات مجمّع على كل المحطات؛ الشك = RMS/√(2n)."})
     chart, chart_limits = iono_chart_part(results)
     parts = {"findings": g["findings"] or None, "location": loc,
-             "limits": [method, *g["limits"], *chart_limits, *provenance.product_limits(products)],
+             "limits": [method, *g["limits"], *chart_limits, *extra_limits("ionosphere-gps", results),
+                        *provenance.product_limits(products)],
              "date": date, "headline": headline("ionosphere-gps", g["findings"]), "figures": maps + chart,
              "timeline": tl or None}
     return finalize(base, parts, missing + m1 + m4 + m5)
