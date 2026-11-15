@@ -1,0 +1,134 @@
+.measure-number {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.measure-unit {
+  white-space: nowrap;
+}
+
+.measure-note {
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
+/* "Not measured yet": hatched, so it can never be read as a value. */
+.not-measured {
+  display: inline-block;
+  padding: 0 0.5em;
+  border: 1px dashed var(--ink-2);
+  background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--hatch) 5px 7px);
+  color: var(--ink);
+  font-style: italic;
+}
+
+/* Arabic has no true italic: the hatching alone marks the state. */
+:lang(ar) .not-measured {
+  font-style: normal;
+}
+
+.agreement {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+}
+
+.agreement-no_reference,
+.agreement-pending {
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.agreement-icon {
+  flex: none;
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.agreement-icon .fill {
+  fill: var(--ink);
+}
+
+.agreement-icon .line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.agreement-icon .dashed {
+  stroke: var(--ink-2);
+  stroke-dasharray: 2.4 2;
+}
+
+.strip {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 26rem;
+  block-size: auto;
+  direction: ltr;
+}
+
+.strip-axis {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.strip-s2 {
+  stroke: var(--rule);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.strip-s1 {
+  stroke: var(--ink-2);
+  stroke-width: 2;
+}
+
+.strip-nisar {
+  fill: var(--ink);
+}
+
+.strip-ref {
+  fill: var(--sheet);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+/* Watch levels: the only alert colours, always with a shape and a word. */
+.level {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.level-none {
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.level-icon {
+  inline-size: 1em;
+  block-size: 1em;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+}
+
+.level-yellow .level-icon {
+  fill: var(--level-yellow);
+}
+
+.level-orange .level-icon {
+  fill: var(--level-orange);
+}
+
+.level-red .level-icon {
+  fill: var(--level-red);
+}
+
+.glyph {
+  inline-size: 0.75em;
+  block-size: 0.75em;
+  flex: none;
+}

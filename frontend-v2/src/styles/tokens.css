@@ -1,0 +1,62 @@
+/*
+ * Design tokens (DESIGN.md, section 5). The interface has no hue of its own:
+ * colour on screen belongs to the map palettes (backend/palettes.json) and to
+ * the watch levels sent by the API. Contrast pairs are listed in contrast.test.ts.
+ */
+:root {
+  --paper: #f7f8f8;
+  --sheet: #ffffff;
+  --ink: #151a1e;
+  --ink-2: #4b555d;
+  --rule: #d5dadd;
+  --hatch: rgb(21 26 30 / 12%);
+
+  /* Watch levels (yellow / orange / red from the API): the interface's only alert hues, never alone. */
+  --level-yellow: #f4cf45;
+  --level-orange: #d9650f;
+  --level-red: #9f1f15;
+
+  /* Basemap: greys only, so the data palettes are the only colour on a map. */
+  --sea: #e9ecee;
+  --land: #fbfbfb;
+  --coast: #a9b2b8;
+
+  --font-latin: "IBM Plex Sans", system-ui, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif;
+  --font: var(--font-latin);
+
+  /* Modular scale 1.25 on a 16 px base. */
+  --step--1: 0.8rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.5625rem;
+  --step-3: 1.953rem;
+  --step-4: 2.441rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --gutter: clamp(1rem, 3vw, 2rem);
+  --header-h: 3.5rem;
+  --measure: 70ch;
+
+  --focus-ring: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink);
+  --t-quick: 160ms;
+}
+
+/* Arabic reads one size step larger for the same visual weight as Latin. */
+:root:lang(ar) {
+  --font: var(--font-arabic);
+  font-size: 106.25%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-quick: 0ms;
+  }
+}

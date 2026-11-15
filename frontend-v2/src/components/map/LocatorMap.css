@@ -1,0 +1,32 @@
+.locator {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  /* A map is never mirrored: north up, west on the left, in every language. */
+  direction: ltr;
+}
+
+.locator-sea {
+  fill: var(--sea);
+}
+
+.locator-land {
+  fill: var(--land);
+  stroke: var(--coast);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+
+.locator-area {
+  fill: var(--hatch);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.locator-point {
+  fill: var(--ink);
+  stroke: var(--sheet);
+  stroke-width: 1.5;
+}

@@ -1,0 +1,352 @@
+{
+  "app": {
+    "name": "NISAR Pulse",
+    "tagline": "Ce que le radar NISAR a mesuré, avec son incertitude et ses limites"
+  },
+  "shell": {
+    "skip": "Aller au contenu",
+    "navLabel": "Sections",
+    "langLabel": "Langue",
+    "offline": "Hors ligne : seules les données déjà enregistrées sont disponibles"
+  },
+  "nav": {
+    "cases": "Études de cas",
+    "ask": "Enquêter",
+    "library": "Bibliothèque",
+    "watches": "Surveillances",
+    "status": "État du service"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "retry": "Réessayer",
+    "newTab": "(s’ouvre dans un nouvel onglet)"
+  },
+  "errors": {
+    "offline": {
+      "title": "Serveur injoignable",
+      "body": "Le serveur NISAR Pulse ne répond pas à cette adresse. Vérifiez qu'il est démarré, puis réessayez."
+    },
+    "contract": {
+      "title": "Réponse refusée",
+      "body": "Le serveur a envoyé des données qui ne respectent pas le contrat de l'interface. Elles ne sont pas affichées, pour ne montrer aucun chiffre non vérifié.",
+      "fields": "Champs en cause ({{endpoint}})"
+    },
+    "api": {
+      "title": "Le serveur a refusé la demande",
+      "noBody": "Le serveur n'a pas donné de raison.",
+      "notFound": "Introuvable"
+    },
+    "unexpected": {
+      "title": "Erreur inattendue",
+      "body": "Une erreur imprévue empêche d'afficher ces données. Réessayez ; si elle revient, signalez-la à l'équipe."
+    },
+    "untranslated": "Texte non disponible dans cette langue ({{id}})"
+  },
+  "status": {
+    "backend": {
+      "title": "Serveur",
+      "state": "État",
+      "ok": "Joignable",
+      "data": "Données",
+      "mode": {
+        "live": "Produits NISAR présents sur ce serveur",
+        "cache": "Réponses précalculées uniquement"
+      },
+      "version": "Version"
+    },
+    "discoveries": "Découverte automatique",
+    "discoveriesOn": "La découverte automatique est active.",
+    "proof": "Comparaison bande L / bande C",
+    "proofReady": "La comparaison est disponible."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "body": "Cette adresse ne correspond à aucune page.",
+    "back": "Revenir aux études de cas"
+  },
+  "cases": {
+    "lede": "Des événements où NISAR a mesuré le sol, comparés quand c’est possible à une référence indépendante.",
+    "draftNote": "Ces études de cas sont des brouillons : leurs valeurs NISAR ne sont pas encore mesurées. Rien ici n’est un résultat."
+  },
+  "caseKind": {
+    "earthquake": "Séisme",
+    "flood": "Crue",
+    "method": "Méthode"
+  },
+  "caseStatus": {
+    "draft": "Brouillon",
+    "final": "Résultat final"
+  },
+  "measure": {
+    "notMeasured": "pas encore mesuré",
+    "plusMinus": "plus ou moins",
+    "sigmaMultiple": "({{k}} σ)",
+    "noSigma": "(sans incertitude fournie)"
+  },
+  "agreement": {
+    "agree": "Concorde : écart dans 2σ combinés",
+    "partial": "Concorde en partie : écart entre 2σ et 4σ combinés",
+    "disagree": "Ne concorde pas : écart au-delà de 4σ combinés",
+    "no_reference": "Pas de référence indépendante",
+    "pending": "Comparaison possible une fois la valeur NISAR mesurée"
+  },
+  "case": {
+    "back": "Toutes les études de cas",
+    "draftBand": "Ce cas n’est pas un résultat : ses valeurs NISAR ne sont pas encore mesurées.",
+    "mapLabel": "Carte radar : {{place}}",
+    "findings": "Mesures NISAR et référence",
+    "findingsNone": "Aucune mesure pour l’instant.",
+    "exposureTitle": "Exposition",
+    "exposureNone": "Exposition pas encore calculée",
+    "exposure": {
+      "people": "Personnes",
+      "buildings": "Bâtiments",
+      "area": "Surface touchée"
+    },
+    "source": "Source :",
+    "timeline": "Chronologie",
+    "timelineNone": "Chronologie pas encore établie",
+    "figures": "Figures",
+    "figuresNone": "Aucune figure pour l’instant",
+    "limits": "Ce que le radar ne peut pas dire ici",
+    "sources": "Sources",
+    "sourcesNone": "Aucune source externe pour l’instant"
+  },
+  "unit": {
+    "mm": "mm",
+    "cm": "cm",
+    "m": "m",
+    "mm/yr": "mm/an",
+    "cm/yr": "cm/an",
+    "mm/yr2": "mm/an²",
+    "m3/m3": "m³/m³",
+    "dB": "dB",
+    "ha": "ha",
+    "km2": "km²",
+    "percent": "%",
+    "coherence": "",
+    "km": "km",
+    "Mw": "Mw",
+    "people": "personnes",
+    "count": "",
+    "deg": "°"
+  },
+  "map": {
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "attribution": "Afficher les crédits de la carte",
+    "layers": "Carte affichée",
+    "noRaster": "Pas encore de carte radar pour ce cas : seuls la zone d’étude et le point de l’événement sont tracés.",
+    "noWebgl": "Ce navigateur ne peut pas afficher la carte interactive (WebGL indisponible).",
+    "imageFailed": "L’image radar n’a pas pu être chargée depuis le serveur."
+  },
+  "legend": {
+    "sign": "Signe",
+    "period": "Période",
+    "source": "Source",
+    "range": "Échelle de {{min}} à {{max}} {{unit}}"
+  },
+  "sign": {
+    "positive_toward_satellite": "valeurs positives (extrémité rouge) : le sol se rapproche du satellite",
+    "positive_away_from_satellite": "valeurs positives (extrémité rouge) : le sol s’éloigne du satellite",
+    "positive_up": "valeurs positives : soulèvement",
+    "positive_east": "valeurs positives : déplacement vers l’est"
+  },
+  "layerKind": {
+    "displacement": "Déplacement en ligne de visée",
+    "velocity": "Vitesse en ligne de visée",
+    "coherence": "Cohérence",
+    "coherence_loss": "Perte de cohérence",
+    "soil_moisture": "Humidité du sol",
+    "backscatter_change": "Changement de rétrodiffusion",
+    "offset": "Décalage"
+  },
+  "ask": {
+    "lede": "Posez une question sur un lieu. NISAR Pulse cherche les passages du radar, mesure, compare à des sources indépendantes et dit ce qu’il ne peut pas savoir.",
+    "label": "Votre question",
+    "placeholder": "Par exemple : le sol a-t-il bougé à Asni après la crue éclair ?",
+    "submit": "Enquêter",
+    "running": "Enquête en cours…",
+    "noPoint": "Aucun point choisi : nommez un lieu connu, ou cliquez sur la carte.",
+    "pointChosen": "Point choisi :",
+    "clearPoint": "Retirer le point",
+    "examples": "Questions de démonstration",
+    "mapLabel": "Carte pour choisir un point",
+    "mapHelp": "Cliquez sur la carte pour choisir un point (ou placez le focus sur la carte, centrez-la avec les flèches et appuyez sur Entrée).",
+    "result": "Résultat de l’enquête"
+  },
+  "answer": {
+    "title": "Réponse",
+    "back": "Poser une autre question",
+    "steps": "Comment j’ai trouvé",
+    "thePoint": "le point choisi",
+    "confidence": "Confiance : {{level}}",
+    "stableInNoise": "Stable dans le bruit de mesure",
+    "metrics": "Mesures",
+    "series": "Évolution dans le temps",
+    "indication": "Indication (pas une prévision)",
+    "checks": "Contrôles de qualité",
+    "checksNone": "Aucun contrôle effectué",
+    "evidence": "Preuves indépendantes",
+    "evidenceNone": "Aucune source indépendante consultée",
+    "openSource": "Voir la source",
+    "earthquakes": "Séismes catalogués",
+    "data": "Données utilisées",
+    "product": "Produit",
+    "acquisitions": "Acquisitions",
+    "tracks": "Traces",
+    "track": "trace {{number}}, {{direction}}",
+    "none": "aucune",
+    "nextPass": "Prochain passage NISAR",
+    "permalink": "Adresse de cette réponse",
+    "cached": "(réponse précalculée)",
+    "noRaster": "Pas de carte radar dans cette réponse : seul le point étudié est tracé."
+  },
+  "steps": {
+    "ms": "ms"
+  },
+  "stepKind": {
+    "classify": "Comprendre la question",
+    "select_recipe": "Choisir la méthode",
+    "search_scenes": "Chercher les passages NISAR",
+    "download": "Télécharger",
+    "compute": "Calculer",
+    "uncertainty_checks": "Contrôler l’incertitude",
+    "cross_evidence": "Croiser avec d’autres sources",
+    "verdict": "Rédiger le verdict",
+    "cache": "Réponse précalculée"
+  },
+  "stepStatus": {
+    "pending": "en attente",
+    "running": "en cours",
+    "done": "terminé",
+    "failed": "échec",
+    "skipped": "ignoré"
+  },
+  "confidenceLevel": {
+    "high": "élevée",
+    "medium": "moyenne",
+    "low": "faible"
+  },
+  "productStatus": {
+    "provisional": "produit provisoire",
+    "validated": "produit validé"
+  },
+  "metric": {
+    "los_displacement_max": "Déplacement maximal en ligne de visée",
+    "velocity": "Vitesse",
+    "vertical_velocity": "Vitesse verticale",
+    "east_west_velocity": "Vitesse est-ouest",
+    "acceleration": "Accélération",
+    "vertical_displacement": "Déplacement vertical",
+    "east_west_displacement": "Déplacement est-ouest",
+    "coherence_loss_area": "Surface de perte de cohérence",
+    "flooded_area": "Surface inondée",
+    "flood_duration": "Durée de l’inondation",
+    "forest_loss": "Perte de forêt",
+    "soil_moisture": "Humidité du sol",
+    "soil_moisture_anomaly": "Anomalie d’humidité du sol",
+    "offset_max": "Décalage maximal",
+    "masked_fraction": "Part masquée",
+    "noise_floor": "Niveau de bruit"
+  },
+  "check": {
+    "noise_floor": "Niveau de bruit",
+    "coherence_mask": "Masque de cohérence",
+    "ionosphere": "Ionosphère",
+    "unwrapping": "Déroulement de phase"
+  },
+  "checkStatus": {
+    "pass": "réussi",
+    "warn": "attention",
+    "fail": "échec",
+    "not_applicable": "sans objet"
+  },
+  "source": {
+    "usgs": "USGS",
+    "open_meteo": "Open-Meteo (ERA5)",
+    "firms": "NASA FIRMS",
+    "copernicus_gfm": "Copernicus GFM",
+    "osm": "OpenStreetMap",
+    "sentinel1": "Sentinel-1",
+    "sentinel2": "Sentinel-2",
+    "nasa": "NASA",
+    "gdacs": "GDACS"
+  },
+  "evidenceAgreement": {
+    "agrees": "concorde",
+    "disagrees": "contredit",
+    "inconclusive": "ne tranche pas",
+    "unavailable": "indisponible"
+  },
+  "quakeRole": {
+    "mainshock": "choc principal",
+    "aftershock": "réplique"
+  },
+  "direction": {
+    "ascending": "ascendante",
+    "descending": "descendante"
+  },
+  "seriesId": {
+    "los": "Déplacement en ligne de visée",
+    "vertical": "Déplacement vertical",
+    "east_west": "Déplacement est-ouest",
+    "soil_moisture": "Humidité du sol",
+    "backscatter": "Rétrodiffusion",
+    "coherence": "Cohérence"
+  },
+  "series": {
+    "table": "Voir les valeurs",
+    "date": "Date",
+    "value": "Valeur",
+    "range": "Intervalle (±{{sigma}} σ)"
+  },
+  "library": {
+    "lede": "Les événements précalculés, disponibles hors ligne, avec la source indépendante qui les vérifie.",
+    "empty": "La bibliothèque est vide.",
+    "noAnswer": "Pas encore de réponse NISAR pour cet événement."
+  },
+  "libraryKind": {
+    "earthquake": "Séisme",
+    "flood": "Crue",
+    "landslide": "Glissement de terrain",
+    "volcano": "Volcan"
+  },
+  "level": {
+    "none": "pas encore de niveau",
+    "label": "Niveau {{level}}",
+    "yellow": "jaune",
+    "orange": "orange",
+    "red": "rouge"
+  },
+  "watch": {
+    "lede": "Un lieu surveillé est réexaminé à chaque nouveau passage de NISAR. Vous êtes prévenu quand son niveau change.",
+    "listTitle": "Lieux surveillés",
+    "checkNow": "Réexaminer maintenant",
+    "checking": "Réexamen en cours…",
+    "empty": "Aucun lieu surveillé.",
+    "emptyAction": "Posez une question, puis surveillez sa réponse.",
+    "level": "Niveau",
+    "confidence": "Confiance",
+    "lastPass": "Dernier passage utilisé",
+    "nextPass": "Prochain passage NISAR",
+    "openAnswer": "Voir la réponse",
+    "delete": "Arrêter la surveillance",
+    "notifications": "Alertes reçues",
+    "notificationsNone": "Aucune alerte pour l’instant.",
+    "previously": "avant :",
+    "create": "Surveiller ce lieu",
+    "created": "Surveillance active. Prochain passage NISAR : {{date}}.",
+    "seeWatches": "Voir les surveillances",
+    "demoTitle": "Démonstration : simuler une alerte",
+    "demoNote": "Pour montrer à quoi ressemble une alerte. Le message porte la mention SIMULATION dans les trois langues ; ce n’est pas une mesure.",
+    "demoLevel": "Niveau simulé",
+    "demoRun": "Simuler"
+  },
+  "demo": {
+    "banner": {
+      "demo": "Démo hors ligne : réponses du serveur NISAR Pulse enregistrées le {{date}}.",
+      "rehearsal": "RÉPÉTITION, pas pour le jury : cette version hors ligne contient des cas brouillons (enregistrée le {{date}})."
+    }
+  }
+}

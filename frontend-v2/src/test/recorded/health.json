@@ -1,0 +1,9 @@
+{
+ "path": "/health",
+ "status": 200,
+ "body": {
+  "status": "ok",
+  "version": "nisar-pulse-backend",
+  "data": "cache"
+ }
+}

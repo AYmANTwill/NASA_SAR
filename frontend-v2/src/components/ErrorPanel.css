@@ -1,0 +1,52 @@
+.notice {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  max-inline-size: var(--measure);
+  padding: var(--space-4) var(--space-5);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+/* An error is marked by weight and a thick ink edge, not by a red that would read as map data. */
+.notice-error {
+  border-inline-start: 4px solid var(--ink);
+}
+
+.notice-info {
+  color: var(--ink-2);
+}
+
+.notice-title {
+  font-size: var(--step-1);
+}
+
+.notice-detail summary {
+  cursor: pointer;
+}
+
+.notice-detail ul {
+  margin: var(--space-2) 0 0;
+  padding-inline-start: var(--space-5);
+  font-size: var(--step--1);
+  text-align: start;
+}
+
+.notice-code {
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
+.button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--paper);
+}

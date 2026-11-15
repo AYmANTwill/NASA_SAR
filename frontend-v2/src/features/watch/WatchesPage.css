@@ -1,0 +1,77 @@
+.watch-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.watch-toolbar h2,
+#notes-title {
+  font-size: var(--step-1);
+}
+
+.watch-list,
+.note-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.watch-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+}
+
+.watch-card,
+.note {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.watch-card h3 {
+  font-size: var(--step-1);
+}
+
+.watch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.watch-demo {
+  padding-block-start: var(--space-2);
+  border-block-start: 1px dashed var(--rule);
+}
+
+.watch-demo summary {
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.watch-demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-block-start: var(--space-2);
+}
+
+.watch-demo-row select {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--ink-2);
+  border-radius: 2px;
+  background: var(--sheet);
+  font: inherit;
+}
+
+.note-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+}

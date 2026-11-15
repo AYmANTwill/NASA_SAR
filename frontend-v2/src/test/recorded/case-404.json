@@ -1,0 +1,16 @@
+{
+ "path": "/cases/no-such-case",
+ "status": 404,
+ "body": {
+  "code": "case_not_found",
+  "message": {
+   "template": "backend.error.case_not_found",
+   "params": {},
+   "text": {
+    "fr": "Cas d'étude introuvable.",
+    "en": "Case study not found.",
+    "ar": "دراسة الحالة غير موجودة."
+   }
+  }
+ }
+}

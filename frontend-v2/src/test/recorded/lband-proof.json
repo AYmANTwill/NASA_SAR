@@ -1,0 +1,16 @@
+{
+ "path": "/proofs/lband-vs-cband",
+ "status": 404,
+ "body": {
+  "code": "not_available",
+  "message": {
+   "template": "backend.error.not_available",
+   "params": {},
+   "text": {
+    "fr": "La comparaison bande L / bande C n'a pas encore été calculée.",
+    "en": "The L-band versus C-band comparison has not been computed yet.",
+    "ar": "لم تُحسب بعد المقارنة بين النطاق L والنطاق C."
+   }
+  }
+ }
+}

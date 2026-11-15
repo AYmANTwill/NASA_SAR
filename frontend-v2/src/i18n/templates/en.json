@@ -1,0 +1,40 @@
+{
+  "tpl": {
+    "step.verdict": "Verdict written from a fixed template; its numbers come from the computation",
+    "step.search_scenes_one": "{{count}} NISAR product found, from {{start}} to {{end}}",
+    "step.search_scenes_other": "{{count}} NISAR products found, from {{start}} to {{end}}",
+    "step.compute.decompose": "Ascending and descending tracks combined into vertical and east–west motion",
+    "step.classify": "Question understood as: {{recipe}}",
+    "step.cache": "Precomputed answer found",
+    "notify.watch_created": "Watch active on {{place}}. Next NISAR pass on {{next_pass}}: you will be told if the level changes.",
+    "limit.soil_depth": "SME2 describes the top few centimetres of soil, not groundwater or deep saturation.",
+    "limit.short_history": "Calibrated products start on {{since}}: a seasonal cycle cannot yet be told apart from a trend.",
+    "limit.north_south": "North–south motion is nearly invisible to a polar-orbiting radar.",
+    "limit.los_only": "A single viewing geometry: vertical and east–west motion are not separated.",
+    "limit.no_prediction": "The radar tells what moved and by how much, not what will happen next.",
+    "library.usgs": "USGS catalogue: M{{mag}} earthquake on {{date}}.",
+    "evidence.usgs.none": "No catalogued earthquake within {{radius}} km over the period.",
+    "evidence.usgs.mainshock_one": "M{{mag}} earthquake on {{date}} and {{count}} aftershock in the area.",
+    "evidence.usgs.mainshock_other": "M{{mag}} earthquake on {{date}} and {{count}} aftershocks in the area.",
+    "evidence.open_meteo.rain": "{{rain}} of rain over the {{days}} days before the last pass.",
+    "check.unwrapping.ok": "No phase jump detected between connected components.",
+    "check.ionosphere.applied": "The ionospheric correction shipped with the product was applied.",
+    "check.coherence_mask": "{{fraction}} of pixels fall below the coherence threshold ({{threshold}}) and are masked.",
+    "check.noise_floor": "Spread measured over a stable reference area: {{noise}}.",
+    "demo.not_in_demo": "Not available in the offline demo: only the questions and pages recorded from the server are. Ask one of the demonstration questions.",
+    "demo.read_only": "The offline demo changes nothing: watches are created with the server online."
+  },
+  "term": {
+    "recipe.sudden_motion": "sudden ground motion",
+    "recipe.slow_motion": "slow ground motion",
+    "recipe.damage": "surface change",
+    "recipe.surface_change": "surface change",
+    "recipe.flood": "flood",
+    "recipe.deforestation": "forest loss",
+    "recipe.soil_moisture": "soil moisture",
+    "recipe.large_displacement": "large displacement",
+    "level.yellow": "yellow",
+    "level.orange": "orange",
+    "level.red": "red"
+  }
+}

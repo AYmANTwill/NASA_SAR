@@ -1,0 +1,352 @@
+{
+  "app": {
+    "name": "NISAR Pulse",
+    "tagline": "What the NISAR radar measured, with its uncertainty and its limits"
+  },
+  "shell": {
+    "skip": "Skip to content",
+    "navLabel": "Sections",
+    "langLabel": "Language",
+    "offline": "Offline: only data already saved is available"
+  },
+  "nav": {
+    "cases": "Case studies",
+    "ask": "Investigate",
+    "library": "Library",
+    "watches": "Watches",
+    "status": "Service status"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "newTab": "(opens in a new tab)"
+  },
+  "errors": {
+    "offline": {
+      "title": "Server unreachable",
+      "body": "The NISAR Pulse server does not answer at this address. Check that it is running, then try again."
+    },
+    "contract": {
+      "title": "Response rejected",
+      "body": "The server sent data that does not match the interface contract. It is not shown, so that no unchecked number appears.",
+      "fields": "Fields at fault ({{endpoint}})"
+    },
+    "api": {
+      "title": "The server refused the request",
+      "noBody": "The server gave no reason.",
+      "notFound": "Not found"
+    },
+    "unexpected": {
+      "title": "Unexpected error",
+      "body": "An unexpected error prevents this data from being shown. Try again; if it comes back, report it to the team."
+    },
+    "untranslated": "Text not available in this language ({{id}})"
+  },
+  "status": {
+    "backend": {
+      "title": "Server",
+      "state": "State",
+      "ok": "Reachable",
+      "data": "Data",
+      "mode": {
+        "live": "NISAR products on this server",
+        "cache": "Precomputed answers only"
+      },
+      "version": "Version"
+    },
+    "discoveries": "Automatic discovery",
+    "discoveriesOn": "Automatic discovery is on.",
+    "proof": "L-band versus C-band comparison",
+    "proofReady": "The comparison is available."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This address does not match any page.",
+    "back": "Back to the case studies"
+  },
+  "cases": {
+    "lede": "Events where NISAR measured the ground, compared with an independent reference where one exists.",
+    "draftNote": "These case studies are drafts: their NISAR values are not measured yet. Nothing here is a result."
+  },
+  "caseKind": {
+    "earthquake": "Earthquake",
+    "flood": "Flood",
+    "method": "Method"
+  },
+  "caseStatus": {
+    "draft": "Draft",
+    "final": "Final result"
+  },
+  "measure": {
+    "notMeasured": "not measured yet",
+    "plusMinus": "plus or minus",
+    "sigmaMultiple": "({{k}} σ)",
+    "noSigma": "(no uncertainty given)"
+  },
+  "agreement": {
+    "agree": "Agrees: gap within 2σ combined",
+    "partial": "Partly agrees: gap between 2σ and 4σ combined",
+    "disagree": "Disagrees: gap beyond 4σ combined",
+    "no_reference": "No independent reference",
+    "pending": "Compared once the NISAR value is measured"
+  },
+  "case": {
+    "back": "All case studies",
+    "draftBand": "This case is not a result: its NISAR values are not measured yet.",
+    "mapLabel": "Radar map: {{place}}",
+    "findings": "NISAR measurements and reference",
+    "findingsNone": "No measurement yet.",
+    "exposureTitle": "Exposure",
+    "exposureNone": "Exposure not computed yet",
+    "exposure": {
+      "people": "People",
+      "buildings": "Buildings",
+      "area": "Affected area"
+    },
+    "source": "Source:",
+    "timeline": "Timeline",
+    "timelineNone": "Timeline not established yet",
+    "figures": "Figures",
+    "figuresNone": "No figure yet",
+    "limits": "What the radar cannot tell here",
+    "sources": "Sources",
+    "sourcesNone": "No external source yet"
+  },
+  "unit": {
+    "mm": "mm",
+    "cm": "cm",
+    "m": "m",
+    "mm/yr": "mm/yr",
+    "cm/yr": "cm/yr",
+    "mm/yr2": "mm/yr²",
+    "m3/m3": "m³/m³",
+    "dB": "dB",
+    "ha": "ha",
+    "km2": "km²",
+    "percent": "%",
+    "coherence": "",
+    "km": "km",
+    "Mw": "Mw",
+    "people": "people",
+    "count": "",
+    "deg": "°"
+  },
+  "map": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "attribution": "Show map credits",
+    "layers": "Map shown",
+    "noRaster": "No radar map for this case yet: only the study area and the event point are drawn.",
+    "noWebgl": "This browser cannot show the interactive map (WebGL unavailable).",
+    "imageFailed": "The radar image could not be loaded from the server."
+  },
+  "legend": {
+    "sign": "Sign",
+    "period": "Period",
+    "source": "Source",
+    "range": "Scale from {{min}} to {{max}} {{unit}}"
+  },
+  "sign": {
+    "positive_toward_satellite": "positive values (red end): the ground moves toward the satellite",
+    "positive_away_from_satellite": "positive values (red end): the ground moves away from the satellite",
+    "positive_up": "positive values: uplift",
+    "positive_east": "positive values: eastward motion"
+  },
+  "layerKind": {
+    "displacement": "Line-of-sight displacement",
+    "velocity": "Line-of-sight velocity",
+    "coherence": "Coherence",
+    "coherence_loss": "Coherence loss",
+    "soil_moisture": "Soil moisture",
+    "backscatter_change": "Backscatter change",
+    "offset": "Offset"
+  },
+  "ask": {
+    "lede": "Ask a question about a place. NISAR Pulse finds the radar passes, measures, compares with independent sources and says what it cannot know.",
+    "label": "Your question",
+    "placeholder": "For example: did the ground move at Asni after the flash flood?",
+    "submit": "Investigate",
+    "running": "Investigating…",
+    "noPoint": "No point chosen: name a known place, or click on the map.",
+    "pointChosen": "Point chosen:",
+    "clearPoint": "Remove the point",
+    "examples": "Demonstration questions",
+    "mapLabel": "Map to choose a point",
+    "mapHelp": "Click on the map to choose a point (or focus the map, centre it with the arrow keys and press Enter).",
+    "result": "Result of the investigation"
+  },
+  "answer": {
+    "title": "Answer",
+    "back": "Ask another question",
+    "steps": "How I found this",
+    "thePoint": "the chosen point",
+    "confidence": "Confidence: {{level}}",
+    "stableInNoise": "Stable within measurement noise",
+    "metrics": "Measurements",
+    "series": "Change over time",
+    "indication": "Indication (not a forecast)",
+    "checks": "Quality checks",
+    "checksNone": "No check run",
+    "evidence": "Independent evidence",
+    "evidenceNone": "No independent source consulted",
+    "openSource": "Open the source",
+    "earthquakes": "Catalogued earthquakes",
+    "data": "Data used",
+    "product": "Product",
+    "acquisitions": "Acquisitions",
+    "tracks": "Tracks",
+    "track": "track {{number}}, {{direction}}",
+    "none": "none",
+    "nextPass": "Next NISAR pass",
+    "permalink": "Address of this answer",
+    "cached": "(precomputed answer)",
+    "noRaster": "No radar map in this answer: only the point studied is drawn."
+  },
+  "steps": {
+    "ms": "ms"
+  },
+  "stepKind": {
+    "classify": "Understand the question",
+    "select_recipe": "Choose the method",
+    "search_scenes": "Find the NISAR passes",
+    "download": "Download",
+    "compute": "Compute",
+    "uncertainty_checks": "Check the uncertainty",
+    "cross_evidence": "Cross-check with other sources",
+    "verdict": "Write the verdict",
+    "cache": "Precomputed answer"
+  },
+  "stepStatus": {
+    "pending": "waiting",
+    "running": "running",
+    "done": "done",
+    "failed": "failed",
+    "skipped": "skipped"
+  },
+  "confidenceLevel": {
+    "high": "high",
+    "medium": "medium",
+    "low": "low"
+  },
+  "productStatus": {
+    "provisional": "provisional product",
+    "validated": "validated product"
+  },
+  "metric": {
+    "los_displacement_max": "Peak line-of-sight displacement",
+    "velocity": "Velocity",
+    "vertical_velocity": "Vertical velocity",
+    "east_west_velocity": "East–west velocity",
+    "acceleration": "Acceleration",
+    "vertical_displacement": "Vertical displacement",
+    "east_west_displacement": "East–west displacement",
+    "coherence_loss_area": "Coherence-loss area",
+    "flooded_area": "Flooded area",
+    "flood_duration": "Flood duration",
+    "forest_loss": "Forest loss",
+    "soil_moisture": "Soil moisture",
+    "soil_moisture_anomaly": "Soil-moisture anomaly",
+    "offset_max": "Peak offset",
+    "masked_fraction": "Masked share",
+    "noise_floor": "Noise floor"
+  },
+  "check": {
+    "noise_floor": "Noise floor",
+    "coherence_mask": "Coherence mask",
+    "ionosphere": "Ionosphere",
+    "unwrapping": "Phase unwrapping"
+  },
+  "checkStatus": {
+    "pass": "passed",
+    "warn": "warning",
+    "fail": "failed",
+    "not_applicable": "not applicable"
+  },
+  "source": {
+    "usgs": "USGS",
+    "open_meteo": "Open-Meteo (ERA5)",
+    "firms": "NASA FIRMS",
+    "copernicus_gfm": "Copernicus GFM",
+    "osm": "OpenStreetMap",
+    "sentinel1": "Sentinel-1",
+    "sentinel2": "Sentinel-2",
+    "nasa": "NASA",
+    "gdacs": "GDACS"
+  },
+  "evidenceAgreement": {
+    "agrees": "agrees",
+    "disagrees": "disagrees",
+    "inconclusive": "inconclusive",
+    "unavailable": "unavailable"
+  },
+  "quakeRole": {
+    "mainshock": "mainshock",
+    "aftershock": "aftershock"
+  },
+  "direction": {
+    "ascending": "ascending",
+    "descending": "descending"
+  },
+  "seriesId": {
+    "los": "Line-of-sight displacement",
+    "vertical": "Vertical displacement",
+    "east_west": "East–west displacement",
+    "soil_moisture": "Soil moisture",
+    "backscatter": "Backscatter",
+    "coherence": "Coherence"
+  },
+  "series": {
+    "table": "Show the values",
+    "date": "Date",
+    "value": "Value",
+    "range": "Range (±{{sigma}} σ)"
+  },
+  "library": {
+    "lede": "Precomputed events, available offline, with the independent source that checks them.",
+    "empty": "The library is empty.",
+    "noAnswer": "No NISAR answer for this event yet."
+  },
+  "libraryKind": {
+    "earthquake": "Earthquake",
+    "flood": "Flood",
+    "landslide": "Landslide",
+    "volcano": "Volcano"
+  },
+  "level": {
+    "none": "no level yet",
+    "label": "Level {{level}}",
+    "yellow": "yellow",
+    "orange": "orange",
+    "red": "red"
+  },
+  "watch": {
+    "lede": "A watched place is checked again at every new NISAR pass. You are told when its level changes.",
+    "listTitle": "Watched places",
+    "checkNow": "Check again now",
+    "checking": "Checking…",
+    "empty": "No place is watched.",
+    "emptyAction": "Ask a question, then watch its answer.",
+    "level": "Level",
+    "confidence": "Confidence",
+    "lastPass": "Last pass used",
+    "nextPass": "Next NISAR pass",
+    "openAnswer": "Open the answer",
+    "delete": "Stop watching",
+    "notifications": "Alerts received",
+    "notificationsNone": "No alert yet.",
+    "previously": "before:",
+    "create": "Watch this place",
+    "created": "Watch active. Next NISAR pass: {{date}}.",
+    "seeWatches": "See the watches",
+    "demoTitle": "Demonstration: simulate an alert",
+    "demoNote": "To show what an alert looks like. The message says SIMULATION in all three languages; it is not a measurement.",
+    "demoLevel": "Simulated level",
+    "demoRun": "Simulate"
+  },
+  "demo": {
+    "banner": {
+      "demo": "Offline demo: answers from the NISAR Pulse server, recorded on {{date}}.",
+      "rehearsal": "REHEARSAL, not for the jury: this offline build contains draft cases (recorded on {{date}})."
+    }
+  }
+}

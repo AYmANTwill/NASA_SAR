@@ -1,0 +1,18 @@
+.status-tag {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  border: 1px solid var(--ink);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.status-draft {
+  background: repeating-linear-gradient(-45deg, var(--sheet) 0 5px, var(--hatch) 5px 7px), var(--sheet);
+}
+
+.status-final {
+  background: var(--ink);
+  color: var(--sheet);
+}
