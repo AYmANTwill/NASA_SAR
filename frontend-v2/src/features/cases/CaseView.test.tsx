@@ -1,12 +1,15 @@
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { I18nextProvider } from "react-i18next";
 import { describe, expect, it } from "vitest";
 import { ApiProvider } from "@/api/ApiProvider";
 import { createHttpClient } from "@/api/client";
 import type { CaseStudy, Lang } from "@/api/contract";
 import { AppRoutes } from "@/app/routes";
 import { formatNumber } from "@/i18n/format";
+import { i18nFor } from "@/i18n";
 import { recorded, recordedFetch, type Recorded } from "@/test/recorded";
+import { FindingView } from "./ledger";
 
 const BASE = "http://test/api";
 
@@ -92,6 +95,41 @@ describe("case view, final", () => {
     const shown = [...document.querySelectorAll(".measure-number")].flatMap((el) => (el.textContent ?? "").split("±").map((s) => s.trim()));
     expect(shown.length).toBeGreaterThan(0);
     for (const n of shown) expect(allowed, `"${n}" is not an API value`).toContain(n);
+  });
+});
+
+describe("case view, linked answers", () => {
+  it("links each answer the case lists, with its question and verdict", async () => {
+    const rec = structuredClone(recorded("case-panama-2026.json"));
+    const answer = recorded("answer-event-panama-2026.json");
+    (rec.body as CaseStudy).answer_ids = [(answer.body as { id: string }).id];
+    const { fetcher } = recordedFetch({ [`${BASE}/cases/panama-2026`]: rec, [`${BASE}${answer.path}`]: answer });
+    render(
+      <ApiProvider client={createHttpClient(BASE, fetcher)}>
+        <MemoryRouter initialEntries={["/en/cases/panama-2026"]}>
+          <AppRoutes />
+        </MemoryRouter>
+      </ApiProvider>,
+    );
+    const section = await screen.findByRole("region", { name: "Linked investigator answers" });
+    const link = await within(section).findByRole("link", { name: (answer.body as { question: string }).question });
+    expect(link.getAttribute("href")).toBe(`/en/answers/${(answer.body as { id: string }).id}`);
+  });
+});
+
+describe("Haouz agreement interpretation", () => {
+  it.each(["fr", "en", "ar"] as const)("explains agreement with the no-event baseline below the badge (%s)", (lang) => {
+    // Display regression only: the measurements come from the recorded reference, as in finalFrom above.
+    const finding = (finalFrom("case-panama-2026.json").body as CaseStudy).findings[0]!;
+    finding.reference_source = { ...finding.reference_source!, name: "No-event baseline: random circles" };
+    const { container, rerender } = render(
+      <I18nextProvider i18n={i18nFor[lang]}><FindingView finding={finding} status="final" caseId="haouz-flood-2026" /></I18nextProvider>,
+    );
+    const note = container.querySelector(".finding-context");
+    expect(note?.textContent).toBe(i18nFor[lang].t("case.noEventAgreement"));
+    expect(note?.previousElementSibling?.className).toBe("finding-agreement");
+    rerender(<I18nextProvider i18n={i18nFor[lang]}><FindingView finding={finding} status="final" caseId="panama-2026" /></I18nextProvider>);
+    expect(container.querySelector(".finding-context")).toBeNull();
   });
 });
 

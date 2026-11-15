@@ -43,7 +43,7 @@ describe("snapshot gate", () => {
     snapshot.responses["/cases/panama-2026"] = { status: notFound.status, body: notFound.body };
     const paths = validateSnapshot(snapshot).map((p) => p.path);
     expect(paths).toContain("/cases/panama-2026");
-    expect(paths).not.toContain("/discoveries?region=morocco");
+    expect(paths).not.toContain("/discoveries?region=MA");
   });
 
   it("reports a response that breaks the contract", () => {
@@ -84,7 +84,7 @@ describe("replay client", () => {
   });
 
   it("replays error bodies as the backend sent them", async () => {
-    const error = await client.discoveries("morocco").catch((e: unknown) => e);
+    const error = await client.discoveries("MA").catch((e: unknown) => e);
     expect((error as ApiError).code).toBe("discoveries_disabled");
   });
 

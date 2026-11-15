@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { LANGS, pageScreenshot, requireBackend } from "./backend";
+import { LANGS, pageScreenshot, requireBackend, reviewScreen } from "./backend";
 
 const API = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
 
@@ -32,8 +32,7 @@ test.describe("library, live backend", () => {
         await expect(title).toBeVisible();
         if (e.answer_id) await expect(title.getByRole("link")).toHaveAttribute("href", `/${lang}/answers/${e.answer_id}`);
       }
-      expect(await axe(page)).toEqual([]);
-      await pageScreenshot(page, `e2e/__screenshots__/library-${lang}-1440.png`);
+      await reviewScreen(page, `library-${lang}`);
     });
   }
 });
@@ -43,8 +42,9 @@ test.describe("watches, live backend", () => {
 
   test("watch an answer, see it listed, stop watching it", async ({ page, request }) => {
     const events = (await (await request.get(`${API}/api/library`)).json()) as LibraryEvent[];
-    const answerId = events.find((e) => e.answer_id)!.answer_id!;
-    const before = ((await (await request.get(`${API}/api/watches`)).json()) as Watch[]).some((w) => w.answer_id === answerId);
+    const initialWatches = (await (await request.get(`${API}/api/watches`)).json()) as Watch[];
+    const answerId = (events.find((e) => e.answer_id && !initialWatches.some((w) => w.answer_id === e.answer_id)) ?? events.find((e) => e.answer_id))!.answer_id!;
+    const before = initialWatches.some((w) => w.answer_id === answerId);
 
     await page.goto(`/en/answers/${answerId}`);
     await page.getByRole("button", { name: "Watch this place" }).click();
@@ -66,7 +66,13 @@ test.describe("watches, live backend", () => {
     await expect.poll(() => simulated).toMatch(/level=orange$/);
 
     await pageScreenshot(page, "e2e/__screenshots__/watches-en-1440.png");
+    await card.getByRole("button", { name: "Stop watching" }).click();
+    await expect(card.getByText("Stop watching this place?")).toBeVisible();
+    await card.getByRole("button", { name: "Cancel" }).click();
+    await expect(card.locator(".watch-confirm")).toHaveCount(0);
     if (!before) {
+      await card.getByRole("button", { name: "Stop watching" }).click();
+      await expect(card.getByText("Stop watching this place?")).toBeVisible();
       await card.getByRole("button", { name: "Stop watching" }).click();
       await expect(card).toHaveCount(0);
     }
@@ -74,12 +80,10 @@ test.describe("watches, live backend", () => {
 
   for (const lang of LANGS) {
     test(`${lang}: watches page renders and passes axe`, async ({ page }) => {
-      await page.setViewportSize({ width: 390, height: 900 });
       await page.goto(`/${lang}/watches`);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator(".loading")).toHaveCount(0);
-      expect(await axe(page)).toEqual([]);
-      await pageScreenshot(page, `e2e/__screenshots__/watches-${lang}-390.png`);
+      await reviewScreen(page, `watches-${lang}`);
     });
   }
 });

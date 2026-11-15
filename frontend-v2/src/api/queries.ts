@@ -18,6 +18,12 @@ export function useCaseStudy(id: string) {
   return useQuery({ queryKey: ["case", id], queryFn: ({ signal }) => api.caseStudy(id, signal) });
 }
 
+/** Only the reservoir case requests these optional RGBA images. */
+export function useWaterRasterIndex(enabled: boolean) {
+  const api = useApi();
+  return useQuery({ queryKey: ["water-raster-index"], queryFn: ({ signal }) => api.waterRasterIndex(signal), enabled });
+}
+
 /** Several cases at once, sharing the cache of useCaseStudy. */
 export function useCaseStudies(ids: string[]) {
   const api = useApi();
@@ -29,6 +35,14 @@ export function useCaseStudies(ids: string[]) {
 export function useAnswer(id: string) {
   const api = useApi();
   return useQuery({ queryKey: ["answer", id], queryFn: ({ signal }) => api.answer(id, signal) });
+}
+
+/** Several answers at once (a case's linked answers), sharing the cache of useAnswer. */
+export function useAnswers(ids: string[]) {
+  const api = useApi();
+  return useQueries({
+    queries: ids.map((id) => ({ queryKey: ["answer", id], queryFn: ({ signal }: { signal: AbortSignal }) => api.answer(id, signal) })),
+  });
 }
 
 export function useLibrary() {

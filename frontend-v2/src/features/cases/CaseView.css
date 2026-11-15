@@ -123,6 +123,16 @@
   margin-block-start: var(--space-1);
 }
 
+.finding-context,
+.case-interpretation {
+  color: var(--ink-2);
+  font-size: var(--step--1);
+}
+
+.finding-interpretation {
+  font-weight: 500;
+}
+
 .exposure {
   border-collapse: collapse;
 }

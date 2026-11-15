@@ -68,6 +68,7 @@ export function createReplayClient(snapshot: Snapshot): ApiClient {
     health: () => get("/health"),
     cases: () => get("/cases"),
     caseStudy: (id) => get(`/cases/${id}`),
+    waterRasterIndex: () => snapshot.responses["/water/raster-index"] ? get("/water/raster-index") : Promise.resolve(null),
     answer: (id) => get(answerPath(id)),
     library: () => get("/library"),
     demo: () => get("/demo"),

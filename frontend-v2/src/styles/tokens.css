@@ -4,11 +4,11 @@
  * the watch levels sent by the API. Contrast pairs are listed in contrast.test.ts.
  */
 :root {
-  --paper: #f7f8f8;
+  --paper: #eff3f4;
   --sheet: #ffffff;
-  --ink: #151a1e;
-  --ink-2: #4b555d;
-  --rule: #d5dadd;
+  --ink: #172b36;
+  --ink-2: #4b5d68;
+  --rule: #d0dadd;
   --hatch: rgb(21 26 30 / 12%);
 
   /* Watch levels (yellow / orange / red from the API): the interface's only alert hues, never alone. */

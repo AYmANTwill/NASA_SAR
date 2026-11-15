@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
+import { offlinePlugin } from "./scripts/offline-plugin";
 
 /** The backend runs on 127.0.0.1:8000; VITE_API_PROXY overrides it. */
 const api = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
@@ -10,7 +11,7 @@ export default defineConfig(({ mode }) => {
   const offline = mode === "demo" || mode === "rehearsal";
   return {
     resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
-    plugins: [react()],
+    plugins: [react(), offlinePlugin()],
     publicDir: offline ? "demo-data/public" : "public",
     // Separate folders: a rehearsal build (drafts kept) can never replace the jury build.
     build: offline ? { outDir: mode === "demo" ? "dist-demo" : "dist-rehearsal", emptyOutDir: true } : undefined,

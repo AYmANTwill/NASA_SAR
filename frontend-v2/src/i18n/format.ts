@@ -7,6 +7,8 @@ import type { Lang } from "@/api/contract";
  */
 const LOCALE: Record<Lang, string> = { fr: "fr-FR", en: "en-GB", ar: "ar-MA-u-nu-latn" };
 
+export function formatList(values: string[], lang: Lang): string { return new Intl.ListFormat(LOCALE[lang], { style: "long", type: "conjunction" }).format(values); }
+
 /** Enough fraction digits to print any value the API sends without rounding it away. */
 const MAX_FRACTION_DIGITS = 6;
 

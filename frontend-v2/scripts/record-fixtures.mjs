@@ -25,7 +25,7 @@ await record("case-404.json", "/cases/no-such-case");
 const library = await record("library.json", "/library");
 for (const event of library) if (event.answer_id) await record(`answer-${event.answer_id}.json`, `/answers/${event.answer_id}`);
 await record("demo.json", "/demo");
-await record("discoveries.json", "/discoveries?region=morocco");
+await record("discoveries.json", "/discoveries?region=MA");
 await record("lband-proof.json", "/proofs/lband-vs-cband");
 
 // /ask is a server-sent event stream: kept raw, exactly as the backend wrote it.

@@ -13,14 +13,14 @@ const PAD = { left: 56, right: 12, top: 12, bottom: 28 };
  * chart writes no number of its own. Time runs left to right in every
  * language. Screen readers get the same points as a table.
  */
-export function SeriesChart({ series }: { series: Series }) {
+export function SeriesChart({ series, domain }: { series: Series; domain?: [number, number] }) {
   const { t, lang } = useText();
   const unit = t(`unit.${series.unit}`);
   const times = series.points.map((p) => Date.parse(`${p.date}T00:00:00Z`));
   const t0 = Math.min(...times);
   const t1 = Math.max(...times);
-  const lo = Math.min(...series.points.map((p) => p.lo), series.noise_floor !== null ? -series.noise_floor : Infinity);
-  const hi = Math.max(...series.points.map((p) => p.hi), series.noise_floor !== null ? series.noise_floor : -Infinity);
+  const lo = domain?.[0] ?? Math.min(...series.points.map((p) => p.lo), series.noise_floor !== null ? -series.noise_floor : Infinity);
+  const hi = domain?.[1] ?? Math.max(...series.points.map((p) => p.hi), series.noise_floor !== null ? series.noise_floor : -Infinity);
   const x = (time: number) => PAD.left + (t1 === t0 ? 0.5 : (time - t0) / (t1 - t0)) * (W - PAD.left - PAD.right);
   const y = (v: number) => PAD.top + (hi === lo ? 0.5 : (hi - v) / (hi - lo)) * (H - PAD.top - PAD.bottom);
   const minLo = Math.min(...series.points.map((p) => p.lo));

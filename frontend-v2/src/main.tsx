@@ -14,6 +14,7 @@ import { ApiProvider } from "./api/ApiProvider";
 import type { ApiClient } from "./api/client";
 import { AppRoutes } from "./app/routes";
 import { DemoContext, type DemoInfo } from "./demo/DemoContext";
+import "./styles/workspace.css";
 
 /**
  * Online (dev, build): the http client on /api. Offline ("demo", "rehearsal" builds):
@@ -46,3 +47,10 @@ async function start() {
 }
 
 void start();
+
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => location.reload(), { once: true });
+  }
+  window.addEventListener("load", () => { void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {}); });
+}

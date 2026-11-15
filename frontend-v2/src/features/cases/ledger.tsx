@@ -2,11 +2,15 @@ import type { CaseExposure, CaseStatus, CaseStudy, Figure, Finding } from "@/api
 import { AgreementMark } from "@/components/science/AgreementMark";
 import { ComparisonStrip, NisarGlyph, ReferenceGlyph } from "@/components/science/ComparisonStrip";
 import { MeasurementView } from "@/components/science/MeasurementView";
+import { Link } from "react-router-dom";
+import { useAnswers } from "@/api/queries";
+import { ErrorPanel } from "@/components/ErrorPanel";
 import { useText } from "@/i18n/useText";
 import { measurementState } from "@/science/measurement";
+import { FigureViewer } from "@/components/FigureViewer";
 
 /** One finding: NISAR's value, the reference's, the strip when both are measured, the API's agreement. */
-export function FindingView({ finding, status }: { finding: Finding; status: CaseStatus }) {
+export function FindingView({ finding, status, caseId }: { finding: Finding; status: CaseStatus; caseId?: CaseStudy["id"] }) {
   const { t, localized } = useText();
   const nisarState = measurementState(finding.nisar, status);
   const reference = finding.reference;
@@ -14,12 +18,17 @@ export function FindingView({ finding, status }: { finding: Finding; status: Cas
   const bothMeasured = nisarState !== "placeholder" && reference !== null && measurementState(reference, status) !== "placeholder";
   // A placeholder has no agreement worth showing (Panama's placeholder Mw "disagrees" with USGS, API_REQUESTS.md #1).
   const agreement = nisarState === "placeholder" && reference !== null ? "pending" : finding.agreement;
+  const noEventAgreement = caseId === "haouz-flood-2026" && agreement === "agree" && /^no-event baseline\b/i.test(source?.name ?? "");
+  const heldoutIou = caseId === "bin-el-ouidane-2026" && finding.id === "heldout_iou";
+  const openWaterChange = caseId === "haouz-flood-2026" && finding.id === "open_water_change";
 
   return (
     <article className="finding" aria-labelledby={`finding-${finding.id}`}>
       <h3 id={`finding-${finding.id}`} className="finding-label">
         {localized(finding.label)}
       </h3>
+      {heldoutIou && <p className="finding-context">{t("case.heldoutIouContext")}</p>}
+      {openWaterChange && nisarState !== "placeholder" && <p className="finding-interpretation">{t("case.openWaterNoClearChange")}</p>}
       <dl className="finding-rows">
         <div className="finding-row">
           <dt>
@@ -48,6 +57,8 @@ export function FindingView({ finding, status }: { finding: Finding; status: Cas
       <p className="finding-agreement">
         <AgreementMark agreement={agreement} />
       </p>
+      {noEventAgreement && <p className="finding-context">{t("case.noEventAgreement")}</p>}
+      {openWaterChange && reference === null && <p className="finding-context">{t("case.openWaterContext")}</p>}
     </article>
   );
 }
@@ -86,17 +97,12 @@ export function ExposureView({ exposure, status }: { exposure: CaseExposure | nu
 }
 
 export function FigureList({ figures }: { figures: Figure[] }) {
-  const { t, text, localized } = useText();
+  const { t } = useText();
   if (figures.length === 0) return <p className="not-measured">{t("case.figuresNone")}</p>;
   return (
     <div className="figure-list">
       {figures.map((f) => (
-        <figure key={f.id} className="figure">
-          <img src={f.url} alt={localized(f.title)} loading="lazy" />
-          <figcaption>
-            <strong>{localized(f.title)}</strong> {text(f.caption)}
-          </figcaption>
-        </figure>
+        <FigureViewer key={f.id} figure={f} />
       ))}
     </div>
   );
@@ -135,5 +141,31 @@ export function SourcesView({ study }: { study: CaseStudy }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** The investigator's answers the case links to (CaseStudy.answer_ids), each opening at its own address. */
+export function LinkedAnswers({ ids }: { ids: string[] }) {
+  const { t, lang, text } = useText();
+  const answers = useAnswers(ids);
+  if (ids.length === 0) return null;
+  return (
+    <section className="ledger-section" aria-labelledby="linked-title">
+      <h2 id="linked-title">{t("case.linkedAnswers")}</h2>
+      <ul className="sources">
+        {ids.map((id, i) => {
+          const answer = answers[i]?.data;
+          return (
+            <li key={id}>
+              <Link to={`/${lang}/answers/${encodeURIComponent(id)}`} dir="auto">
+                {answer ? answer.question : id}
+              </Link>
+              {answer && <p className="measure-note">{text(answer.verdict)}</p>}
+              {answers[i]?.isError && <ErrorPanel error={answers[i]!.error} />}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

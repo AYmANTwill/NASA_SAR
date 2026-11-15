@@ -1,0 +1,13 @@
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+const directory = dirname(fileURLToPath(import.meta.url));
+const finalOnly = process.argv.includes("--demo");
+const root = dirname(directory), output = join(root, finalOnly ? "dist-demo" : "dist-rehearsal");
+if (!existsSync(join(output, "index.html"))) throw new Error("Run npm run build:rehearsal first.");
+const snapshot = JSON.parse(readFileSync(join(root, "demo-data/snapshot.json"), "utf8"));
+const cases = snapshot.responses["/cases"].body;
+copyFileSync(join(directory, "serve-mvp.mjs"), join(output, "serve-mvp.mjs"));
+writeFileSync(join(output, "START-MVP.cmd"), '@echo off\r\ncd /d "%~dp0"\r\nwhere node >nul 2>&1\r\nif errorlevel 1 (echo Node.js est requis. & pause & exit /b 1)\r\nstart "" http://127.0.0.1:4312/fr/\r\nnode serve-mvp.mjs\r\npause\r\n');
+writeFileSync(join(output, "LIRE-MOI.txt"), `MVP NISAR Pulse — ${finalOnly ? "cas finalisés uniquement" : "répétition, brouillons visibles"}\n\nNode.js requis, aucune installation npm ni backend nécessaires.\nWindows : ouvrir START-MVP.cmd. Sinon : node serve-mvp.mjs\nPuis http://127.0.0.1:4312/fr/ (EN et AR disponibles dans le menu).\n\nSnapshot réel : ${snapshot.generated_at}\n${cases.map((c) => `${c.status}: ${c.title.fr}`).join("\n")}\n\nLes cas brouillons ne sont pas des résultats validés. Panama : signe non tranché, aucune magnitude validée. Haouz : pas de changement net d'eau libre, aucune surface inondée revendiquée.\n`);
+console.log(`MVP ready: ${output}`);

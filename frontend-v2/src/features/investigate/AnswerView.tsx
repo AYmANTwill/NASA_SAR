@@ -3,10 +3,12 @@ import type { Answer, Bounds, Confidence } from "@/api/contract";
 import { MapPanel } from "@/components/map/MapPanel";
 import { MeasurementView } from "@/components/science/MeasurementView";
 import { SeriesChart } from "@/components/science/SeriesChart";
-import { formatDate, formatNumber } from "@/i18n/format";
+import { formatDate, formatNumber, formatList } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
 import { WatchButton } from "@/features/watch/WatchButton";
 import { StepList } from "./StepList";
+import { NoiseRuler } from "@/components/science/NoiseRuler";
+import { ReportTools } from "@/components/ReportTools";
 import "@/features/cases/CaseView.css";
 import "./investigate.css";
 
@@ -41,11 +43,16 @@ function ConfidenceMark({ confidence }: { confidence: Confidence }) {
 
 /** One answer of the investigator: map and evidence ledger, in the same reading order as a case. */
 export function AnswerView({ answer, showSteps = true }: { answer: Answer; showSteps?: boolean }) {
-  const { t, lang, text } = useText();
+  const { t, lang, text, param } = useText();
   const place = answer.location.name_i18n?.[lang] ?? answer.location.name ?? "";
+  const noise = answer.metrics.find((m) => m.id === "noise_floor")?.measurement;
+  const components = answer.series.filter((s) => s.id === "vertical" || s.id === "east_west");
+  const componentDomain: [number, number] | undefined = components.length > 1 && components.every((s) => s.unit === components[0]?.unit)
+    ? [Math.min(...components.flatMap((s) => s.points.map((p) => p.lo)), ...components.map((s) => -(s.noise_floor ?? 0))), Math.max(...components.flatMap((s) => s.points.map((p) => p.hi)), ...components.map((s) => s.noise_floor ?? 0))] : undefined;
 
   return (
     <article className="answer" aria-labelledby={`answer-${answer.id}`}>
+      <ReportTools data={answer} name={answer.id} />
       <div className="case-layout">
         <div className="case-map-column">
           <MapPanel
@@ -56,6 +63,7 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
             // A rectangle only for an area the API gave (bbox or layers), never for the box drawn around a point.
             showArea={answer.location.bbox != null || answer.layers.length > 0}
             emptyText={t("answer.noRaster")}
+            earthquakes={answer.earthquakes}
           />
           {showSteps && answer.steps.length > 0 && (
             <section className="steps-panel" aria-labelledby="steps-title">
@@ -76,6 +84,7 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
             {text(answer.verdict)}
           </p>
           <p className="answer-tags">
+            <span className="tag">{param({ term: `recipe.${answer.recipe}` })}</span>
             <ConfidenceMark confidence={answer.confidence} />
             {answer.stable_in_noise && <span className="tag">{t("answer.stableInNoise")}</span>}
             <span className="tag">{t(`productStatus.${answer.product_status}`)}</span>
@@ -93,6 +102,7 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
                     <dt>{t(`metric.${m.id}`)}</dt>
                     <dd>
                       <MeasurementView m={m.measurement} status={null} />
+                      {noise && noise.unit === m.measurement.unit && m.id !== "noise_floor" && <NoiseRuler measurement={m.measurement} noise={noise.value} />}
                     </dd>
                   </div>
                 ))}
@@ -104,8 +114,29 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
             <section className="ledger-section" aria-labelledby="series-title">
               <h2 id="series-title">{t("answer.series")}</h2>
               {answer.series.map((s) => (
-                <SeriesChart key={s.id} series={s} />
+                <SeriesChart key={s.id} series={s} domain={s.id === "vertical" || s.id === "east_west" ? componentDomain : undefined} />
               ))}
+            </section>
+          )}
+
+          {answer.classifier && (
+            <section className="ledger-section" aria-labelledby="classifier-title">
+              <h2 id="classifier-title">{t("answer.classifier")}</h2>
+              <p>
+                <strong>{t(`classLabel.${answer.classifier.label}`)}</strong> <span className="tag">{t("answer.beta")}</span>
+              </p>
+              <dl className="legend-facts">
+                <dt>{t("answer.precision")}</dt>
+                <dd>
+                  <bdi dir="ltr">{formatNumber(answer.classifier.precision, lang)}</bdi>
+                </dd>
+                <dt>{t("answer.recall")}</dt>
+                <dd>
+                  <bdi dir="ltr">{formatNumber(answer.classifier.recall, lang)}</bdi>
+                </dd>
+                <dt>{t("answer.evaluatedOn")}</dt>
+                <dd dir="auto">{answer.classifier.evaluated_on}</dd>
+              </dl>
             </section>
           )}
 
@@ -211,12 +242,12 @@ export function AnswerView({ answer, showSteps = true }: { answer: Answer; showS
                 {formatDate(answer.period.start, lang)} → {formatDate(answer.period.end, lang)}
               </dd>
               <dt>{t("answer.acquisitions")}</dt>
-              <dd>{answer.acquisitions.length === 0 ? t("answer.none") : answer.acquisitions.map((d) => formatDate(d, lang)).join(" · ")}</dd>
+              <dd>{answer.acquisitions.length === 0 ? t("answer.none") : formatList(answer.acquisitions.map((d) => formatDate(d, lang)), lang)}</dd>
               <dt>{t("answer.tracks")}</dt>
               <dd>
                 {answer.tracks.length === 0
                   ? t("answer.none")
-                  : answer.tracks.map((tr) => t("answer.track", { number: formatNumber(tr.number, lang), direction: t(`direction.${tr.direction}`) })).join(" · ")}
+                  : formatList(answer.tracks.map((tr) => t("answer.track", { number: formatNumber(tr.number, lang), direction: t(`direction.${tr.direction}`) })), lang)}
               </dd>
               {answer.next_pass && (
                 <>

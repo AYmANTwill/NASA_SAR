@@ -14,7 +14,9 @@
     "ask": "Enquêter",
     "library": "Bibliothèque",
     "watches": "Surveillances",
-    "status": "État du service"
+    "status": "État du service",
+    "discover": "Découvrir",
+    "proof": "Bandes L/C"
   },
   "common": {
     "loading": "Chargement…",
@@ -66,7 +68,8 @@
   },
   "cases": {
     "lede": "Des événements où NISAR a mesuré le sol, comparés quand c’est possible à une référence indépendante.",
-    "draftNote": "Ces études de cas sont des brouillons : leurs valeurs NISAR ne sont pas encore mesurées. Rien ici n’est un résultat."
+    "draftNote": "Les cas marqués « Brouillon » sont incomplets et ne doivent pas être présentés comme des résultats finaux.",
+    "openReady": "Ouvrir le cas finalisé"
   },
   "caseKind": {
     "earthquake": "Séisme",
@@ -92,7 +95,7 @@
   },
   "case": {
     "back": "Toutes les études de cas",
-    "draftBand": "Ce cas n’est pas un résultat : ses valeurs NISAR ne sont pas encore mesurées.",
+    "draftBand": "Ce cas reste incomplet : ses mesures disponibles et ses limites sont présentées ci-dessous.",
     "mapLabel": "Carte radar : {{place}}",
     "findings": "Mesures NISAR et référence",
     "findingsNone": "Aucune mesure pour l’instant.",
@@ -106,11 +109,33 @@
     "source": "Source :",
     "timeline": "Chronologie",
     "timelineNone": "Chronologie pas encore établie",
+    "noEventAgreement": "Concorde avec la référence sans événement : pas de différence nette par rapport à l’absence de changement.",
+    "heldoutIouContext": "IoU évaluée sur des traces jamais utilisées pour les réglages du modèle.",
+    "openWaterNoClearChange": "Pas de changement net d’eau libre.",
+    "openWaterContext": "Sans référence indépendante, cette mesure ne permet pas de conclure à une surface inondée.",
+    "haouzContext": "Ce cas évalue un changement de surface et ne fournit aucune surface inondée. L’eau libre permanente (U-Net) ne constitue pas une détection de crue.",
     "figures": "Figures",
     "figuresNone": "Aucune figure pour l’instant",
     "limits": "Ce que le radar ne peut pas dire ici",
     "sources": "Sources",
-    "sourcesNone": "Aucune source externe pour l’instant"
+    "sourcesNone": "Aucune source externe pour l’instant",
+    "linkedAnswers": "Réponses de l’enquêteur liées",
+    "panamaPendingMagnitude": "Aucune magnitude validée n’est disponible. Les figures et les limites ci-dessous permettent d’examiner l’analyse."
+  },
+  "timelineKind": {
+    "event": "Événement",
+    "acquisition": "Acquisition NISAR",
+    "publication": "Publication ASF",
+    "unspecified": "Autres dates"
+  },
+  "waterLayer": {
+    "water_before": "Eau avant",
+    "water_after": "Eau après",
+    "water_change": "Changement de l’eau",
+    "optical_before": "Image optique avant",
+    "optical_after": "Image optique après",
+    "opticalBackground": "Fond optique de la date correspondante",
+    "backgroundUnavailable": "Le fond optique est indisponible. La couche radar reste accessible."
   },
   "unit": {
     "mm": "mm",
@@ -200,7 +225,12 @@
     "nextPass": "Prochain passage NISAR",
     "permalink": "Adresse de cette réponse",
     "cached": "(réponse précalculée)",
-    "noRaster": "Pas de carte radar dans cette réponse : seul le point étudié est tracé."
+    "noRaster": "Pas de carte radar dans cette réponse : seul le point étudié est tracé.",
+    "classifier": "Classification automatique",
+    "beta": "bêta",
+    "precision": "Précision",
+    "recall": "Rappel",
+    "evaluatedOn": "Évaluée sur"
   },
   "steps": {
     "ms": "ms"
@@ -348,5 +378,62 @@
       "demo": "Démo hors ligne : réponses du serveur NISAR Pulse enregistrées le {{date}}.",
       "rehearsal": "RÉPÉTITION, pas pour le jury : cette version hors ligne contient des cas brouillons (enregistrée le {{date}})."
     }
+  },
+  "classLabel": {
+    "flooded": "Inondé",
+    "burned": "Brûlé",
+    "vegetation_loss": "Perte de végétation",
+    "stable": "Stable"
+  },
+  "parity": {
+    "menu": "Menu",
+    "presentation": "Présenter",
+    "exitPresentation": "Quitter la présentation",
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "recenter": "Recentrer",
+    "fullscreen": "Plein écran",
+    "opacity": "Opacité",
+    "print": "Imprimer / PDF",
+    "download": "Exporter les données",
+    "enlarge": "Agrandir : {{title}}",
+    "noiseRuler": "Signal et incertitude comparés au bruit de mesure",
+    "discoverIntro": "Explorer les observations, repérer les candidats et ouvrir les preuves qui les accompagnent.",
+    "observed": "Lieux déjà étudiés",
+    "observedHelp": "Les points ouvrent les réponses disponibles dans la bibliothèque.",
+    "candidateNote": "Ces zones sont des candidats à examiner, pas des détections validées.",
+    "noCandidates": "Aucune zone ne satisfait les critères disponibles. Cela ne prouve pas que toute la région est stable.",
+    "sort": "Classer par",
+    "bySignal": "Classement du signal",
+    "checked": "Vérifié manuellement",
+    "unchecked": "À vérifier",
+    "displacement": "Déplacement",
+    "snr": "Rapport signal / bruit :",
+    "unknown": "Non renseigné",
+    "zoneQuestion": "Le terrain bouge-t-il ici ?",
+    "proofIntro": "Comparer la cohérence du radar dans la végétation, avec les mêmes mesures, leurs incertitudes et leurs limites.",
+    "whyRadar": "Ce que les longueurs d’onde changent",
+    "bandBody": "La bande C interagit surtout avec le couvert végétal. La bande L peut conserver davantage d’information sur le sol sous la végétation.",
+    "cBand": "Bande C : couvert végétal",
+    "lBand": "Bande L : sol et végétation",
+    "schematic": "Schéma explicatif, pas une mesure. La comparaison réelle ci-dessous dépend des données disponibles.",
+    "forestComparison": "Cohérence selon le couvert forestier",
+    "forestCover": "Couvert forestier",
+    "usableThreshold": "Seuil utilisable fourni par le serveur :",
+    "pixels": "Pixels",
+    "signalNote": "La zone grisée représente le bruit fourni par le serveur.",
+    "confirmDelete": "Arrêter cette surveillance ?",
+    "offlineSaved": "Réponse enregistrée sur cet appareil",
+    "exportHelp": "Les données sont exportées telles que fournies par le serveur.",
+    "exposure": {
+      "buildings": "Bâtiments",
+      "roads_km": "Routes (km)",
+      "dams": "Barrages",
+      "mines": "Mines"
+    },
+    "cachedData": "Certaines données de cette session ont été reprises d’une copie enregistrée sur cet appareil.",
+    "showLayer": "Afficher la couche",
+    "generatedAt": "Actualisé le",
+    "thresholdFactor": "Facteur de présélection fourni par le serveur :"
   }
 }

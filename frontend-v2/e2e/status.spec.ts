@@ -1,6 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { LANGS, requireBackend } from "./backend";
+import { LANGS, requireBackend, reviewScreen } from "./backend";
 
 const TEXT = {
   fr: { reachable: "Joignable", discoveries: "Découverte automatique désactivée" },
@@ -18,9 +17,7 @@ test.describe("status page, live backend", () => {
       // 503 discoveries_disabled is information (role=status), not an error (role=alert).
       await expect(page.getByRole("status").filter({ hasText: TEXT[lang].discoveries })).toBeVisible();
       await expect(page.getByRole("alert")).toHaveCount(0);
-      const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-      expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
-      await page.screenshot({ path: `e2e/__screenshots__/status-${lang}.png`, fullPage: true });
+      await reviewScreen(page, `status-${lang}`);
     });
   }
 });

@@ -14,18 +14,13 @@ magnitude then gets `agreement: "disagree"` against USGS Mww 7.7 ± 0.1, which r
 
 ## 2. Map extent in the case list
 
-`CaseSummary` has no `location` or `bbox`, and `thumbnail_url` is `null` for all four cases.
-
-- **Ask:** `bbox` (and `place`) in `CaseSummary`, or a filled `thumbnail_url`.
-- **Until then:** the case list fetches each case to frame its map thumbnail.
+**Delivered in main, 15 Nov:** optional `bbox` and `place` in `CaseSummary`. The list draws its locator from the
+summary and only fetches details when either field is missing. Older responses remain supported.
 
 ## 3. A type for each timeline item
 
-`timeline[]` items are `{label, at}`. The pass timeline needs to tell the event, a NISAR acquisition and an ASF
-publication apart to draw them on separate rows.
-
-- **Ask:** `kind: "event" | "acquisition" | "publication"` on each item.
-- **Until then:** all items are drawn on one row with their labels.
+**Delivered in main, 15 Nov:** optional `kind: "event" | "acquisition" | "publication"`. The timeline draws separate
+tracks, sharing the same time axis. Dates without a kind stay on an "Other dates" track; no kind is inferred.
 
 ## 4. English inside French and Arabic texts (answers)
 
@@ -36,9 +31,10 @@ Seen on live `/api/ask` and `/api/answers/*` (backend with no NISAR data on this
 - Step summaries sent as `backend.step` carry the same English text in all three languages
   ("found 0 interferograms covering the point"), and the failed step's `error` is "failed" in all three.
 
-- **Ask:** the reason in the page language (or a template id with parameters, like `step.search_scenes`, which the
-  interface already renders in FR/EN/AR).
-- **Until then:** the interface shows the backend's text as it is; it does not translate or hide it.
+- **Delivered in main, 15 Nov:** `backend.verdict.no_data`, `reason.*`, `backend.step.*`, `backend.limit.no_sigma`
+  and `backend.limit.no_catalog` provide language-specific text fallbacks. The interface already reads these.
+- **Existing caches:** JSON answers generated before this update keep their old text until they are regenerated
+  by the backend adapter. Restarting the API alone does not migrate `backend/cache/answers_v2/`.
 
 ## 5. Answer period when no data was used
 
@@ -65,3 +61,28 @@ have no schema in the contract.
 - **Ask:** add their response shapes to `contract.ts` (or answer 204), so they can be validated like the rest.
 - **Until then:** the interface never reads these bodies. After either action it re-reads `GET /api/watches` and
   `GET /api/notifications`, which are validated.
+
+## 8. Backend features that /api does not expose
+
+The legacy routes (`backend/api.py`) offer features that have no `/api` route and no schema in the contract, so
+no interface may use them (every response must be validated):
+
+| legacy route / field | what it gives | why an interface wants it |
+|---|---|---|
+| `GET /places` | the named places the agent understands, with FR/EN/AR aliases | suggest place names in the question box |
+| `GET /next-pass?lat=&lon=` | next NISAR passes over any point | "next pass" before a question is asked |
+| `GET /catalog?level=GUNW` | the products on the server | "what data does this server have" on the status page |
+| `GET /events?include_validation=true` | all events, the Morocco ones included | the four Moroccan sites stay out of `/api/library` (team decision, 14 Nov) |
+| `POST /ask` field `date` | the event date of a question | ask about a dated event without writing the date in the question |
+| answer fields `profile`, `facts`, `event_time`, `data_used` | west–east profile, every number behind the verdict, event instant, product ids | detail panels, provenance |
+
+- **Ask:** decide which of these the demo needs; for each, an `/api` route or `Answer` field with its schema in
+  `contract.ts` (Ayman + Houssam).
+
+## 9. English questions without a known place type
+
+`POST /api/ask` with `{"question": "Is the ground moving here?", "lang": "en", "location": {…}}` returns the error
+`unclear_question`, while the French "Le terrain bouge-t-il ici ?" at the same point is understood (slow motion).
+
+- **Ask:** the same question vocabulary in EN and AR as in FR (agent classifier).
+- **Until then:** the interface shows the backend's "unclear question" text in the page language.

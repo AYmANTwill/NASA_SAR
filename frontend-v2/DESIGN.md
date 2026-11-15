@@ -1,6 +1,8 @@
 # NISAR Pulse v2: design
 
-Status: decided (section 6). Direction C, IBM Plex, light only.
+Status: scientific principles retained. The expanded workspace layout and current tokens are documented in
+[PARITY.md](PARITY.md), following the request to bring the first frontend's capabilities into V2. IBM Plex and
+light evidence sheets remain; a dark navigation column now organizes the additional pages.
 
 ## 1. Who reads this screen, and what they decide
 

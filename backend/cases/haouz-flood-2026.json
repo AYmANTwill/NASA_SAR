@@ -24,16 +24,228 @@
   }
  },
  "headline": {
-  "template": "backend.case_draft",
-  "params": {},
+  "template": "backend.case_headline_haouz",
+  "params": {
+   "n": 9
+  },
   "text": {
-   "fr": "[BROUILLON] Zone candidate de changement de surface : indicateurs en cours de calcul.",
-   "en": "[DRAFT] Candidate surface-change area: indicators being computed.",
-   "ar": "[مسودة] منطقة مرشحة لتغير السطح: المؤشرات قيد الحساب."
+   "fr": "Zone candidate de changement de surface : pas de changement net (9 indicateur(s), aucun au-delà de son seuil).",
+   "en": "Candidate surface-change area: no clear change (9 indicator(s), none beyond its threshold).",
+   "ar": "منطقة مرشحة لتغير السطح: لا تغير واضح (9 مؤشرات، لا أحد منها يتجاوز عتبته)."
   }
  },
- "findings": [],
- "figures": [],
+ "findings": [
+  {
+   "id": "soil_moisture_anomaly",
+   "label": {
+    "fr": "Anomalie d'humidité du sol",
+    "en": "Soil-moisture anomaly",
+    "ar": "شذوذ رطوبة التربة"
+   },
+   "nisar": {
+    "value": -0.027,
+    "uncertainty": 0.028,
+    "unit": "m3/m3",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hh_asni",
+   "label": {
+    "fr": "Asni, rétrodiffusion GCOV HH, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.469 dB), pas une erreur de mesure ; la valeur est au percentile 97.7 de ce niveau",
+    "en": "Asni, GCOV HH backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.469 dB), not a measurement error; the storm value sits at percentile 97.7 of that null",
+    "ar": "أسني، النسبة اللوغاريتمية للتشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.469 dB) وليس خطأ قياس؛ القيمة عند المئين 97.7 من هذا المستوى"
+   },
+   "nisar": {
+    "value": 1.131,
+    "uncertainty": 0.469,
+    "unit": "dB",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hv_asni",
+   "label": {
+    "fr": "Asni, rétrodiffusion GCOV HV, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.372 dB), pas une erreur de mesure ; la valeur est au percentile 96.9 de ce niveau",
+    "en": "Asni, GCOV HV backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.372 dB), not a measurement error; the storm value sits at percentile 96.9 of that null",
+    "ar": "أسني، النسبة اللوغاريتمية للتشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.372 dB) وليس خطأ قياس؛ القيمة عند المئين 96.9 من هذا المستوى"
+   },
+   "nisar": {
+    "value": 0.69,
+    "uncertainty": 0.372,
+    "unit": "dB",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hh_moulay_brahim",
+   "label": {
+    "fr": "Moulay Brahim, rétrodiffusion GCOV HH, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.469 dB), pas une erreur de mesure ; la valeur est au percentile 97.7 de ce niveau",
+    "en": "Moulay Brahim, GCOV HH backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.469 dB), not a measurement error; the storm value sits at percentile 97.7 of that null",
+    "ar": "مولاي إبراهيم، النسبة اللوغاريتمية للتشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.469 dB) وليس خطأ قياس؛ القيمة عند المئين 97.7 من هذا المستوى"
+   },
+   "nisar": {
+    "value": 1.115,
+    "uncertainty": 0.469,
+    "unit": "dB",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hv_moulay_brahim",
+   "label": {
+    "fr": "Moulay Brahim, rétrodiffusion GCOV HV, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.372 dB), pas une erreur de mesure ; la valeur est au percentile 97.2 de ce niveau",
+    "en": "Moulay Brahim, GCOV HV backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.372 dB), not a measurement error; the storm value sits at percentile 97.2 of that null",
+    "ar": "مولاي إبراهيم، النسبة اللوغاريتمية للتشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.372 dB) وليس خطأ قياس؛ القيمة عند المئين 97.2 من هذا المستوى"
+   },
+   "nisar": {
+    "value": 0.759,
+    "uncertainty": 0.372,
+    "unit": "dB",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hh_imlil",
+   "label": {
+    "fr": "Imlil, rétrodiffusion GCOV HH, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.469 dB), pas une erreur de mesure ; la valeur est au percentile 76.6 de ce niveau",
+    "en": "Imlil, GCOV HH backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.469 dB), not a measurement error; the storm value sits at percentile 76.6 of that null",
+    "ar": "إمليل، النسبة اللوغاريتمية للتشتت الخلفي GCOV HH، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.469 dB) وليس خطأ قياس؛ القيمة عند المئين 76.6 من هذا المستوى"
+   },
+   "nisar": {
+    "value": -0.016,
+    "uncertainty": 0.469,
+    "unit": "dB",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "gcov_hv_imlil",
+   "label": {
+    "fr": "Imlil, rétrodiffusion GCOV HV, log-rapport du 3 au 15 oct. (piste 44/17). Méthode : « incertitude » = 1 σ du niveau sans événement (2000 cercles aléatoires, σ = 0.372 dB), pas une erreur de mesure ; la valeur est au percentile 47.0 de ce niveau",
+    "en": "Imlil, GCOV HV backscatter log-ratio, 3 to 15 Oct (track 44/17). Method: the \"uncertainty\" is the 1 sigma of the no-event random-circle null (2000 circles, sigma = 0.372 dB), not a measurement error; the storm value sits at percentile 47.0 of that null",
+    "ar": "إمليل، النسبة اللوغاريتمية للتشتت الخلفي GCOV HV، من 3 إلى 15 أكتوبر (المسار 44/17). الطريقة: «عدم اليقين» هو انحراف معياري واحد (1σ) لمستوى غياب الحدث (2000 دائرة عشوائية، σ = 0.372 dB) وليس خطأ قياس؛ القيمة عند المئين 47.0 من هذا المستوى"
+   },
+   "nisar": {
+    "value": 0.014,
+    "uncertainty": 0.372,
+    "unit": "dB",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "coherence_excess_asni",
+   "label": {
+    "fr": "Asni, perte de cohérence dans 5 km au-delà de la moyenne de la scène, 3 au 15 oct. (44/17) : cas limite. « Incertitude » = écart-type 0.038 des cercles sans événement (044/17, juin à sept.), source backend/recipes/damage.py:39 et docs/claude/DECISIONS.md (D-008) ; pas une erreur de mesure",
+    "en": "Asni, coherence loss within 5 km beyond the scene mean, 3 to 15 Oct (44/17): borderline. The \"uncertainty\" is the no-event spread 0.038 of random circles (044/17, June to Sept), source backend/recipes/damage.py:39 and docs/claude/DECISIONS.md (D-008); not a measurement error",
+    "ar": "أسني، فقدان التماسك ضمن 5 كم فوق متوسط المشهد، 3 إلى 15 أكتوبر (44/17): حالة حدية. «عدم اليقين» هو الانتشار 0.038 للدوائر دون حدث (044/17، يونيو إلى سبتمبر)، المصدر backend/recipes/damage.py:39 وdocs/claude/DECISIONS.md (D-008)؛ وليس خطأ قياس"
+   },
+   "nisar": {
+    "value": 0.119,
+    "uncertainty": 0.038,
+    "unit": "coherence",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "sme2_anomaly_asni",
+   "label": {
+    "fr": "Asni, humidité du sol SME2 : écart du dernier passage à la moyenne de 7 passages, dans l'incertitude du produit",
+    "en": "Asni, SME2 soil moisture: latest pass minus the mean of 7 passes, within the product uncertainty",
+    "ar": "أسني، رطوبة التربة SME2: آخر مرور ناقص متوسط 7 مرات مرور، ضمن عدم يقين المنتج"
+   },
+   "nisar": {
+    "value": -0.027,
+    "uncertainty": 0.028,
+    "unit": "m3/m3",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  },
+  {
+   "id": "open_water_change",
+   "label": {
+    "fr": "Eau libre persistante après l'orage (U-Net)",
+    "en": "Persistent open water after the storm (U-Net)",
+    "ar": "المياه المفتوحة المستمرة بعد العاصفة (U-Net)"
+   },
+   "nisar": {
+    "value": 0.0014,
+    "uncertainty": 0.0075,
+    "unit": "km2",
+    "sigma": 1.0
+   },
+   "reference": null,
+   "reference_source": null,
+   "agreement": "no_reference"
+  }
+ ],
+ "figures": [
+  {
+   "id": "gcov_logratio_asni",
+   "kind": "image",
+   "title": {
+    "fr": "Rapport logarithmique GCOV autour d'Asni, 3 au 15 oct.",
+    "en": "GCOV log-ratio around Asni, 3 to 15 Oct",
+    "ar": "النسبة اللوغاريتمية GCOV حول أسني، 3 إلى 15 أكتوبر"
+   },
+   "url": "/api/cases/haouz-flood-2026/figures/gcov_logratio_asni_storm.png",
+   "caption": {
+    "template": "backend.case_caption",
+    "params": {},
+    "text": {
+     "fr": "Brouillon : carte du log-rapport (dB) calculé sur la puissance linéaire, pas une carte d'inondation.",
+     "en": "Draft: log-ratio map (dB) computed on linear power; not a flood map.",
+     "ar": "مسودة: خريطة النسبة اللوغاريتمية (dB) محسوبة على القدرة الخطية؛ ليست خريطة فيضان."
+    }
+   }
+  },
+  {
+   "id": "water_radar_vs_clouds",
+   "kind": "image",
+   "title": {
+    "fr": "Le radar voit l'eau à travers les nuages",
+    "en": "Radar sees water through clouds",
+    "ar": "الرادار يرى المياه عبر السحب"
+   },
+   "url": "/api/water/figures/clouds.png",
+   "caption": {
+    "template": "backend.water_clouds",
+    "params": {},
+    "text": {
+     "en": "Same day: the optical water map (OPERA DSWx) is masked by clouds; the NISAR U-Net map is not.",
+     "fr": "Même jour : la carte optique de l'eau (OPERA DSWx) est masquée par les nuages ; la carte NISAR U-Net ne l'est pas.",
+     "ar": "في اليوم نفسه: خريطة المياه البصرية (OPERA DSWx) محجوبة بالسحب، أما خريطة NISAR U-Net فلا."
+    }
+   }
+  }
+ ],
  "exposure": null,
  "timeline": [
   {
@@ -42,27 +254,179 @@
     "en": "Flood",
     "ar": "الفيضان"
    },
-   "at": "2026-10-10T00:00:00Z"
+   "at": "2026-10-10T00:00:00Z",
+   "kind": "event"
   }
  ],
  "answer_ids": [],
  "limits": [
   {
-   "template": "backend.case_draft_limit",
+   "template": "backend.case_limit",
    "params": {},
    "text": {
-    "fr": "Brouillon : pas encore calculé (Excès de perte de cohérence (5 km, par rapport à la scène), Changement de rétrodiffusion, Anomalie d'humidité du sol).",
-    "en": "Draft: not computed yet (Coherence-loss excess (5 km, over the frame), Backscatter change, Soil-moisture anomaly).",
-    "ar": "مسودة: لم يُحسب بعد (فائض فقدان التماسك (5 كم، مقارنة بالمشهد), تغير الانتثار الخلفي, شذوذ رطوبة التربة)."
+    "fr": "Aucune passe GCOV n'a lieu dans les 3 jours après le 10 oct. La plus proche est le 13 oct. (piste 23/73, descendante) sans passe de référence : « non utilisable ». La première passe utilisable est le 15 oct. (44/17).",
+    "en": "No GCOV pass falls within 3 days after 10 Oct. The nearest is 13 Oct (track 23/73, descending) with no baseline: not usable. The first usable pass is 15 Oct (44/17).",
+    "ar": "لا يوجد مرور GCOV خلال 3 أيام بعد 10 أكتوبر. أقرب مرور هو 13 أكتوبر (المسار 23/73، تنازلي) دون خط أساس: غير صالح للاستخدام. أول مرور صالح هو 15 أكتوبر (44/17)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Le GCOV et la cohérence utilisent les mêmes passes : ce ne sont pas des indicateurs indépendants. Verdict par site (GCOV, 44/17) : « pas de changement net » à Asni, Moulay Brahim et Imlil (HH et HV mixtes à Asni et Moulay Brahim, proches du seuil).",
+    "en": "GCOV and coherence use the same passes: they are not independent indicators. Verdict per site (GCOV, 44/17): no clear change at Asni, Moulay Brahim and Imlil (HH and HV disagree at Asni and Moulay Brahim, close to the threshold).",
+    "ar": "يستخدم GCOV والتماسك المرورات نفسها: ليسا مؤشرين مستقلين. الحكم لكل موقع (GCOV، 44/17): لا تغير واضح في أسني ومولاي إبراهيم وإمليل (HH وHV متباينان في أسني ومولاي إبراهيم، قرب العتبة)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Le niveau sans événement vient de 2000 cercles aléatoires d'une seule géométrie (44/17) et d'une seule saison ; aucune surface ni zone inondée n'est estimée : ces données ne mesurent pas une inondation.",
+    "en": "The no-event level comes from 2000 random circles of one geometry (44/17) and one season; no area and no flood extent is estimated: these data do not measure a flood.",
+    "ar": "مستوى غياب الحدث مأخوذ من 2000 دائرة عشوائية لهندسة واحدة (44/17) وموسم واحد؛ لا تقدر أي مساحة ولا امتداد فيضان: هذه البيانات لا تقيس فيضانا."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Produits NISAR provisoires (CRID P05023). L'humidité SME2 n'est calculée qu'à Asni.",
+    "en": "NISAR products are provisional (CRID P05023). SME2 soil moisture is computed at Asni only.",
+    "ar": "منتجات NISAR مؤقتة (CRID P05023). رطوبة التربة SME2 محسوبة في أسني فقط."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Contexte seulement : pluie du 3 au 15 oct. = 37.9 mm, réanalyse ERA5 via Open-Meteo, une seule maille ; maximum le 09 oct. (13.4 mm) ; coupures à minuit UTC. Ce n'est ni une mesure locale ni un test.",
+    "en": "Context only: rain 3 to 15 Oct = 37.9 mm, ERA5 reanalysis via Open-Meteo, one grid cell; peak on 9 Oct (13.4 mm); daily cuts at UTC midnight. Not a local measurement and not a test.",
+    "ar": "للسياق فقط: أمطار من 3 إلى 15 أكتوبر = 37.9 مم، إعادة تحليل ERA5 عبر Open-Meteo، خلية شبكية واحدة؛ الذروة في 9 أكتوبر (13.4 مم)؛ حدود اليوم عند منتصف الليل UTC. ليست قياسا محليا ولا اختبارا."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Le signe de la ligne de visée n'est pas vérifié ; cette étude n'utilise pas de déplacement.",
+    "en": "The line-of-sight sign is not verified; this case does not use displacement.",
+    "ar": "إشارة خط النظر لم يتم التحقق منها؛ لا تستخدم هذه الحالة الإزاحة."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Perte de cohérence (cercle de 5 km), comparée à la référence sans événement : non calculé (not in results/haouz-flood-2026/findings.json).",
+    "en": "Coherence loss (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+    "ar": "فقدان التماسك (دائرة 5 كم)، مقارنة بخط الأساس دون حدث: لم يُحسب (not in results/haouz-flood-2026/findings.json)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Changement de rétrodiffusion (cercle de 5 km), comparé à la référence sans événement : non calculé (not in results/haouz-flood-2026/findings.json).",
+    "en": "Backscatter change (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+    "ar": "تغير الانتثار الخلفي (دائرة 5 كم)، مقارنة بخط الأساس دون حدث: لم يُحسب (not in results/haouz-flood-2026/findings.json)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Les trois indicateurs reposent sur les mêmes passages NISAR : ils ne sont pas indépendants et ne se confirment pas l'un l'autre.",
+    "en": "The three indicators rest on the same NISAR passes: they are not independent and do not confirm each other.",
+    "ar": "تعتمد المؤشرات الثلاثة على نفس مرورات NISAR: فهي ليست مستقلة ولا يؤكد بعضها بعضا."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Ce n'est pas une carte d'inondation : la perte de cohérence et le changement de rétrodiffusion viennent aussi de la végétation, de l'humidité du sol ou du vent ; aucun masque d'eau n'est dérivé, donc aucune surface inondée (km²) n'est donnée.",
+    "en": "This is not a flood map: coherence loss and backscatter change also come from vegetation, soil moisture or wind; no water mask is derived, so no flooded surface (km²) is given.",
+    "ar": "هذه ليست خريطة فيضان: فقدان التماسك وتغير الانتثار الخلفي ينتجان أيضا عن الغطاء النباتي ورطوبة التربة والرياح؛ لم يُستخرج قناع للمياه، لذا لا تُعطى أي مساحة مغمورة (كم²)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Premier passage NISAR après la crue : 2026-10-15, 5 jours après l'événement (2026-10-10) ; l'eau a pu se retirer avant.",
+    "en": "First NISAR pass after the flood: 2026-10-15, 5 days after the event (2026-10-10); the water may have receded by then.",
+    "ar": "أول مرور لـ NISAR بعد الفيضان: 2026-10-15، بعد 5 أيام من الحدث (2026-10-10)؛ ربما انحسرت المياه قبله."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Produits NISAR provisoires (CRID P05023) : les valeurs peuvent changer avec les produits validés.",
+    "en": "Provisional NISAR products (CRID P05023): values may change with the validated products.",
+    "ar": "منتجات NISAR مؤقتة (CRID P05023): قد تتغير القيم مع المنتجات المعتمدة."
+   }
+  },
+  {
+   "template": "backend.water_limit",
+   "params": {},
+   "text": {
+    "en": "The value is consistent with zero at 1σ uncertainty: no flooded area is claimed.",
+    "fr": "La valeur est compatible avec zéro compte tenu de l'incertitude (1σ) : aucune surface inondée n'est revendiquée.",
+    "ar": "القيمة متوافقة مع الصفر ضمن هامش عدم اليقين (1σ): لا يُدّعى وجود مساحة مغمورة."
+   }
+  },
+  {
+   "template": "backend.water_limit",
+   "params": {},
+   "text": {
+    "fr": "Revisite de 12 jours par trace : les passages utilisés sont le 1er/3 octobre (avant) et le 13/15 octobre (après), soit 3 à 5 jours après la crue éclair du 10 octobre. Une crue éclair se retire en quelques heures; ce résultat mesure uniquement l'eau ouverte encore présente au passage, pas l'emprise maximale.",
+    "en": "12-day revisit per track: the passes used are 1/3 October (before) and 13/15 October (after), 3 to 5 days after the 10 October flash flood. Flash floods recede within hours; this result measures only open water still present at the pass, not the peak extent.",
+    "ar": "إعادة الزيارة كل 12 يوماً لكل مسار: المرورات المستخدمة 1/3 أكتوبر (قبل) و13/15 أكتوبر (بعد)، أي بعد 3 إلى 5 أيام من السيل المفاجئ في 10 أكتوبر. تنحسر السيول المفاجئة خلال ساعات؛ تقيس النتيجة المياه المفتوحة الباقية وقت المرور فقط."
+   }
+  },
+  {
+   "template": "backend.water_limit",
+   "params": {},
+   "text": {
+    "fr": "Vallées étroites : les lits d'oued du Haouz (Imlil, Asni, Moulay Brahim) font quelques dizaines de mètres de large, comparables aux pixels GCOV de 10 à 20 m après filtre de Lee 5x5 (environ 50 à 100 m effectifs); une eau résiduelle dans ces lits est en grande partie sous la résolution effective.",
+    "en": "Narrow valleys: the Haouz wadi beds (Imlil, Asni, Moulay Brahim) are a few tens of metres wide, comparable to the 10-20 m GCOV pixels after the 5x5 Lee filter (about 50-100 m effective); residual water in these beds is largely below the effective resolution.",
+    "ar": "أودية ضيقة: مجاري الأودية في الحوز (إمليل، أسني، مولاي إبراهيم) بعرض بضع عشرات من الأمتار، وهو ما يقارب بكسلات GCOV من 10 إلى 20 م بعد مرشح لي 5x5 (حوالي 50 إلى 100 م فعلياً)؛ المياه المتبقية في هذه المجاري أدنى غالباً من الدقة الفعلية."
+   }
+  },
+  {
+   "template": "backend.water_limit",
+   "params": {},
+   "text": {
+    "fr": "Repliement et ombre radar : sur les versants raides du Haut Atlas, le repliement mélange le fond de vallée avec le versant face au radar, et l'ombre produit une rétrodiffusion faible qui ressemble à de l'eau; les deux traces (23 descendante, 44 ascendante) voient des versants différents, d'où l'écart entre elles.",
+    "en": "Radar layover and shadow: on steep High Atlas slopes, layover mixes the valley floor with the radar-facing slope, and shadow produces low backscatter that resembles water; the two tracks (23 descending, 44 ascending) see different slopes, which is why they disagree.",
+    "ar": "التراكب والظل الراداري: على منحدرات الأطلس الكبير الشديدة يخلط التراكب قاع الوادي بالمنحدر المواجه للرادار، ويُنتج الظل تشتتاً خلفياً ضعيفاً يشبه الماء؛ يرى المساران (23 الهابط و44 الصاعد) منحدرات مختلفة، ولذلك يختلفان."
+   }
+  },
+  {
+   "template": "backend.water_limit",
+   "params": {},
+   "text": {
+    "fr": "Aucune paire DSWx claire avant/après n'existe; la valeur n'a donc pas de référence et l'accord n'est pas évalué.",
+    "en": "No clear DSWx pre/post pair exists, so the value has no reference and agreement is not evaluated.",
+    "ar": "لا يوجد زوج DSWx واضح قبل/بعد، لذلك لا مرجع للقيمة ولا يُقيَّم التوافق."
    }
   }
  ],
  "placeholders": [
-  "date (day only)",
-  "findings: not computed yet",
-  "headline",
-  "limits",
-  "location.bbox",
-  "timeline[0].at"
+  "figures: no map with a layer",
+  "haouz: Backscatter change (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+  "haouz: Coherence loss (5 km circle), compared with the no-event baseline: not computed (not in results/haouz-flood-2026/findings.json).",
+  "product GCOV_T023_F073_20261001_20261001 not in the catalog",
+  "product GCOV_T023_F073_20261013_20261013 not in the catalog",
+  "product GCOV_T044_F017_20260921_20260921 not in the catalog",
+  "product GCOV_T044_F017_20261003_20261003 not in the catalog",
+  "product GCOV_T044_F017_20261015_20261015 not in the catalog",
+  "product GUNW_T044_F017_20260909_20260921 not in the catalog",
+  "product GUNW_T044_F017_20260921_20261003 not in the catalog",
+  "product GUNW_T044_F017_20261003_20261015 not in the catalog",
+  "results/haouz-flood-2026/findings.json: no 'bbox' and no product to derive it",
+  "timeline: no NISAR product"
  ]
 }

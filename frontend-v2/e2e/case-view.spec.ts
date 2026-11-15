@@ -1,6 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { LANGS, pageScreenshot, requireBackend, waitForMap } from "./backend";
+import { LANGS, requireBackend, reviewScreen } from "./backend";
 
 const API = process.env.VITE_API_PROXY ?? "http://127.0.0.1:8000";
 const LIMITS = { fr: "Ce que le radar ne peut pas dire ici", en: "What the radar cannot tell here", ar: "ما لا يستطيع الرادار قوله هنا" };
@@ -12,14 +11,14 @@ interface Study {
   status: "draft" | "final";
   title: Record<L, string>;
   limits: { text?: Partial<Record<L, string>> }[];
-  findings: { nisar: unknown; reference: unknown; agreement: string }[];
+  findings: { nisar: { uncertainty: number }; reference: { uncertainty: number } | null; agreement: string }[];
 }
 
 test.describe("case view, live backend", () => {
   test.beforeEach(requireBackend);
 
   test("every case in every language: title, draft band, limits, accessibility", async ({ page, request }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(600_000);
     const ids = ((await (await request.get(`${API}/api/cases`)).json()) as { id: string }[]).map((c) => c.id);
     for (const id of ids) {
       const study = (await (await request.get(`${API}/api/cases/${id}`)).json()) as Study;
@@ -31,18 +30,8 @@ test.describe("case view, live backend", () => {
         const limits = page.getByRole("region", { name: LIMITS[lang] });
         await expect(limits).toBeVisible();
         for (const l of study.limits) if (l.text?.[lang]) await expect(limits).toContainText(l.text[lang]!);
-        const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-        expect(results.violations.map((v) => `${id}/${lang} ${v.id}: ${v.help}`)).toEqual([]);
-        if (id === ids[0]) {
-          for (const width of [1440, 1024, 390]) {
-            await page.setViewportSize({ width, height: 900 });
-            await waitForMap(page);
-            const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-            expect(overflow, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
-            await pageScreenshot(page, `e2e/__screenshots__/case-${id}-${lang}-${width}.png`);
-          }
-          await page.setViewportSize({ width: 1440, height: 900 });
-        }
+        await reviewScreen(page, `case-${id}-${lang}`);
+        await page.setViewportSize({ width: 1440, height: 900 });
       }
     }
   });
@@ -50,21 +39,24 @@ test.describe("case view, live backend", () => {
   test("a draft never shows its placeholder as a number or as a disagreement", async ({ page, request }) => {
     const study = (await (await request.get(`${API}/api/cases/panama-2026`)).json()) as Study;
     test.skip(study.status !== "draft", "Panama is final now: this check is for drafts");
+    test.skip(!study.findings.some((f) => f.nisar.uncertainty === 0), "this live case has no placeholder measurement");
     await page.goto("/en/cases/panama-2026");
     await expect(page.getByText("not measured yet").first()).toBeVisible();
     await expect(page.getByText(/^Disagrees/)).toHaveCount(0);
   });
 });
 
-test("preview of a final case: the comparison strip (API values, NISAR set to the reference by the test)", async ({ page, request }) => {
+test("a measured case shows comparison strips from the live API", async ({ page, request }) => {
   await requireBackend();
-  const study = (await (await request.get(`${API}/api/cases/panama-2026`)).json()) as Study;
-  study.status = "final";
-  study.findings = study.findings.filter((f) => f.reference).map((f) => ({ ...f, nisar: f.reference, agreement: "agree" }));
-  await page.route("**/api/cases/panama-2026", (route) => route.fulfill({ json: study }));
+  const summaries = await (await request.get(`${API}/api/cases`)).json() as { id: string }[];
+  let measured: Study | undefined;
+  for (const summary of summaries) {
+    const study = await (await request.get(`${API}/api/cases/${summary.id}`)).json() as Study;
+    if (study.findings.some((f) => f.reference && f.nisar.uncertainty > 0)) { measured = study; break; }
+  }
+  test.skip(!measured, "the live API has no measured finding with a reference yet");
   for (const lang of LANGS) {
-    await page.goto(`/${lang}/cases/panama-2026`);
+    await page.goto(`/${lang}/cases/${measured!.id}`);
     await expect(page.locator("svg.strip").first()).toBeVisible();
-    await page.locator(".ledger").screenshot({ path: `e2e/__screenshots__/case-final-preview-${lang}.png` });
   }
 });

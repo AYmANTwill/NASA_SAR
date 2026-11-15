@@ -25,6 +25,7 @@ export function CasesPage() {
       <QueryView query={cases}>
         {(list) => (
           <>
+            <ReadyCase list={list} />
             {list.some((c) => c.status === "draft") && (
               <p className="cases-draft-note" role="note">
                 {t("cases.draftNote")}
@@ -38,17 +39,22 @@ export function CasesPage() {
   );
 }
 
-/**
- * The summaries have no map extent (API_REQUESTS.md #2), so each card also
- * reads its case; a case that fails its contract shows its own error.
- */
+function ReadyCase({ list }: { list: CaseSummary[] }) {
+  const { t, lang, localized } = useText();
+  const ready = list.find((study) => study.status === "final");
+  return ready ? <p className="cases-ready"><Link className="button button-primary" to={`/${lang}/cases/${ready.id}`}>{t("cases.openReady")}</Link><span>{localized(ready.title)}</span></p> : null;
+}
+
+/** Older APIs need a case read for the map extent or place. Complete summaries stand alone. */
 function CaseGrid({ list }: { list: CaseSummary[] }) {
-  const details = useCaseStudies(list.map((c) => c.id));
+  const missing = list.filter((c) => !c.bbox || !c.place);
+  const details = useCaseStudies(missing.map((c) => c.id));
+  const byId = new Map(missing.map((c, i) => [c.id, details[i]]));
   return (
     <ol className="case-grid">
-      {list.map((summary, i) => (
+      {list.map((summary) => (
         <li key={summary.id}>
-          <CaseCard summary={summary} detail={details[i]} />
+          <CaseCard summary={summary} detail={byId.get(summary.id)} />
         </li>
       ))}
     </ol>
@@ -58,10 +64,12 @@ function CaseGrid({ list }: { list: CaseSummary[] }) {
 function CaseCard({ summary, detail }: { summary: CaseSummary; detail: UseQueryResult<CaseStudy> | undefined }) {
   const { t, lang, text, localized } = useText();
   const study = detail?.data;
+  const bbox = summary.bbox ?? study?.location.bbox;
+  const place = summary.place ?? study?.location.place;
 
   return (
     <article className="case-card" aria-labelledby={`case-${summary.id}`}>
-      <div className="case-card-map">{study ? <LocatorMap bbox={study.location.bbox} point={study.location} /> : null}</div>
+      <div className="case-card-map">{bbox && <LocatorMap bbox={bbox} point={study?.location} />}</div>
       <div className="case-card-body">
         <p className="case-card-meta">
           <span>{t(`caseKind.${summary.kind}`)}</span>
@@ -70,7 +78,7 @@ function CaseCard({ summary, detail }: { summary: CaseSummary; detail: UseQueryR
         <h2 id={`case-${summary.id}`} className="case-card-title">
           <Link to={`/${lang}/cases/${summary.id}`}>{localized(summary.title)}</Link>
         </h2>
-        {study && <p className="case-card-place">{localized(study.location.place)}</p>}
+        {place && <p className="case-card-place">{localized(place)}</p>}
         {study && <p className="case-card-headline">{text(study.headline)}</p>}
         {detail?.isError && <ErrorPanel error={detail.error} onRetry={() => void detail.refetch()} />}
         <p className="case-card-status">

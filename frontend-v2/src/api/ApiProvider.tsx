@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { createHttpClient, type ApiClient } from "./client";
 import { ApiError, ContractError } from "./errors";
 
@@ -19,13 +19,19 @@ function retry(failureCount: number, error: unknown): boolean {
 
 export function makeQueryClient(): QueryClient {
   return new QueryClient({
-    defaultOptions: { queries: { retry, staleTime: 60_000, refetchOnWindowFocus: false } },
+    defaultOptions: { queries: { retry, staleTime: 60_000, refetchOnWindowFocus: false, networkMode: "always" } },
   });
 }
 
 export function ApiProvider({ client, children }: { client?: ApiClient; children: ReactNode }) {
   const [api] = useState(() => client ?? createHttpClient());
   const [queries] = useState(makeQueryClient);
+  useEffect(() => {
+    if (client || !api.prepareOffline) return;
+    const controller = new AbortController();
+    void api.prepareOffline(controller.signal).catch(() => {});
+    return () => controller.abort();
+  }, [api, client]);
   return (
     <ApiContext.Provider value={api}>
       <QueryClientProvider client={queries}>{children}</QueryClientProvider>

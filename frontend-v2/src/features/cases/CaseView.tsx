@@ -1,14 +1,16 @@
 import { Link, useParams } from "react-router-dom";
 import type { CaseStudy } from "@/api/contract";
-import { useCaseStudy } from "@/api/queries";
+import { useCaseStudy, useWaterRasterIndex } from "@/api/queries";
+import { ErrorPanel } from "@/components/ErrorPanel";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { MapPanel, type MapEntry } from "@/components/map/MapPanel";
 import { QueryView } from "@/components/QueryView";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDate } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
-import { ExposureView, FigureList, FindingView, LimitsView, SourcesView } from "./ledger";
+import { ExposureView, FigureList, FindingView, LimitsView, LinkedAnswers, SourcesView } from "./ledger";
 import { PassTimeline } from "./PassTimeline";
+import { ReportTools } from "@/components/ReportTools";
 import "./CaseView.css";
 
 export function CaseView() {
@@ -32,8 +34,11 @@ export function CaseView() {
 function CaseBody({ study }: { study: CaseStudy }) {
   const { t, lang, text, localized } = useText();
   const draft = study.status === "draft";
+  const water = useWaterRasterIndex(study.id === "bin-el-ouidane-2026");
   // Figures with a raster layer go on the map; the others (charts, images) stay in the ledger.
   const mapEntries: MapEntry[] = study.figures.flatMap((f) => (f.layer ? [{ layer: f.layer, title: f.title, caption: f.caption }] : []));
+  const backgroundEntries = (water.data?.layers ?? []).filter((image) => image.role === "background").map((image) => ({ image, label: t(`waterLayer.${image.id}`) }));
+  for (const image of water.data?.layers ?? []) if (image.role !== "background") mapEntries.push({ image, label: t(`waterLayer.${image.id}`) });
   const otherFigures = study.figures.filter((f) => !f.layer);
 
   return (
@@ -52,23 +57,27 @@ function CaseBody({ study }: { study: CaseStudy }) {
         </p>
         <h1 id="case-title">{localized(study.title)}</h1>
         <StatusTag status={study.status} />
+        <ReportTools data={study} name={study.id} />
       </header>
 
       <div className="case-layout">
         <div className="case-map-column">
-          <MapPanel frame={study.location.bbox} point={study.location} entries={mapEntries} label={t("case.mapLabel", { place: localized(study.location.place) })} />
+          <MapPanel frame={study.location.bbox} point={study.location} entries={mapEntries} backgroundEntries={backgroundEntries} label={t("case.mapLabel", { place: localized(study.location.place) })} />
+          {water.isError && <ErrorPanel error={water.error} onRetry={() => void water.refetch()} />}
           <PassTimeline study={study} />
         </div>
 
         <div className="ledger">
           <p className="headline">{text(study.headline)}</p>
+          {study.id === "haouz-flood-2026" && <p className="case-interpretation">{t("case.haouzContext")}</p>}
+          {study.id === "panama-2026" && !study.findings.some((finding) => finding.nisar.unit === "Mw") && <p className="case-interpretation">{t("case.panamaPendingMagnitude")}</p>}
 
           <section className="ledger-section" aria-labelledby="findings-title">
             <h2 id="findings-title">{t("case.findings")}</h2>
             {study.findings.length === 0 ? (
               <p className="not-measured">{t("case.findingsNone")}</p>
             ) : (
-              study.findings.map((f) => <FindingView key={f.id} finding={f} status={study.status} />)
+              study.findings.map((f) => <FindingView key={f.id} finding={f} status={study.status} caseId={study.id} />)
             )}
           </section>
 
@@ -81,6 +90,8 @@ function CaseBody({ study }: { study: CaseStudy }) {
             <h2 id="figures-title">{t("case.figures")}</h2>
             <FigureList figures={otherFigures} />
           </section>
+
+          <LinkedAnswers ids={study.answer_ids} />
 
           <LimitsView study={study} />
 

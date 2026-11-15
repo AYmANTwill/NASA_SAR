@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { WaterRasterIndex } from "@/api/water";
 import {
   Answer,
   ApiErrorBody,
@@ -27,7 +28,7 @@ export interface RecordedResponse {
 export interface Snapshot {
   generated_at: string;
   source: string;
-  /** Keyed by API path, e.g. "/cases/panama-2026" or "/discoveries?region=morocco". */
+  /** Keyed by API path, e.g. "/cases/panama-2026" or "/discoveries?region=MA". */
   responses: Record<string, RecordedResponse>;
   /** Images (figures, map layers) copied next to the build, by their API path. */
   files: string[];
@@ -39,6 +40,7 @@ const ROUTES: [RegExp, Schema][] = [
   [/^\/health$/, Health],
   [/^\/cases$/, z.array(CaseSummary)],
   [/^\/cases\/[^/]+$/, CaseStudy],
+  [/^\/water\/raster-index$/, WaterRasterIndex],
   [/^\/answers\/[^/]+$/, Answer],
   [/^\/library$/, z.array(LibraryEvent)],
   [/^\/demo$/, DemoBundle],

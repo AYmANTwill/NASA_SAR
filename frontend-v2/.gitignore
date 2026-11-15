@@ -4,6 +4,7 @@ dist-demo/
 dist-rehearsal/
 demo-data.tmp/
 demo-data/
+demo-data.previous/
 test-results/
 playwright-report/
 e2e/__screenshots__/

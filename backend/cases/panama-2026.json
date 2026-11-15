@@ -7,7 +7,7 @@
   "en": "Panama earthquake, 9 October 2026",
   "ar": "زلزال بنما، 9 أكتوبر 2026"
  },
- "date": "2026-10-09T17:56:06Z",
+ "date": "2026-10-09T17:56:05Z",
  "location": {
   "lat": 7.59,
   "lon": -80.77,
@@ -24,16 +24,36 @@
   }
  },
  "headline": {
-  "template": "backend.case_draft",
+  "template": "backend.case_in_progress",
   "params": {},
   "text": {
-   "fr": "[BROUILLON] Inversion de la faille à partir des interférogrammes NISAR : en cours.",
-   "en": "[DRAFT] Fault inversion from the NISAR interferograms: in progress.",
-   "ar": "[مسودة] انعكاس الصدع انطلاقا من تداخلات NISAR: قيد الإنجاز."
+   "fr": "En cours : aucune mesure de cette étude n'est encore calculée.",
+   "en": "In progress: no measurement of this case is computed yet.",
+   "ar": "قيد الإنجاز: لم يُحسب أي قياس لهذه الدراسة بعد."
   }
  },
  "findings": [],
- "figures": [],
+ "figures": [
+  {
+   "id": "fault_fit",
+   "kind": "image",
+   "title": {
+    "fr": "Données, modèle et résidu",
+    "en": "Data, model and residual",
+    "ar": "البيانات والنموذج والبواقي"
+   },
+   "url": "/api/cases/panama-2026/figures/panama-2026_fit.png",
+   "caption": {
+    "template": "backend.fault_fit_caption",
+    "params": {},
+    "text": {
+     "fr": "Déplacement en ligne de visée observé, modèle de faille d'Okada et résidu.",
+     "en": "Observed line-of-sight displacement, Okada fault model and residual.",
+     "ar": "الإزاحة المرصودة في خط النظر ونموذج صدع أوكادا والبواقي."
+    }
+   }
+  }
+ ],
  "exposure": null,
  "timeline": [
   {
@@ -42,25 +62,118 @@
     "en": "Earthquake (USGS)",
     "ar": "الزلزال (USGS)"
    },
-   "at": "2026-10-09T17:56:06Z"
+   "at": "2026-10-09T17:56:05Z",
+   "kind": "event"
   }
  ],
  "answer_ids": [],
  "limits": [
   {
-   "template": "backend.case_draft_limit",
+   "template": "backend.case_limit",
    "params": {},
    "text": {
-    "fr": "Brouillon : pas encore calculé (Magnitude de moment, Longueur de rupture, Glissement moyen, Profondeur du sommet de la faille).",
-    "en": "Draft: not computed yet (Moment magnitude, Rupture length, Mean slip, Fault top depth).",
-    "ar": "مسودة: لم يُحسب بعد (قدر العزم, طول التمزق, متوسط الانزلاق, عمق أعلى الصدع)."
+    "fr": "Glissement uniforme sur un seul rectangle : la vraie rupture est hétérogène ; longueur, largeur et glissement se compensent, la magnitude est mieux contrainte que chacun d'eux.",
+    "en": "Uniform slip on a single rectangle: the real rupture is heterogeneous; length, width and slip trade off, the magnitude is better constrained than each of them.",
+    "ar": "انزلاق منتظم على مستطيل واحد: التمزق الحقيقي غير متجانس؛ الطول والعرض والانزلاق يعوض بعضها بعضا، والقدر أفضل تقييدا من كل منها."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Incertitudes par Monte-Carlo avec le bruit corrélé mesuré sur une paire avant le séisme (variogramme). Elles n'incluent pas l'erreur de modèle (glissement uniforme, module de cisaillement de 30 GPa).",
+    "en": "Uncertainties by Monte Carlo with the correlated noise measured on a pre-event pair (variogram). They do not include the model error (uniform slip, 30 GPa shear modulus).",
+    "ar": "الشكوك بطريقة مونت كارلو مع الضجيج المترابط المقاس على زوج قبل الزلزال (مخطط التباين). لا تشمل خطأ النموذج (انزلاق منتظم، معامل قص 30 جيغاباسكال)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Direction de visée moyenne par trace : l'incidence varie le long de la fauchée.",
+    "en": "One mean line-of-sight direction per track: the incidence angle varies across the swath.",
+    "ar": "اتجاه نظر متوسط لكل مسار: تتغير زاوية السقوط عبر عرض المسح."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Le signe de la ligne de visée n'est pas encore vérifié (NISAR_LOS_SIGN_VERIFIED).",
+    "en": "The line-of-sight sign is not verified yet (NISAR_LOS_SIGN_VERIFIED).",
+    "ar": "لم يتم التحقق بعد من إشارة خط النظر (NISAR_LOS_SIGN_VERIFIED)."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Signe de la ligne de visée non tranché par les données (k > 0 at 3σ on 6/7 tracks, k < 0 on 0/7; variance reduction 0.82 (+1) vs 0.82 (−1)) ; convention documentée de NISAR utilisée.",
+    "en": "Line-of-sight sign not settled by the data (k > 0 at 3σ on 6/7 tracks, k < 0 on 0/7; variance reduction 0.82 (+1) vs 0.82 (−1)); the documented NISAR convention is used.",
+    "ar": "لم تحسم البيانات إشارة خط النظر (k > 0 at 3σ on 6/7 tracks, k < 0 on 0/7; variance reduction 0.82 (+1) vs 0.82 (−1))؛ استُخدم الاصطلاح الموثق لـ NISAR."
+   }
+  },
+  {
+   "template": "backend.case_limit",
+   "params": {},
+   "text": {
+    "fr": "Magnitude non estimée : l'inversion n'est pas stable (parameters at a search bound: top_depth_km, slip_m).",
+    "en": "Magnitude not estimated: the inversion is not stable (parameters at a search bound: top_depth_km, slip_m).",
+    "ar": "لم يتم تقدير القدر: الانعكاس غير مستقر (parameters at a search bound: top_depth_km, slip_m)."
+   }
+  },
+  {
+   "template": "backend.panama_limit_1",
+   "params": {},
+   "text": {
+    "fr": "Le signe de la ligne de visée n'est pas vérifié (NISAR_LOS_SIGN_VERIFIED n'est pas défini). Le test du modèle de faille finie de l'USGS donne k > 0 à plus de 3 sigma sur trois traces et trois géométries (T40 et T141 descendantes, T76 ascendante), mais l'inversion ne distingue pas +1 de -1 (VR(+1) - VR(-1) groupé = 0,005 à 0,023, il faut 0,10) : décision non tranchée.",
+    "en": "The line-of-sight sign is not verified (NISAR_LOS_SIGN_VERIFIED is unset). The USGS finite-fault test finds k > 0 at more than 3 sigma on three tracks and three geometries (T40 and T141 descending, T76 ascending), but the inversion cannot tell +1 from -1 (pooled VR(+1) - VR(-1) = 0.005 to 0.023, rule needs 0.10): the decision is undecided.",
+    "ar": "لم يتم التحقق من إشارة خط النظر (NISAR_LOS_SIGN_VERIFIED غير مضبوط). يعطي اختبار نموذج الصدع المحدود لـ USGS قيمة k > 0 بأكثر من 3 سيغما على ثلاثة مسارات وثلاث هندسات (T40 وT141 تنازلي، T76 تصاعدي)، لكن الانعكاس لا يميز +1 عن -1 (فرق VR المجمّع بين 0.005 و0.023 والقاعدة تطلب 0.10): القرار غير محسوم."
+   }
+  },
+  {
+   "template": "backend.panama_limit_2",
+   "params": {},
+   "text": {
+    "fr": "Trois traitements de l'ionosphère sont documentés et donnent le même verdict non tranché : A phase brute (ancien code, qui lisait mal les indicateurs de géocodage), B code corrigé avec garde par paire (par défaut), C soustraction forcée de l'écran. L'option NISAR_IONO_GUARD=off reproduit C.",
+    "en": "Three ionosphere treatments are documented and give the same undecided verdict: A raw phase (the old code, which misread the geocoding flags), B the fixed code with a per-pair guard (default), C forced subtraction of the screen. Option NISAR_IONO_GUARD=off reproduces C.",
+    "ar": "تم توثيق ثلاث معالجات للأيونوسفير وتعطي الحكم نفسه غير المحسوم: A طور خام (الشيفرة القديمة التي أساءت قراءة أعلام الإسناد الجغرافي)، B الشيفرة المصححة مع حارس لكل زوج (الافتراضي)، C خصم إجباري للشاشة. الخيار NISAR_IONO_GUARD=off يعيد إنتاج C."
+   }
+  },
+  {
+   "template": "backend.panama_limit_3",
+   "params": {},
+   "text": {
+    "fr": "Deux paires sont dégénérées (T76 F005 : 80 % et T4 F005 : 64 % de zéros exacts dans la phase déroulée ; cause inconnue). Elles ne sont exclues que dans une analyse de sensibilité sur la qualité des données ; les seuils du critère ont été choisis en sachant quelles paires ils retiendraient (tout seuil entre 0,09 et 0,64 donne le même ensemble). Sans elles, la tendance ascendante vers -1 disparaît et le verdict ne change pas.",
+    "en": "Two pairs are degenerate (T76 F005: 80 % and T4 F005: 64 % exact zeros in the unwrapped phase; cause unknown). They are excluded only as a data-quality sensitivity analysis; the criterion thresholds were chosen knowing which pairs they would catch (any cutoff between 0.09 and 0.64 gives the same set). Without them the ascending lean towards -1 disappears and the verdict is unchanged.",
+    "ar": "زوجان متدهوران (T76 F005: 80 % وT4 F005: 64 % أصفار تامة في الطور غير الملفوف؛ السبب مجهول). يُستبعدان فقط في تحليل حساسية لجودة البيانات؛ اختيرت عتبات المعيار مع معرفة الزوجين اللذين ستلتقطهما (أي عتبة بين 0.09 و0.64 تعطي المجموعة نفسها). من دونهما يختفي الميل التصاعدي نحو -1 ولا يتغير الحكم."
+   }
+  },
+  {
+   "template": "backend.panama_limit_4",
+   "params": {},
+   "text": {
+    "fr": "Aucun masque d'incertitude de l'ionosphère n'est appliqué : la couche ionospherePhaseScreenUncertainty n'est pas extraite pour ces produits.",
+    "en": "No ionosphere uncertainty mask is applied: the ionospherePhaseScreenUncertainty layer is not extracted for these products.",
+    "ar": "لا يُطبق أي قناع لعدم يقين الأيونوسفير: طبقة ionospherePhaseScreenUncertainty غير مستخرجة لهذه المنتجات."
+   }
+  },
+  {
+   "template": "backend.panama_limit_5",
+   "params": {},
+   "text": {
+    "fr": "L'inversion à géométrie libre a un faible pouvoir de test du signe : la rampe et les décalages par composante absorbent l'essentiel de la variance (réduction de variance de la rampe seule de 0,60 à 0,96 par trace, variantes A et B). La puissance du test n'a pas été simulée (après le hackathon).",
+    "en": "The free-geometry inversion has weak power to test the sign: the ramp and per-component offsets absorb most of the variance (ramp-only variance reduction 0.60 to 0.96 per track, variants A and B). The power of the test was not simulated (post-hackathon).",
+    "ar": "للانعكاس ذي الهندسة الحرة قدرة ضعيفة على اختبار الإشارة: يمتص الميل والإزاحات لكل مكوّن معظم التباين (اختزال التباين بالميل وحده من 0.60 إلى 0.96 لكل مسار، المتغيران A وB). لم تُحاكَ قدرة الاختبار (بعد الهاكاثون)."
    }
   }
  ],
  "placeholders": [
-  "findings: not computed yet",
-  "headline",
-  "limits",
-  "location.bbox"
+  "exposure: cases/out/panama-2026_exposure.json not available",
+  "fault inversion not stable: magnitude not estimated",
+  "figures: no map with a layer",
+  "headline: no finding to report",
+  "location.bbox: no co-seismic NISAR pair",
+  "timeline: no NISAR product"
  ]
 }

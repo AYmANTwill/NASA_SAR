@@ -14,7 +14,9 @@
     "ask": "Investigate",
     "library": "Library",
     "watches": "Watches",
-    "status": "Service status"
+    "status": "Service status",
+    "discover": "Discover",
+    "proof": "L/C bands"
   },
   "common": {
     "loading": "Loading…",
@@ -66,7 +68,8 @@
   },
   "cases": {
     "lede": "Events where NISAR measured the ground, compared with an independent reference where one exists.",
-    "draftNote": "These case studies are drafts: their NISAR values are not measured yet. Nothing here is a result."
+    "draftNote": "Cases marked “Draft” are incomplete and must not be presented as final results.",
+    "openReady": "Open the completed case"
   },
   "caseKind": {
     "earthquake": "Earthquake",
@@ -92,7 +95,7 @@
   },
   "case": {
     "back": "All case studies",
-    "draftBand": "This case is not a result: its NISAR values are not measured yet.",
+    "draftBand": "This case is incomplete. The available measurements and their limits are shown below.",
     "mapLabel": "Radar map: {{place}}",
     "findings": "NISAR measurements and reference",
     "findingsNone": "No measurement yet.",
@@ -106,11 +109,33 @@
     "source": "Source:",
     "timeline": "Timeline",
     "timelineNone": "Timeline not established yet",
+    "noEventAgreement": "Agrees with the no-event baseline: not different from no change.",
+    "heldoutIouContext": "IoU evaluated on tracks never used to tune the model.",
+    "openWaterNoClearChange": "No clear change in open water.",
+    "openWaterContext": "Without an independent reference, this measurement does not establish a flooded area.",
+    "haouzContext": "This case evaluates surface change and provides no flooded area. Persistent open water (U-Net) is not a flood detection.",
     "figures": "Figures",
     "figuresNone": "No figure yet",
     "limits": "What the radar cannot tell here",
     "sources": "Sources",
-    "sourcesNone": "No external source yet"
+    "sourcesNone": "No external source yet",
+    "linkedAnswers": "Linked investigator answers",
+    "panamaPendingMagnitude": "No validated magnitude is available. The figures and limitations below let you examine the analysis."
+  },
+  "timelineKind": {
+    "event": "Event",
+    "acquisition": "NISAR acquisition",
+    "publication": "ASF publication",
+    "unspecified": "Other dates"
+  },
+  "waterLayer": {
+    "water_before": "Water before",
+    "water_after": "Water after",
+    "water_change": "Water change",
+    "optical_before": "Optical image before",
+    "optical_after": "Optical image after",
+    "opticalBackground": "Optical background for the matching date",
+    "backgroundUnavailable": "The optical background is unavailable. The radar layer remains accessible."
   },
   "unit": {
     "mm": "mm",
@@ -200,7 +225,12 @@
     "nextPass": "Next NISAR pass",
     "permalink": "Address of this answer",
     "cached": "(precomputed answer)",
-    "noRaster": "No radar map in this answer: only the point studied is drawn."
+    "noRaster": "No radar map in this answer: only the point studied is drawn.",
+    "classifier": "Automatic classification",
+    "beta": "beta",
+    "precision": "Precision",
+    "recall": "Recall",
+    "evaluatedOn": "Evaluated on"
   },
   "steps": {
     "ms": "ms"
@@ -348,5 +378,62 @@
       "demo": "Offline demo: answers from the NISAR Pulse server, recorded on {{date}}.",
       "rehearsal": "REHEARSAL, not for the jury: this offline build contains draft cases (recorded on {{date}})."
     }
+  },
+  "classLabel": {
+    "flooded": "Flooded",
+    "burned": "Burned",
+    "vegetation_loss": "Vegetation loss",
+    "stable": "Stable"
+  },
+  "parity": {
+    "menu": "Menu",
+    "presentation": "Present",
+    "exitPresentation": "Exit presentation",
+    "close": "Close",
+    "cancel": "Cancel",
+    "recenter": "Recenter",
+    "fullscreen": "Full screen",
+    "opacity": "Opacity",
+    "print": "Print / PDF",
+    "download": "Export data",
+    "enlarge": "Enlarge: {{title}}",
+    "noiseRuler": "Signal and uncertainty compared with measurement noise",
+    "discoverIntro": "Explore observations, examine candidates and open the evidence behind them.",
+    "observed": "Places already investigated",
+    "observedHelp": "The points open the available library answers.",
+    "candidateNote": "These areas are candidates for review, not validated detections.",
+    "noCandidates": "No area meets the available criteria. This does not establish that the entire region is stable.",
+    "sort": "Sort by",
+    "bySignal": "Signal ranking",
+    "checked": "Manually checked",
+    "unchecked": "Needs review",
+    "displacement": "Displacement",
+    "snr": "Signal / noise ratio:",
+    "unknown": "Not provided",
+    "zoneQuestion": "Is the ground moving here?",
+    "proofIntro": "Compare radar coherence through vegetation, with measurements, uncertainties and limitations.",
+    "whyRadar": "What wavelength changes",
+    "bandBody": "C-band interacts mainly with the vegetation canopy. L-band can retain more information about the ground beneath vegetation.",
+    "cBand": "C-band: vegetation canopy",
+    "lBand": "L-band: ground and vegetation",
+    "schematic": "Explanatory diagram, not a measurement. The actual comparison below depends on available data.",
+    "forestComparison": "Coherence by forest cover",
+    "forestCover": "Forest cover",
+    "usableThreshold": "Usable threshold supplied by the server:",
+    "pixels": "Pixels",
+    "signalNote": "The shaded area represents noise supplied by the server.",
+    "confirmDelete": "Stop watching this place?",
+    "offlineSaved": "Answer saved on this device",
+    "exportHelp": "Data are exported as supplied by the server.",
+    "exposure": {
+      "buildings": "Buildings",
+      "roads_km": "Roads (km)",
+      "dams": "Dams",
+      "mines": "Mines"
+    },
+    "cachedData": "Saved data from this device was used in this session.",
+    "showLayer": "Show layer",
+    "generatedAt": "Updated",
+    "thresholdFactor": "Screening factor supplied by the server:"
   }
 }

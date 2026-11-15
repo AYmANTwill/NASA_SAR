@@ -13,6 +13,7 @@ import "@/features/cases/CasesPage.css";
 import "@/features/investigate/investigate.css";
 import "@/features/status/StatusPage.css";
 import "./WatchesPage.css";
+import { OrbitClock } from "./OrbitClock";
 
 const LEVELS: WatchLevel[] = ["yellow", "orange", "red"];
 
@@ -65,7 +66,7 @@ export function WatchesPage() {
               <p className="not-measured">{t("watch.notificationsNone")}</p>
             ) : (
               <ol className="note-list">
-                {notes.map((n) => (
+                {[...notes].sort((a, b) => b.created_at.localeCompare(a.created_at)).map((n) => (
                   <li key={n.id}>
                     <NotificationRow note={n} />
                   </li>
@@ -84,12 +85,13 @@ function WatchCard({ watch }: { watch: Watch }) {
   const remove = useDeleteWatch();
   const simulate = useSimulateAlert();
   const [level, setLevel] = useState<WatchLevel>("orange");
+  const [confirming, setConfirming] = useState(false);
   const selectId = useId();
   const place = watch.location.name_i18n?.[lang] ?? watch.location.name ?? "";
 
   return (
     <article className="watch-card" aria-labelledby={`watch-${watch.id}`}>
-      <h3 id={`watch-${watch.id}`}>{place || t("answer.thePoint")}</h3>
+      <div className="watch-card-header"><OrbitClock last={watch.last_pass} next={watch.next_pass} /><h3 id={`watch-${watch.id}`}>{place || t("answer.thePoint")}</h3></div>
       <p dir="auto">
         <q>{watch.question}</q>
       </p>
@@ -117,10 +119,11 @@ function WatchCard({ watch }: { watch: Watch }) {
       </dl>
       <p className="watch-actions">
         {watch.answer_id && <Link to={`/${lang}/answers/${encodeURIComponent(watch.answer_id)}`}>{t("watch.openAnswer")}</Link>}
-        <button type="button" className="link-button" onClick={() => remove.mutate(watch.id)} disabled={remove.isPending}>
+        {!confirming && <button type="button" className="link-button" onClick={() => setConfirming(true)} disabled={remove.isPending}>
           {t("watch.delete")}
-        </button>
+        </button>}
       </p>
+      {confirming && <div className="watch-confirm"><p>{t("parity.confirmDelete")}</p><button type="button" className="button" disabled={remove.isPending} onClick={() => remove.mutate(watch.id)}>{t("watch.delete")}</button><button type="button" className="button" onClick={() => setConfirming(false)}>{t("parity.cancel")}</button></div>}
       {remove.isError && <ErrorPanel error={remove.error} />}
 
       <details className="watch-demo">

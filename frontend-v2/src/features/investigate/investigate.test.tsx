@@ -4,9 +4,10 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { ApiProvider } from "@/api/ApiProvider";
 import { createHttpClient } from "@/api/client";
-import type { AgentStep, Answer, Lang, TemplatedText } from "@/api/contract";
+import type { AgentStep, Answer, CaseStudy, Lang, Measurement, TemplatedText } from "@/api/contract";
 import { AppRoutes } from "@/app/routes";
 import { i18nFor } from "@/i18n";
+import { formatNumber } from "@/i18n/format";
 import { useText } from "@/i18n/useText";
 import { recorded, recordedFetch, recordedText } from "@/test/recorded";
 import { mergeStep } from "./useAsk";
@@ -43,6 +44,12 @@ describe("templated text", () => {
   it("falls back to the backend's own text for backend.* ids", () => {
     const limit = (recorded("answer-event-panama-2026.json").body as Answer).limits[0]!;
     expect(renderText("ar", limit)).toBe(limit.text!.ar);
+  });
+
+  it.each(["fr", "en", "ar"] as const)("keeps a water measurement and its uncertainty together when prose wraps (%s)", (lang) => {
+    const headline = (recorded("case-bin-el-ouidane-2026.json").body as CaseStudy).headline;
+    const m = headline.params.nisar as Measurement;
+    expect(renderText(lang, headline)).toContain(`${formatNumber(m.value, lang)}\u00a0±\u00a0${formatNumber(m.uncertainty, lang)}`);
   });
 
   it("says explicitly when a text exists in no form for this language", () => {
