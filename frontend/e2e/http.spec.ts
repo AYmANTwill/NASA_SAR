@@ -185,6 +185,7 @@ const negativeCase = {
 for (const width of [390, 1280]) {
   test(`negative verdict, long limits and image figures stay calm and readable (ar, ${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" }); // contrast is measured on the settled page, not mid-fade (motion has its own spec)
     const errors = watchConsole(page);
     await mockApi(page, { studies: [negativeCase] });
     await page.goto("/cases/haouz-flood-2026?lang=ar");
@@ -208,6 +209,7 @@ for (const width of [390, 1280]) {
     await expect(dialog.getByRole("img")).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
+    await expect(page.locator('[data-slot="dialog-overlay"]')).toHaveCount(0); // axe runs once the overlay is gone
     const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).exclude(".maplibregl-canvas").analyze();
     expect(axe.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
     expect(errors.filter((e) => !e.includes("does-not-exist"))).toEqual([]);

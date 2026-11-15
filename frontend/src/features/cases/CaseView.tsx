@@ -125,6 +125,7 @@ function CaseBody({ c }: { c: CaseStudy }) {
 function Timeline({ items }: { items: CaseStudy["timeline"] }) {
   const { t, lang } = useText();
   const sorted = [...items].sort((a, b) => dayOf(a.at) - dayOf(b.at));
+  if (sorted.length > PASS_STRIP_FROM) return <PassStrip sorted={sorted} />;
   return (
     <section aria-labelledby="case-timeline" className="space-y-3">
       <h2 id="case-timeline" className="font-semibold">{t("cases.timeline")}</h2>
@@ -149,6 +150,56 @@ function Timeline({ items }: { items: CaseStudy["timeline"] }) {
           );
         })}
       </ol>
+    </section>
+  );
+}
+
+/** Above this many dates, one card per date is unreadable: the passes become rows of dots on a shared time axis. */
+const PASS_STRIP_FROM = 8;
+
+/** Many acquisitions (a monitoring case): one row per label (track and direction), each pass a dot at its real date. */
+function PassStrip({ sorted }: { sorted: CaseStudy["timeline"] }) {
+  const { t, lang } = useText();
+  const t0 = dayOf(sorted[0].at);
+  const t1 = dayOf(sorted[sorted.length - 1].at);
+  const span = Math.max(1, t1 - t0);
+  const rows = new Map<string, CaseStudy["timeline"]>();
+  for (const it of sorted) {
+    const label = localized(it.label, lang);
+    rows.set(label, [...(rows.get(label) ?? []), it]);
+  }
+  const day = (at: string) => formatDate(at.slice(0, 10), lang);
+  return (
+    <section aria-labelledby="case-timeline" className="space-y-3">
+      <h2 id="case-timeline" className="font-semibold">{t("cases.timeline")}</h2>
+      <div className="space-y-3 rounded-md border border-line bg-surface p-4">
+        {[...rows].map(([label, list]) => (
+          <div key={label} className="grid gap-1 sm:grid-cols-[15rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+            <p className="text-sm font-medium">
+              {label} <span className="font-normal text-ink-2">· {t("cases.passes", { count: list.length })}</span>
+            </p>
+            <ol aria-label={label} className="relative mx-1.5 h-4">
+              <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-line-strong" />
+              {list.map((it, i) => (
+                <li
+                  key={it.at + i}
+                  title={day(it.at)}
+                  className="absolute top-1/2 size-2.5 -translate-y-1/2 rounded-full border border-surface bg-accent ltr:-translate-x-1/2 rtl:translate-x-1/2"
+                  style={{ insetInlineStart: `${((dayOf(it.at) - t0) / span) * 100}%` }}
+                >
+                  <span className="sr-only">
+                    <time dateTime={it.at}>{day(it.at)}</time>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+        <p className="flex justify-between gap-2 text-xs text-ink-2 sm:ms-[16rem]">
+          <time dateTime={sorted[0].at}>{day(sorted[0].at)}</time>
+          <time dateTime={sorted[sorted.length - 1].at}>{day(sorted[sorted.length - 1].at)}</time>
+        </p>
+      </div>
     </section>
   );
 }
