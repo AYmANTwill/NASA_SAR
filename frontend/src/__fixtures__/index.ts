@@ -84,4 +84,4 @@ export const demoBundle: DemoBundle = {
     ...recordedDemoEntries,
   ],
 };
-export { caseStudies, caseSummaries } from "./cases";
+export { caseStudies, caseSummaries, draftCaseStudies, draftCaseSummaries } from "./cases";

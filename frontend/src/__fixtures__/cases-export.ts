@@ -1,3 +1,557 @@
-// Exported from the API by scripts/export-cases.mjs. Do not edit by hand. null: not exported yet.
-const data: { summaries: unknown[]; studies: unknown[] } | null = null;
+// Exported from http://127.0.0.1:8000/api on 2026-11-15T15:45:25.710Z by scripts/export-cases.mjs. Do not edit by hand.
+const data: { summaries: unknown[]; studies: unknown[] } | null = {
+ "summaries": [
+  {
+   "id": "bin-el-ouidane-2026",
+   "kind": "method",
+   "title": {
+    "fr": "Bin El Ouidane : suivi du barrage à travers les nuages",
+    "en": "Bin El Ouidane: reservoir monitoring through clouds",
+    "ar": "بين الويدان: مراقبة السد عبر السحب"
+   },
+   "date": "2026-09-21T00:00:00Z",
+   "status": "final",
+   "thumbnail_url": "/__fixtures__/cases/water/figures/clouds.png",
+   "bbox": [
+    -6.4866,
+    32.0558,
+    -6.3434,
+    32.1399
+   ],
+   "place": {
+    "fr": "Barrage Bin El Ouidane, Maroc",
+    "en": "Bin El Ouidane reservoir, Morocco",
+    "ar": "سد بين الويدان، المغرب"
+   }
+  }
+ ],
+ "studies": [
+  {
+   "id": "bin-el-ouidane-2026",
+   "kind": "method",
+   "status": "final",
+   "title": {
+    "fr": "Bin El Ouidane : suivi du barrage à travers les nuages",
+    "en": "Bin El Ouidane: reservoir monitoring through clouds",
+    "ar": "بين الويدان: مراقبة السد عبر السحب"
+   },
+   "date": "2026-09-21T00:00:00Z",
+   "location": {
+    "lat": 32.0978,
+    "lon": -6.415,
+    "bbox": [
+     -6.4866,
+     32.0558,
+     -6.3434,
+     32.1399
+    ],
+    "place": {
+     "fr": "Barrage Bin El Ouidane, Maroc",
+     "en": "Bin El Ouidane reservoir, Morocco",
+     "ar": "سد بين الويدان، المغرب"
+    }
+   },
+   "headline": {
+    "template": "backend.water_area_change",
+    "params": {
+     "nisar": {
+      "value": -1.829,
+      "uncertainty": 0.136,
+      "unit": "km2",
+      "sigma": 1
+     },
+     "reference": {
+      "value": -1.975,
+      "uncertainty": 0.01,
+      "unit": "km2",
+      "sigma": 1
+     },
+     "agreement": "agree"
+    },
+    "text": {
+     "en": "Water area 2026-06-17 → 2026-09-21, 3 tracks: NISAR -1.83 ± 0.14 km², DSWx -1.98 ± 0.01 km² (agree).",
+     "fr": "Surface en eau 2026-06-17 → 2026-09-21, 3 traces : NISAR -1.83 ± 0.14 km², DSWx -1.98 ± 0.01 km² (concordants).",
+     "ar": "مساحة المياه 2026-06-17 ← 2026-09-21، 3 مسارات: NISAR -1.83 ± 0.14 كم², DSWx -1.98 ± 0.01 كم² (متوافقان)."
+    }
+   },
+   "findings": [
+    {
+     "id": "unseen_reservoir_iou",
+     "label": {
+      "fr": "Accord avec DSWx sur un barrage jamais utilisé à l'entraînement (Oued El Makhazine, 17 dates, IoU)",
+      "en": "Agreement with DSWx on a reservoir never used for training (Oued El Makhazine, 17 dates, IoU)",
+      "ar": "التوافق مع DSWx على سد لم يُستخدم في التدريب (Oued El Makhazine، 17 تاريخًا، IoU)"
+     },
+     "nisar": {
+      "value": 93.34,
+      "uncertainty": 0.35,
+      "unit": "percent",
+      "sigma": 1
+     },
+     "reference": null,
+     "reference_source": null,
+     "agreement": "no_reference"
+    },
+    {
+     "id": "water_area_change",
+     "label": {
+      "fr": "Variation de la surface en eau, 3 traces (NISAR vs DSWx optique)",
+      "en": "Water-area change, 3 tracks (NISAR vs optical DSWx)",
+      "ar": "تغير مساحة المياه، 3 مسارات (NISAR مقابل DSWx البصري)"
+     },
+     "nisar": {
+      "value": -1.829,
+      "uncertainty": 0.136,
+      "unit": "km2",
+      "sigma": 1
+     },
+     "reference": {
+      "value": -1.975,
+      "uncertainty": 0.01,
+      "unit": "km2",
+      "sigma": 1
+     },
+     "reference_source": {
+      "name": "OPERA DSWx-HLS (NASA/JPL, PO.DAAC)",
+      "url": "https://www.jpl.nasa.gov/go/opera/products/dswx-product-suite/"
+     },
+     "agreement": "agree"
+    },
+    {
+     "id": "heldout_iou",
+     "label": {
+      "fr": "Accord avec DSWx sur les traces tenues à l'écart 95/116 (IoU)",
+      "en": "Agreement with DSWx on held-out tracks 95/116 (IoU)",
+      "ar": "التوافق مع DSWx على المسارات المحجوزة 95/116 (IoU)"
+     },
+     "nisar": {
+      "value": 94.77,
+      "uncertainty": 0.2,
+      "unit": "percent",
+      "sigma": 1
+     },
+     "reference": null,
+     "reference_source": null,
+     "agreement": "no_reference"
+    },
+    {
+     "id": "orbit_consistency",
+     "label": {
+      "fr": "Écart de surface entre orbites montante et descendante (≤ 3 jours)",
+      "en": "Ascending vs descending area difference (≤ 3 days apart)",
+      "ar": "فرق المساحة بين المدارين الصاعد والهابط (≤ 3 أيام)"
+     },
+     "nisar": {
+      "value": 0.251,
+      "uncertainty": 0.048,
+      "unit": "km2",
+      "sigma": 1
+     },
+     "reference": null,
+     "reference_source": null,
+     "agreement": "no_reference"
+    }
+   ],
+   "figures": [
+    {
+     "id": "reservoir_clouds",
+     "kind": "image",
+     "title": {
+      "fr": "Le radar voit l'eau à travers les nuages",
+      "en": "Radar sees water through clouds",
+      "ar": "الرادار يرى المياه عبر السحب"
+     },
+     "url": "/__fixtures__/cases/water/figures/clouds.png",
+     "caption": {
+      "template": "backend.water_reservoir_clouds",
+      "params": {},
+      "text": {
+       "en": "Same day: DSWx masked by clouds, NISAR water map complete.",
+       "fr": "Même jour : DSWx masqué par les nuages, carte NISAR complète.",
+       "ar": "في اليوم نفسه: DSWx محجوب بالسحب وخريطة NISAR كاملة."
+      }
+     }
+    },
+    {
+     "id": "reservoir_hero",
+     "kind": "image",
+     "title": {
+      "fr": "Avant, après et changement",
+      "en": "Before, after and change",
+      "ar": "قبل وبعد والتغير"
+     },
+     "url": "/__fixtures__/cases/water/figures/hero.png",
+     "caption": {
+      "template": "backend.water_reservoir_hero",
+      "params": {},
+      "text": {
+       "en": "NISAR water on 2026-06-17 and 2026-09-21; blue gain, red loss.",
+       "fr": "Eau NISAR le 2026-06-17 et le 2026-09-21 ; bleu gain, rouge perte.",
+       "ar": "مياه NISAR في 2026-06-17 و2026-09-21؛ الأزرق زيادة والأحمر نقص."
+      }
+     }
+    },
+    {
+     "id": "reservoir_validation",
+     "kind": "image",
+     "title": {
+      "fr": "Validation avec DSWx",
+      "en": "Validation against DSWx",
+      "ar": "التحقق باستخدام DSWx"
+     },
+     "url": "/__fixtures__/cases/water/figures/validation.png",
+     "caption": {
+      "template": "backend.water_reservoir_validation",
+      "params": {},
+      "text": {
+       "en": "Held-out track, median date: white agreement, red miss, orange false alarm.",
+       "fr": "Trace tenue à l'écart, date médiane : blanc accord, rouge oubli, orange fausse alarme.",
+       "ar": "مسار محجوز، التاريخ الوسيط: الأبيض توافق، الأحمر إغفال، البرتقالي إنذار كاذب."
+      }
+     }
+    },
+    {
+     "id": "reservoir_timeseries",
+     "kind": "image",
+     "title": {
+      "fr": "Surface en eau dans le temps",
+      "en": "Water area over time",
+      "ar": "مساحة المياه عبر الزمن"
+     },
+     "url": "/__fixtures__/cases/water/figures/timeseries.png",
+     "caption": {
+      "template": "backend.water_reservoir_timeseries",
+      "params": {},
+      "text": {
+       "en": "Three NISAR tracks and DSWx; flagged dates are kept and marked.",
+       "fr": "Trois traces NISAR et DSWx ; les dates signalées sont gardées et marquées.",
+       "ar": "ثلاثة مسارات NISAR وDSWx؛ التواريخ المعلَّمة محفوظة ومميزة."
+      }
+     }
+    }
+   ],
+   "exposure": null,
+   "timeline": [
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-06-17T05:46:43Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-06-20T19:11:42Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-06-22T05:38:24Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-06-29T05:46:42Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-07-02T19:11:41Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-07-04T05:38:23Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-07-11T05:46:42Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-07-14T19:11:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-07-16T05:38:22Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-07-23T05:46:41Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-07-26T19:11:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-08-16T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-08-19T19:11:38Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-08-21T05:38:20Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-08-28T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-08-31T19:11:38Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-09-02T05:38:20Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-09-09T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-09-12T19:11:38Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-09-14T05:38:20Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-09-21T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-09-24T19:11:38Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-09-26T05:38:20Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-10-03T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-10-06T19:11:38Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-10-08T05:38:20Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-10-15T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-10-18T19:11:38Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-10-20T05:38:20Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 44 montante",
+      "en": "NISAR pass, track 44 ascending",
+      "ar": "مرور NISAR، المسار 44 صاعد"
+     },
+     "at": "2026-10-27T05:46:40Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 95 descendante",
+      "en": "NISAR pass, track 95 descending",
+      "ar": "مرور NISAR، المسار 95 هابط"
+     },
+     "at": "2026-10-30T19:11:39Z"
+    },
+    {
+     "label": {
+      "fr": "Passage NISAR, trace 116 montante",
+      "en": "NISAR pass, track 116 ascending",
+      "ar": "مرور NISAR، المسار 116 صاعد"
+     },
+     "at": "2026-11-01T05:38:21Z"
+    }
+   ],
+   "answer_ids": [],
+   "limits": [
+    {
+     "template": "backend.water_dswx_reference",
+     "params": {},
+     "text": {
+      "en": "OPERA DSWx is optical: a weak reference (clouds, shadows, shoreline mixing, a day up to ±5 days apart).",
+      "fr": "OPERA DSWx est optique : une référence faible (nuages, ombres, mélange au rivage, jour jusqu'à ±5 jours d'écart).",
+      "ar": "OPERA DSWx بصري: مرجع ضعيف (سحب وظلال واختلاط عند الشاطئ ويوم قد يبعد حتى ±5 أيام)."
+     }
+    },
+    {
+     "template": "backend.water_provisional",
+     "params": {
+      "crid": "P05023, P05036"
+     },
+     "text": {
+      "en": "NISAR GCOV products are provisional (CRID P05023, P05036); calibration may change.",
+      "fr": "Les produits NISAR GCOV sont provisoires (CRID P05023, P05036) ; l'étalonnage peut changer.",
+      "ar": "منتجات NISAR GCOV مؤقتة (CRID P05023, P05036)؛ قد تتغير المعايرة."
+     }
+    },
+    {
+     "template": "backend.water_transfer_finetuned",
+     "params": {
+      "n_reservoirs": 12
+     },
+     "text": {
+      "en": "Pre-trained on Sentinel-1 C-band VV/VH, then fine-tuned on NISAR L-band HH/HV and the radar incidence angle with OPERA DSWx labels of 12 other Moroccan reservoirs and of this reservoir's passes after 2026-10-03 only (marked 'in training'; no date of the June–September case period, and none of the reported numbers, uses them); checked only against DSWx, itself optical.",
+      "fr": "Pré-entraîné sur Sentinel-1 bande C VV/VH, puis affiné sur NISAR bande L HH/HV et l'angle d'incidence radar avec les étiquettes OPERA DSWx de 12 autres barrages marocains et des seuls passages de ce barrage après le 2026-10-03 (marqués « entraînement » ; aucune date de la période du cas juin–septembre, et aucun chiffre affiché, ne les utilise) ; vérifié seulement avec DSWx, lui-même optique.",
+      "ar": "دُرِّب أولاً على Sentinel-1 (النطاق C، VV/VH) ثم ضُبط على NISAR (النطاق L، HH/HV) وزاوية سقوط الرادار بعلامات OPERA DSWx من 12 سدود مغربية أخرى ومن مرور هذا السد بعد 2026-10-03 فقط (معلَّمة «تدريب»؛ لا تستخدمها أي من تواريخ فترة الحالة يونيو–سبتمبر ولا أي رقم معروض)؛ لم يُتحقق منه إلا مقابل DSWx، وهو بصري."
+     }
+    },
+    {
+     "template": "backend.water_area_bias",
+     "params": {
+      "bias_km2": -0.46,
+      "ci95_lo_km2": -0.59,
+      "ci95_hi_km2": -0.35
+     },
+     "text": {
+      "en": "Area is biased low (water slightly under-mapped): -0.46 km² on held-out tracks (95% interval -0.59 to -0.35).",
+      "fr": "La surface est sous-estimée (eau légèrement sous-cartographiée) : -0.46 km² sur les traces tenues à l'écart (intervalle 95 % -0.59 à -0.35).",
+      "ar": "المساحة مُقدَّرة بالنقص (المياه أقل قليلاً من الواقع): -0.46 كم² على المسارات المحجوزة (مجال 95% من -0.59 إلى -0.35)."
+     }
+    },
+    {
+     "template": "backend.water_finetune_data",
+     "params": {
+      "n_other_reservoirs": 11,
+      "n_other_scenes": 151,
+      "case_dates": "2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116)",
+      "tracks": "15, 23, 44, 87, 95, 116, 145, 167"
+     },
+     "text": {
+      "en": "Fine-tuning data: 151 NISAR scenes of 11 other Moroccan reservoirs (tracks 15, 23, 44, 87, 95, 116, 145, 167, June–November 2026) and 6 passes of this reservoir: 2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116). OPERA DSWx is both the training label and the reference used here, so the scores measure agreement with DSWx, not with ground truth. The list is in backend/water/model/fine_tuning_scenes.csv.",
+      "fr": "Données d'affinage : 151 scènes NISAR de 11 autres barrages marocains (traces 15, 23, 44, 87, 95, 116, 145, 167, juin–novembre 2026) et 6 passages de ce barrage : 2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116). OPERA DSWx est à la fois l'étiquette d'entraînement et la référence utilisée ici : les scores mesurent l'accord avec DSWx, pas avec la vérité terrain. Liste : backend/water/model/fine_tuning_scenes.csv.",
+      "ar": "بيانات الضبط الدقيق: 151 مشهد NISAR من 11 سدًا مغربيًا آخر (المسارات 15, 23, 44, 87, 95, 116, 145, 167، يونيو–نوفمبر 2026) و6 مرورًا لهذا السد: 2026-10-06 (T95), 2026-10-08 (T116), 2026-10-15 (T44), 2026-10-27 (T44), 2026-10-30 (T95), 2026-11-01 (T116). ‏OPERA DSWx هو في آن واحد علامة التدريب والمرجع المستخدم هنا، لذا تقيس الدرجات التوافق مع DSWx لا مع الحقيقة الميدانية. القائمة في backend/water/model/fine_tuning_scenes.csv."
+     }
+    }
+   ],
+   "placeholders": []
+  }
+ ]
+};
 export default data;
