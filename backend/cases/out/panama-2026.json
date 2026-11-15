@@ -1,0 +1,885 @@
+{
+ "case": "panama-2026",
+ "excluded_frames": [],
+ "corrections": [
+  "iono"
+ ],
+ "generated_at": "2026-11-15T15:55:18+00:00",
+ "event": {
+  "id": "us6000u18k",
+  "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u18k",
+  "lat": 7.6069,
+  "lon": -80.7566,
+  "depth_km": 10.0,
+  "time_utc": "2026-10-09T17:56:05.537000+00:00",
+  "magnitude": 7.7,
+  "magnitude_type": "mww",
+  "mt_source": "us Mww",
+  "planes": [
+   {
+    "strike": 25.21,
+    "dip": 74.77,
+    "rake": -155.3
+   },
+   {
+    "strike": 288.32,
+    "dip": 66.22,
+    "rake": -16.68
+   }
+  ]
+ },
+ "pairs": [
+  "GUNW_T076_F006_20261005_20261017_4000",
+  "GUNW_T076_F005_20261005_20261017_4000",
+  "GUNW_T040_F085_20261002_20261014_4000",
+  "GUNW_T040_F084_20261002_20261014_4000",
+  "GUNW_T004_F005_20260930_20261012_4000",
+  "GUNW_T141_F085_20260927_20261009_2000",
+  "GUNW_T141_F085_20260927_20261009_4000",
+  "GUNW_T141_F084_20260927_20261009_4000"
+ ],
+ "los_sign": 1.0,
+ "los_sign_verified": false,
+ "noise_models": {
+  "GUNW_T076_F006_20261005_20261017_4000": {
+   "status": "ok",
+   "sill_cm2": 0.7435826887948829,
+   "range_km": 11.790601901865395,
+   "nugget_cm2": 2.1034457860795252e-19,
+   "sigma_cm": 0.8623124078864243,
+   "source": "GUNW_T076_F006_20260923_20261005",
+   "variogram_bins": [
+    [
+     0.84,
+     0.0775,
+     3675
+    ],
+    [
+     2.018,
+     0.1071,
+     11184
+    ],
+    [
+     3.365,
+     0.1444,
+     14320
+    ],
+    [
+     4.712,
+     0.1873,
+     15571
+    ],
+    [
+     6.028,
+     0.2468,
+     15057
+    ],
+    [
+     7.36,
+     0.2836,
+     13174
+    ],
+    [
+     8.715,
+     0.3439,
+     11274
+    ],
+    [
+     10.06,
+     0.4002,
+     9832
+    ],
+    [
+     11.422,
+     0.4739,
+     8886
+    ],
+    [
+     12.774,
+     0.5561,
+     7780
+    ],
+    [
+     14.118,
+     0.5889,
+     7563
+    ],
+    [
+     15.452,
+     0.6391,
+     7091
+    ],
+    [
+     16.814,
+     0.7316,
+     6991
+    ],
+    [
+     18.173,
+     0.7512,
+     6780
+    ],
+    [
+     19.516,
+     0.7562,
+     6566
+    ],
+    [
+     20.839,
+     0.7111,
+     6918
+    ],
+    [
+     22.204,
+     0.6745,
+     7096
+    ],
+    [
+     23.55,
+     0.5813,
+     7062
+    ],
+    [
+     24.883,
+     0.4592,
+     6602
+    ],
+    [
+     26.205,
+     0.3806,
+     6431
+    ]
+   ]
+  },
+  "GUNW_T076_F005_20261005_20261017_4000": {
+   "status": "failed: GUNW_T076_F005_20260911_20261005: the pre-event map has no measurable noise (constant field?)",
+   "pre_event_pair": "GUNW_T076_F005_20260911_20261005"
+  },
+  "GUNW_T040_F085_20261002_20261014_4000": {
+   "status": "ok",
+   "sill_cm2": 3.623620271509662,
+   "range_km": 45.49568752429177,
+   "nugget_cm2": 0.043079026302304486,
+   "sigma_cm": 1.9148627360236468,
+   "source": "GUNW_T040_F085_20260920_20261002",
+   "variogram_bins": [
+    [
+     0.671,
+     0.0585,
+     1941
+    ],
+    [
+     1.475,
+     0.1428,
+     5667
+    ],
+    [
+     2.284,
+     0.2301,
+     5767
+    ],
+    [
+     3.181,
+     0.3087,
+     10684
+    ],
+    [
+     4.159,
+     0.3702,
+     10153
+    ],
+    [
+     4.993,
+     0.4063,
+     10157
+    ],
+    [
+     5.879,
+     0.467,
+     11689
+    ],
+    [
+     6.755,
+     0.5471,
+     11322
+    ],
+    [
+     7.667,
+     0.6213,
+     12822
+    ],
+    [
+     8.606,
+     0.709,
+     11934
+    ],
+    [
+     9.482,
+     0.7252,
+     11464
+    ],
+    [
+     10.409,
+     0.7316,
+     11706
+    ],
+    [
+     11.28,
+     0.788,
+     9167
+    ],
+    [
+     12.165,
+     0.8215,
+     10658
+    ],
+    [
+     13.132,
+     0.9651,
+     9429
+    ],
+    [
+     14.003,
+     1.0961,
+     7741
+    ],
+    [
+     14.898,
+     1.1416,
+     8117
+    ],
+    [
+     15.798,
+     1.1564,
+     6738
+    ],
+    [
+     16.68,
+     1.1229,
+     6759
+    ],
+    [
+     17.633,
+     1.1254,
+     5914
+    ]
+   ]
+  },
+  "GUNW_T040_F084_20261002_20261014_4000": {
+   "status": "ok",
+   "sill_cm2": 534.1740990698511,
+   "range_km": 19.815022513148488,
+   "nugget_cm2": 2.89927801868772e-18,
+   "sigma_cm": 23.112206711386325,
+   "source": "GUNW_T040_F084_20260920_20261002",
+   "variogram_bins": [
+    [
+     1.553,
+     17.6461,
+     3770
+    ],
+    [
+     3.582,
+     61.1352,
+     9677
+    ],
+    [
+     5.817,
+     112.7114,
+     11146
+    ],
+    [
+     8.088,
+     158.8581,
+     12571
+    ],
+    [
+     10.448,
+     170.8135,
+     12461
+    ],
+    [
+     12.731,
+     167.1947,
+     11938
+    ],
+    [
+     14.985,
+     207.7764,
+     11379
+    ],
+    [
+     17.233,
+     211.055,
+     10309
+    ],
+    [
+     19.582,
+     311.1713,
+     10125
+    ],
+    [
+     21.976,
+     482.7639,
+     9451
+    ],
+    [
+     24.247,
+     593.9959,
+     9337
+    ],
+    [
+     26.595,
+     582.6821,
+     10400
+    ],
+    [
+     28.924,
+     519.9588,
+     8940
+    ],
+    [
+     31.135,
+     420.6038,
+     8529
+    ],
+    [
+     33.472,
+     382.3725,
+     8486
+    ],
+    [
+     35.756,
+     370.5805,
+     7482
+    ],
+    [
+     38.049,
+     454.3627,
+     7535
+    ],
+    [
+     40.424,
+     446.1366,
+     6247
+    ],
+    [
+     42.697,
+     336.9296,
+     5340
+    ],
+    [
+     45.028,
+     320.5108,
+     4736
+    ]
+   ]
+  },
+  "GUNW_T004_F005_20260930_20261012_4000": {
+   "status": "failed: GUNW_T004_F005_20260918_20260930: the pre-event map has no measurable noise (constant field?)",
+   "pre_event_pair": "GUNW_T004_F005_20260918_20260930"
+  },
+  "GUNW_T141_F085_20260927_20261009_2000": {
+   "status": "failed: GUNW_T141_F085_20260915_20260927: the pre-event map has no measurable noise (constant field?)",
+   "pre_event_pair": "GUNW_T141_F085_20260915_20260927"
+  },
+  "GUNW_T141_F085_20260927_20261009_4000": {
+   "status": "failed: GUNW_T141_F085_20260915_20260927: the pre-event map has no measurable noise (constant field?)",
+   "pre_event_pair": "GUNW_T141_F085_20260915_20260927"
+  },
+  "GUNW_T141_F084_20260927_20261009_4000": {
+   "status": "ok",
+   "sill_cm2": 957.2259954006438,
+   "range_km": 20.772788910919576,
+   "nugget_cm2": 5.901090181442666e-09,
+   "sigma_cm": 30.93906907789155,
+   "source": "GUNW_T141_F084_20260915_20260927",
+   "variogram_bins": [
+    [
+     4.137,
+     2.1232,
+     74192
+    ],
+    [
+     12.523,
+     90.2055,
+     6132
+    ],
+    [
+     22.344,
+     376.624,
+     4337
+    ],
+    [
+     31.495,
+     880.0785,
+     3858
+    ],
+    [
+     41.301,
+     1275.3825,
+     4412
+    ],
+    [
+     49.411,
+     1319.5588,
+     6105
+    ],
+    [
+     58.565,
+     1693.8567,
+     4084
+    ],
+    [
+     68.436,
+     1302.8977,
+     8902
+    ],
+    [
+     76.393,
+     1302.4407,
+     12753
+    ],
+    [
+     85.385,
+     2423.049,
+     3787
+    ],
+    [
+     94.856,
+     2646.5374,
+     2455
+    ],
+    [
+     103.738,
+     2048.735,
+     2298
+    ],
+    [
+     112.547,
+     1415.8888,
+     2195
+    ],
+    [
+     122.388,
+     508.4685,
+     4516
+    ],
+    [
+     131.034,
+     264.9608,
+     6257
+    ],
+    [
+     140.618,
+     94.3977,
+     19160
+    ],
+    [
+     146.544,
+     177.7701,
+     4924
+    ],
+    [
+     158.705,
+     371.5512,
+     2003
+    ],
+    [
+     166.512,
+     321.0121,
+     1491
+    ],
+    [
+     178.581,
+     1633.917,
+     5982
+    ]
+   ]
+  }
+ },
+ "planes": [
+  {
+   "plane": {
+    "strike": 25.21,
+    "dip": 74.77,
+    "rake": -155.3
+   },
+   "params": {
+    "along_km": {
+     "value": -9.6408189314372,
+     "sigma_jacobian": 0.09858657792371159,
+     "sigma_bootstrap": 0.346831820691642,
+     "sigma": 0.346831820691642
+    },
+    "across_km": {
+     "value": 7.971233746711961,
+     "sigma_jacobian": 0.11087538908813158,
+     "sigma_bootstrap": 1.0828682551210729,
+     "sigma": 1.0828682551210729
+    },
+    "length_km": {
+     "value": 7.058219251779463,
+     "sigma_jacobian": 0.3816871198328882,
+     "sigma_bootstrap": 0.5830078302951305,
+     "sigma": 0.5830078302951305
+    },
+    "width_km": {
+     "value": 3.0152213047333842,
+     "sigma_jacobian": 0.483610584128791,
+     "sigma_bootstrap": 0.3744205414337938,
+     "sigma": 0.483610584128791
+    },
+    "top_depth_km": {
+     "value": 2.0095636041294877e-50,
+     "sigma_jacobian": 0.20720905326425287,
+     "sigma_bootstrap": 0.0008224435514110044,
+     "sigma": 0.20720905326425287
+    },
+    "slip_m": {
+     "value": 19.999999999999996,
+     "sigma_jacobian": 3.4221850141610615,
+     "sigma_bootstrap": 0.0031417177965071767,
+     "sigma": 3.4221850141610615
+    }
+   },
+   "m0_nm": 1.2769255836866857e+19,
+   "mw": {
+    "value": 6.670777058872063,
+    "sigma_jacobian": 0.008086534246730264,
+    "sigma_bootstrap": 0.023014582171608754,
+    "sigma": 0.023014582171608754
+   },
+   "rms_cm": 17.800726775624653,
+   "variance_reduction": 0.8921565622597885,
+   "at_bound": [
+    "length_km",
+    "width_km",
+    "top_depth_km",
+    "slip_m"
+   ],
+   "bootstrap_runs": 50,
+   "bootstrap_failed": 0,
+   "uncertainty_method": "point_bootstrap",
+   "variance_reduction_per_track": {
+    "GUNW_T076_F006_20261005_20261017_4000": 0.21647491873321756,
+    "GUNW_T076_F005_20261005_20261017_4000": 0.3336177224029152,
+    "GUNW_T040_F085_20261002_20261014_4000": 0.06550067131423853,
+    "GUNW_T040_F084_20261002_20261014_4000": -0.3200265926651471,
+    "GUNW_T004_F005_20260930_20261012_4000": 0.5549695758262925,
+    "GUNW_T141_F085_20260927_20261009_2000": 0.9744448441470018,
+    "GUNW_T141_F085_20260927_20261009_4000": 0.9690422921821069,
+    "GUNW_T141_F084_20260927_20261009_4000": 0.21751445630624078
+   },
+   "timing": {
+    "fit_s": 72.71,
+    "bootstrap_s": 105.45,
+    "per_bootstrap_run_s": 2.109
+   }
+  },
+  {
+   "plane": {
+    "strike": 288.32,
+    "dip": 66.22,
+    "rake": -16.68
+   },
+   "params": {
+    "along_km": {
+     "value": 72.11450044295144,
+     "sigma_jacobian": 0.4196840475634565,
+     "sigma_bootstrap": 0.5142700502718099,
+     "sigma": 0.5142700502718099
+    },
+    "across_km": {
+     "value": -52.41537403535559,
+     "sigma_jacobian": 0.7580837732835013,
+     "sigma_bootstrap": 0.2784424380803335,
+     "sigma": 0.7580837732835013
+    },
+    "length_km": {
+     "value": 54.662679062491776,
+     "sigma_jacobian": 1.2858715463867307,
+     "sigma_bootstrap": 1.4211255685741992,
+     "sigma": 1.4211255685741992
+    },
+    "width_km": {
+     "value": 12.642019575317551,
+     "sigma_jacobian": 5.518201372545359,
+     "sigma_bootstrap": 0.5288382391174851,
+     "sigma": 5.518201372545359
+    },
+    "top_depth_km": {
+     "value": 17.535645661277393,
+     "sigma_jacobian": 2.442154273763742,
+     "sigma_bootstrap": 0.3695187176478662,
+     "sigma": 2.442154273763742
+    },
+    "slip_m": {
+     "value": 19.999999999993047,
+     "sigma_jacobian": 8.991600920957628,
+     "sigma_bootstrap": 3.7560306480475465e-11,
+     "sigma": 8.991600920957628
+    }
+   },
+   "m0_nm": 4.1462799524824895e+20,
+   "mw": {
+    "value": 7.678439081237775,
+    "sigma_jacobian": 0.007565313940867207,
+    "sigma_bootstrap": 0.01136777299997288,
+    "sigma": 0.01136777299997288
+   },
+   "rms_cm": 18.184540073930048,
+   "variance_reduction": 0.8874558572232033,
+   "at_bound": [
+    "slip_m"
+   ],
+   "bootstrap_runs": 50,
+   "bootstrap_failed": 0,
+   "uncertainty_method": "point_bootstrap",
+   "variance_reduction_per_track": {
+    "GUNW_T076_F006_20261005_20261017_4000": 0.12394479961500937,
+    "GUNW_T076_F005_20261005_20261017_4000": 0.4573177640937589,
+    "GUNW_T040_F085_20261002_20261014_4000": -0.10624424819367495,
+    "GUNW_T040_F084_20261002_20261014_4000": -0.2973667184968203,
+    "GUNW_T004_F005_20260930_20261012_4000": 0.39488359403254225,
+    "GUNW_T141_F085_20260927_20261009_2000": 0.9756338134431732,
+    "GUNW_T141_F085_20260927_20261009_4000": 0.970104466076052,
+    "GUNW_T141_F084_20260927_20261009_4000": 0.28383550886214726
+   },
+   "timing": {
+    "fit_s": 39.16,
+    "bootstrap_s": 44.51,
+    "per_bootstrap_run_s": 0.89
+   }
+  }
+ ],
+ "best_plane": 0,
+ "stable": false,
+ "unstable_reasons": [
+  "parameters at a search bound: length_km, width_km, top_depth_km, slip_m"
+ ],
+ "n_points": {
+  "GUNW_T076_F006_20261005_20261017_4000": 1631,
+  "GUNW_T076_F005_20261005_20261017_4000": 1476,
+  "GUNW_T040_F085_20261002_20261014_4000": 1553,
+  "GUNW_T040_F084_20261002_20261014_4000": 1622,
+  "GUNW_T004_F005_20260930_20261012_4000": 1432,
+  "GUNW_T141_F085_20260927_20261009_2000": 1578,
+  "GUNW_T141_F085_20260927_20261009_4000": 1507,
+  "GUNW_T141_F084_20260927_20261009_4000": 1613
+ },
+ "track_notes": {
+  "GUNW_T076_F006_20261005_20261017_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "noise covariance from GUNW_T076_F006_20260923_20261005"
+  ],
+  "GUNW_T076_F005_20261005_20261017_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped"
+  ],
+  "GUNW_T040_F085_20261002_20261014_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "noise covariance from GUNW_T040_F085_20260920_20261002"
+  ],
+  "GUNW_T040_F084_20261002_20261014_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "noise covariance from GUNW_T040_F084_20260920_20261002"
+  ],
+  "GUNW_T004_F005_20260930_20261012_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped"
+  ],
+  "GUNW_T141_F085_20260927_20261009_2000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "4 connected component(s) kept with one offset each (99% of the valid pixels); 1 smaller component(s) (< 20 blocks) dropped"
+  ],
+  "GUNW_T141_F085_20260927_20261009_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "4 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped"
+  ],
+  "GUNW_T141_F084_20260927_20261009_4000": [
+   "ionospheric correction applied",
+   "LOS vector: track mean (file)",
+   "1 connected component(s) kept with one offset each (100% of the valid pixels); 0 smaller component(s) (< 20 blocks) dropped",
+   "noise covariance from GUNW_T141_F084_20260915_20260927"
+  ]
+ },
+ "sign_check": {
+  "case": "panama-2026",
+  "event": "us6000u18k",
+  "los_sign_env": 1.0,
+  "pairs": [
+   "GUNW_T076_F006_20261005_20261017_4000",
+   "GUNW_T076_F005_20261005_20261017_4000",
+   "GUNW_T040_F085_20261002_20261014_4000",
+   "GUNW_T040_F084_20261002_20261014_4000",
+   "GUNW_T004_F005_20260930_20261012_4000",
+   "GUNW_T141_F085_20260927_20261009_2000",
+   "GUNW_T141_F085_20260927_20261009_4000",
+   "GUNW_T141_F084_20260927_20261009_4000"
+  ],
+  "decision": "+1",
+  "decided_by": "a_finite_fault",
+  "verdicts": {
+   "a_finite_fault": "+1",
+   "b_variance_reduction": "inconclusive",
+   "c_left_lateral_plane": "-1"
+  },
+  "rule": "(a) decides: USGS finite-fault model k > 0 at > 3 sigma on >= 3 tracks with none significantly < 0 -> +1, the mirror -> -1, else undecided. Reported next to it: (b) variance reduction(+1) - VR(-1) >= 0.1 (or the reverse); (c) best plane left-lateral 288/66/-17 with one sign only. (b) is weak with free offsets per connected component.",
+  "notes": [
+   "(c) says -1, against (a)"
+  ],
+  "criteria_plus1": {
+   "ffm_k_positive_on_3_tracks_none_negative": true,
+   "inversion_fits_clearly_better": false,
+   "best_plane_is_left_lateral": false
+  },
+  "criteria_minus1": {
+   "ffm_k_negative_on_3_tracks_none_positive": false,
+   "inversion_fits_clearly_better": false,
+   "best_plane_is_left_lateral": true
+  },
+  "ffm": {
+   "model": {
+    "strike": 295.0,
+    "dip": 60.0,
+    "rake": -16.0,
+    "length_km": 55.0,
+    "width_km": 33.6,
+    "lat": 7.54,
+    "lon": -80.769,
+    "top_depth_km": 0.0,
+    "source": "USGS finite-fault model us6000u18k"
+   },
+   "n_tracks": 3,
+   "n_k_positive_3sigma": 7,
+   "n_k_negative_3sigma": 0,
+   "per_track": {
+    "GUNW_T076_F006_20261005_20261017_4000": {
+     "k": 21.60437318512588,
+     "sigma_k": 0.7066990196582741,
+     "k_over_sigma": 30.570826595419256,
+     "partial_r": 0.6040231813880046,
+     "verdict": "consistent"
+    },
+    "GUNW_T076_F005_20261005_20261017_4000": {
+     "k": 0.7708054783264037,
+     "sigma_k": 0.04551282583329887,
+     "k_over_sigma": 16.936005712975394,
+     "partial_r": 0.4038306428789809,
+     "verdict": "consistent"
+    },
+    "GUNW_T040_F085_20261002_20261014_4000": {
+     "k": 5.0098523137752355,
+     "sigma_k": 0.09679531563118025,
+     "k_over_sigma": 51.7571773087068,
+     "partial_r": 0.7960000378506138,
+     "verdict": "consistent"
+    },
+    "GUNW_T040_F084_20261002_20261014_4000": {
+     "k": 59.25958161216091,
+     "sigma_k": 3.8331886079624184,
+     "k_over_sigma": 15.459604958927683,
+     "partial_r": 0.3587504976084738,
+     "verdict": "consistent"
+    },
+    "GUNW_T004_F005_20260930_20261012_4000": {
+     "k": 0.11422570339101064,
+     "sigma_k": 0.04429118417038854,
+     "k_over_sigma": 2.578971538705839,
+     "partial_r": 0.06808844288049526,
+     "verdict": "inconclusive"
+    },
+    "GUNW_T141_F085_20260927_20261009_2000": {
+     "k": 1.99363216052437,
+     "sigma_k": 0.2256244039797696,
+     "k_over_sigma": 8.83606615844236,
+     "partial_r": 0.2175898409569527,
+     "verdict": "consistent"
+    },
+    "GUNW_T141_F085_20260927_20261009_4000": {
+     "k": 2.378929042975206,
+     "sigma_k": 0.24560811420316275,
+     "k_over_sigma": 9.68587316707052,
+     "partial_r": 0.24261612819417547,
+     "verdict": "consistent"
+    },
+    "GUNW_T141_F084_20260927_20261009_4000": {
+     "k": 6.949931912705547,
+     "sigma_k": 0.11241750824322126,
+     "k_over_sigma": 61.82250453078002,
+     "partial_r": 0.8388915336531501,
+     "verdict": "consistent"
+    }
+   }
+  },
+  "inversion": {
+   "variance_reduction_plus1": 0.8921565622597885,
+   "variance_reduction_minus1": 0.8786014458127911,
+   "rms_cm_plus1": 17.800726775624653,
+   "rms_cm_minus1": 18.886332431255255,
+   "best_plane_plus1": {
+    "strike": 25.21,
+    "dip": 74.77,
+    "rake": -155.3
+   },
+   "best_plane_minus1": {
+    "strike": 288.32,
+    "dip": 66.22,
+    "rake": -16.68
+   }
+  },
+  "expected_plane": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  },
+  "convention": "+1 = positive toward the satellite (documented NISAR convention)"
+ },
+ "findings": [],
+ "not_computed": [],
+ "figures": [
+  {
+   "id": "fault_fit",
+   "path": "panama-2026_fit.png",
+   "kind": "image"
+  }
+ ],
+ "limits": [
+  {
+   "fr": "Glissement uniforme sur un seul rectangle : la vraie rupture est hétérogène ; longueur, largeur et glissement se compensent, la magnitude est mieux contrainte que chacun d'eux.",
+   "en": "Uniform slip on a single rectangle: the real rupture is heterogeneous; length, width and slip trade off, the magnitude is better constrained than each of them.",
+   "ar": "انزلاق منتظم على مستطيل واحد: التمزق الحقيقي غير متجانس؛ الطول والعرض والانزلاق يعوض بعضها بعضا، والقدر أفضل تقييدا من كل منها."
+  },
+  {
+   "fr": "Les incertitudes ignorent le bruit corrélé dans l'espace (atmosphère) : ce sont des minorants.",
+   "en": "The uncertainties ignore spatially correlated noise (atmosphere): they are lower bounds.",
+   "ar": "لا تأخذ الشكوك في الحسبان الضجيج المترابط مكانيا (الغلاف الجوي): فهي حدود دنيا."
+  },
+  {
+   "fr": "Direction de visée moyenne par trace : l'incidence varie le long de la fauchée.",
+   "en": "One mean line-of-sight direction per track: the incidence angle varies across the swath.",
+   "ar": "اتجاه نظر متوسط لكل مسار: تتغير زاوية السقوط عبر عرض المسح."
+  },
+  {
+   "fr": "Le signe de la ligne de visée n'est pas encore vérifié (NISAR_LOS_SIGN_VERIFIED).",
+   "en": "The line-of-sight sign is not verified yet (NISAR_LOS_SIGN_VERIFIED).",
+   "ar": "لم يتم التحقق بعد من إشارة خط النظر (NISAR_LOS_SIGN_VERIFIED)."
+  }
+ ],
+ "timing": {
+  "load_tracks_s": 80.27,
+  "inversion_s": 261.91,
+  "sign_decision_s": 117.46
+ }
+}
