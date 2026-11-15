@@ -413,12 +413,12 @@ def build_flood(case_id: str, results: Path, offline: bool) -> dict:
               + provenance.product_limits(products, info["crids"]))
     head = haouz_case.headline(findings, info)          # the U-Net open water does not change the headline
     try:
-        ow_findings, ow_figures = water.haouz_open_water()
+        ow_findings, ow_figures, ow_limits = water.haouz_open_water()
     except water.WaterInputError as exc:
         raise CaseInputError(str(exc)) from exc
     parts = {"title": haouz_case.TITLE, "findings": (findings + ow_findings) or None,
              "figures": figures + ow_figures, "exposure": None,
-             "limits": limits, "date": raw.get("date"), "timeline": tl or None,
+             "limits": limits + ow_limits, "date": raw.get("date"), "timeline": tl or None,
              "headline": head,
              "location": {**base["location"], "bbox": bbox} if bbox else None}
     return finalize(base, parts, missing + m1 + m5)

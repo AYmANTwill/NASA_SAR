@@ -48,7 +48,10 @@ CaseStudy {
 The id fixes the kind: `panama-2026` and `venezuela-2026` are `earthquake`, `haouz-flood-2026` is `flood`, and
 `ionosphere-gps` and `bin-el-ouidane-2026` are `method`.
 
-`bin-el-ouidane-2026` (Youkaoui, `backend/water/`) is optional: it is served only when `backend/water/outputs/reservoir_case.json` exists (a full CaseStudy, same rules). Its images, and those of `haouz_open_water.json` (findings "persistent open water (U-Net)" added to the Haouz case), are served at `GET /api/water/rasters/{file}` and `GET /api/water/figures/{file}` (png / jpg / webp, same path checks as case figures).
+`bin-el-ouidane-2026` (Youkaoui, `backend/water/`) is optional: it is served only when `backend/water/outputs/reservoir_case.json` exists (a full CaseStudy, same rules). Its images, and those of `haouz_open_water.json` (findings "persistent open water (U-Net)" added to the Haouz case), are served at `GET /api/water/rasters/{file}` and `GET /api/water/figures/{file}` (png / jpg / webp, same path checks as case figures). The package writes urls as `water/outputs/<figures|rasters>/<file>` (relative to
+`backend/`); the loader maps them to `/api/water/...`. `GET /api/water/raster-index` returns
+`outputs/raster_index.json` (3 RGBA PNG layers, EPSG:4326, `[west, south, east, north]`; images, not `RasterLayer`).
+`backend/water/` is vendored from Youkaoui's `nisar-water` package and never edited here.
 
 ### New Measurement units
 
