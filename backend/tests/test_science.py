@@ -68,7 +68,9 @@ except ValueError:
 
 # ---------------------------------------------------------------- the four draft fixtures
 cases, errors = case_store.load_all()
-check("the 4 fixtures load and validate", [c.id for c in cases] == list(case_store.ORDER) and not errors, errors)
+REQUIRED = [c for c in case_store.ORDER if c not in case_store.OPTIONAL_CASES]
+check("the 4 fixtures load and validate (the optional 5th case is absent, not an error)",
+      [c.id for c in cases] == REQUIRED and not errors, errors)
 check("all fixtures are drafts with their placeholders listed",
       all(c.status == "draft" and c.placeholders for c in cases))
 base = json.loads((case_store.CASES_DIR / "panama-2026.json").read_text(encoding="utf-8"))
@@ -128,10 +130,13 @@ except ValidationError as exc:
 # ---------------------------------------------------------------- API
 c = TestClient(api.app)
 r = c.get("/api/cases")
-check("GET /api/cases lists the 4 cases in order",
-      r.status_code == 200 and [s["id"] for s in r.json()] == list(case_store.ORDER), r.text[:300])
-check("summaries have exactly the contract keys",
-      all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url"} for s in r.json()))
+check("GET /api/cases lists the 4 cases in order; the absent 5th case is not listed",
+      r.status_code == 200 and [s["id"] for s in r.json()] == REQUIRED, r.text[:300])
+check("GET /api/cases/bin-el-ouidane-2026 without its file: 404 case_not_found",
+      c.get("/api/cases/bin-el-ouidane-2026").status_code == 404)
+check("summaries have exactly the contract keys, plus the optional bbox and place (the map extent)",
+      all(set(s) == {"id", "kind", "title", "date", "status", "thumbnail_url", "bbox", "place"}
+          and len(s["bbox"]) == 4 and set(s["place"]) == {"fr", "en", "ar"} for s in r.json()))
 r = c.get("/api/cases/panama-2026")
 check("GET /api/cases/panama-2026 returns the draft case: no placeholder value, what is missing is in limits",
       r.status_code == 200 and r.json()["id"] == "panama-2026" and r.json()["findings"] == []
@@ -528,6 +533,9 @@ check("cases: full timeline, sorted: USGS origin, every NISAR acquisition time o
                                               "2026-10-09T23:15:20Z", "2026-10-10T02:00:00Z", "2026-10-12T11:03:01Z",
                                               "2026-10-13T08:00:00Z"]
       and pan["date"] == "2026-10-09T17:56:06Z", [t["at"] for t in pan["timeline"]])
+check("timeline items carry their optional kind: event, acquisition, publication",
+      [t.get("kind") for t in pan["timeline"]].count("event") == 1
+      and {t.get("kind") for t in pan["timeline"]} == {"event", "acquisition", "publication"}, pan["timeline"])
 maps = [f for f in pan["figures"] if f.get("layer")]
 lay = maps[0]["layer"] if maps else {}
 check("cases: one map figure with a RasterLayer per co-seismic pair (PNG rendered with the frontend palette, served)",
@@ -692,6 +700,112 @@ check("haouz: a circle finding without its own measurement uncertainty is left o
       and "no measurement uncertainty at the site" in hz2_lim and hz2["status"] == "draft", hz2_lim)
 check("haouz: a site value that disagrees with the no-event baseline is a clear change in the headline",
       "clear change in Backscatter change" in hz2["headline"]["text"]["en"], hz2["headline"])
+
+# --- answers: no English inside FR / AR, the period searched (Adam's requests 4 and 5) ---------------------------
+import api_v2  # noqa: E402
+from science import answer_text  # noqa: E402
+
+nd = api_v2.to_answer({"type": "surface_change", "facts": {"error": "needs an earlier pair and a pair of the same "
+                                                           "length on the same track, frame and CRID"},
+                       "place": {}, "data_used": [], "event_time": {"utc": "20261010", "precision": "day"},
+                       "steps": [{"step": "found 0 interferograms covering the point", "ok": True},
+                                 {"step": "surface change (coherence loss)", "ok": False,
+                                  "error": "the before and event pairs do not share the same grid"}]},
+                      "a-nd", "q", "fr")
+txt = nd["verdict"]["text"]
+english = ("needs an earlier", "same length", "interferograms covering", "found ", "failed", "do not share",
+           "coherence loss")
+fr_ar = [txt["fr"], txt["ar"]] + [st["summary"]["text"][L] for st in nd["steps"] if "text" in st["summary"]
+                                  for L in ("fr", "ar")] +         [st["error"]["text"][L] for st in nd["steps"] if st["error"] for L in ("fr", "ar")]
+check("answers: a no-data verdict is a template with a reason code; no English sentence in its FR / AR text",
+      nd["verdict"]["template"] == "backend.verdict.no_data"
+      and nd["verdict"]["params"]["reason"] == {"term": "reason.needs_baseline_pair"}
+      and not any(w in t for t in fr_ar for w in english), fr_ar)
+steps_by = {st["summary"]["template"]: st for st in nd["steps"]}
+check("answers: step summaries and errors are templates with params (count, reason), not the English name",
+      steps_by.get("backend.step.found_products", {}).get("summary", {}).get("params") == {"count": 0}
+      and steps_by["backend.step.surface_change_coherence_loss"]["error"]["params"]["reason"]
+      == {"term": "reason.grid_mismatch"}, list(steps_by))
+check("answers: no product -> the period searched (the event day), not today",
+      nd["period"] == {"start": "2026-10-10", "end": "2026-10-11"} and nd["acquisitions"] == [], nd["period"])
+nd2 = api_v2.to_answer({"type": "soil_moisture", "facts": {"error": "something new went wrong"}, "place": {},
+                        "data_used": []}, "a-nd2", "q", "fr")
+check("answers: an unknown reason keeps its English only in 'en'; empty catalog -> today with a limit saying so",
+      "something new" not in nd2["verdict"]["text"]["fr"] and "something new" in nd2["verdict"]["text"]["en"]
+      and any(lim["template"] == "backend.limit.no_catalog" for lim in nd2["limits"]), nd2["verdict"])
+check("answers: displacement step keeps its dates and direction as params",
+      answer_text.step_summary("displacement ascending 20261003→20261015")["params"]
+      == {"direction": {"term": "direction.ascending"}, "date": {"date": "2026-10-03"}, "date2": {"date": "2026-10-15"}})
+
+fl = api_v2.to_answer({"type": "flood", "facts": {"open_water_ha": 12.0, "flooded_vegetation_ha": 3.0}, "place": {},
+                       "data_used": []}, "a-fl", "q", "fr")
+df = api_v2.to_answer({"type": "deforestation", "facts": {"vegetation_loss_ha": 40.0}, "place": {}, "data_used": []},
+                      "a-df", "q", "fr")
+check("answers: flood / forest areas without a computed sigma are not sent (no hand-set 20 %), a limit says why",
+      not any(m["id"] in ("flooded_area", "forest_loss") for m in fl["metrics"] + df["metrics"])
+      and any(x["template"] == "backend.limit.no_sigma" for x in fl["limits"])
+      and any(x["template"] == "backend.limit.no_sigma" for x in df["limits"]), (fl["metrics"], df["metrics"]))
+fl2 = api_v2._metrics("flood", {"open_water_ha": 12.0, "flooded_vegetation_ha": 3.0, "flooded_area_sigma_ha": 2.5})
+check("answers: with a sigma computed by the recipe the flooded area is a measurement",
+      fl2 == [{"id": "flooded_area", "measurement": {"value": 15.0, "uncertainty": 2.5, "unit": "ha", "sigma": 1}}])
+check("answers: no hand-set 0.1 m on the largest pixel offset either",
+      api_v2._metrics("large_displacement", {"magnitude_m": 1.2}) == [])
+
+# --- Youkaoui's water outputs: the optional 5th case, Haouz open water, /api/water ------------------------------
+from science import water  # noqa: E402
+
+wdir = tmp / "water_outputs"
+(wdir / "figures").mkdir(parents=True)
+(wdir / "rasters").mkdir()
+water.WATER_DIR = wdir
+(wdir / "figures" / "reservoir_area.png").write_bytes(bytes([0x89]) + b"PNG")
+(tmp / "secret.png").write_bytes(bytes([0x89]) + b"PNG")
+check("water: files under rasters/ and figures/ only, unsafe names and other folders refused",
+      water.water_path("figures", "reservoir_area.png") is not None
+      and water.water_path("figures", "../../secret.png") is None and water.water_path("outputs", "x.png") is None
+      and water.water_path("figures", "x.exe") is None and water.water_path("figures", "missing.png") is None)
+wc = TestClient(api.app)
+r_w = wc.get("/api/water/figures/reservoir_area.png")
+check("GET /api/water/figures/<file> serves the image; traversal and unknown folders -> 404",
+      r_w.status_code == 200 and r_w.headers["content-type"] == "image/png"
+      and wc.get("/api/water/figures/..%2F..%2Fsecret.png").status_code == 404
+      and wc.get("/api/water/data/reservoir_area.png").status_code == 404)
+check("5th case: no reservoir_case.json -> not built, no error", cs.build_reservoir() is None)
+res_lab = {"fr": "r", "en": "r", "ar": "r"}
+reservoir = {**json.loads((case_store.CASES_DIR / "ionosphere-gps.json").read_text(encoding="utf-8")),
+             "id": "bin-el-ouidane-2026", "kind": "method", "status": "final", "placeholders": [],
+             "findings": [{"id": "volume", "label": res_lab, "nisar": {"value": 0.9, "uncertainty": 0.1, "unit": "km2",
+                                                                       "sigma": 1},
+                           "reference": None, "reference_source": None, "agreement": "no_reference"},
+                          {"id": "level", "label": res_lab, "nisar": {"value": 0, "uncertainty": 0, "unit": "m",
+                                                                      "sigma": 1},
+                           "reference": None, "reference_source": None, "agreement": "no_reference"}],
+             "figures": [{"id": "area", "kind": "chart", "title": res_lab, "url": "/api/water/figures/reservoir_area.png",
+                          "caption": {"template": "x", "params": {}}}]}
+(wdir / "reservoir_case.json").write_text(json.dumps(reservoir), encoding="utf-8")
+res5 = cs.build_reservoir()
+check("5th case: built from reservoir_case.json; a value without sigma is left out, so it stays a draft",
+      res5["id"] == "bin-el-ouidane-2026" and [f["id"] for f in res5["findings"]] == ["volume"]
+      and res5["status"] == "draft" and any("not computed" in x["text"]["en"] for x in res5["limits"]),
+      res5["placeholders"])
+(wdir / "reservoir_case.json").write_text(json.dumps({**reservoir, "figures": [
+    {**reservoir["figures"][0], "url": "/etc/passwd"}]}), encoding="utf-8")
+check("5th case: a figure url outside /api/water or /api/cases stops the build",
+      raises(cs.build_reservoir, cs.CaseInputError))
+(wdir / "reservoir_case.json").unlink()
+(wdir / "haouz_open_water.json").write_text(json.dumps({
+    "findings": [{"id": "change_km2", "label": res_lab, "nisar": {"value": 0.02, "uncertainty": 0.05, "unit": "km2",
+                                                                  "sigma": 1},
+                  "reference": None, "reference_source": None, "agreement": "no_reference"}],
+    "figures": [{"id": "unet_water", "kind": "chart", "title": res_lab, "url": "/api/water/figures/reservoir_area.png",
+                 "caption": {"template": "x", "params": {}}}]}), encoding="utf-8")
+hz_ow = cs.build_flood("haouz-flood-2026", res_dir, offline=True)
+ow = [f for f in hz_ow["findings"] if f["id"].startswith("open_water")]
+check("haouz: U-Net open water added as 'Persistent open water (U-Net)'; the headline does not change",
+      len(ow) == 1 and ow[0]["label"]["en"] == "Persistent open water (U-Net)"
+      and any(f["id"] == "unet_water" for f in hz_ow["figures"]) and hz_ow["headline"] == hz2["headline"],
+      [f["id"] for f in hz_ow["findings"]])
+(wdir / "haouz_open_water.json").unlink()
 
 # --- no 0.0 for a missing value ---------------------------------------------------------------------------------
 kept, nc_lim, nc_ph = cs.split_computed([mw_finding, {**mw_finding, "id": "slip",

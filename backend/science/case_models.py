@@ -15,8 +15,9 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer, model_validator
 
 CASE_KIND = {"panama-2026": "earthquake", "venezuela-2026": "earthquake",
-             "haouz-flood-2026": "flood", "ionosphere-gps": "method"}
-CaseId = Literal["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps"]
+             "haouz-flood-2026": "flood", "ionosphere-gps": "method",
+             "bin-el-ouidane-2026": "method"}
+CaseId = Literal["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps", "bin-el-ouidane-2026"]
 CaseKind = Literal["earthquake", "flood", "method"]
 Status = Literal["draft", "final"]
 AgreementLabel = Literal["agree", "partial", "disagree", "no_reference"]
@@ -182,6 +183,14 @@ class Location(_Strict):
 class TimelineItem(_Strict):
     label: Lang3
     at: str
+    kind: Literal["event", "acquisition", "publication"] | None = None     # optional (Adam's request 3)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_kind(self, handler):
+        out = handler(self)
+        if out.get("kind") is None:
+            out.pop("kind", None)   # zod: optional, not nullable
+        return out
 
     @field_validator("at")
     @classmethod
@@ -236,9 +245,19 @@ class CaseSummary(_Strict):
     date: str
     status: Status
     thumbnail_url: str | None
+    bbox: tuple[float, float, float, float] | None = None     # optional (Adam's request 2): the map extent
+    place: Lang3 | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_optional(self, handler):
+        out = handler(self)
+        for key in ("bbox", "place"):
+            if out.get(key) is None:
+                out.pop(key, None)   # zod: optional, not nullable
+        return out
 
     @classmethod
     def of(cls, case: CaseStudy) -> "CaseSummary":
         thumb = next((f.url for f in case.figures if f.kind in ("map", "image")), None)
         return cls(id=case.id, kind=case.kind, title=case.title, date=case.date, status=case.status,
-                   thumbnail_url=thumb)
+                   thumbnail_url=thumb, bbox=case.location.bbox, place=case.location.place)

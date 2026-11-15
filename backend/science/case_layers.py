@@ -76,7 +76,7 @@ def timeline(event: tuple[dict, str] | None, products: list, offline: bool) -> t
     """(items sorted by time, placeholders). event = (label {fr,en,ar}, ISO UTC) or None."""
     items, missing = [], []
     if event:
-        items.append({"label": event[0], "at": event[1]})
+        items.append({"label": event[0], "at": event[1], "kind": "event"})
     acq = {}
     for p in products:
         tag = f"T{p.track} {p.direction[:3]}."
@@ -84,12 +84,12 @@ def timeline(event: tuple[dict, str] | None, products: list, offline: bool) -> t
             acq.setdefault(stamp, tag)
     for stamp, tag in sorted(acq.items())[-MAX_ACQUISITIONS:]:
         items.append({"label": _l3(f"Acquisition NISAR ({tag})", f"NISAR acquisition ({tag})", f"التقاط NISAR ({tag})"),
-                      "at": stamp_iso(stamp)})
+                      "at": stamp_iso(stamp), "kind": "acquisition"})
     for p in products:
         published = asf_processing_date(p.name, offline)
         if published:
             items.append({"label": _l3(f"Publié par l'ASF (T{p.track})", f"Published by ASF (T{p.track})",
-                                       f"نشر من طرف ASF (T{p.track})"), "at": published})
+                                       f"نشر من طرف ASF (T{p.track})"), "at": published, "kind": "publication"})
         else:
             missing.append(f"timeline: ASF processingDate of {p.name}")
     if not products:

@@ -2,7 +2,7 @@
 
 Frozen Saturday 14 Nov 2026, 16:00. Changes after the freeze need both Ayman and Houssam.
 
-The four case studies of NISAR Pulse are served by the backend under `/api/cases`. Each one is a measured result
+The case studies of NISAR Pulse (four, plus an optional fifth) are served by the backend under `/api/cases`. Each one is a measured result
 with its uncertainty and, where one exists, an independent reference.
 
 Sources of truth:
@@ -23,7 +23,8 @@ GET /api/cases/{id}   -> CaseStudy       404 ApiErrorBody {code: "case_not_found
 ## Types
 
 ```
-CaseSummary { id, kind, title: {fr,en,ar}, date: ISO UTC, status, thumbnail_url: string | null }
+CaseSummary { id, kind, title: {fr,en,ar}, date: ISO UTC, status, thumbnail_url: string | null,
+              bbox?: [w,s,e,n], place?: {fr,en,ar} }        // optional: the case's map extent and place
 
 CaseStudy {
   id: "panama-2026" | "venezuela-2026" | "haouz-flood-2026" | "ionosphere-gps"
@@ -38,14 +39,16 @@ CaseStudy {
                agreement: "agree" | "partial" | "disagree" | "no_reference" }]
   figures: [{ id, kind: "map" | "chart" | "image", title: {fr,en,ar}, url, caption: TemplatedText, layer?: Layer }]
   exposure: { people: Measurement, buildings: Measurement, area_km2: Measurement, source: {name, url} } | null
-  timeline: [{ label: {fr,en,ar}, at: ISO UTC }]
+  timeline: [{ label: {fr,en,ar}, at: ISO UTC, kind?: "event" | "acquisition" | "publication" }]
   answer_ids: string[]
   limits: TemplatedText[]          // at least one
 }
 ```
 
 The id fixes the kind: `panama-2026` and `venezuela-2026` are `earthquake`, `haouz-flood-2026` is `flood`, and
-`ionosphere-gps` is `method`.
+`ionosphere-gps` and `bin-el-ouidane-2026` are `method`.
+
+`bin-el-ouidane-2026` (Youkaoui, `backend/water/`) is optional: it is served only when `backend/water/outputs/reservoir_case.json` exists (a full CaseStudy, same rules). Its images, and those of `haouz_open_water.json` (findings "persistent open water (U-Net)" added to the Haouz case), are served at `GET /api/water/rasters/{file}` and `GET /api/water/figures/{file}` (png / jpg / webp, same path checks as case figures).
 
 ### New Measurement units
 

@@ -16,7 +16,7 @@ const Lang3 = z.object({ fr: z.string().min(1), en: z.string().min(1), ar: z.str
 const isoUtc = z.string().datetime({ offset: true });
 const Source = z.object({ name: z.string().min(1), url: z.string().url() });
 
-export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps"]);
+export const CaseId = z.enum(["panama-2026", "venezuela-2026", "haouz-flood-2026", "ionosphere-gps", "bin-el-ouidane-2026"]);
 export const CaseKind = z.enum(["earthquake", "flood", "method"]);
 export const CaseStatus = z.enum(["draft", "final"]);
 export const CaseAgreement = z.enum(["agree", "partial", "disagree", "no_reference"]);
@@ -76,7 +76,7 @@ export const CaseStudy = z.object({
   findings: z.array(CaseFinding),
   figures: z.array(CaseFigure),
   exposure: CaseExposure.nullable(),
-  timeline: z.array(z.object({ label: Lang3, at: isoUtc })),
+  timeline: z.array(z.object({ label: Lang3, at: isoUtc, kind: z.enum(["event", "acquisition", "publication"]).optional() })),
   answer_ids: z.array(z.string()),
   limits: z.array(TemplatedText).min(1, "every case must state its limits"),
 });
@@ -89,5 +89,7 @@ export const CaseSummary = z.object({
   date: isoUtc,
   status: CaseStatus,
   thumbnail_url: z.string().nullable(),
+  bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
+  place: Lang3.optional(),
 });
 export type CaseSummary = z.infer<typeof CaseSummary>;
