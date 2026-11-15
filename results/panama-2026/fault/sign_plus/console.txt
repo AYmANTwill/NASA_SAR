@@ -1,0 +1,50 @@
+C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.2.3) or chardet (7.4.3)/charset_normalizer (3.4.0) doesn't match a supported version!
+  warnings.warn(
+noise model GUNW_T076_F006_20261005_20261017: ok, sigma 2.14 cm, range 25.1 km
+noise model GUNW_T076_F005_20261005_20261017: ok, sigma 1.92 cm, range 10.3 km
+noise model GUNW_T040_F085_20261002_20261014: ok, sigma 53.40 cm, range 437.6 km
+noise model GUNW_T040_F084_20261002_20261014: ok, sigma 18.51 cm, range 56.0 km
+noise model GUNW_T004_F005_20260930_20261012: ok, sigma 2.49 cm, range 9.8 km
+noise model GUNW_T141_F085_20260927_20261009: ok, sigma 2.96 cm, range 8.2 km
+noise model GUNW_T141_F084_20260927_20261009: ok, sigma 39.81 cm, range 1035.3 km
+NISAR_LOS_SIGN = 1.0
+{
+ "pairs": [
+  "GUNW_T076_F006_20261005_20261017",
+  "GUNW_T076_F005_20261005_20261017",
+  "GUNW_T040_F085_20261002_20261014",
+  "GUNW_T040_F084_20261002_20261014",
+  "GUNW_T004_F005_20260930_20261012",
+  "GUNW_T141_F085_20260927_20261009",
+  "GUNW_T141_F085_20260927_20261009",
+  "GUNW_T141_F084_20260927_20261009"
+ ],
+ "stable": false,
+ "unstable_reasons": [
+  "parameters at a search bound: top_depth_km, slip_m"
+ ],
+ "best_plane": 0
+}
+variance reduction per track: {
+ "GUNW_T076_F006_20261005_20261017": -0.3593626831412784,
+ "GUNW_T076_F005_20261005_20261017": 0.5497339381872484,
+ "GUNW_T040_F085_20261002_20261014": 0.5395330610026229,
+ "GUNW_T040_F084_20261002_20261014": 0.5329658241126092,
+ "GUNW_T004_F005_20260930_20261012": -0.008976088906456514,
+ "GUNW_T141_F085_20260927_20261009": 0.9664984783729343,
+ "GUNW_T141_F084_20260927_20261009": -0.26711727277098296
+}
+LOS sign decision: undecided   (written to ..\results\panama-2026\fault\sign_plus\panama-2026_sign.json)
+  FFM GUNW_T076_F006_20261005_20261017: k = 22.5 +/- 0.68 (+33.0 sigma), r = 0.63 -> consistent
+  FFM GUNW_T076_F005_20261005_20261017: k = 0.465 +/- 0.032 (+14.5 sigma), r = 0.35 -> consistent
+  FFM GUNW_T040_F085_20261002_20261014: k = 0.997 +/- 0.1 (+9.9 sigma), r = 0.24 -> consistent
+  FFM GUNW_T040_F084_20261002_20261014: k = 51.7 +/- 3.7 (+14.1 sigma), r = 0.33 -> consistent
+  FFM GUNW_T004_F005_20260930_20261012: k = 0.123 +/- 0.042 (+2.9 sigma), r = 0.08 -> inconclusive
+  FFM GUNW_T141_F085_20260927_20261009: k = 2.48 +/- 0.22 (+11.3 sigma), r = 0.28 -> consistent
+  FFM GUNW_T141_F084_20260927_20261009: k = 8.17 +/- 0.14 (+59.2 sigma), r = 0.83 -> consistent
+  inversion VR +1 = 0.824, -1 = 0.818
+  criteria +1: {'ffm_k_positive_on_3_tracks_none_negative': True, 'inversion_fits_clearly_better': False, 'best_plane_is_left_lateral': False}
+timing: load_tracks_s 55.62 s, inversion_s 416.27 s, sign_decision_s 289.37 s
+  plane 1: fit 45.85 s, bootstrap 101.12 s (50 runs, 2.022 s/run), --boot 50 would take ~147 s
+  plane 2: fit 189.8 s, bootstrap 79.45 s (50 runs, 1.589 s/run), --boot 50 would take ~269 s
+exit 0

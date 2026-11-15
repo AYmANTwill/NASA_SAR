@@ -1,0 +1,7 @@
+78 products in the catalog
+- haouz-flood-2026-10-10 low     yellow    4.1s  Entre le 03/10/2026 et le 15/10/2026 (12 jours, fenêtre qui contient l'événement du 10/10/2026) (produit NISAR
+- haouz-soil-moisture low     none      5.5s  Humidité du sol le 18/10/2026 : 0.174 m³/m³ (-0.027 par rapport à la moyenne de 7 passages). Cet écart est dan
+- gharb-soil-moisture low     none      3.3s  Humidité du sol le 20/10/2026 : 0.219 m³/m³ (+0.025 par rapport à la moyenne de 6 passages). Cet écart est dan
+- ben-guerir-mine  low     none     25.9s  Sans date d'événement, comparaison du dernier passage (03/10/2026 → 15/10/2026, 12 jours) (produit NISAR provi
+- al-wahda-surroundings low     none     90.3s  Variation de ligne de visée non corrigée, signe non vérifié : du 20/06/2026 au 18/10/2026 (9 paires, 120 jours
+discoveries: disabled (Automatic discoveries are disabled: the candidate zones were not physical (several fringes in a single 12-day pair) and are not validated. Set NISAR_DISCOVERIES_ENABLED=1 to run them anyway.)

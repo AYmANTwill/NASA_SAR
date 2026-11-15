@@ -1,0 +1,249 @@
+{
+ "variant": "C",
+ "los_sign_env": 1.0,
+ "tracks": {
+  "T141": {
+   "direction": "descending",
+   "pairs": {
+    "GUNW_T141_F085_20260927_20261009": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 10.6625,
+     "sigma_sub": 27.563,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.0205
+    },
+    "GUNW_T141_F084_20260927_20261009": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 21.0353,
+     "sigma_sub": 4.3864,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.1826
+    }
+   },
+   "n_points": 4698,
+   "vr_ramp_only_plus1": 0.9531,
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.9577,
+     "vr_minus1": 0.9617,
+     "rms_plus1_cm": 17.35,
+     "rms_minus1_cm": 16.52
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.9827,
+     "vr_minus1": 0.9696,
+     "rms_plus1_cm": 11.11,
+     "rms_minus1_cm": 14.71
+    }
+   ]
+  },
+  "T4": {
+   "direction": "ascending",
+   "pairs": {
+    "GUNW_T004_F005_20260930_20261012": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 0.0,
+     "sigma_sub": 8.861,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.0251
+    }
+   },
+   "n_points": 1432,
+   "vr_ramp_only_plus1": 0.5742,
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.7458,
+     "vr_minus1": 0.7725,
+     "rms_plus1_cm": 5.9,
+     "rms_minus1_cm": 5.58
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.7403,
+     "vr_minus1": 0.7769,
+     "rms_plus1_cm": 5.96,
+     "rms_minus1_cm": 5.53
+    }
+   ]
+  },
+  "T40": {
+   "direction": "descending",
+   "pairs": {
+    "GUNW_T040_F085_20261002_20261014": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 14.1255,
+     "sigma_sub": 22.7615,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.0446
+    },
+    "GUNW_T040_F084_20261002_20261014": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 40.8918,
+     "sigma_sub": 6.2446,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.1293
+    }
+   },
+   "n_points": 3175,
+   "vr_ramp_only_plus1": 0.2836,
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.6458,
+     "vr_minus1": 0.4572,
+     "rms_plus1_cm": 15.53,
+     "rms_minus1_cm": 19.23
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.7512,
+     "vr_minus1": 0.5625,
+     "rms_plus1_cm": 13.02,
+     "rms_minus1_cm": 17.26
+    }
+   ]
+  },
+  "T76": {
+   "direction": "ascending",
+   "pairs": {
+    "GUNW_T076_F006_20261005_20261017": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 2.1924,
+     "sigma_sub": 2.7487,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.0754
+    },
+    "GUNW_T076_F005_20261005_20261017": {
+     "applied": true,
+     "kept_raw": false,
+     "already_applied_flag": false,
+     "reason": "applied",
+     "sigma_raw": 0.0,
+     "sigma_sub": 12.6901,
+     "unc_layer": "absent (not extracted for this product)",
+     "valid_fraction": 0.0291
+    }
+   },
+   "n_points": 3107,
+   "vr_ramp_only_plus1": 0.3648,
+   "planes": [
+    {
+     "plane": {
+      "strike": 25.21,
+      "dip": 74.77,
+      "rake": -155.3
+     },
+     "vr_plus1": 0.6121,
+     "vr_minus1": 0.7521,
+     "rms_plus1_cm": 8.87,
+     "rms_minus1_cm": 7.09
+    },
+    {
+     "plane": {
+      "strike": 288.32,
+      "dip": 66.22,
+      "rake": -16.68
+     },
+     "vr_plus1": 0.5991,
+     "vr_minus1": 0.7328,
+     "rms_plus1_cm": 9.02,
+     "rms_minus1_cm": 7.36
+    }
+   ]
+  }
+ },
+ "decision_inputs": {
+  "decision": "undecided",
+  "ffm_n_k_positive_3sigma": 6,
+  "ffm_n_k_negative_3sigma": 0,
+  "vr_plus1": 0.9354,
+  "vr_minus1": 0.9122,
+  "vr_difference": 0.0232,
+  "best_plane_plus1": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  },
+  "criteria_plus1": {
+   "ffm_k_positive_on_3_tracks_none_negative": true,
+   "inversion_fits_clearly_better": false,
+   "best_plane_is_left_lateral": true
+  },
+  "ffm_per_pair": {
+   "GUNW_T076_F006_20261005_20261017": {
+    "k_over_sigma": 30.6,
+    "verdict": "consistent"
+   },
+   "GUNW_T076_F005_20261005_20261017": {
+    "k_over_sigma": 16.9,
+    "verdict": "consistent"
+   },
+   "GUNW_T040_F085_20261002_20261014": {
+    "k_over_sigma": 51.8,
+    "verdict": "consistent"
+   },
+   "GUNW_T040_F084_20261002_20261014": {
+    "k_over_sigma": 15.5,
+    "verdict": "consistent"
+   },
+   "GUNW_T004_F005_20260930_20261012": {
+    "k_over_sigma": 2.6,
+    "verdict": "inconclusive"
+   },
+   "GUNW_T141_F085_20260927_20261009": {
+    "k_over_sigma": 9.7,
+    "verdict": "consistent"
+   },
+   "GUNW_T141_F084_20260927_20261009": {
+    "k_over_sigma": 61.8,
+    "verdict": "consistent"
+   }
+  }
+ },
+ "elapsed_s": 767
+}

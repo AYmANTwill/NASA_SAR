@@ -4,9 +4,13 @@ LOS = e*E + n*N + u*U with (e, n, u) the ground-to-satellite unit vector. With t
 north motion neglected (polar orbits are almost blind to it), solve a 2x2 system for (E, U)."""
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 
 from catalog import Product
+
+log = logging.getLogger(__name__)
 
 # Nominal fall-back geometry if the file's line-of-sight vectors cannot be read.
 # NISAR granules are labelled "left looking" on ASF.
@@ -22,25 +26,35 @@ def _nominal(direction: str) -> np.ndarray:
     return np.array([np.sin(inc) * np.sin(az), np.sin(inc) * np.cos(az), np.cos(inc)])
 
 
+def _fallback(p: Product, reason: str) -> tuple[np.ndarray, str]:
+    """Nominal geometry, never silently: the reason is logged and returned in the source string."""
+    log.warning("%s: line-of-sight vector from the nominal geometry (%s)", getattr(p, "id", p), reason)
+    return _nominal(p.direction), f"nominal ({reason})"
+
+
 def los_vector(p: Product) -> tuple[np.ndarray, str]:
-    """Ground-to-satellite unit vector (east, north, up). Tries radar_geometry.npz first."""
+    """Ground-to-satellite unit vector (east, north, up) and its source: "file" when read from radar_geometry.npz,
+    otherwise "nominal (<reason>)" with the reason logged."""
     npz = p.folder / "radar_geometry.npz"
-    if npz.exists():
-        try:
-            z = np.load(npz)
+    if not npz.exists():
+        return _fallback(p, "no radar_geometry.npz")
+    try:
+        with np.load(npz) as z:
             kx = next((k for k in z.files if k.endswith("losUnitVectorX")), None)
             ky = next((k for k in z.files if k.endswith("losUnitVectorY")), None)
-            if kx and ky:
-                e, n = float(np.nanmean(z[kx])), float(np.nanmean(z[ky]))
-                u = float(np.sqrt(max(0.0, 1 - e * e - n * n)))
-                v = np.array([e, n, u])
-                # the file may store satellite-to-ground: flip if it points away from the nominal side
-                if np.dot(v[:2], _nominal(p.direction)[:2]) < 0:
-                    v[:2] *= -1
-                return v, "file"
-        except Exception:
-            pass
-    return _nominal(p.direction), "nominal"
+            if not (kx and ky):
+                return _fallback(p, "npz has no losUnitVectorX/Y")
+            e, n = float(np.nanmean(z[kx])), float(np.nanmean(z[ky]))
+    except Exception as exc:
+        return _fallback(p, f"npz error: {type(exc).__name__}: {exc}")
+    if not (np.isfinite(e) and np.isfinite(n)):
+        return _fallback(p, "npz error: losUnitVector is all NaN")
+    u = float(np.sqrt(max(0.0, 1 - e * e - n * n)))
+    v = np.array([e, n, u])
+    # the file may store satellite-to-ground: flip if it points away from the nominal side
+    if np.dot(v[:2], _nominal(p.direction)[:2]) < 0:
+        v[:2] *= -1
+    return v, "file"
 
 
 def combine(asc_value: float, asc_p: Product, desc_value: float, desc_p: Product) -> dict:
@@ -49,4 +63,4 @@ def combine(asc_value: float, asc_p: Product, desc_value: float, desc_p: Product
     M = np.array([[va[0], va[2]], [vd[0], vd[2]]])
     east, up = np.linalg.solve(M, np.array([asc_value, desc_value]))
     return {"east": round(float(east), 2), "up": round(float(up), 2),
-            "geometry_source": "file" if sa == sd == "file" else "nominal (approximate)"}
+            "geometry_source": "file" if sa == sd == "file" else "nominal (approximate)"}   # reasons: los_vector logs them

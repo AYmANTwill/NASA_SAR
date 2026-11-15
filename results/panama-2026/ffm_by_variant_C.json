@@ -1,0 +1,181 @@
+{
+ "variant": "C",
+ "excluded_ids": [
+  "GUNW_T004_F005_20260930_20261012",
+  "GUNW_T076_F005_20261005_20261017"
+ ],
+ "per_frame": [
+  {
+   "pair": "GUNW_T076_F006_20261005_20261017",
+   "variant_note": "",
+   "geometry": "T76 asce",
+   "track": "T76",
+   "k": 21.60437318512588,
+   "sigma_k": 0.7066990196582741,
+   "k_over_sigma": 30.570826595419256,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T076_F005_20261005_20261017",
+   "variant_note": "",
+   "geometry": "T76 asce",
+   "track": "T76",
+   "k": 0.7708054783264037,
+   "sigma_k": 0.04551282583329887,
+   "k_over_sigma": 16.936005712975394,
+   "verdict": "consistent",
+   "excluded": true
+  },
+  {
+   "pair": "GUNW_T040_F085_20261002_20261014",
+   "variant_note": "",
+   "geometry": "T40 desc",
+   "track": "T40",
+   "k": 5.0098523137752355,
+   "sigma_k": 0.09679531563118025,
+   "k_over_sigma": 51.7571773087068,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T040_F084_20261002_20261014",
+   "variant_note": "",
+   "geometry": "T40 desc",
+   "track": "T40",
+   "k": 59.25958161216091,
+   "sigma_k": 3.8331886079624184,
+   "k_over_sigma": 15.459604958927683,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T004_F005_20260930_20261012",
+   "variant_note": "",
+   "geometry": "T4 asce",
+   "track": "T4",
+   "k": 0.11422570339101064,
+   "sigma_k": 0.04429118417038854,
+   "k_over_sigma": 2.578971538705839,
+   "verdict": "inconclusive",
+   "excluded": true
+  },
+  {
+   "pair": "GUNW_T141_F085_20260927_20261009",
+   "variant_note": "two product variants share this id",
+   "geometry": "T141 desc",
+   "track": "T141",
+   "k": 1.99363216052437,
+   "sigma_k": 0.2256244039797696,
+   "k_over_sigma": 8.83606615844236,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T141_F085_20260927_20261009",
+   "variant_note": "second product variant",
+   "geometry": "T141 desc",
+   "track": "T141",
+   "k": 2.378929042975206,
+   "sigma_k": 0.24560811420316275,
+   "k_over_sigma": 9.68587316707052,
+   "verdict": "consistent",
+   "excluded": false
+  },
+  {
+   "pair": "GUNW_T141_F084_20260927_20261009",
+   "variant_note": "",
+   "geometry": "T141 desc",
+   "track": "T141",
+   "k": 6.949931912705547,
+   "sigma_k": 0.11241750824322126,
+   "k_over_sigma": 61.82250453078002,
+   "verdict": "consistent",
+   "excluded": false
+  }
+ ],
+ "counts_all": {
+  "n_frames": 8,
+  "n_consistent_frames": 7,
+  "n_flipped_frames": 0,
+  "n_inconclusive_frames": 1,
+  "tracks_consistent": [
+   "T141",
+   "T40",
+   "T76"
+  ],
+  "n_tracks_consistent": 3,
+  "geometries_consistent": [
+   "T141 desc",
+   "T40 desc",
+   "T76 asce"
+  ],
+  "n_geometries_consistent": 3,
+  "n_asc": 1,
+  "n_desc": 2
+ },
+ "counts_kept": {
+  "n_frames": 6,
+  "n_consistent_frames": 6,
+  "n_flipped_frames": 0,
+  "n_inconclusive_frames": 0,
+  "tracks_consistent": [
+   "T141",
+   "T40",
+   "T76"
+  ],
+  "n_tracks_consistent": 3,
+  "geometries_consistent": [
+   "T141 desc",
+   "T40 desc",
+   "T76 asce"
+  ],
+  "n_geometries_consistent": 3,
+  "n_asc": 1,
+  "n_desc": 2
+ },
+ "per_track_kept": {
+  "T141": {
+   "vr_plus1": 0.9827,
+   "vr_minus1": 0.9696,
+   "diff": 0.013
+  },
+  "T40": {
+   "vr_plus1": 0.7512,
+   "vr_minus1": 0.5625,
+   "diff": 0.1887
+  },
+  "T76": {
+   "vr_plus1": 0.734,
+   "vr_minus1": 0.7664,
+   "diff": -0.0324
+  }
+ },
+ "decision_kept": {
+  "decision": "undecided",
+  "ffm_n_k_positive_3sigma": 5,
+  "ffm_n_k_negative_3sigma": 0,
+  "vr_plus1": 0.9668,
+  "vr_minus1": 0.9315,
+  "vr_difference": 0.0353,
+  "best_plane_plus1": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  }
+ },
+ "decision_all": {
+  "decision": "undecided",
+  "vr_plus1": 0.9354,
+  "vr_minus1": 0.9122,
+  "vr_difference": 0.0232,
+  "best_plane_plus1": {
+   "strike": 288.32,
+   "dip": 66.22,
+   "rake": -16.68
+  },
+  "ffm_n_k_positive_3sigma": 6,
+  "ffm_n_k_negative_3sigma": 0
+ },
+ "elapsed_s": 1020
+}
