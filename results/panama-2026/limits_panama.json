@@ -1,0 +1,30 @@
+{
+ "note": "Limits to add to the Panama case (fr/en/ar). The Panama limits are written by backend/science (generator, off limits to Claude); these texts are ready to be added there or in a results input.",
+ "limits": [
+  {
+   "en": "The line-of-sight sign is not verified (NISAR_LOS_SIGN_VERIFIED is unset). The USGS finite-fault test finds k > 0 at more than 3 sigma on three tracks and three geometries (T40 and T141 descending, T76 ascending), but the inversion cannot tell +1 from -1 (pooled VR(+1) - VR(-1) = 0.005 to 0.023, rule needs 0.10): the decision is undecided.",
+   "fr": "Le signe de la ligne de visée n'est pas vérifié (NISAR_LOS_SIGN_VERIFIED n'est pas défini). Le test du modèle de faille finie de l'USGS donne k > 0 à plus de 3 sigma sur trois traces et trois géométries (T40 et T141 descendantes, T76 ascendante), mais l'inversion ne distingue pas +1 de -1 (VR(+1) - VR(-1) groupé = 0,005 à 0,023, il faut 0,10) : décision non tranchée.",
+   "ar": "لم يتم التحقق من إشارة خط النظر (NISAR_LOS_SIGN_VERIFIED غير مضبوط). يعطي اختبار نموذج الصدع المحدود لـ USGS قيمة k > 0 بأكثر من 3 سيغما على ثلاثة مسارات وثلاث هندسات (T40 وT141 تنازلي، T76 تصاعدي)، لكن الانعكاس لا يميز +1 عن -1 (فرق VR المجمّع بين 0.005 و0.023 والقاعدة تطلب 0.10): القرار غير محسوم."
+  },
+  {
+   "en": "Three ionosphere treatments are documented and give the same undecided verdict: A raw phase (the old code, which misread the geocoding flags), B the fixed code with a per-pair guard (default), C forced subtraction of the screen. Option NISAR_IONO_GUARD=off reproduces C.",
+   "fr": "Trois traitements de l'ionosphère sont documentés et donnent le même verdict non tranché : A phase brute (ancien code, qui lisait mal les indicateurs de géocodage), B code corrigé avec garde par paire (par défaut), C soustraction forcée de l'écran. L'option NISAR_IONO_GUARD=off reproduit C.",
+   "ar": "تم توثيق ثلاث معالجات للأيونوسفير وتعطي الحكم نفسه غير المحسوم: A طور خام (الشيفرة القديمة التي أساءت قراءة أعلام الإسناد الجغرافي)، B الشيفرة المصححة مع حارس لكل زوج (الافتراضي)، C خصم إجباري للشاشة. الخيار NISAR_IONO_GUARD=off يعيد إنتاج C."
+  },
+  {
+   "en": "Two pairs are degenerate (T76 F005: 80 % and T4 F005: 64 % exact zeros in the unwrapped phase; cause unknown). They are excluded only as a data-quality sensitivity analysis; the criterion thresholds were chosen knowing which pairs they would catch (any cutoff between 0.09 and 0.64 gives the same set). Without them the ascending lean towards -1 disappears and the verdict is unchanged.",
+   "fr": "Deux paires sont dégénérées (T76 F005 : 80 % et T4 F005 : 64 % de zéros exacts dans la phase déroulée ; cause inconnue). Elles ne sont exclues que dans une analyse de sensibilité sur la qualité des données ; les seuils du critère ont été choisis en sachant quelles paires ils retiendraient (tout seuil entre 0,09 et 0,64 donne le même ensemble). Sans elles, la tendance ascendante vers -1 disparaît et le verdict ne change pas.",
+   "ar": "زوجان متدهوران (T76 F005: 80 % وT4 F005: 64 % أصفار تامة في الطور غير الملفوف؛ السبب مجهول). يُستبعدان فقط في تحليل حساسية لجودة البيانات؛ اختيرت عتبات المعيار مع معرفة الزوجين اللذين ستلتقطهما (أي عتبة بين 0.09 و0.64 تعطي المجموعة نفسها). من دونهما يختفي الميل التصاعدي نحو -1 ولا يتغير الحكم."
+  },
+  {
+   "en": "No ionosphere uncertainty mask is applied: the ionospherePhaseScreenUncertainty layer is not extracted for these products.",
+   "fr": "Aucun masque d'incertitude de l'ionosphère n'est appliqué : la couche ionospherePhaseScreenUncertainty n'est pas extraite pour ces produits.",
+   "ar": "لا يُطبق أي قناع لعدم يقين الأيونوسفير: طبقة ionospherePhaseScreenUncertainty غير مستخرجة لهذه المنتجات."
+  },
+  {
+   "en": "The free-geometry inversion has weak power to test the sign: the ramp and per-component offsets absorb most of the variance (ramp-only variance reduction 0.60 to 0.96 per track, variants A and B). The power of the test was not simulated (post-hackathon).",
+   "fr": "L'inversion à géométrie libre a un faible pouvoir de test du signe : la rampe et les décalages par composante absorbent l'essentiel de la variance (réduction de variance de la rampe seule de 0,60 à 0,96 par trace, variantes A et B). La puissance du test n'a pas été simulée (après le hackathon).",
+   "ar": "للانعكاس ذي الهندسة الحرة قدرة ضعيفة على اختبار الإشارة: يمتص الميل والإزاحات لكل مكوّن معظم التباين (اختزال التباين بالميل وحده من 0.60 إلى 0.96 لكل مسار، المتغيران A وB). لم تُحاكَ قدرة الاختبار (بعد الهاكاثون)."
+  }
+ ]
+}

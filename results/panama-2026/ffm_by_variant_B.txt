@@ -1,0 +1,6 @@
+C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.2.3) or chardet (7.4.3)/charset_normalizer (3.4.0) doesn't match a supported version!
+  warnings.warn(
+B T141 {'vr_plus1': 0.9872, 'vr_minus1': 0.9752, 'diff': 0.012}
+B T40 {'vr_plus1': 0.7596, 'vr_minus1': 0.7259, 'diff': 0.0336}
+B T76 {'vr_plus1': 0.671, 'vr_minus1': 0.6769, 'diff': -0.0059}
+done B 931 s

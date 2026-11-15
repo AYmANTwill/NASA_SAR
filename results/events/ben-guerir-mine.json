@@ -1,0 +1,327 @@
+{
+ "question": "Où la surface de la mine de Ben Guerir a-t-elle changé ?",
+ "lang": "fr",
+ "type": "surface_change",
+ "place": {
+  "lat": 32.25825,
+  "lon": -7.82355,
+  "name": null
+ },
+ "event_time": null,
+ "data_used": [
+  "GUNW_T044_F018_20261003_20261015",
+  "GUNW_T044_F017_20261003_20261015",
+  "GUNW_T023_F072_20261001_20261013",
+  "GUNW_T044_F018_20260921_20261003",
+  "GUNW_T044_F017_20260921_20261003",
+  "GUNW_T023_F072_20260919_20261001",
+  "GUNW_T044_F018_20260909_20260921",
+  "GUNW_T044_F017_20260909_20260921",
+  "GUNW_T023_F072_20260907_20260919",
+  "GUNW_T044_F018_20260828_20260909",
+  "GUNW_T044_F017_20260828_20260909",
+  "GUNW_T023_F072_20260826_20260907",
+  "GUNW_T044_F018_20260816_20260828",
+  "GUNW_T044_F017_20260816_20260828",
+  "GUNW_T023_F072_20260814_20260826",
+  "GUNW_T044_F018_20260723_20260816",
+  "GUNW_T044_F017_20260723_20260816",
+  "GUNW_T023_F072_20260721_20260814",
+  "GUNW_T044_F018_20260711_20260723",
+  "GUNW_T044_F017_20260711_20260723",
+  "GUNW_T023_F072_20260709_20260721",
+  "GUNW_T044_F018_20260629_20260711",
+  "GUNW_T044_F017_20260629_20260711",
+  "GUNW_T023_F072_20260627_20260709",
+  "GUNW_T044_F018_20260617_20260629",
+  "GUNW_T044_F017_20260617_20260629"
+ ],
+ "layers": [
+  {
+   "url": "/layers/sc_GUNW_T044_F018_20261003_20261015.png",
+   "bounds": [
+    [
+     31.08355565988639,
+     -9.839956753822209
+    ],
+    [
+     34.23235925874663,
+     -6.034756030124037
+    ]
+   ],
+   "vmin": 0.1,
+   "vmax": 0.8,
+   "cmap": "inferno",
+   "title": "Surface change (coherence loss), 20261003→20261015"
+  }
+ ],
+ "evidence": [
+  {
+   "source": "Open-Meteo",
+   "status": "none",
+   "summary": "38.4 mm of rain between 2026-10-03 and 2026-10-15 (max 19.0 mm on 2026-10-10)",
+   "total_mm": 38.4,
+   "items": [
+    {
+     "date": "2026-10-03",
+     "mm": 0.4
+    },
+    {
+     "date": "2026-10-04",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-05",
+     "mm": 0.2
+    },
+    {
+     "date": "2026-10-06",
+     "mm": 0.4
+    },
+    {
+     "date": "2026-10-07",
+     "mm": 2.5
+    },
+    {
+     "date": "2026-10-08",
+     "mm": 10.6
+    },
+    {
+     "date": "2026-10-09",
+     "mm": 2.7
+    },
+    {
+     "date": "2026-10-10",
+     "mm": 19.0
+    },
+    {
+     "date": "2026-10-11",
+     "mm": 2.6
+    },
+    {
+     "date": "2026-10-12",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-13",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-14",
+     "mm": 0.0
+    },
+    {
+     "date": "2026-10-15",
+     "mm": 0.0
+    }
+   ]
+  },
+  {
+   "source": "OpenStreetMap",
+   "status": "unavailable",
+   "summary": "OpenStreetMap unreachable (406 Client Error: Not Acceptable for url: https://overpass-api.de/api/interpreter)",
+   "items": []
+  }
+ ],
+ "steps": [
+  {
+   "step": "question type: surface_change",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "step": "found 26 interferograms covering the point",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "step": "surface change (coherence loss)",
+   "ok": true,
+   "ms": 3077
+  },
+  {
+   "step": "rain over the change window (context only)",
+   "ok": true,
+   "ms": 950
+  },
+  {
+   "step": "what is exposed (OpenStreetMap)",
+   "ok": true,
+   "ms": 21855
+  }
+ ],
+ "verdict": "Sans date d'événement, comparaison du dernier passage (03/10/2026 → 15/10/2026, 12 jours) (produit NISAR provisoire) au précédent : la perte de cohérence radar moyenne dans un rayon de 5 km est de 0.03, contre 0.04 pour toute la scène : un excès de -0.01, sous le niveau 0.11 que 1 % des cercles sans événement dépassent ; 0.19 km² ont perdu plus de 0.3 (0.26 km² dans la paire précédente). Pas de changement local net. La référence « sans événement » vient d'une seule géométrie de visée, d'une seule saison et de cercles placés au hasard dans la scène.",
+ "confidence": "low",
+ "confidence_reasons": [
+  "mean coherence loss within 5 km 0.03 against 0.042 for the whole frame (excess -0.012; borderline from 0.11, local excess from 0.15)",
+  "100% of the 5 km circle holds valid data, 99% of it was coherent before the event",
+  "0.19 km² above the 0.3 loss, 0.26 km² in the previous pair",
+  "no event date: the two latest passes are compared",
+  "the no-event reference is one viewing geometry (044/17), one season (June to September 2026), circles placed at random anywhere in the frame: its level is approximate",
+  "coherence loss says the surface changed, not why; no independent source tests it"
+ ],
+ "alert_level": "none",
+ "facts": {
+  "mode": "latest",
+  "event_day": null,
+  "event_precision": null,
+  "pre_pair": "GUNW_T044_F018_20260921_20261003",
+  "co_pair": "GUNW_T044_F018_20261003_20261015",
+  "direction": "ascending",
+  "track": 44,
+  "frame": 18,
+  "crid": "P05023",
+  "maturity": "provisional",
+  "pre_date_before": "20260921",
+  "pre_date_after": "20261003",
+  "date_before": "20261003",
+  "date_after": "20261015",
+  "window_days": 12,
+  "threshold": 0.3,
+  "radius_m": 5000,
+  "excess_margin": 0.11,
+  "excess_strong": 0.15,
+  "null_false_alarm": 0.01,
+  "null_false_alarm_pct": 1,
+  "null_limits": [
+   "one viewing geometry (044/17)",
+   "one season (June to September 2026)",
+   "circles placed at random anywhere in the frame"
+  ],
+  "n_geometries": 3,
+  "n_usable_geometries": 1,
+  "geometries": [
+   {
+    "direction": "ascending",
+    "track": 44,
+    "frame": 18,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T044_F018_20260921_20261003",
+    "co_pair": "GUNW_T044_F018_20261003_20261015",
+    "coverage_5km": 1.0,
+    "coherent_before_fraction_5km": 0.99,
+    "usable": true,
+    "reason": null,
+    "loss_at_point": 0.0,
+    "loss_mean_5km": 0.03,
+    "changed_km2_5km": 0.19,
+    "baseline_pair": "GUNW_T044_F018_20260909_20260921",
+    "baseline_loss_mean": 0.001,
+    "baseline_changed_km2": 0.26,
+    "frame_loss_mean": 0.042,
+    "frame_frac_changed": 0.0163,
+    "excess_over_frame": -0.012,
+    "local_excess": false,
+    "baseline_unreliable": false,
+    "pair_coherence_mean": 0.81,
+    "other_pairs_coherence_median": 0.81,
+    "n_other_pairs": 6,
+    "excess_level": "none"
+   },
+   {
+    "direction": "descending",
+    "track": 23,
+    "frame": 72,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T023_F072_20260919_20261001",
+    "co_pair": "GUNW_T023_F072_20261001_20261013",
+    "coverage_5km": 1.0,
+    "coherent_before_fraction_5km": 0.99,
+    "usable": false,
+    "reason": "not usable: the baseline pair cannot be measured (less than half of the circle was coherent in it)",
+    "loss_at_point": null,
+    "loss_mean_5km": null,
+    "changed_km2_5km": null,
+    "baseline_pair": null,
+    "baseline_loss_mean": null,
+    "baseline_changed_km2": null,
+    "frame_loss_mean": null,
+    "frame_frac_changed": null,
+    "excess_over_frame": null,
+    "local_excess": null,
+    "baseline_unreliable": null,
+    "pair_coherence_mean": null,
+    "other_pairs_coherence_median": null,
+    "n_other_pairs": null,
+    "excess_level": null
+   },
+   {
+    "direction": "ascending",
+    "track": 44,
+    "frame": 17,
+    "crid": "P05023",
+    "pre_pair": "GUNW_T044_F017_20260921_20261003",
+    "co_pair": "GUNW_T044_F017_20261003_20261015",
+    "coverage_5km": 0.0,
+    "coherent_before_fraction_5km": 0.0,
+    "usable": false,
+    "reason": "not usable: the 5 km circle is not covered by valid data; the baseline pair cannot be measured (less than half of the circle was coherent in it); less than half of the valid pixels were coherent before the event",
+    "loss_at_point": null,
+    "loss_mean_5km": null,
+    "changed_km2_5km": null,
+    "baseline_pair": null,
+    "baseline_loss_mean": null,
+    "baseline_changed_km2": null,
+    "frame_loss_mean": null,
+    "frame_frac_changed": null,
+    "excess_over_frame": null,
+    "local_excess": null,
+    "baseline_unreliable": null,
+    "pair_coherence_mean": null,
+    "other_pairs_coherence_median": null,
+    "n_other_pairs": null,
+    "excess_level": null
+   }
+  ],
+  "geometries_agree": null,
+  "changed_km2_range": [
+   0.19,
+   0.19
+  ],
+  "ambiguous_pairs": [],
+  "layer": {
+   "url": "/layers/sc_GUNW_T044_F018_20261003_20261015.png",
+   "bounds": [
+    [
+     31.08355565988639,
+     -9.839956753822209
+    ],
+    [
+     34.23235925874663,
+     -6.034756030124037
+    ]
+   ],
+   "vmin": 0.1,
+   "vmax": 0.8,
+   "cmap": "inferno",
+   "title": "Surface change (coherence loss), 20261003→20261015"
+  },
+  "coverage_5km": 1.0,
+  "coherent_before_fraction_5km": 0.99,
+  "loss_at_point": 0.0,
+  "loss_mean_5km": 0.03,
+  "changed_km2_5km": 0.19,
+  "baseline_pair": "GUNW_T044_F018_20260909_20260921",
+  "baseline_loss_mean": 0.001,
+  "baseline_changed_km2": 0.26,
+  "frame_loss_mean": 0.042,
+  "frame_frac_changed": 0.0163,
+  "excess_over_frame": -0.012,
+  "local_excess": false,
+  "baseline_unreliable": false,
+  "pair_coherence_mean": 0.81,
+  "other_pairs_coherence_median": 0.81,
+  "n_other_pairs": 6,
+  "excess_level": "none",
+  "routed_from": null
+ },
+ "cannot_say": "Une perte de cohérence montre que la surface a changé, pas pourquoi : eau, boue, éboulement, travaux ou végétation. Ce n'est ni une mesure de dégâts, ni de hauteur ou de durée d'inondation ; la fenêtre dure plusieurs jours.",
+ "series": null,
+ "profile": null,
+ "event": {
+  "id": "ben-guerir-mine",
+  "title": "Mine de phosphate de Ben Guerir (non validé : pas de polygone)"
+ },
+ "status": "not validated",
+ "status_note": "The point is the mine centroid. No quarry polygon was checked, so the answer is not validated."
+}

@@ -1,0 +1,20 @@
+C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.2.3) or chardet (7.4.3)/charset_normalizer (3.4.0) doesn't match a supported version!
+  warnings.warn(
+LOS_SIGN 1.0 pairs ['GUNW_T076_F006_20261005_20261017', 'GUNW_T076_F005_20261005_20261017', 'GUNW_T040_F085_20261002_20261014', 'GUNW_T040_F084_20261002_20261014', 'GUNW_T004_F005_20260930_20261012', 'GUNW_T141_F085_20260927_20261009', 'GUNW_T141_F085_20260927_20261009', 'GUNW_T141_F084_20260927_20261009']
+iono 26s overall=consistent
+  GUNW_T076_F006_20261005_20261017: n=1631 k=22.5 sigma=0.68 k/s=+33.0 r=0.63 consistent
+  GUNW_T076_F005_20261005_20261017: n=1476 k=0.465 sigma=0.032 k/s=+14.5 r=0.35 consistent
+  GUNW_T040_F085_20261002_20261014: n=1553 k=0.997 sigma=0.1 k/s=+9.9 r=0.24 consistent
+  GUNW_T040_F084_20261002_20261014: n=1622 k=51.7 sigma=3.7 k/s=+14.1 r=0.33 consistent
+  GUNW_T004_F005_20260930_20261012: n=1432 k=0.123 sigma=0.042 k/s=+2.9 r=0.08 inconclusive
+  GUNW_T141_F085_20260927_20261009: n=1507 k=2.48 sigma=0.22 k/s=+11.3 r=0.28 consistent
+  GUNW_T141_F084_20260927_20261009: n=1613 k=8.17 sigma=0.14 k/s=+59.2 r=0.83 consistent
+noiono 25s overall=consistent
+  GUNW_T076_F006_20261005_20261017: n=1631 k=22.5 sigma=0.68 k/s=+33.0 r=0.63 consistent
+  GUNW_T076_F005_20261005_20261017: n=1476 k=0.465 sigma=0.032 k/s=+14.5 r=0.35 consistent
+  GUNW_T040_F085_20261002_20261014: n=1553 k=0.997 sigma=0.1 k/s=+9.9 r=0.24 consistent
+  GUNW_T040_F084_20261002_20261014: n=1622 k=51.7 sigma=3.7 k/s=+14.1 r=0.33 consistent
+  GUNW_T004_F005_20260930_20261012: n=1432 k=0.123 sigma=0.042 k/s=+2.9 r=0.08 inconclusive
+  GUNW_T141_F085_20260927_20261009: n=1507 k=2.48 sigma=0.22 k/s=+11.3 r=0.28 consistent
+  GUNW_T141_F084_20260927_20261009: n=1613 k=8.17 sigma=0.14 k/s=+59.2 r=0.83 consistent
+done
