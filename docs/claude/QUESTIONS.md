@@ -1,7 +1,7 @@
 # Open questions for the team
 
 > Kept by Claude Code, updated at every phase STOP. Answer in the "Answer" column; I move answered rows to "Closed".
-> Last update: 2026-11-14, iono bug fixed, sensitivity run.
+> Last update: 2026-11-14, step 2 and 4 of the iono work.
 
 ## Open
 
@@ -23,6 +23,7 @@
 | Q16 | 5 | `config.FRINGE_CM` (11.92 cm) is stale and still used by `discoveries.py` (off by default). Leave it, or make it per product? Outside my edit list. | Only matters if discoveries are re-enabled. | Teammate | |
 
 | Q18 | 2 to 4 | Re-run `precompute.py` (cached events predate the fix) and the Phase 4 case files, and approve editing the REPORT / DECISIONS / STATUS statements listed in `results/panama-2026/IONO_BUG.md`? | Cached answers may change for products with a kept raw .h5. | Anass | |
+| Q19 | 2 | T4 F005 (64 % exact zeros in the unwrapped phase) and T76 F005 (80 %) are degenerate (`results/panama-2026/zero_sigma_diagnosis.json`). Should the Panama fit, the case files and the sign test exclude pairs by the written criterion (`EXCLUSION_CRITERION.md`: zero fraction >= 0.10 or usable fraction < 0.01)? That removes T4 entirely and leaves T76 with F006 only (one ascending geometry). Why these two pairs are mostly zero is unexplained (unwrapping failure? filled values?). | Without them the T76 lean towards -1 disappears (VR difference -0.131 to -0.006). | Anass + teammate | |
 
 ## Closed
 

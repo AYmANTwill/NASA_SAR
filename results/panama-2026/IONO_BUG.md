@@ -54,3 +54,8 @@ Variants: **A** = the old code (raw phase, reproduced: it equals `per_track_sign
 
 ## Not done
 No `precompute.py`, no re-run of the Phase 4 case files, no edit of the statements above.
+
+## Update 2026-11-15
+- **Exact-zero pairs** (`zero_sigma_diagnosis.json`, criterion written first in `EXCLUSION_CRITERION.md`): T76 F005 has 79.9 % exact zeros among its finite unwrapped-phase pixels (median 0.0) and T4 F005 64.2 %; every other pair is below 9 %. These two are the pairs with raw sigma 0.0.
+- **Without them** (`ffm_by_variant.md`) the per-track T76 lean disappears: VR(+1) - VR(-1) goes from -0.131 (A, B) to -0.006, and from -0.140 (C) to -0.032. T4 is excluded entirely. The pooled difference stays far under 0.10 (0.004 in A and B, 0.035 in C): the verdict remains undecided.
+- **NISAR_IONO_GUARD=off** now exists in `corrections.py` (default `on`, recorded as `corrections.iono.guard` in the facts). Variant G (`sensitivity_iono.py G`, no monkeypatch) is identical to variant C in every compared field (VR, RMS, ramp-only VR, sigma, applied/kept raw, valid fraction, decision inputs, ffm k/sigma).
