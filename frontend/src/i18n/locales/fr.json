@@ -472,7 +472,7 @@
     "title": "Études de cas",
     "intro": "Événements et méthodes où NISAR est confronté à une référence indépendante, avec ce que le radar ne peut pas dire.",
     "list": "Études de cas",
-    "draft": "BROUILLON, valeurs d’exemple : cette étude n’est pas encore validée par l’équipe.",
+    "draft": "BROUILLON, en cours : les mesures de cette étude ne sont pas encore calculées ni validées par l’équipe.",
     "draftShort": "Brouillon",
     "final": "Validée",
     "kind": {
@@ -515,6 +515,8 @@
     "enlarge": "Agrandir la figure : {{title}}",
     "imageMissing": "Image indisponible pour le moment.",
     "baselineHelp": "Référence : ligne de base sans événement. Ici, « accord » veut dire « pas différent de l’absence de changement ».",
+    "passes_one": "{{count}} passage",
+    "passes_other": "{{count}} passages",
     "notMeasuredYet": "pas encore mesuré",
     "afterHours_one": "{{count}} heure plus tard",
     "afterHours_other": "{{count}} heures plus tard"
